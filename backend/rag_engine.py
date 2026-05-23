@@ -1,0 +1,373 @@
+import os
+from typing import List, Dict, Any, Tuple, Optional
+import openai
+from duckduckgo_search import DDGS
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_core.documents import Document
+
+from backend.config import settings
+from backend.utils import logger, is_vector_db_ready
+from backend.prompts import TACTICAL_ANALYST_SYSTEM_PROMPT, TACTICAL_ANALYST_USER_TEMPLATE
+
+class RAGEngine:
+    """Core Retrieval-Augmented Generation Engine for FootBot."""
+    
+    def __init__(self):
+        self.embeddings: Optional[HuggingFaceEmbeddings] = None
+        self.vector_store: Optional[FAISS] = None
+        self.openai_client: Optional[openai.OpenAI] = None
+        
+        # Load components lazily to prevent long startup locks
+        self.initialize_openai()
+        self.load_vector_db()
+
+    def initialize_openai(self):
+        """Initializes the OpenAI Client if the API key is configured."""
+        api_key = settings.OPENAI_API_KEY
+        if api_key and not api_key.startswith("your-"):
+            try:
+                self.openai_client = openai.OpenAI(api_key=api_key)
+                logger.info("OpenAI Client successfully initialized.")
+            except Exception as e:
+                logger.error(f"Error initializing OpenAI Client: {str(e)}")
+                self.openai_client = None
+        else:
+            logger.warning("OpenAI API Key is missing or default. LLM generation will run in mock mode.")
+            self.openai_client = None
+
+    def load_vector_db(self, force_reload: bool = False) -> bool:
+        """
+        Loads the persisted FAISS database index.
+        Can be called again to reload the database after fresh ingestion.
+        """
+        if self.vector_store is not None and not force_reload:
+            return True
+            
+        if not is_vector_db_ready():
+            logger.warning("FAISS vector database files are missing. Retrieval is disabled.")
+            self.vector_store = None
+            return False
+            
+        try:
+            logger.info("Loading sentence-transformers embedding model for search...")
+            if self.embeddings is None:
+                self.embeddings = HuggingFaceEmbeddings(
+                    model_name=settings.EMBEDDING_MODEL_NAME,
+                    model_kwargs={'device': 'cpu'}
+                )
+                
+            logger.info(f"Loading FAISS index from: {settings.FAISS_DB_PATH}")
+            self.vector_store = FAISS.load_local(
+                str(settings.FAISS_DB_PATH),
+                self.embeddings,
+                allow_dangerous_deserialization=True
+            )
+            logger.info("FAISS vector database successfully loaded.")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to load FAISS index: {str(e)}")
+            self.vector_store = None
+            return False
+
+    def retrieve_context(self, query: str, top_k: int) -> List[Tuple[Document, float]]:
+        """
+        Retrieves the top-k most relevant document chunks based on cosine similarity.
+        
+        Returns a list of tuples containing the Document and its similarity score.
+        """
+        if self.vector_store is None:
+            # Try loading again (in case it was built since initialization)
+            if not self.load_vector_db():
+                logger.warning("Retrieval requested but vector store is unavailable.")
+                return []
+                
+        try:
+            # similarity_search_with_relevance_scores returns (doc, score)
+            results = self.vector_store.similarity_search_with_relevance_scores(query, k=top_k)
+            # Filter out results that are negative or extremely low confidence (optional)
+            return results
+        except Exception as e:
+            logger.error(f"Error during similarity search: {str(e)}")
+            return []
+
+    def _clean_search_query(self, query: str) -> str:
+        """Simplifies the search query for search engine compatibility."""
+        import re
+        q = query.lower()
+        
+        # Strip punctuation
+        q = re.sub(r"[?!.,;:\-\"\']", " ", q)
+        
+        # Strip common question prefixes
+        question_patterns = [
+            r"^(what was the score of|what was the|who did|how did|why did|explain the|explain|compare|so what if i want to|tell me about|what is|how to)\s+"
+        ]
+        for pattern in question_patterns:
+            q = re.sub(pattern, "", q)
+            
+        # Strip common stop words
+        stop_words = ["vs", "versus", "the", "a", "an", "of", "and", "in", "to", "for", "with", "on", "at", "by"]
+        words = [w for w in q.split() if w and w not in stop_words]
+        
+        if len(words) > 5:
+            # Keep top 5 key terms
+            words = words[:5]
+            
+        cleaned = " ".join(words)
+        logger.info(f"Simplified query for Web Search: '{query}' ➔ '{cleaned}'")
+        return cleaned
+
+    def web_search_fallback(self, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
+        """Queries DuckDuckGo search API to pull relevant real-time snippets."""
+        # Simplify the query before sending to DDG HTML parser
+        clean_q = self._clean_search_query(query)
+        logger.info(f"Triggering live web search fallback for query: '{clean_q}'")
+        results = []
+        try:
+            with DDGS() as ddgs:
+                ddg_generator = ddgs.text(clean_q, backend="html", max_results=max_results)
+                for r in ddg_generator:
+                    results.append({
+                        "title": r.get("title", ""),
+                        "body": r.get("body", ""),
+                        "href": r.get("href", "")
+                    })
+        except Exception as e:
+            logger.error(f"DuckDuckGo search encountered an error: {str(e)}")
+        return results
+
+    def generate_tactical_analysis(
+        self, 
+        query: str, 
+        top_k: int = None, 
+        temperature: float = None
+    ) -> Dict[str, Any]:
+        """
+        Orchestrates the entire RAG pipeline:
+        1. Query -> Semantic Retrieval -> Top-K Context Chunks
+        2. Score Threshold Evaluation -> Trigger live web search if needed
+        3. Format Context & System/User Prompts
+        4. Call OpenAI LLM Completion
+        5. Return Structured Response + Source Audits
+        """
+        top_k = top_k or settings.RETRIEVAL_TOP_K
+        temperature = temperature or settings.LLM_TEMPERATURE
+        
+        # 1. Retrieve Local Context Chunks
+        retrieved_results = self.retrieve_context(query, top_k)
+        
+        # Evaluate local matching quality
+        is_local_rag_sufficient = False
+        if retrieved_results:
+            max_score = retrieved_results[0][1]
+            if max_score >= settings.RAG_SIMILARITY_THRESHOLD:
+                is_local_rag_sufficient = True
+                
+        # 2. Trigger web search fallback if local data is insufficient
+        is_web_search_active = False
+        web_results = []
+        if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient:
+            logger.info(f"Local RAG matches insufficient (threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
+            web_results = self.web_search_fallback(query, max_results=3)
+            if web_results:
+                is_web_search_active = True
+                
+        # 3. Format Context and Source Audits
+        formatted_context_list = []
+        sources = []
+        is_rag_active = len(retrieved_results) > 0 or is_web_search_active
+        
+        if not is_web_search_active:
+            # Format Local Chunks only
+            for idx, (doc, score) in enumerate(retrieved_results):
+                source_name = doc.metadata.get("source", "Unknown")
+                page_num = doc.metadata.get("page", None)
+                doc_type = doc.metadata.get("type", "unknown")
+                
+                source_str = f"[{idx+1}] File: {source_name}"
+                if page_num:
+                    source_str += f", Page: {page_num}"
+                source_str += f" (Type: {doc_type}, Relevance Score: {score:.3f})"
+                
+                formatted_chunk = f"--- Local Context Chunk {idx+1} ({source_str}) ---\n{doc.page_content}\n"
+                formatted_context_list.append(formatted_chunk)
+                
+                sources.append({
+                    "index": idx + 1,
+                    "text": doc.page_content,
+                    "source": source_name,
+                    "page": page_num,
+                    "type": doc_type,
+                    "score": float(score)
+                })
+        else:
+            # Format Web Search Chunks first
+            for idx, r in enumerate(web_results):
+                source_str = f"[Web {idx+1}] Source: {r['href']} (Title: {r['title']})"
+                formatted_chunk = f"--- Real-Time Web Search Result {idx+1} ({source_str}) ---\n{r['body']}\n"
+                formatted_context_list.append(formatted_chunk)
+                
+                sources.append({
+                    "index": idx + 1,
+                    "text": f"Title: {r['title']}\nSnippet: {r['body']}",
+                    "source": r['href'],
+                    "page": None,
+                    "type": "web_search",
+                    "score": 1.0 - (idx * 0.1) # rank-based score
+                })
+                
+            # Append local chunks as supplemental references if they exist
+            for idx, (doc, score) in enumerate(retrieved_results):
+                local_idx = len(web_results) + idx + 1
+                source_name = doc.metadata.get("source", "Unknown")
+                page_num = doc.metadata.get("page", None)
+                doc_type = doc.metadata.get("type", "unknown")
+                
+                source_str = f"[{local_idx}] File: {source_name}"
+                if page_num:
+                    source_str += f", Page: {page_num}"
+                source_str += f" (Type: {doc_type}, Relevance Score: {score:.3f})"
+                
+                formatted_chunk = f"--- Supplementary Local Context Chunk {local_idx} ({source_str}) ---\n{doc.page_content}\n"
+                formatted_context_list.append(formatted_chunk)
+                
+                sources.append({
+                    "index": local_idx,
+                    "text": doc.page_content,
+                    "source": source_name,
+                    "page": page_num,
+                    "type": doc_type,
+                    "score": float(score)
+                })
+                
+        context_block = "\n".join(formatted_context_list) if is_rag_active else "NO LOCAL OR WEB CONTEXT RETRIEVED"
+        
+        # 4. Compile Prompts
+        system_prompt = TACTICAL_ANALYST_SYSTEM_PROMPT
+        user_prompt = TACTICAL_ANALYST_USER_TEMPLATE.format(context=context_block, query=query)
+        
+        # 5. Generate response via OpenAI (or fallback to Mock)
+        response_text = ""
+        is_mock = False
+        
+        if self.openai_client is None:
+            self.initialize_openai()
+            
+        if self.openai_client is not None:
+            try:
+                logger.info(f"Submitting query to OpenAI LLM ({settings.OPENAI_MODEL_NAME})...")
+                completion = self.openai_client.chat.completions.create(
+                    model=settings.OPENAI_MODEL_NAME,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=temperature,
+                    max_tokens=1500
+                )
+                response_text = completion.choices[0].message.content
+            except Exception as e:
+                logger.error(f"OpenAI API call failed: {str(e)}")
+                response_text = f"⚠️ **OpenAI API Execution Error**: {str(e)}\n\n*Please check your internet connection, API billing limits, or API key configurations in the `.env` file.*"
+        else:
+            is_mock = True
+            response_text = self._generate_mock_tactical_response(query, is_rag_active, is_web_search_active, sources)
+            
+        # Append disclaimer note if not grounded in RAG
+        if not is_rag_active:
+            disclaimer = "\n\n---\n> 🔍 **RAG Grounding Note**: No specific matches were found in the local FAISS database for this query. This analysis is generated using FootBot's general football tactical models. To anchor this response in custom literature, please ensure your PDFs/blogs are saved in `data/raw` and you have run the re-indexing pipeline."
+            response_text += disclaimer
+            
+        return {
+            "query": query,
+            "response": response_text,
+            "is_rag_active": is_rag_active,
+            "is_web_search_active": is_web_search_active,
+            "is_mock": is_mock,
+            "sources": sources
+        }
+
+    def _generate_mock_tactical_response(
+        self, 
+        query: str, 
+        is_rag_active: bool, 
+        is_web_search_active: bool,
+        sources: List[Dict[str, Any]]
+    ) -> str:
+        """Generates a high-quality, pre-canned tactical mockup response when OpenAI API is not configured."""
+        q_lower = query.lower()
+        
+        intro = "📢 **Demo Mode Active** (OpenAI API Key not configured. Showing high-fidelity simulated response):\n\n"
+        
+        if is_web_search_active and sources:
+            web_sources_str = "\n".join([f"- **Source [{s['index']}]**: {s['source']}\n  *{s['text'].split('Snippet:')[0].replace('Title: ', '')}*" for s in sources if s['type'] == 'web_search'])
+            snippets_str = " ".join([s['text'].split('Snippet: ')[1] for s in sources if s['type'] == 'web_search' and 'Snippet: ' in s['text']])
+            
+            return intro + f"""### 🌐 Live Web Search Tactical Report
+
+We executed a real-time web search to supplement this query due to low local FAISS similarity scores. Here are the retrieved live results:
+{web_sources_str}
+
+**⚙️ Synthesized Live Tactical Analysis:**
+Based on the latest news and web summaries: *"{snippets_str[:500]}..."*
+
+This dynamic match detail has been parsed to synthesize this layout. To enable complete LLM generative analysis on these snippets, please configure your `OPENAI_API_KEY` inside `.env`.
+"""
+
+        if "rodri" in q_lower or "busquets" in q_lower:
+            return intro + """### ⚽ Tactical Breakdown: Sergio Busquets vs. Rodri
+
+**1. Positional Discipline and Spatial Awareness**
+Sergio Busquets operated primarily as a stationary anchor. His genius was spatial anticipation—often scanning 3 times per second before receiving the ball. His classic *La Pausa* allowed him to freeze pressers and split lines.
+Rodri, by contrast, is a dynamic powerhouse in Pep Guardiola’s modern 3-2-4-1. He covers massive distances vertically and laterally, performing robust defensive sweepings while acting as an aggressive second-phase progression threat.
+
+**2. Press Resistance**
+- **Sergio Busquets**: Relies on micro-turns, shoulder drops, and instant wall-passes. He redirects pressure rather than fighting it.
+- **Rodri**: Relies on physical shielding, powerful recovery strides, and sweeps long diagonals to wingers (averaging high line-breaking volumes).
+
+**🛡️ Tactical Verdict:**
+Busquets was the master of *controlling tempo through positioning*; Rodri is the master of *dominating phases through dynamic athleticism and distribution volume*.
+"""
+        elif "guardiola" in q_lower or "inverted" in q_lower or "positional" in q_lower:
+            return intro + """### Pep Guardiola's Inverted Fullback Dynamics
+
+**1. Midfield Box Geometry (3-2-4-1)**
+Under Guardiola, inverted fullbacks (e.g., John Stones inverting from center-back) step inside alongside the holding pivot (Rodri). This creates a numerical double-pivot (the "3-2" rest-defense shape) and overloads opponents in central channels.
+
+**2. Half-Space Exploitation**
+By pinning defensive lines wide with high touchline wingers, attacking midfielders occupy the half-spaces. When midfielders step up to cover the double-pivot, passing lines open immediately into these half-spaces, generating high-danger vertical progression.
+
+**3. Counter-Press Security**
+The 3-2 rest defense setup establishes an instant bottleneck. If possession is lost, five players are positioned compactly in the center to choke counter-attacks instantly.
+"""
+        elif "gegenpress" in q_lower or "klopp" in q_lower or "press" in q_lower or "arteta" in q_lower:
+            return intro + """### Pressing Structures: Gegenpressing vs. Arteta's High Press
+
+**1. Jurgen Klopp's Gegenpress**
+The Counter-Press is reactive and ball-oriented. The goal is to trigger intense swarming *immediately* (within 5 seconds) after losing the ball. It is used as a playmaker, exploiting disorganized opponent structures in transition.
+
+**2. Mikel Arteta's High Press**
+Highly organized and man-oriented. The press starts from structured blocks with pre-defined "jump triggers." Wingers jump to fullbacks while attacking midfielders step up to mark the holding pivots. Aggressive center-backs (Saliba/Gabriel) squeeze the space vertically.
+
+**⚙️ Key Distinctions:**
+- Klopp: Transition-heavy, focused on horizontal narrowing around the ball.
+- Arteta: Positional control, focused on strict defensive-block geometries and designated man-marking triggers.
+"""
+        else:
+            # General fallback
+            return intro + f"""### ⚽ Football Tactics Analysis: "{query}"
+
+**1. Overview**
+Analyzing the query from a spatial geometry standpoint reveals a core modern football conflict. Success hinges on manipulating the opponent's defensive block compactness.
+
+**2. Key Interaction**
+- **In-possession**: Teams will look to establish a 3-man build-up line to bypass initial pressure.
+- **Out-of-possession**: Strikers will curve their runs to block central passing lanes, forcing the ball wide where touchline traps can be engaged.
+
+**3. Tactical Conclusion**
+To address this dilemma, elite coaches construct positional superiority by utilizing interior pivots to draw pressure, creating vertical passing lanes for advanced playmakers in the half-spaces.
+"""
+
+# Global instance of RAGEngine
+rag_engine = RAGEngine()

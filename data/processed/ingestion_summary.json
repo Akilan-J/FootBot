@@ -1,0 +1,24 @@
+{
+    "total_files_processed": 3,
+    "total_chunks_indexed": 12,
+    "files": [
+        {
+            "filename": "tactical_profile_rodri_vs_busquets.txt",
+            "file_size_bytes": 2889,
+            "extracted_pages_or_articles": 1,
+            "status": "success"
+        },
+        {
+            "filename": "klopp_gegenpressing_vs_arteta_high_press.txt",
+            "file_size_bytes": 2796,
+            "extracted_pages_or_articles": 1,
+            "status": "success"
+        },
+        {
+            "filename": "guardiola_positional_play_inverted_fullbacks.txt",
+            "file_size_bytes": 2444,
+            "extracted_pages_or_articles": 1,
+            "status": "success"
+        }
+    ]
+}

@@ -414,26 +414,102 @@ with tab_live:
         matches = [f for f in feed if f.get("is_match")]
         news = [f for f in feed if not f.get("is_match")]
         
+        # Extract unique list of leagues
+        leagues = sorted(list(set([m.get("league", "Unknown League") for m in matches if m.get("league")])))
+        
+        st.markdown("<h4 style='color:#34d399; font-family:\"Space Grotesk\"; margin-top:1.5rem;'>🔍 Search & Filter Matchday</h4>", unsafe_allow_html=True)
+        
+        # Interactive Search & Filter Row
+        col_ctrl1, col_ctrl2, col_ctrl3 = st.columns([2, 2, 2])
+        
+        with col_ctrl1:
+            search_query = st.text_input("🔍 Search Teams or Leagues:", placeholder="e.g. Miami, Rosenborg, or MLS")
+            
+        with col_ctrl2:
+            filter_leagues = st.multiselect(
+                "🏆 Filter by Leagues:",
+                options=leagues,
+                default=[],
+                help="Select one or more leagues to display."
+            )
+            
+        with col_ctrl3:
+            st.markdown("<div style='height: 1.6rem;'></div>", unsafe_allow_html=True) # visual spacer
+            show_pl_laliga_only = st.checkbox(
+                "⚽ Show La Liga & Premier League matches only",
+                value=False,
+                help="Check this to filter display strictly to Premier League and La Liga fixtures."
+            )
+            
+        st.markdown("---")
+        
+        # Apply filters to Matches
+        filtered_matches = []
+        for m in matches:
+            m_league = m.get("league", "").lower()
+            m_title = m.get("title", "").lower()
+            
+            # 1. Quick Premier League & La Liga filter check
+            if show_pl_laliga_only:
+                is_pl_laliga = any(x in m_league for x in ["premier league", "la liga", "laliga"])
+                if not is_pl_laliga:
+                    continue
+            
+            # 2. Multi-select League filter check
+            if filter_leagues:
+                if m.get("league") not in filter_leagues:
+                    continue
+            
+            # 3. Text search query check
+            if search_query:
+                q = search_query.lower()
+                if q not in m_title and q not in m_league:
+                    continue
+            
+            filtered_matches.append(m)
+            
+        # Apply search query filter to News as well
+        filtered_news = []
+        for n in news:
+            if search_query:
+                q = search_query.lower()
+                if q not in n.get("title", "").lower() and q not in n.get("description", "").lower():
+                    continue
+            filtered_news.append(n)
+            
+        # Render columns for matches and headlines
         col_m, col_n = st.columns([1, 1])
         
         with col_m:
-            st.markdown("#### 🏆 Match Fixtures & Live Scores")
-            if matches:
-                for m in matches:
+            st.markdown(f"#### 🏆 Match Fixtures & Live Scores ({len(filtered_matches)})")
+            if filtered_matches:
+                for m in filtered_matches:
+                    league_name = m.get("league", "Unknown League")
+                    league_badge = f"<span class='badge badge-info' style='margin-bottom:0.4rem;'>🏆 {league_name}</span>"
+                    
                     st.markdown(f"""
                     <div class='metric-card hover-effect'>
+                        {league_badge}
                         <h4 style='color:#34d399; margin:0;'>⚽ {m['title']}</h4>
                         <p style='color:#9ca3af; font-size:0.9rem; margin-top:0.4rem; margin-bottom:0.6rem;'>{m['description']}</p>
                         <a href='{m['link']}' target='_blank' style='color:#10b981; font-size:0.85rem; text-decoration:none;'>🔗 Match Centre Updates</a>
                     </div>
                     """, unsafe_allow_html=True)
             else:
-                st.info("No active live fixtures or recent scorelines found in the feed at this moment.")
+                if show_pl_laliga_only:
+                    st.warning("⚠️ **No Active La Liga or Premier League Matches Today**")
+                    st.info(
+                        "The standard European club season has concluded for the year (May 2026). "
+                        "**Uncheck this option** to view matches currently playing in other leagues (like "
+                        "Major League Soccer or Norwegian Eliteserien)!"
+                    )
+                else:
+                    st.info("No active live fixtures match your search criteria.")
                 
         with col_n:
-            st.markdown("#### 📰 Breaking Football Headlines")
-            if news:
-                for n in news:
+            st.markdown(f"#### 📰 Breaking Football Headlines ({len(filtered_news)})")
+            if filtered_news:
+                for n in filtered_news:
                     st.markdown(f"""
                     <div class='metric-card hover-effect'>
                         <h5 style='color:#f3f4f6; margin:0;'>📢 {n['title']}</h5>
@@ -443,6 +519,6 @@ with tab_live:
                     </div>
                     """, unsafe_allow_html=True)
             else:
-                st.info("No football news items currently found.")
+                st.info("No football headlines match your search criteria.")
     else:
         st.error("Failed to retrieve live match scores. Ensure the backend server is online.")

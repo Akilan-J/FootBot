@@ -10,6 +10,7 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
     """
     Scrapes actual live football scores and fixtures from the BBC Sport website.
     Uses DOM traversal to safely extract home/away teams, scores, status, and links.
+    Also extracts the league classification using preceding header isolation.
     """
     logger.info("Scraping live football match scores from BBC Sport website...")
     results = []
@@ -42,6 +43,10 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
             if not ancestor:
                 continue
                 
+            # Extract the nearest preceding h2 as the League name
+            h2 = ht.find_previous('h2')
+            league = h2.get_text().strip() if h2 else "Unknown League"
+            
             # Extract clean Home Team name
             home_team_el = ht.find(class_=lambda x: x and 'DesktopValue' in x)
             if not home_team_el:
@@ -83,7 +88,8 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
                 "description": desc,
                 "link": link,
                 "published": "Today",
-                "is_match": True
+                "is_match": True,
+                "league": league
             })
             
     except Exception as e:
@@ -139,7 +145,8 @@ def fetch_live_football_feed() -> List[Dict[str, Any]]:
                 "description": desc_text,
                 "link": link_text,
                 "published": date_text,
-                "is_match": False
+                "is_match": False,
+                "league": "Breaking News"
             })
     except Exception as e:
         logger.error(f"Failed to fetch RSS football headlines: {str(e)}")
@@ -168,7 +175,7 @@ def get_live_scores_context() -> str:
     if matches:
         context_lines.append("--- TODAY'S LIVE MATCHES & RECENT RESULTS ---")
         for idx, m in enumerate(matches[:15]): # top 15 matches
-            context_lines.append(f"[{idx+1}] Score/Fixture: {m['title']}")
+            context_lines.append(f"[{idx+1}] Score/Fixture: {m['title']} (League: {m.get('league', 'Unknown League')})")
             context_lines.append(f"    Details: {m['description']}")
             context_lines.append(f"    Match Centre Link: {m['link']}")
             context_lines.append("")

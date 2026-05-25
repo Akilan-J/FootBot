@@ -17,6 +17,7 @@ class RAGEngine:
         self.embeddings: Optional[HuggingFaceEmbeddings] = None
         self.vector_store: Optional[FAISS] = None
         self.openai_client: Optional[openai.OpenAI] = None
+        self.model_name: str = settings.OPENAI_MODEL_NAME
         
         # Load components lazily to prevent long startup locks
         self.initialize_openai()
@@ -27,14 +28,25 @@ class RAGEngine:
         api_key = settings.OPENAI_API_KEY
         if api_key and not api_key.startswith("your-"):
             try:
-                self.openai_client = openai.OpenAI(api_key=api_key)
-                logger.info("OpenAI Client successfully initialized.")
+                if api_key.startswith("sk-or-"):
+                    logger.info("OpenRouter API Key detected. Initializing with OpenRouter base URL...")
+                    self.openai_client = openai.OpenAI(
+                        api_key=api_key,
+                        base_url="https://openrouter.ai/api/v1"
+                    )
+                    self.model_name = "openai/gpt-4o-mini" if settings.OPENAI_MODEL_NAME == "gpt-4o-mini" else settings.OPENAI_MODEL_NAME
+                else:
+                    self.openai_client = openai.OpenAI(api_key=api_key)
+                    self.model_name = settings.OPENAI_MODEL_NAME
+                logger.info(f"OpenAI Client successfully initialized (Model: {self.model_name}).")
             except Exception as e:
                 logger.error(f"Error initializing OpenAI Client: {str(e)}")
                 self.openai_client = None
+                self.model_name = settings.OPENAI_MODEL_NAME
         else:
             logger.warning("OpenAI API Key is missing or default. LLM generation will run in mock mode.")
             self.openai_client = None
+            self.model_name = settings.OPENAI_MODEL_NAME
 
     def load_vector_db(self, force_reload: bool = False) -> bool:
         """
@@ -277,9 +289,9 @@ class RAGEngine:
             
         if self.openai_client is not None:
             try:
-                logger.info(f"Submitting query to OpenAI LLM ({settings.OPENAI_MODEL_NAME})...")
+                logger.info(f"Submitting query to OpenAI LLM ({self.model_name})...")
                 completion = self.openai_client.chat.completions.create(
-                    model=settings.OPENAI_MODEL_NAME,
+                    model=self.model_name,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}

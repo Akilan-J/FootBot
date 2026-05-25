@@ -419,8 +419,8 @@ with tab_live:
         
         st.markdown("<h4 style='color:#34d399; font-family:\"Space Grotesk\"; margin-top:1.5rem;'>🔍 Search & Filter Matchday</h4>", unsafe_allow_html=True)
         
-        # Interactive Search & Filter Row
-        col_ctrl1, col_ctrl2, col_ctrl3 = st.columns([2, 2, 2])
+        # Interactive Search & Filter Row - Two Columns Layout
+        col_ctrl1, col_ctrl2 = st.columns(2)
         
         with col_ctrl1:
             search_query = st.text_input("🔍 Search Teams or Leagues:", placeholder="e.g. Miami, Rosenborg, or MLS")
@@ -433,14 +433,6 @@ with tab_live:
                 help="Select one or more leagues to display."
             )
             
-        with col_ctrl3:
-            st.markdown("<div style='height: 1.6rem;'></div>", unsafe_allow_html=True) # visual spacer
-            show_pl_laliga_only = st.checkbox(
-                "⚽ Show La Liga & Premier League matches only",
-                value=False,
-                help="Check this to filter display strictly to Premier League and La Liga fixtures."
-            )
-            
         st.markdown("---")
         
         # Apply filters to Matches
@@ -449,18 +441,12 @@ with tab_live:
             m_league = m.get("league", "").lower()
             m_title = m.get("title", "").lower()
             
-            # 1. Quick Premier League & La Liga filter check
-            if show_pl_laliga_only:
-                is_pl_laliga = any(x in m_league for x in ["premier league", "la liga", "laliga"])
-                if not is_pl_laliga:
-                    continue
-            
-            # 2. Multi-select League filter check
+            # 1. Multi-select League filter check
             if filter_leagues:
                 if m.get("league") not in filter_leagues:
                     continue
             
-            # 3. Text search query check
+            # 2. Text search query check
             if search_query:
                 q = search_query.lower()
                 if q not in m_title and q not in m_league:
@@ -496,15 +482,7 @@ with tab_live:
                     </div>
                     """, unsafe_allow_html=True)
             else:
-                if show_pl_laliga_only:
-                    st.warning("⚠️ **No Active La Liga or Premier League Matches Today**")
-                    st.info(
-                        "The standard European club season has concluded for the year (May 2026). "
-                        "**Uncheck this option** to view matches currently playing in other leagues (like "
-                        "Major League Soccer or Norwegian Eliteserien)!"
-                    )
-                else:
-                    st.info("No active live fixtures match your search criteria.")
+                st.info("No active live fixtures match your search criteria.")
                 
         with col_n:
             st.markdown(f"#### 📰 Breaking Football Headlines ({len(filtered_news)})")

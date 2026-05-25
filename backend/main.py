@@ -61,6 +61,7 @@ class ChatResponse(BaseModel):
     response: str
     is_rag_active: bool
     is_web_search_active: bool
+    is_live_matches_active: bool
     is_mock: bool
     sources: List[SourceDocSchema]
 
@@ -231,4 +232,26 @@ async def ingest_url_endpoint(request: UrlIngestRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"URL crawler pipeline execution failed: {str(e)}"
+        )
+
+@app.get("/live-matches", status_code=status.HTTP_200_OK)
+def live_matches_endpoint():
+    """
+    Crawls the latest live football match scores, breaking transfer news, 
+    and updates from public RSS feeds.
+    """
+    logger.info("Live matches endpoint queried.")
+    try:
+        from backend.loaders.live_score_loader import fetch_live_football_feed
+        feed = fetch_live_football_feed()
+        return {
+            "status": "success",
+            "count": len(feed),
+            "feed": feed
+        }
+    except Exception as e:
+        logger.error(f"Error serving live matches: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to crawl live matches: {str(e)}"
         )

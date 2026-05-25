@@ -161,6 +161,16 @@ def trigger_backend_ingestion() -> Dict[str, Any]:
     except Exception as e:
         return {"status": "error", "message": f"Connection error: {str(e)}"}
 
+def get_live_matches_feed() -> Dict[str, Any]:
+    """Queries backend live matches feed."""
+    try:
+        response = requests.get(f"{BACKEND_URL}/live-matches", timeout=10)
+        if response.status_code == 200:
+            return response.json()
+    except Exception:
+        pass
+    return {"status": "error", "count": 0, "feed": []}
+
 # --- App Header Layout ---
 col_logo, col_desc = st.columns([1, 8])
 with col_logo:
@@ -260,121 +270,179 @@ st.sidebar.markdown("<div style='font-size:0.8rem; color:#6b7280; text-align:cen
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- Quick Start / Preset Prompts Cards ---
-st.markdown("### 📋 Quick Start Tactical Prompts")
-col1, col2, col3 = st.columns(3)
+# --- Main Application Tabs Layout ---
+tab_chat, tab_live = st.tabs(["💬 Tactical AI Chat", "⚽ Live Match Ticker"])
 
-preset_1 = "Compare Rodri and Busquets in positional play and tactical awareness."
-preset_2 = "How does Pep Guardiola use inverted fullbacks to overload the midfield?"
-preset_3 = "Compare Jurgen Klopp's gegenpressing traps and Mikel Arteta's high press triggers."
-
-with col1:
-    if st.button(f"⚽ Pivot Evolution\n\n*Busquets vs Rodri*", use_container_width=True, key="preset1"):
-        st.session_state.clicked_preset = preset_1
-
-with col2:
-    if st.button(f"🏗️ Juego de Posición\n\n*Guardiola's Midfield Box*", use_container_width=True, key="preset2"):
-        st.session_state.clicked_preset = preset_2
-
-with col3:
-    if st.button(f"🛡️ Pressing Paradigms\n\n*Klopp vs Arteta*", use_container_width=True, key="preset3"):
-        st.session_state.clicked_preset = preset_3
-
-st.markdown("---")
-
-# --- Chat Board Container ---
-
-# Render historical messages
-for msg in st.session_state.messages:
-    role = msg["role"]
-    avatar = "⚽" if role == "assistant" else "👤"
+with tab_chat:
+    # --- Quick Start / Preset Prompts Cards ---
+    st.markdown("### 📋 Quick Start Tactical Prompts")
+    col1, col2, col3 = st.columns(3)
     
-    with st.chat_message(role, avatar=avatar):
-        # Render dynamic live web search badge if active
-        if role == "assistant" and msg.get("is_web_search_active"):
-            st.markdown("<span class='badge badge-info'>🌐 Live Web Search Fallback Active</span><br/><br/>", unsafe_allow_html=True)
+    preset_1 = "Compare Rodri and Busquets in positional play and tactical awareness."
+    preset_2 = "How does Pep Guardiola use inverted fullbacks to overload the midfield?"
+    preset_3 = "Compare Jurgen Klopp's gegenpressing traps and Mikel Arteta's high press triggers."
+    
+    with col1:
+        if st.button(f"⚽ Pivot Evolution\n\n*Busquets vs Rodri*", use_container_width=True, key="preset1"):
+            st.session_state.clicked_preset = preset_1
             
-        # Display response text
-        st.markdown(msg["content"])
-        
-        # Display source expander if there are sources associated with the response
-        if role == "assistant" and msg.get("sources"):
-            with st.expander("🔍 Tactical Grounding Sources (RAG Evidence)"):
-                for src in msg["sources"]:
-                    if src.get("type") == "web_search":
-                        st.markdown(
-                            f"**Source [{src['index']}]**: 🔗 [Web Link: {src['source']}]({src['source']}) "
-                            f"(Relevance Score: `{src['score']:.3f}`)"
-                        )
-                    else:
-                        st.markdown(
-                            f"**Source [{src['index']}]**: `{src['source']}` "
-                            f"(Page: `{src['page'] or 'N/A'}`, Relevance: `{src['score']:.3f}`)"
-                        )
-                    st.info(src["text"])
-
-# Handle clickable presets
-query = None
-if "clicked_preset" in st.session_state and st.session_state.clicked_preset:
-    query = st.session_state.clicked_preset
-    st.session_state.clicked_preset = None # reset
-
-# Handle manual chat box inputs
-user_input = st.chat_input("Ask FootBot a tactical football question (e.g. Compare Rodri and Busquets)...")
-if user_input:
-    query = user_input
-
-# --- RAG Orchestration Flow ---
-if query:
-    # 1. Store user message in history and render it
-    st.session_state.messages.append({"role": "user", "content": query})
-    with st.chat_message("user", avatar="👤"):
-        st.markdown(query)
-        
-    # 2. Query FastAPI server
-    with st.chat_message("assistant", avatar="⚽"):
-        response_placeholder = st.empty()
-        spinner_placeholder = st.empty()
-        
-        with spinner_placeholder:
-            st.markdown("*FootBot is consulting technical literature & generating tactical analysis...*")
-            st.spinner()
+    with col2:
+        if st.button(f"🏗️ Juego de Posición\n\n*Guardiola's Midfield Box*", use_container_width=True, key="preset2"):
+            st.session_state.clicked_preset = preset_2
             
-        # Perform REST API request
-        result = submit_query_to_backend(query, top_k, temperature)
-        
-        # Remove spinner
-        spinner_placeholder.empty()
-        
-        # Render dynamic web search badge if active
-        if result.get("is_web_search_active"):
-            st.markdown("<span class='badge badge-info'>🌐 Live Web Search Fallback Active</span><br/><br/>", unsafe_allow_html=True)
+    with col3:
+        if st.button(f"🛡️ Pressing Paradigms\n\n*Klopp vs Arteta*", use_container_width=True, key="preset3"):
+            st.session_state.clicked_preset = preset_3
             
-        # Render markdown response
-        response_text = result["response"]
-        response_placeholder.markdown(response_text)
+    st.markdown("---")
+    
+    # --- Chat Board Container ---
+    
+    # Render historical messages
+    for msg in st.session_state.messages:
+        role = msg["role"]
+        avatar = "⚽" if role == "assistant" else "👤"
         
-        # If sources exist, render expander and display them
-        sources = result.get("sources", [])
-        if sources:
-            with st.expander("🔍 Tactical Grounding Sources (RAG Evidence)"):
-                for src in sources:
-                    if src.get("type") == "web_search":
-                        st.markdown(
-                            f"**Source [{src['index']}]**: 🔗 [Web Link: {src['source']}]({src['source']}) "
-                            f"(Relevance Score: `{src['score']:.3f}`)"
-                        )
-                    else:
-                        st.markdown(
-                            f"**Source [{src['index']}]**: `{src['source']}` "
-                            f"(Page: `{src['page'] or 'N/A'}`, Relevance: `{src['score']:.3f}`)"
-                        )
-                    st.info(src["text"])
-                    
-    # 3. Store assistant message in history
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": response_text,
-        "sources": sources,
-        "is_web_search_active": result.get("is_web_search_active", False)
-    })
+        with st.chat_message(role, avatar=avatar):
+            # Render dynamic live web search badge if active
+            if role == "assistant" and msg.get("is_web_search_active"):
+                st.markdown("<span class='badge badge-info'>🌐 Live Web Search Fallback Active</span>", unsafe_allow_html=True)
+            if role == "assistant" and msg.get("is_live_matches_active"):
+                st.markdown("<span class='badge badge-online'>🟢 Live Scores & News Injected</span>", unsafe_allow_html=True)
+                
+            # Display response text
+            st.markdown(msg["content"])
+            
+            # Display source expander if there are sources associated with the response
+            if role == "assistant" and msg.get("sources"):
+                with st.expander("🔍 Tactical Grounding Sources (RAG Evidence)"):
+                    for src in msg["sources"]:
+                        if src.get("type") == "web_search":
+                            st.markdown(
+                                f"**Source [{src['index']}]**: 🔗 [Web Link: {src['source']}]({src['source']}) "
+                                f"(Relevance Score: `{src['score']:.3f}`)"
+                            )
+                        else:
+                            st.markdown(
+                                f"**Source [{src['index']}]**: `{src['source']}` "
+                                f"(Page: `{src['page'] or 'N/A'}`, Relevance: `{src['score']:.3f}`)"
+                            )
+                        st.info(src["text"])
+                        
+    # Handle clickable presets
+    query = None
+    if "clicked_preset" in st.session_state and st.session_state.clicked_preset:
+        query = st.session_state.clicked_preset
+        st.session_state.clicked_preset = None # reset
+        
+    # Handle manual chat box inputs
+    user_input = st.chat_input("Ask FootBot a tactical football question (e.g. Compare Rodri and Busquets)...")
+    if user_input:
+        query = user_input
+        
+    # --- RAG Orchestration Flow ---
+    if query:
+        # 1. Store user message in history and render it
+        st.session_state.messages.append({"role": "user", "content": query})
+        with st.chat_message("user", avatar="👤"):
+            st.markdown(query)
+            
+        # 2. Query FastAPI server
+        with st.chat_message("assistant", avatar="⚽"):
+            response_placeholder = st.empty()
+            spinner_placeholder = st.empty()
+            
+            with spinner_placeholder:
+                st.markdown("*FootBot is consulting technical literature & generating tactical analysis...*")
+                st.spinner()
+                
+            # Perform REST API request
+            result = submit_query_to_backend(query, top_k, temperature)
+            
+            # Remove spinner
+            spinner_placeholder.empty()
+            
+            # Render dynamic web search badge if active
+            if result.get("is_web_search_active"):
+                st.markdown("<span class='badge badge-info'>🌐 Live Web Search Fallback Active</span>", unsafe_allow_html=True)
+            if result.get("is_live_matches_active"):
+                st.markdown("<span class='badge badge-online'>🟢 Live Scores & News Injected</span>", unsafe_allow_html=True)
+                
+            # Render markdown response
+            response_text = result["response"]
+            response_placeholder.markdown(response_text)
+            
+            # If sources exist, render expander and display them
+            sources = result.get("sources", [])
+            if sources:
+                with st.expander("🔍 Tactical Grounding Sources (RAG Evidence)"):
+                    for src in sources:
+                        if src.get("type") == "web_search":
+                            st.markdown(
+                                f"**Source [{src['index']}]**: 🔗 [Web Link: {src['source']}]({src['source']}) "
+                                f"(Relevance Score: `{src['score']:.3f}`)"
+                            )
+                        else:
+                            st.markdown(
+                                f"**Source [{src['index']}]**: `{src['source']}` "
+                                f"(Page: `{src['page'] or 'N/A'}`, Relevance: `{src['score']:.3f}`)"
+                            )
+                        st.info(src["text"])
+                        
+        # 3. Store assistant message in history
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": response_text,
+            "sources": sources,
+            "is_web_search_active": result.get("is_web_search_active", False),
+            "is_live_matches_active": result.get("is_live_matches_active", False)
+        })
+
+with tab_live:
+    st.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-top:0;'>⚽ Real-Time Football Scores & Headlines</h3>", unsafe_allow_html=True)
+    st.markdown("Retrieving latest scores and breaking transfer updates live from public BBC Sport RSS feeds.")
+    
+    # Button to force reload feed
+    if st.button("🔄 Refresh Live Match Scores", use_container_width=True):
+        st.rerun()
+        
+    with st.spinner("Crawling live matches and news..."):
+        feed_data = get_live_matches_feed()
+        
+    if feed_data.get("status") == "success" and feed_data.get("feed"):
+        feed = feed_data.get("feed")
+        matches = [f for f in feed if f.get("is_match")]
+        news = [f for f in feed if not f.get("is_match")]
+        
+        col_m, col_n = st.columns([1, 1])
+        
+        with col_m:
+            st.markdown("#### 🏆 Match Fixtures & Live Scores")
+            if matches:
+                for m in matches:
+                    st.markdown(f"""
+                    <div class='metric-card hover-effect'>
+                        <h4 style='color:#34d399; margin:0;'>⚽ {m['title']}</h4>
+                        <p style='color:#9ca3af; font-size:0.9rem; margin-top:0.4rem; margin-bottom:0.6rem;'>{m['description']}</p>
+                        <a href='{m['link']}' target='_blank' style='color:#10b981; font-size:0.85rem; text-decoration:none;'>🔗 Match Centre Updates</a>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.info("No active live fixtures or recent scorelines found in the feed at this moment.")
+                
+        with col_n:
+            st.markdown("#### 📰 Breaking Football Headlines")
+            if news:
+                for n in news:
+                    st.markdown(f"""
+                    <div class='metric-card hover-effect'>
+                        <h5 style='color:#f3f4f6; margin:0;'>📢 {n['title']}</h5>
+                        <p style='color:#9ca3af; font-size:0.85rem; margin-top:0.4rem; margin-bottom:0.6rem;'>{n['description']}</p>
+                        <p style='font-size:0.75rem; color:#6b7280; margin:0;'>Published: {n['published']}</p>
+                        <a href='{n['link']}' target='_blank' style='color:#3b82f6; font-size:0.8rem; text-decoration:none;'>🔗 Read Full Report</a>
+                    </div>
+                    """, unsafe_allow_html=True)
+            else:
+                st.info("No football news items currently found.")
+    else:
+        st.error("Failed to retrieve live match scores. Ensure the backend server is online.")

@@ -145,16 +145,33 @@ class RAGEngine:
     ) -> Dict[str, Any]:
         """
         Orchestrates the entire RAG pipeline:
-        1. Query -> Semantic Retrieval -> Top-K Context Chunks
-        2. Score Threshold Evaluation -> Trigger live web search if needed
-        3. Format Context & System/User Prompts
-        4. Call OpenAI LLM Completion
-        5. Return Structured Response + Source Audits
+        1. Live Intent Check -> Fetch and Prepend BBC Sport RSS updates if needed
+        2. Query -> Semantic Retrieval -> Top-K Context Chunks
+        3. Score Threshold Evaluation -> Trigger live web search if needed
+        4. Format Context & System/User Prompts
+        5. Call OpenAI LLM Completion
+        6. Return Structured Response + Source Audits
         """
         top_k = top_k or settings.RETRIEVAL_TOP_K
         temperature = temperature or settings.LLM_TEMPERATURE
         
-        # 1. Retrieve Local Context Chunks
+        # 1. Detect Live Intent (scores, live matches, news, transfers)
+        import re
+        live_keywords = [r"\blive\b", r"\bscore\b", r"\btoday\b", r"\bplaying\b", r"\bmatches\b", r"\bfixture\b", r"\btransfer\b", r"\brumor\b", r"\bnews\b", r"\bmatch\b", r"\bresult\b"]
+        is_live_intent = any(re.search(kw, query.lower()) for kw in live_keywords)
+        
+        is_live_matches_active = False
+        live_context = ""
+        if is_live_intent:
+            logger.info("Live football match/news intent detected. Fetching RSS live feed...")
+            try:
+                from backend.loaders.live_score_loader import get_live_scores_context
+                live_context = get_live_scores_context()
+                is_live_matches_active = True
+            except Exception as e:
+                logger.error(f"Failed to fetch live scores context in RAG: {str(e)}")
+        
+        # 2. Retrieve Local Context Chunks
         retrieved_results = self.retrieve_context(query, top_k)
         
         # Evaluate local matching quality
@@ -164,19 +181,19 @@ class RAGEngine:
             if max_score >= settings.RAG_SIMILARITY_THRESHOLD:
                 is_local_rag_sufficient = True
                 
-        # 2. Trigger web search fallback if local data is insufficient
+        # 3. Trigger web search fallback if local data is insufficient
         is_web_search_active = False
         web_results = []
-        if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient:
+        if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient and not is_live_matches_active:
             logger.info(f"Local RAG matches insufficient (threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
             web_results = self.web_search_fallback(query, max_results=3)
             if web_results:
                 is_web_search_active = True
                 
-        # 3. Format Context and Source Audits
+        # 4. Format Context and Source Audits
         formatted_context_list = []
         sources = []
-        is_rag_active = len(retrieved_results) > 0 or is_web_search_active
+        is_rag_active = len(retrieved_results) > 0 or is_web_search_active or is_live_matches_active
         
         if not is_web_search_active:
             # Format Local Chunks only
@@ -241,13 +258,17 @@ class RAGEngine:
                     "score": float(score)
                 })
                 
-        context_block = "\n".join(formatted_context_list) if is_rag_active else "NO LOCAL OR WEB CONTEXT RETRIEVED"
+        context_block = "\n".join(formatted_context_list) if (len(retrieved_results) > 0 or is_web_search_active) else "NO LOCAL OR WEB CONTEXT RETRIEVED"
         
-        # 4. Compile Prompts
+        # Prepend RSS Live Matches Context if active
+        if is_live_matches_active:
+            context_block = f"{live_context}\n\n{context_block}"
+            
+        # 5. Compile Prompts
         system_prompt = TACTICAL_ANALYST_SYSTEM_PROMPT
         user_prompt = TACTICAL_ANALYST_USER_TEMPLATE.format(context=context_block, query=query)
         
-        # 5. Generate response via OpenAI (or fallback to Mock)
+        # 6. Generate response via OpenAI (or fallback to Mock)
         response_text = ""
         is_mock = False
         
@@ -272,7 +293,7 @@ class RAGEngine:
                 response_text = f"⚠️ **OpenAI API Execution Error**: {str(e)}\n\n*Please check your internet connection, API billing limits, or API key configurations in the `.env` file.*"
         else:
             is_mock = True
-            response_text = self._generate_mock_tactical_response(query, is_rag_active, is_web_search_active, sources)
+            response_text = self._generate_mock_tactical_response(query, is_rag_active, is_web_search_active, is_live_matches_active, sources)
             
         # Append disclaimer note if not grounded in RAG
         if not is_rag_active:
@@ -284,6 +305,7 @@ class RAGEngine:
             "response": response_text,
             "is_rag_active": is_rag_active,
             "is_web_search_active": is_web_search_active,
+            "is_live_matches_active": is_live_matches_active,
             "is_mock": is_mock,
             "sources": sources
         }
@@ -293,6 +315,7 @@ class RAGEngine:
         query: str, 
         is_rag_active: bool, 
         is_web_search_active: bool,
+        is_live_matches_active: bool,
         sources: List[Dict[str, Any]]
     ) -> str:
         """Generates a high-quality, pre-canned tactical mockup response when OpenAI API is not configured."""
@@ -300,6 +323,27 @@ class RAGEngine:
         
         intro = "📢 **Demo Mode Active** (OpenAI API Key not configured. Showing high-fidelity simulated response):\n\n"
         
+        if is_live_matches_active:
+            try:
+                from backend.loaders.live_score_loader import fetch_live_football_feed
+                feed = fetch_live_football_feed()
+                if feed:
+                    feed_items = "\n".join([f"- **{f['title']}**: {f['description']} [Link]({f['link']})" for f in feed[:5]])
+                else:
+                    feed_items = "- *No live match details or news headlines currently available.*"
+            except Exception as e:
+                feed_items = f"- *Failed to crawl RSS feed: {str(e)}*"
+                
+            return intro + f"""### ⚽ Live Football Scores & Breaking News Feed
+
+Here are today's real-time match details and news headlines retrieved directly from our live RSS feeds:
+
+{feed_items}
+
+**📊 Tactical Verdict:**
+FootBot successfully fetched and processed this live match/news context. To ask our elite tactical analyst agent specific questions about this live feed (e.g. comparing team structures or match statistics), configure your `OPENAI_API_KEY` inside `.env`.
+"""
+
         if is_web_search_active and sources:
             web_sources_str = "\n".join([f"- **Source [{s['index']}]**: {s['source']}\n  *{s['text'].split('Snippet:')[0].replace('Title: ', '')}*" for s in sources if s['type'] == 'web_search'])
             snippets_str = " ".join([s['text'].split('Snippet: ')[1] for s in sources if s['type'] == 'web_search' and 'Snippet: ' in s['text']])

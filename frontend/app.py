@@ -17,11 +17,11 @@ st.set_page_config(
 
 # --- Session State Initialization ---
 if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+    st.session_state.authenticated = True
 if "token" not in st.session_state:
-    st.session_state.token = None
+    st.session_state.token = "default_coach"
 if "username" not in st.session_state:
-    st.session_state.username = None
+    st.session_state.username = "Coach Akilan"
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "active_session_id" not in st.session_state:
@@ -213,86 +213,8 @@ with col_desc:
     st.markdown("<div class='title-gradient'>FootBot</div>", unsafe_allow_html=True)
     st.markdown("<div class='subtitle-text'>Intelligent RAG Platform for Elite Football Tactics, Philosophy, and Player Analysis</div>", unsafe_allow_html=True)
 
-# --- Authentication Gateway Lock Panel ---
-if not st.session_state.authenticated:
-    st.markdown("""
-    <div style='text-align: center; padding: 2.5rem; background: rgba(12, 18, 16, 0.85); border: 2px solid #0d9488; border-radius: 1rem; max-width: 650px; margin: 2rem auto; box-shadow: 0 10px 30px -5px rgba(0,0,0,0.6);'>
-        <h1 style='font-size: 3.5rem; margin-bottom: 0.8rem;'>🔒</h1>
-        <h2 style='color: #10b981; font-family: "Space Grotesk"; margin-bottom: 0.5rem;'>FOOTBOT COACHING PORTAL LOCK</h2>
-        <p style='color: #9ca3af; font-size: 1rem; margin-bottom: 1.5rem;'>Certified coaches must authenticate or register to access dynamic tactics analysis databases, live score telemetries, and 2D formation modules.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    auth_tab1, auth_tab2 = st.tabs(["🔑 Coach Sign In", "📝 Register New Profile"])
-    
-    with auth_tab1:
-        with st.form("login_form"):
-            st.markdown("### Sign In to FootBot")
-            username = st.text_input("Username:", placeholder="Enter coach username")
-            password = st.text_input("Password:", type="password", placeholder="Enter secure password")
-            submitted = st.form_submit_button("🔑 Unlock Console", use_container_width=True)
-            
-            if submitted:
-                if username.strip() and password.strip():
-                    try:
-                        res = requests.post(f"{BACKEND_URL}/login", json={
-                            "username": username.strip(),
-                            "password": password.strip()
-                        }, timeout=10)
-                        if res.status_code == 200:
-                            data = res.json()
-                            st.session_state.authenticated = True
-                            st.session_state.token = data["token"]
-                            st.session_state.username = data["username"]
-                            st.success(f"Welcome back, Coach {data['username']}! Unlocking platform...")
-                            st.rerun()
-                        else:
-                            st.error(f"Authentication Failed: {res.json().get('detail', 'Invalid credentials')}")
-                    except Exception as e:
-                        st.error(f"FastAPI connection offline: {str(e)}")
-                else:
-                    st.warning("Please fill out both username and password.")
-                    
-    with auth_tab2:
-        with st.form("register_form"):
-            st.markdown("### Coach Registration Form")
-            new_user = st.text_input("Choose Coach Username:", placeholder="e.g. Coach Guardiola")
-            new_pass = st.text_input("Choose Password:", type="password", placeholder="Minimum 4 characters")
-            submitted_reg = st.form_submit_button("📝 Register Coach Profile", use_container_width=True)
-            
-            if submitted_reg:
-                if len(new_user.strip()) >= 3 and len(new_pass.strip()) >= 4:
-                    try:
-                        res = requests.post(f"{BACKEND_URL}/register", json={
-                            "username": new_user.strip(),
-                            "password": new_pass.strip()
-                        }, timeout=10)
-                        if res.status_code == 201:
-                            data = res.json()
-                            st.session_state.authenticated = True
-                            st.session_state.token = data["token"]
-                            st.session_state.username = data["username"]
-                            st.success(f"Coach Profile '{data['username']}' registered successfully! Redirecting...")
-                            st.rerun()
-                        else:
-                            st.error(f"Registration Failed: {res.json().get('detail', 'Username already exists')}")
-                    except Exception as e:
-                        st.error(f"FastAPI connection offline: {str(e)}")
-                else:
-                    st.warning("Username must be at least 3 chars; password at least 4 chars.")
-                    
-    st.stop()  # Lock UI execution until signed in
-
-# --- Authenticated Sidebar Control Panel ---
-st.sidebar.markdown(f"<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-bottom:0;'>👤 COACH: {st.session_state.username.upper()}</h3>", unsafe_allow_html=True)
-if st.sidebar.button("🔓 Sign Out", use_container_width=True):
-    st.session_state.authenticated = False
-    st.session_state.token = None
-    st.session_state.username = None
-    st.session_state.messages = []
-    st.session_state.active_session_id = None
-    st.rerun()
-
+# --- Sidebar Header and Control Panel ---
+st.sidebar.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-bottom:0;'>👤 COACH PORTAL</h3>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 st.sidebar.markdown("<h4 style='color:#10b981; font-family:\"Space Grotesk\"; margin-top:0;'>🧠 CONTROL CENTER</h4>", unsafe_allow_html=True)
 

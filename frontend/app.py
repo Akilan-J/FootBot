@@ -506,55 +506,65 @@ with tab_pitch:
     with col_map:
         st.markdown("#### Live 2D Tactical Pitch Preview")
         
-        # Build ASCII mapping representation
+        # Build mathematically aligned ASCII pitch representation
+        WIDTH = 38
+        
+        def format_line(content: str) -> str:
+            # Centered padding guaranteeing exactly WIDTH characters inside the borders
+            if len(content) < WIDTH:
+                left = (WIDTH - len(content)) // 2
+                right = WIDTH - len(content) - left
+                return f" │ {' ' * left}{content}{' ' * right} │ "
+            return f" │ {content[:WIDTH]} │ "
+            
         lines = [
-            " ┌──────────────────────────────────────────┐ ",
-            " │             [ OPPONENT GOAL ]            │ ",
-            " ├───────────────────┬──────────────────────┤ "
+            f" ┌{'─' * (WIDTH + 2)}┐ ",
+            format_line("[ OPPONENT GOAL ]"),
+            f" ├{'─' * (WIDTH + 2)}┤ "
         ]
         
-        w_l = "LW " if "wide" in opt_wingers.lower() else "  LW"
-        w_r = "RW " if "wide" in opt_wingers.lower() else "  RW"
+        w_l = "LW" if "wide" in opt_wingers.lower() else "LW (Inside)"
+        w_r = "RW" if "wide" in opt_wingers.lower() else "RW (Inside)"
         
         if "3-2-4-1" in sel_formation:
-            lines.append(f" │    {w_l}         AM      AM         {w_r}   │")
-            lines.append(f" │                                          │")
-            lines.append(" │               DM      DM                 │")
-            lines.append(f" │                                          │")
-            lines.append(" │            CB     CB     CB              │")
+            lines.append(format_line(f"{w_l}     AM     AM     {w_r}"))
+            lines.append(format_line(""))
+            lines.append(format_line("DM     DM"))
+            lines.append(format_line(""))
+            lines.append(format_line("CB     CB     CB"))
         elif "4-3-3" in sel_formation:
-            lines.append(f" │    {w_l}            CF            {w_r}   │")
-            lines.append(f" │                                          │")
+            lines.append(format_line(f"{w_l}        CF        {w_r}"))
+            lines.append(format_line(""))
             if "Box" in opt_midfield:
-                lines.append(" │            AM            AM              │")
-                lines.append(" │                 DM                       │")
+                lines.append(format_line("AM            AM"))
+                lines.append(format_line("DM"))
             else:
-                lines.append(" │            CM            CM              │")
-                lines.append(" │                 DM                       │")
-            lines.append(f" │                                          │")
+                lines.append(format_line("CM            CM"))
+                lines.append(format_line("DM"))
+            lines.append(format_line(""))
             if opt_inverted:
-                lines.append(" │        LB       CB    CB       RB (Inv)  │")
+                lines.append(format_line("LB      CB      CB      RB (Inv)"))
             else:
-                lines.append(" │        LB       CB    CB       RB        │")
+                lines.append(format_line("LB      CB      CB      RB"))
         elif "5-4-1" in sel_formation:
-            lines.append(f" │                  CF                      │")
-            lines.append(f" │    {w_l}                              {w_r}   │")
-            lines.append(" │               CM      CM                 │")
-            lines.append(f" │                                          │")
-            lines.append(" │     LWB    CB    CB    CB    RWB         │")
+            lines.append(format_line("CF"))
+            lines.append(format_line(f"{w_l}                  {w_r}"))
+            lines.append(format_line("CM     CM"))
+            lines.append(format_line(""))
+            lines.append(format_line("LWB   CB   CB   CB   RWB"))
         else: # 4-4-2 Diamond
-            lines.append(f" │            CF            CF              │")
-            lines.append(f" │                                          │")
-            lines.append(" │                  AM                      │")
-            lines.append(" │            LM            RM              │")
-            lines.append(" │                  DM                      │")
-            lines.append(" │        LB       CB    CB       RB        │")
+            lines.append(format_line("CF            CF"))
+            lines.append(format_line(""))
+            lines.append(format_line("AM"))
+            lines.append(format_line("LM            RM"))
+            lines.append(format_line("DM"))
+            lines.append(format_line("LB      CB      CB      RB"))
             
         lines.extend([
-            " │                                          │",
-            " ├───────────────────┴──────────────────────┤ ",
-            " │                 [ GK ]                   │ ",
-            " └──────────────────────────────────────────┘ "
+            format_line(""),
+            f" ├{'─' * (WIDTH + 2)}┤ ",
+            format_line("[ GK ]"),
+            f" └{'─' * (WIDTH + 2)}┘ "
         ])
         
         pitch_ascii = "\n".join(lines)

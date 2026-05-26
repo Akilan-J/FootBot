@@ -569,12 +569,8 @@ with tab_pitch:
         
         pitch_ascii = "\n".join(lines)
         
-        st.markdown(f"""
-        <div class='pitch-container'>
-            <pre class='pitch-ascii'>{pitch_ascii}</pre>
-            <p style='color:#9ca3af; font-size:0.85rem; margin-top:0.4rem;'>Pressing Height: <b>{sel_pressing.upper()}</b></p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.code(pitch_ascii, language="text")
+        st.markdown(f"<p style='color:#9ca3af; font-size:0.85rem; margin-top:0.4rem; text-align:center;'>Pressing Height: <b>{sel_pressing.upper()}</b></p>", unsafe_allow_html=True)
         
     if assess_button:
         # Construct tactical query

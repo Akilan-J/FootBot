@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 # Define Backend URL (load from env or fall back to localhost)
 BACKEND_URL = os.getenv("FOOTBOT_BACKEND_URL", "http://127.0.0.1:8000")

@@ -35,7 +35,7 @@ class ChatRequest(BaseModel):
     query: str = Field(
         ..., 
         description="The football tactical query to analyze.", 
-        example="Compare Sergio Busquets and Rodri in spatial discipline"
+        examples=["Compare Sergio Busquets and Rodri in spatial discipline"]
     )
     temperature: Optional[float] = Field(
         default=None, 
@@ -73,7 +73,11 @@ class ChatResponse(BaseModel):
     session_id: str
 
 class UrlIngestRequest(BaseModel):
-    url: str = Field(..., description="The remote web page URL to crawl and index.", example="https://spielverlagerung.com/2021/05/22/tactical-analysis-guardiolas-inverted-fullbacks/")
+    url: str = Field(
+        ..., 
+        description="The remote web page URL to crawl and index.", 
+        examples=["https://spielverlagerung.com/2021/05/22/tactical-analysis-guardiolas-inverted-fullbacks/"]
+    )
 
 class IngestResponse(BaseModel):
     status: str

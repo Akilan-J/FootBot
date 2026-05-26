@@ -8,9 +8,11 @@ from backend.config import settings
 from backend.utils import logger, ensure_directories, is_vector_db_ready
 from backend.rag_engine import rag_engine
 from backend.ingest import run_ingestion
+from backend.database import init_db
 
-# Initialize directories on start
+# Initialize directories and SQLite database on start
 ensure_directories()
+init_db()
 
 app = FastAPI(
     title="FootBot ⚽🤖",
@@ -47,6 +49,10 @@ class ChatRequest(BaseModel):
         gt=0,
         le=10
     )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="Optional active persistent chat session identifier."
+    )
 
 class SourceDocSchema(BaseModel):
     index: int
@@ -64,6 +70,7 @@ class ChatResponse(BaseModel):
     is_live_matches_active: bool
     is_mock: bool
     sources: List[SourceDocSchema]
+    session_id: str
 
 class UrlIngestRequest(BaseModel):
     url: str = Field(..., description="The remote web page URL to crawl and index.", example="https://spielverlagerung.com/2021/05/22/tactical-analysis-guardiolas-inverted-fullbacks/")
@@ -79,6 +86,17 @@ class HealthResponse(BaseModel):
     vector_db_loaded: bool
     openai_initialized: bool
     openai_model: str
+
+class SessionSchema(BaseModel):
+    id: str
+    title: str
+    created_at: str
+
+class MessageSchema(BaseModel):
+    role: str
+    content: str
+    sources: List[SourceDocSchema]
+    created_at: str
 
 # --- Endpoints ---
 
@@ -105,13 +123,42 @@ def health_check():
         "openai_model": settings.OPENAI_MODEL_NAME
     }
 
+@app.get("/sessions", response_model=List[SessionSchema], status_code=status.HTTP_200_OK)
+def get_sessions_endpoint():
+    """Retrieves a list of all historical chat sessions stored in the SQLite database."""
+    logger.info("Fetching all saved sessions from database.")
+    try:
+        from backend.database import get_sessions
+        return get_sessions()
+    except Exception as e:
+        logger.error(f"Failed to fetch sessions: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve sessions: {str(e)}"
+        )
+
+@app.get("/sessions/{session_id}/messages", response_model=List[MessageSchema], status_code=status.HTTP_200_OK)
+def get_messages_endpoint(session_id: str):
+    """Retrieves all chat messages for a specific historical session."""
+    logger.info(f"Fetching messages for session ID: {session_id}")
+    try:
+        from backend.database import get_messages
+        messages = get_messages(session_id)
+        return messages
+    except Exception as e:
+        logger.error(f"Failed to fetch messages for session {session_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve messages: {str(e)}"
+        )
+
 @app.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
 async def chat_endpoint(request: ChatRequest):
     """
     Accepts a tactical query, runs it through the RAG engine, 
-    and returns tactical insights with citations.
+    and returns tactical insights with citations, saving the transaction to SQLite.
     """
-    logger.info(f"Received chat query: '{request.query}'")
+    logger.info(f"Received chat query: '{request.query}' (Session ID: {request.session_id})")
     if not request.query.strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -119,12 +166,37 @@ async def chat_endpoint(request: ChatRequest):
         )
         
     try:
-        # Run synchronous RAG engine in separate thread pool for FastAPI async concurrency
+        from backend.database import create_session, save_message
+        
+        # 1. Resolve or create database session
+        session_id = request.session_id
+        if not session_id or not session_id.strip():
+            # Generate descriptive session title
+            title = request.query.strip()
+            if len(title) > 35:
+                title = title[:35] + "..."
+            session_id = create_session(title)
+            
+        # 2. Save user message to database
+        save_message(session_id, "user", request.query, [])
+        
+        # 3. Run RAG engine in separate thread pool for FastAPI async concurrency
         analysis_result = rag_engine.generate_tactical_analysis(
             query=request.query,
             top_k=request.top_k,
             temperature=request.temperature
         )
+        
+        # 4. Save FootBot response to database
+        save_message(
+            session_id=session_id,
+            role="assistant",
+            content=analysis_result["response"],
+            sources=analysis_result["sources"]
+        )
+        
+        # 5. Inject session ID into return dict
+        analysis_result["session_id"] = session_id
         return analysis_result
     except Exception as e:
         logger.error(f"Error during chat generation: {str(e)}")

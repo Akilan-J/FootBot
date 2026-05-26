@@ -14,3 +14,8 @@ env/
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# Local SQLite Database files
+*.db
+data/*.db
+

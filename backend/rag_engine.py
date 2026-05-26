@@ -1,5 +1,8 @@
 import os
+import math
+import re
 from typing import List, Dict, Any, Tuple, Optional
+from collections import Counter
 import openai
 from duckduckgo_search import DDGS
 from langchain_community.vectorstores import FAISS
@@ -9,6 +12,148 @@ from langchain_core.documents import Document
 from backend.config import settings
 from backend.utils import logger, is_vector_db_ready
 from backend.prompts import TACTICAL_ANALYST_SYSTEM_PROMPT, TACTICAL_ANALYST_USER_TEMPLATE
+
+class BM25Searcher:
+    """Custom, highly-optimized BM25 Lexical Keyword search engine for document chunks."""
+    
+    def __init__(self, documents: List[Document]):
+        self.documents = documents
+        self.doc_count = len(documents)
+        self.corpus_size = len(documents)
+        
+        # Word tokenizer
+        self.doc_tokens = [self._tokenize(doc.page_content) for doc in documents]
+        self.doc_lens = [len(tokens) for tokens in self.doc_tokens]
+        self.avg_doc_len = sum(self.doc_lens) / max(1, self.corpus_size)
+        
+        # Term frequencies
+        self.doc_tfs = [Counter(tokens) for tokens in self.doc_tokens]
+        
+        # Document frequency for terms
+        self.dfs = Counter()
+        for tokens in self.doc_tokens:
+            self.dfs.update(set(tokens))
+            
+        # BM25 Hyperparameters
+        self.k1 = 1.5
+        self.b = 0.75
+
+    def _tokenize(self, text: str) -> List[str]:
+        return re.findall(r"\b\w+\b", text.lower())
+
+    def search(self, query: str, top_k: int = 5) -> List[Tuple[Document, float]]:
+        query_tokens = self._tokenize(query)
+        if not query_tokens:
+            return []
+            
+        scores = []
+        for idx in range(self.doc_count):
+            score = 0.0
+            doc_tf = self.doc_tfs[idx]
+            doc_len = self.doc_lens[idx]
+            
+            for token in query_tokens:
+                tf = doc_tf.get(token, 0)
+                df = self.dfs.get(token, 0)
+                
+                # Standard smoothed IDF
+                idf = math.log((self.doc_count - df + 0.5) / (df + 0.5) + 1.0)
+                
+                # BM25 scoring formula
+                numerator = tf * (self.k1 + 1.0)
+                denominator = tf + self.k1 * (1.0 - self.b + self.b * (doc_len / max(1.0, self.avg_doc_len)))
+                score += idf * (numerator / denominator)
+                
+            if score > 0.0:
+                scores.append((self.documents[idx], score))
+                
+        scores.sort(key=lambda x: x[1], reverse=True)
+        return scores[:top_k]
+
+def reciprocal_rank_fusion(
+    dense_results: List[Tuple[Document, float]], 
+    lexical_results: List[Tuple[Document, float]], 
+    top_k: int = 5,
+    k: int = 60
+) -> List[Tuple[Document, float]]:
+    """
+    Applies Reciprocal Rank Fusion (RRF) to merge dense FAISS semantic results
+    and sparse BM25 lexical results.
+    """
+    rrf_scores = {}
+    
+    def get_doc_key(doc: Document) -> str:
+        return f"{doc.metadata.get('source', '')}__{doc.page_content[:100]}"
+        
+    for rank, (doc, score) in enumerate(dense_results):
+        key = get_doc_key(doc)
+        if key not in rrf_scores:
+            rrf_scores[key] = {"doc": doc, "score": 0.0, "dense_score": score, "lexical_score": 0.0}
+        rrf_scores[key]["score"] += 1.0 / (k + (rank + 1))
+        
+    for rank, (doc, score) in enumerate(lexical_results):
+        key = get_doc_key(doc)
+        if key not in rrf_scores:
+            rrf_scores[key] = {"doc": doc, "score": 0.0, "dense_score": 0.0, "lexical_score": score}
+        rrf_scores[key]["score"] += 1.0 / (k + (rank + 1))
+        
+    sorted_keys = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x]["score"], reverse=True)
+    
+    fused_results = []
+    for key in sorted_keys[:top_k]:
+        item = rrf_scores[key]
+        fused_results.append((item["doc"], item["score"]))
+        
+    return fused_results
+
+def retrieve_historical_matches_context(query: str) -> str:
+    """
+    Scans the query for potential team names or keywords, retrieves matches
+    from the historical_matches table, and formats them as RAG context.
+    """
+    try:
+        from backend.database import search_historical_matches
+    except ImportError:
+        return ""
+        
+    words = re.findall(r"\b[A-Z][a-zA-Z]+\b", query)
+    if not words:
+        words = [w for w in query.split() if len(w) > 3]
+        
+    found_matches = []
+    seen = set()
+    
+    for word in words:
+        if word.lower() in ["fc", "united", "city", "real", "club", "town", "county", "athletic", "versus"]:
+            continue
+        matches = search_historical_matches(word)
+        for m in matches:
+            match_key = f"{m['home_team']}__{m['away_team']}__{m['match_date']}"
+            if match_key not in seen:
+                seen.add(match_key)
+                found_matches.append(m)
+                
+    if not found_matches:
+        return ""
+        
+    context_lines = [
+        "=== RETRIEVED HISTORICAL MATCH RESULTS (DATABASE) ===",
+        "These completed past matches were retrieved from our local SQLite index for grounding:",
+        ""
+    ]
+    
+    for idx, m in enumerate(found_matches[:10]):
+        home_score = m["home_score"] if m["home_score"] is not None else "?"
+        away_score = m["away_score"] if m["away_score"] is not None else "?"
+        context_lines.append(
+            f"[{idx+1}] Date: {m['match_date']} | League: {m['league']}\n"
+            f"    Match Result: {m['home_team']} {home_score} - {away_score} {m['away_team']}"
+        )
+        context_lines.append("")
+        
+    logger.info(f"Retrieved {len(found_matches)} historical matches to ground query.")
+    return "\n".join(context_lines)
+
 
 class RAGEngine:
     """Core Retrieval-Augmented Generation Engine for FootBot."""
@@ -167,7 +312,7 @@ class RAGEngine:
         top_k = top_k or settings.RETRIEVAL_TOP_K
         temperature = temperature or settings.LLM_TEMPERATURE
         
-        # 1. Detect Live Intent (scores, live matches, news, transfers)
+        # 1. Detect Live Intent (scores, live matches, news, transfers) and Historical Matches intent
         import re
         live_keywords = [r"\blive\b", r"\bscore\b", r"\btoday\b", r"\bplaying\b", r"\bmatches\b", r"\bfixture\b", r"\btransfer\b", r"\brumor\b", r"\bnews\b", r"\bmatch\b", r"\bresult\b"]
         is_live_intent = any(re.search(kw, query.lower()) for kw in live_keywords)
@@ -182,22 +327,40 @@ class RAGEngine:
                 is_live_matches_active = True
             except Exception as e:
                 logger.error(f"Failed to fetch live scores context in RAG: {str(e)}")
+                
+        # Query local historical SQLite matches
+        historical_context = retrieve_historical_matches_context(query)
         
-        # 2. Retrieve Local Context Chunks
-        retrieved_results = self.retrieve_context(query, top_k)
+        # 2. Retrieve Local Context Chunks via Hybrid Search (BM25 + FAISS Vector)
+        logger.info(f"Running Hybrid Search for query: '{query}'")
+        dense_results = self.retrieve_context(query, top_k * 2)
         
-        # Evaluate local matching quality
+        lexical_results = []
+        if self.vector_store and hasattr(self.vector_store, 'docstore') and hasattr(self.vector_store.docstore, '_dict'):
+            try:
+                all_docs = list(self.vector_store.docstore._dict.values())
+                if all_docs:
+                    bm25 = BM25Searcher(all_docs)
+                    lexical_results = bm25.search(query, top_k * 2)
+            except Exception as e:
+                logger.error(f"Error compiling or searching BM25 lexical index: {str(e)}")
+                
+        # Perform Reciprocal Rank Fusion (RRF)
+        retrieved_results = reciprocal_rank_fusion(dense_results, lexical_results, top_k=top_k)
+        logger.info(f"RRF Hybrid Search fused {len(dense_results)} dense and {len(lexical_results)} lexical results into top-{len(retrieved_results)} chunks.")
+        
+        # Evaluate local matching quality (relying on dense vector score)
         is_local_rag_sufficient = False
-        if retrieved_results:
-            max_score = retrieved_results[0][1]
-            if max_score >= settings.RAG_SIMILARITY_THRESHOLD:
+        if dense_results:
+            max_dense_score = dense_results[0][1]
+            if max_dense_score >= settings.RAG_SIMILARITY_THRESHOLD:
                 is_local_rag_sufficient = True
                 
         # 3. Trigger web search fallback if local data is insufficient
         is_web_search_active = False
         web_results = []
         if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient and not is_live_matches_active:
-            logger.info(f"Local RAG matches insufficient (threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
+            logger.info(f"Local RAG dense matches insufficient (max dense score: {dense_results[0][1] if dense_results else 0.0:.3f} < threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
             web_results = self.web_search_fallback(query, max_results=3)
             if web_results:
                 is_web_search_active = True
@@ -272,9 +435,14 @@ class RAGEngine:
                 
         context_block = "\n".join(formatted_context_list) if (len(retrieved_results) > 0 or is_web_search_active) else "NO LOCAL OR WEB CONTEXT RETRIEVED"
         
+        # Prepend historical matches context if active
+        if historical_context:
+            context_block = f"{historical_context}\n\n{context_block}"
+            
         # Prepend RSS Live Matches Context if active
         if is_live_matches_active:
             context_block = f"{live_context}\n\n{context_block}"
+
             
         # 5. Compile Prompts
         system_prompt = TACTICAL_ANALYST_SYSTEM_PROMPT

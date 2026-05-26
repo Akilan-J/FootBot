@@ -1,6 +1,6 @@
 import os
 from typing import Optional, List, Dict, Any
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Header, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -30,6 +30,26 @@ app.add_middleware(
 )
 
 # --- Pydantic Data Models ---
+
+class UserRegisterRequest(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=4)
+
+class UserLoginRequest(BaseModel):
+    username: str
+    password: str
+
+class AuthResponse(BaseModel):
+    token: str
+    username: str
+
+class HistoricalMatchSchema(BaseModel):
+    home_team: str
+    away_team: str
+    home_score: Optional[int] = None
+    away_score: Optional[int] = None
+    match_date: str
+    league: str
 
 class ChatRequest(BaseModel):
     query: str = Field(
@@ -127,13 +147,37 @@ def health_check():
         "openai_model": settings.OPENAI_MODEL_NAME
     }
 
+@app.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
+def register(request: UserRegisterRequest):
+    from backend.database import register_user
+    uid = register_user(request.username, request.password)
+    if not uid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists or registration failed."
+        )
+    return {"token": uid, "username": request.username}
+
+@app.post("/login", response_model=AuthResponse, status_code=status.HTTP_200_OK)
+def login(request: UserLoginRequest):
+    from backend.database import authenticate_user
+    user = authenticate_user(request.username, request.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password."
+        )
+    return {"token": user["id"], "username": user["username"]}
+
 @app.get("/sessions", response_model=List[SessionSchema], status_code=status.HTTP_200_OK)
-def get_sessions_endpoint():
+def get_sessions_endpoint(x_user_token: Optional[str] = Header(None)):
     """Retrieves a list of all historical chat sessions stored in the SQLite database."""
-    logger.info("Fetching all saved sessions from database.")
+    if not x_user_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    logger.info(f"Fetching all saved sessions for user: {x_user_token}")
     try:
         from backend.database import get_sessions
-        return get_sessions()
+        return get_sessions(user_id=x_user_token)
     except Exception as e:
         logger.error(f"Failed to fetch sessions: {str(e)}")
         raise HTTPException(
@@ -142,13 +186,19 @@ def get_sessions_endpoint():
         )
 
 @app.get("/sessions/{session_id}/messages", response_model=List[MessageSchema], status_code=status.HTTP_200_OK)
-def get_messages_endpoint(session_id: str):
+def get_messages_endpoint(session_id: str, x_user_token: Optional[str] = Header(None)):
     """Retrieves all chat messages for a specific historical session."""
-    logger.info(f"Fetching messages for session ID: {session_id}")
+    if not x_user_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    logger.info(f"Fetching messages for session ID: {session_id} (User: {x_user_token})")
     try:
-        from backend.database import get_messages
+        from backend.database import get_messages, verify_session_owner
+        if not verify_session_owner(session_id, x_user_token):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
         messages = get_messages(session_id)
         return messages
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to fetch messages for session {session_id}: {str(e)}")
         raise HTTPException(
@@ -157,11 +207,13 @@ def get_messages_endpoint(session_id: str):
         )
 
 @app.post("/chat", response_model=ChatResponse, status_code=status.HTTP_200_OK)
-async def chat_endpoint(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(None)):
     """
     Accepts a tactical query, runs it through the RAG engine, 
     and returns tactical insights with citations, saving the transaction to SQLite.
     """
+    if not x_user_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
     logger.info(f"Received chat query: '{request.query}' (Session ID: {request.session_id})")
     if not request.query.strip():
         raise HTTPException(
@@ -170,16 +222,19 @@ async def chat_endpoint(request: ChatRequest):
         )
         
     try:
-        from backend.database import create_session, save_message
+        from backend.database import create_session, save_message, verify_session_owner
         
         # 1. Resolve or create database session
         session_id = request.session_id
-        if not session_id or not session_id.strip():
+        if session_id and session_id.strip():
+            if not verify_session_owner(session_id, x_user_token):
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
+        else:
             # Generate descriptive session title
             title = request.query.strip()
             if len(title) > 35:
                 title = title[:35] + "..."
-            session_id = create_session(title)
+            session_id = create_session(title, user_id=x_user_token)
             
         # 2. Save user message to database
         save_message(session_id, "user", request.query, [])
@@ -198,6 +253,7 @@ async def chat_endpoint(request: ChatRequest):
             content=analysis_result["response"],
             sources=analysis_result["sources"]
         )
+
         
         # 5. Inject session ID into return dict
         analysis_result["session_id"] = session_id
@@ -331,3 +387,83 @@ def live_matches_endpoint():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to crawl live matches: {str(e)}"
         )
+
+@app.post("/historical-matches/crawl", status_code=status.HTTP_200_OK)
+def crawl_historical_matches_endpoint():
+    """Scrapes historical match scores from BBC results page and saves them to SQLite."""
+    logger.info("Historical match crawl triggered via API.")
+    try:
+        from backend.loaders.live_score_loader import fetch_historical_results_from_html
+        from backend.database import save_historical_match
+        
+        matches = fetch_historical_results_from_html()
+        for m in matches:
+            save_historical_match(
+                home=m["home_team"],
+                away=m["away_team"],
+                home_score=m["home_score"],
+                away_score=m["away_score"],
+                date_str=m["match_date"],
+                league=m["league"]
+            )
+        return {
+            "status": "success",
+            "count_crawled": len(matches),
+            "message": f"Successfully crawled and saved {len(matches)} historical matches."
+        }
+    except Exception as e:
+        logger.error(f"Failed historical matches crawl: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Historical crawl failed: {str(e)}"
+        )
+
+@app.get("/historical-matches", response_model=List[HistoricalMatchSchema], status_code=status.HTTP_200_OK)
+def get_historical_matches_endpoint(limit: int = 50):
+    """Retrieves all historical match scores stored in the database."""
+    try:
+        from backend.database import get_historical_matches
+        return get_historical_matches(limit=limit)
+    except Exception as e:
+        logger.error(f"Failed to fetch historical matches: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch historical matches: {str(e)}"
+        )
+
+@app.get("/sessions/{session_id}/pdf", status_code=status.HTTP_200_OK)
+def get_session_pdf_endpoint(session_id: str, x_user_token: Optional[str] = Header(None)):
+    """Generates and exports a beautifully styled ReportLab PDF tactical dossier for a chat session."""
+    if not x_user_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    logger.info(f"Generating PDF for session ID: {session_id} (User: {x_user_token})")
+    try:
+        from backend.database import get_messages, verify_session_owner
+        if not verify_session_owner(session_id, x_user_token):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
+            
+        messages = get_messages(session_id)
+        if not messages:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No messages found for this session.")
+            
+        from backend.loaders.pdf_exporter import generate_tactical_pdf
+        pdf_bytes = generate_tactical_pdf(messages)
+        
+        # Return PDF binary response
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=footbot_tactical_dossier_{session_id}.pdf"
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to generate PDF for session {session_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to compile PDF brochure: {str(e)}"
+        )
+
+

@@ -501,6 +501,16 @@ with tab_pitch:
             ["Box (Double Pivot + Double 10s)", "Flat Trio / Central triangle", "Single Pivot + Double attacking 8s"]
         )
         
+        with st.expander("✏️ Customize Player Labels"):
+            custom_lw = st.text_input("Left Winger label:", value="LW")
+            custom_rw = st.text_input("Right Winger label:", value="RW")
+            custom_cf = st.text_input("Center Forward label:", value="CF")
+            custom_am = st.text_input("Attacking Midfielder label:", value="AM")
+            custom_cm = st.text_input("Central Midfielder label:", value="CM")
+            custom_dm = st.text_input("Defensive Midfielder label:", value="DM")
+            custom_cb = st.text_input("Center Back label:", value="CB")
+            custom_gk = st.text_input("Goalkeeper label:", value="GK")
+            
         assess_button = st.button("🧠 Submit Formation for RAG Assessment", use_container_width=True)
         
     with col_map:
@@ -523,47 +533,47 @@ with tab_pitch:
             f" ├{'─' * (WIDTH + 2)}┤ "
         ]
         
-        w_l = "LW" if "wide" in opt_wingers.lower() else "LW (Inside)"
-        w_r = "RW" if "wide" in opt_wingers.lower() else "RW (Inside)"
+        w_l = custom_lw if "wide" in opt_wingers.lower() else f"{custom_lw} (Inside)"
+        w_r = custom_rw if "wide" in opt_wingers.lower() else f"{custom_rw} (Inside)"
         
         if "3-2-4-1" in sel_formation:
-            lines.append(format_line(f"{w_l}     AM     AM     {w_r}"))
+            lines.append(format_line(f"{w_l}     {custom_am}     {custom_am}     {w_r}"))
             lines.append(format_line(""))
-            lines.append(format_line("DM     DM"))
+            lines.append(format_line(f"{custom_dm}     {custom_dm}"))
             lines.append(format_line(""))
-            lines.append(format_line("CB     CB     CB"))
+            lines.append(format_line(f"{custom_cb}     {custom_cb}     {custom_cb}"))
         elif "4-3-3" in sel_formation:
-            lines.append(format_line(f"{w_l}        CF        {w_r}"))
+            lines.append(format_line(f"{w_l}        {custom_cf}        {w_r}"))
             lines.append(format_line(""))
             if "Box" in opt_midfield:
-                lines.append(format_line("AM            AM"))
-                lines.append(format_line("DM"))
+                lines.append(format_line(f"{custom_am}            {custom_am}"))
+                lines.append(format_line(f"{custom_dm}"))
             else:
-                lines.append(format_line("CM            CM"))
-                lines.append(format_line("DM"))
+                lines.append(format_line(f"{custom_cm}            {custom_cm}"))
+                lines.append(format_line(f"{custom_dm}"))
             lines.append(format_line(""))
             if opt_inverted:
-                lines.append(format_line("LB      CB      CB      RB (Inv)"))
+                lines.append(format_line(f"LB      {custom_cb}      {custom_cb}      RB (Inv)"))
             else:
-                lines.append(format_line("LB      CB      CB      RB"))
+                lines.append(format_line(f"LB      {custom_cb}      {custom_cb}      RB"))
         elif "5-4-1" in sel_formation:
-            lines.append(format_line("CF"))
+            lines.append(format_line(f"{custom_cf}"))
             lines.append(format_line(f"{w_l}                  {w_r}"))
-            lines.append(format_line("CM     CM"))
+            lines.append(format_line(f"{custom_cm}     {custom_cm}"))
             lines.append(format_line(""))
-            lines.append(format_line("LWB   CB   CB   CB   RWB"))
+            lines.append(format_line(f"LWB   {custom_cb}   {custom_cb}   {custom_cb}   RWB"))
         else: # 4-4-2 Diamond
-            lines.append(format_line("CF            CF"))
+            lines.append(format_line(f"{custom_cf}            {custom_cf}"))
             lines.append(format_line(""))
-            lines.append(format_line("AM"))
-            lines.append(format_line("LM            RM"))
-            lines.append(format_line("DM"))
-            lines.append(format_line("LB      CB      CB      RB"))
+            lines.append(format_line(f"{custom_am}"))
+            lines.append(format_line(f"LM            RM"))
+            lines.append(format_line(f"{custom_dm}"))
+            lines.append(format_line(f"LB      {custom_cb}      {custom_cb}      RB"))
             
         lines.extend([
             format_line(""),
             f" ├{'─' * (WIDTH + 2)}┤ ",
-            format_line("[ GK ]"),
+            format_line(f"[ {custom_gk} ]"),
             f" └{'─' * (WIDTH + 2)}┘ "
         ])
         

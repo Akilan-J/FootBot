@@ -537,6 +537,8 @@ with tab_pitch:
         w_r = custom_rw if "wide" in opt_wingers.lower() else f"{custom_rw} (Inside)"
         
         if "3-2-4-1" in sel_formation:
+            lines.append(format_line(f"{custom_cf}"))
+            lines.append(format_line(""))
             lines.append(format_line(f"{w_l}     {custom_am}     {custom_am}     {w_r}"))
             lines.append(format_line(""))
             lines.append(format_line(f"{custom_dm}     {custom_dm}"))

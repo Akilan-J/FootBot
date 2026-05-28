@@ -799,34 +799,137 @@ with tab_sofa:
     with col_pctrl:
         selected_player = st.selectbox("Select Player Slot:", options=player_options)
         
-        # SofaScore ratings details based on selection
+        # SofaScore ratings and accurate bio details based on selection
         if "Striker" in selected_player:
             rating, rating_color = 8.4, "#10b981" # Green
             phy, cre, dfn, tec, tac, att = 75, 70, 30, 85, 80, 92
-        elif "Left Winger" in selected_player or "Right Winger" in selected_player:
+            p_name = "Erling Haaland"
+            p_team = "Manchester City"
+            p_nat = "🇳🇴 Norway"
+            p_age = "25"
+            p_foot = "Left"
+            p_height = "194 cm"
+            p_weight = "88 kg"
+            p_jersey = "#9"
+            p_val = "€180M"
+            p_trait = "Acrobatic target man & supreme finisher"
+        elif "Left Winger" in selected_player:
             rating, rating_color = 7.8, "#10b981"
             phy, cre, dfn, tec, tac, att = 88, 82, 35, 84, 75, 80
-        elif "Attacking" in selected_player or "Central Midfielder" in selected_player:
+            p_name = "Phil Foden"
+            p_team = "Manchester City"
+            p_nat = "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England"
+            p_age = "25"
+            p_foot = "Left"
+            p_height = "179 cm"
+            p_weight = "70 kg"
+            p_jersey = "#47"
+            p_val = "€150M"
+            p_trait = "Highly creative interior ball-carrier"
+        elif "Right Winger" in selected_player:
+            rating, rating_color = 7.9, "#10b981"
+            phy, cre, dfn, tec, tac, att = 82, 85, 38, 88, 79, 78
+            p_name = "Bernardo Silva"
+            p_team = "Manchester City"
+            p_nat = "🇵🇹 Portugal"
+            p_age = "31"
+            p_foot = "Left"
+            p_height = "173 cm"
+            p_weight = "64 kg"
+            p_jersey = "#20"
+            p_val = "€70M"
+            p_trait = "Relentless presser & half-space facilitator"
+        elif "Attacking" in selected_player:
             rating, rating_color = 8.1, "#10b981"
             phy, cre, dfn, tec, tac, att = 70, 90, 48, 92, 88, 75
+            p_name = "Kevin De Bruyne"
+            p_team = "Manchester City"
+            p_nat = "🇧🇪 Belgium"
+            p_age = "34"
+            p_foot = "Right"
+            p_height = "181 cm"
+            p_weight = "75 kg"
+            p_jersey = "#17"
+            p_val = "€60M"
+            p_trait = "Master crosser & elite play creator"
+        elif "Central Midfielder" in selected_player:
+            rating, rating_color = 8.2, "#10b981"
+            phy, cre, dfn, tec, tac, att = 75, 82, 60, 88, 85, 78
+            p_name = "Jude Bellingham"
+            p_team = "Real Madrid"
+            p_nat = "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England"
+            p_age = "22"
+            p_foot = "Right"
+            p_height = "186 cm"
+            p_weight = "75 kg"
+            p_jersey = "#5"
+            p_val = "€180M"
+            p_trait = "Powerful box-to-box engine"
         elif "Holding Anchor" in selected_player:
             rating, rating_color = 7.5, "#10b981"
             phy, cre, dfn, tec, tac, att = 80, 68, 85, 80, 90, 50
+            p_name = "Rodri (Rodrigo Hernández)"
+            p_team = "Manchester City"
+            p_nat = "🇪🇸 Spain"
+            p_age = "29"
+            p_foot = "Right"
+            p_height = "190 cm"
+            p_weight = "82 kg"
+            p_jersey = "#16"
+            p_val = "€120M"
+            p_trait = "Tactical pivot & rest-defense sweeper"
         elif "Center Back" in selected_player:
             rating, rating_color = 7.2, "#34d399" # Teal
             phy, cre, dfn, tec, tac, att = 85, 50, 88, 65, 84, 40
+            p_name = "Rúben Dias"
+            p_team = "Manchester City"
+            p_nat = "🇵🇹 Portugal"
+            p_age = "28"
+            p_foot = "Right"
+            p_height = "187 cm"
+            p_weight = "83 kg"
+            p_jersey = "#3"
+            p_val = "€80M"
+            p_trait = "Commanding stopper & backline leader"
         else: # Goalkeeper
             rating, rating_color = 6.9, "#f59e0b" # Orange
             phy, cre, dfn, tec, tac, att = 75, 40, 90, 60, 85, 10
+            p_name = "Ederson Moraes"
+            p_team = "Manchester City"
+            p_nat = "🇧🇷 Brazil"
+            p_age = "32"
+            p_foot = "Left"
+            p_height = "188 cm"
+            p_weight = "86 kg"
+            p_jersey = "#31"
+            p_val = "€35M"
+            p_trait = "Sweeper-keeper & pin-point distributor"
             
+        # 1. Performance rating card
         st.markdown(f"""
-        <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+        <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
             <div>
                 <h4 style="margin: 0; color: #f3f4f6;">SofaScore Performance Rating</h4>
                 <p style="margin: 0.2rem 0 0 0; color: #6b7280; font-size: 0.85rem;">Scouting telemetry index based on active matchday</p>
             </div>
             <div style="background-color: {rating_color}; color: #000; font-size: 1.8rem; font-weight: 800; padding: 0.5rem 1rem; border-radius: 0.5rem; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                 {rating}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # 2. Detailed Player Bio Profile Card
+        st.markdown(f"""
+        <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; margin-bottom: 1.2rem;">
+            <h5 style="color: #34d399; font-family: 'Space Grotesk'; margin: 0 0 0.8rem 0;">👤 ACCURATE PLAYER PROFILE</h5>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.85rem; color: #9ca3af;">
+                <div><b>Full Name:</b> <span style="color:#f3f4f6;">{p_name}</span></div>
+                <div><b>Jersey Number:</b> <span style="color:#f3f4f6;">{p_jersey}</span></div>
+                <div><b>Age / Nationality:</b> <span style="color:#f3f4f6;">{p_age} yrs / {p_nat}</span></div>
+                <div><b>Preferred Foot:</b> <span style="color:#f3f4f6;">{p_foot}</span></div>
+                <div><b>Height / Weight:</b> <span style="color:#f3f4f6;">{p_height} / {p_weight}</span></div>
+                <div><b>Market Value:</b> <span style="color:#10b981; font-weight:600;">{p_val}</span></div>
+                <div style="grid-column: span 2;"><b>Key Playstyle Trait:</b> <span style="color:#34d399; font-style:italic;">{p_trait}</span></div>
             </div>
         </div>
         """, unsafe_allow_html=True)

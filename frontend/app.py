@@ -673,26 +673,43 @@ with tab_sofa:
     st.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-top:0;'>📊 SofaScore Premium Match Centre</h3>", unsafe_allow_html=True)
     st.markdown("Advanced minute-by-minute attacking momentum tracking, squad comparison statistics, and positional performance heatmaps.")
     
-    # 1. Match Selector
+    # 1. Match Selector - Dynamic Live matches & Completed SQLite results
+    # Load live matches in real-time
+    live_options = []
+    try:
+        feed_data = get_live_matches_feed()
+        if feed_data.get("status") == "success":
+            feed = feed_data.get("feed", [])
+            for m in feed:
+                if m.get("is_match"):
+                    live_options.append(f"🟢 [LIVE] {m['title']} ({m.get('league', 'Live Match')})")
+    except Exception:
+        pass
+        
+    # Load completed SQLite matches
+    completed_options = []
     historical_matches = get_historical_matches_feed()
-    match_options = []
     if historical_matches:
         for m in historical_matches:
             hs = m["home_score"] if m["home_score"] is not None else 0
             as_ = m["away_score"] if m["away_score"] is not None else 0
-            match_options.append(f"🏆 {m['home_team']} {hs} - {as_} {m['away_team']} ({m['match_date']})")
+            completed_options.append(f"🏆 [COMPLETED] {m['home_team']} {hs} - {as_} {m['away_team']} ({m['match_date']})")
+            
+    # Fallback defaults if lists are empty
+    default_options = [
+        "🏆 [COMPLETED] Manchester City 3 - 3 Real Madrid (Champions League)",
+        "🏆 [COMPLETED] Arsenal 2 - 2 Bayern Munich (Champions League)",
+        "🏆 [COMPLETED] Liverpool 1 - 1 Manchester City (Premier League)"
+    ]
     
-    # Defaults
-    match_options.extend([
-        "🏆 Manchester City 3 - 3 Real Madrid (Champions League)",
-        "🏆 Arsenal 2 - 2 Bayern Munich (Champions League)",
-        "🏆 Liverpool 1 - 1 Manchester City (Premier League)"
-    ])
-    
+    match_options = live_options + completed_options
+    if not match_options:
+        match_options = default_options
+        
     selected_match = st.selectbox("Select Match to Analyze:", options=match_options)
     
-    # Clean selected match name
-    clean_match_name = selected_match.replace("🏆 ", "").split(" (")[0]
+    # Clean selected match name for professional RAG prompts
+    clean_match_name = selected_match.replace("🏆 [COMPLETED] ", "").replace("🟢 [LIVE] ", "").split(" (")[0]
     
     col_mom, col_stats = st.columns([7, 5])
     

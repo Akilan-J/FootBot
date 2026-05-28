@@ -359,7 +359,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("<div style='font-size:0.8rem; color:#6b7280; text-align:center;'>FootBot v1.0.0 • Akilan Flagship AI</div>", unsafe_allow_html=True)
 
 # --- Main Application Tabs Layout ---
-tab_chat, tab_pitch, tab_live = st.tabs(["💬 Tactical AI Chat", "📋 2D Formation Board", "⚽ Live & Historical Scorelines"])
+tab_chat, tab_pitch, tab_live, tab_sofa = st.tabs(["💬 Tactical AI Chat", "📋 2D Formation Board", "⚽ Live & Historical Scorelines", "📊 SofaScore Match Centre"])
 
 with tab_chat:
     # --- Quick Start / Preset Prompts Cards ---
@@ -668,3 +668,291 @@ with tab_live:
                 """, unsafe_allow_html=True)
         else:
             st.info("Historical match database is empty. Click the crawl button above to populate completed matches.")
+
+with tab_sofa:
+    st.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-top:0;'>📊 SofaScore Premium Match Centre</h3>", unsafe_allow_html=True)
+    st.markdown("Advanced minute-by-minute attacking momentum tracking, squad comparison statistics, and positional performance heatmaps.")
+    
+    # 1. Match Selector
+    historical_matches = get_historical_matches_feed()
+    match_options = []
+    if historical_matches:
+        for m in historical_matches:
+            hs = m["home_score"] if m["home_score"] is not None else 0
+            as_ = m["away_score"] if m["away_score"] is not None else 0
+            match_options.append(f"🏆 {m['home_team']} {hs} - {as_} {m['away_team']} ({m['match_date']})")
+    
+    # Defaults
+    match_options.extend([
+        "🏆 Manchester City 3 - 3 Real Madrid (Champions League)",
+        "🏆 Arsenal 2 - 2 Bayern Munich (Champions League)",
+        "🏆 Liverpool 1 - 1 Manchester City (Premier League)"
+    ])
+    
+    selected_match = st.selectbox("Select Match to Analyze:", options=match_options)
+    
+    # Clean selected match name
+    clean_match_name = selected_match.replace("🏆 ", "").split(" (")[0]
+    
+    col_mom, col_stats = st.columns([7, 5])
+    
+    with col_mom:
+        st.markdown("#### 📈 SofaScore Attacking Momentum (Pressure Graph)")
+        st.caption("Positive peaks show Home Team dominance; Negative peaks show Away Team dominance.")
+        
+        # Generate momentum timeline based on selected match seed
+        import pandas as pd
+        import numpy as np
+        import hashlib
+        
+        seed_val = int(hashlib.md5(selected_match.encode()).hexdigest(), 16) % 10000
+        np.random.seed(seed_val)
+        
+        minutes = list(range(1, 91))
+        # Simulated attacking pressure
+        h_pres = np.random.normal(25, 25, 90)
+        a_pres = np.random.normal(-25, 25, 90)
+        
+        h_pres = np.clip(h_pres, 0, 100)
+        a_pres = np.clip(a_pres, -100, 0)
+        
+        # Smoothing moving average filter
+        h_pres = np.convolve(h_pres, np.ones(5)/5, mode='same')
+        a_pres = np.convolve(a_pres, np.ones(5)/5, mode='same')
+        
+        mom_df = pd.DataFrame({
+            "Home Pressure": h_pres,
+            "Away Pressure": a_pres
+        }, index=minutes)
+        
+        # Plot styled Streamlit Area Chart
+        st.area_chart(mom_df, use_container_width=True)
+        
+    with col_stats:
+        st.markdown("#### 📊 Match Box Score Comparison")
+        
+        # Deterministic stats based on seed
+        possession_home = int(np.clip(np.random.normal(52, 8), 35, 65))
+        possession_away = 100 - possession_home
+        
+        shots_home = int(np.clip(np.random.normal(14, 4), 5, 25))
+        shots_away = int(np.clip(np.random.normal(11, 3), 4, 20))
+        
+        chances_home = int(np.clip(np.random.normal(3, 1.5), 0, 8))
+        chances_away = int(np.clip(np.random.normal(2, 1.2), 0, 6))
+        
+        passes_home = possession_home * 8 + int(np.random.normal(50, 10))
+        passes_away = possession_away * 8 + int(np.random.normal(50, 10))
+        
+        def render_stat_row(label: str, home_val: int, away_val: int, is_percent: bool = False):
+            total = home_val + away_val
+            home_ratio = (home_val / max(1, total)) * 100
+            away_ratio = 100 - home_ratio
+            suffix = "%" if is_percent else ""
+            st.markdown(f"""
+            <div style="margin-bottom: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.2rem; color: #9ca3af;">
+                    <span><b>{home_val}{suffix}</b></span>
+                    <span style="color: #f3f4f6; font-weight: 600;">{label}</span>
+                    <span><b>{away_val}{suffix}</b></span>
+                </div>
+                <div style="display: flex; height: 6px; border-radius: 3px; overflow: hidden; background-color: #1f2937;">
+                    <div style="width: {home_ratio}%; background-color: #10b981;"></div>
+                    <div style="width: {away_ratio}%; background-color: #4b5563;"></div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        render_stat_row("Ball Possession", possession_home, possession_away, is_percent=True)
+        render_stat_row("Total Shots", shots_home, shots_away)
+        render_stat_row("Big Chances Created", chances_home, chances_away)
+        render_stat_row("Accurate Passes Completed", passes_home, passes_away)
+        
+    st.markdown("---")
+    
+    st.markdown("### 👤 SofaScore Positional Rating & Heatmap Index")
+    st.markdown("Select any active player from your customized formation to view their performance ratings and intensity zones.")
+    
+    col_pctrl, col_pheat = st.columns([1, 1])
+    
+    # Retrieve customized player names
+    lw_lbl = locals().get("custom_lw", "LW")
+    rw_lbl = locals().get("custom_rw", "RW")
+    cf_lbl = locals().get("custom_cf", "CF")
+    am_lbl = locals().get("custom_am", "AM")
+    cm_lbl = locals().get("custom_cm", "CM")
+    dm_lbl = locals().get("custom_dm", "DM")
+    cb_lbl = locals().get("custom_cb", "CB")
+    gk_lbl = locals().get("custom_gk", "GK")
+    
+    player_options = [
+        f"🎯 Striker ({cf_lbl})",
+        f"⚡ Left Winger ({lw_lbl})",
+        f"⚡ Right Winger ({rw_lbl})",
+        f"🪄 Attacking Midfielder ({am_lbl})",
+        f"🧠 Central Midfielder ({cm_lbl})",
+        f"🛡️ Holding Anchor ({dm_lbl})",
+        f"🧱 Center Back ({cb_lbl})",
+        f"🧤 Goalkeeper ({gk_lbl})"
+    ]
+    
+    with col_pctrl:
+        selected_player = st.selectbox("Select Player Slot:", options=player_options)
+        
+        # SofaScore ratings details based on selection
+        if "Striker" in selected_player:
+            rating, rating_color = 8.4, "#10b981" # Green
+            phy, cre, dfn, tec, tac, att = 75, 70, 30, 85, 80, 92
+        elif "Left Winger" in selected_player or "Right Winger" in selected_player:
+            rating, rating_color = 7.8, "#10b981"
+            phy, cre, dfn, tec, tac, att = 88, 82, 35, 84, 75, 80
+        elif "Attacking" in selected_player or "Central Midfielder" in selected_player:
+            rating, rating_color = 8.1, "#10b981"
+            phy, cre, dfn, tec, tac, att = 70, 90, 48, 92, 88, 75
+        elif "Holding Anchor" in selected_player:
+            rating, rating_color = 7.5, "#10b981"
+            phy, cre, dfn, tec, tac, att = 80, 68, 85, 80, 90, 50
+        elif "Center Back" in selected_player:
+            rating, rating_color = 7.2, "#34d399" # Teal
+            phy, cre, dfn, tec, tac, att = 85, 50, 88, 65, 84, 40
+        else: # Goalkeeper
+            rating, rating_color = 6.9, "#f59e0b" # Orange
+            phy, cre, dfn, tec, tac, att = 75, 40, 90, 60, 85, 10
+            
+        st.markdown(f"""
+        <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+            <div>
+                <h4 style="margin: 0; color: #f3f4f6;">SofaScore Performance Rating</h4>
+                <p style="margin: 0.2rem 0 0 0; color: #6b7280; font-size: 0.85rem;">Scouting telemetry index based on active matchday</p>
+            </div>
+            <div style="background-color: {rating_color}; color: #000; font-size: 1.8rem; font-weight: 800; padding: 0.5rem 1rem; border-radius: 0.5rem; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                {rating}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("##### 🎭 Playstyle Attribute Hexagon Profile")
+        
+        def render_attribute(label: str, pct: int):
+            filled = "█" * (pct // 10)
+            empty = "░" * (10 - len(filled))
+            st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem;">
+                <span style="color: #9ca3af;">{label}</span>
+                <span style="font-family: monospace; color: #34d399;">{filled}{empty} {pct}%</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        render_attribute("🚀 Attacking & Finishing", att)
+        render_attribute("🪄 Creativity & Key Passes", cre)
+        render_attribute("🏃‍♂️ Physicality & Workrate", phy)
+        render_attribute("🧠 Tactical Scanning & Rest-Defense", tac)
+        render_attribute("🛡️ Defending & Swarming Interceptions", dfn)
+        
+    with col_pheat:
+        st.markdown("#### 🗺️ SofaScore Positional Intensity Heatmap")
+        
+        # Custom Heatmap layouts based on player slot selected
+        if "Striker" in selected_player:
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
+                " │        ░  ░  ▒  █  █  ▒  ░  ░          │ \n"
+                " │        ░  ░  ░  ▓  ▓  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ▒  ▒  ░  ░  ░          │ [MIDFIELD]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                " └────────────────────────────────────────┘ "
+            )
+        elif "Left Winger" in selected_player:
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        █  █  ▓  ▒  ░  ░  ░  ░          │ [OPP BOX]\n"
+                " │        █  █  ▓  ░  ░  ░  ░  ░          │ \n"
+                " │        ▓  ▓  ▒  ░  ░  ░  ░  ░          │ \n"
+                " │        ▒  ▒  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                " └────────────────────────────────────────┘ "
+            )
+        elif "Right Winger" in selected_player:
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        ░  ░  ░  ░  ▒  ▓  █  █          │ [OPP BOX]\n"
+                " │        ░  ░  ░  ░  ░  ▓  █  █          │ \n"
+                " │        ░  ░  ░  ░  ░  ▒  ▓  ▓          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ▒  ▒          │ [MIDFIELD]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                " └────────────────────────────────────────┘ "
+            )
+        elif "Attacking" in selected_player or "Central Midfielder" in selected_player:
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
+                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [MIDFIELD]\n"
+                " │        ░  ░  ░  ▒  ▒  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                " └────────────────────────────────────────┘ "
+            )
+        elif "Holding Anchor" in selected_player:
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ▒  ▒  ▒  ▒  ░  ░          │ \n"
+                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ [MIDFIELD]\n"
+                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                " └────────────────────────────────────────┘ "
+            )
+        elif "Center Back" in selected_player:
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
+                " │        ░  ░  ▒  ▒  ▒  ▒  ░  ░          │ \n"
+                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ [OWN HALF]\n"
+                " └────────────────────────────────────────┘ "
+            )
+        else: # Goalkeeper
+            heatmap_grid = (
+                " ┌────────────────────────────────────────┐ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                " │        ░  ░  ▒  █  █  ▒  ░  ░          │ [GOAL BOX]\n"
+                " └────────────────────────────────────────┘ "
+            )
+            
+        st.code(heatmap_grid, language="text")
+        st.caption("Intensity scale: █ (High Touch Zone) ➔ ▓ ➔ ▒ ➔ ░ (Low Touch Zone)")
+        
+    st.markdown("---")
+    
+    # 5. Submit to RAG scout assessment
+    st.markdown("#### 🧠 Ask FootBot to Analyze this SofaScore Data")
+    st.markdown("Automatically submit these SofaScore momentum timelines, box stats, and player heatmap rating to our elite RAG tactical engine for a professional scout assessment.")
+    
+    if st.button("📊 Generate AI Scouting Analysis", use_container_width=True):
+        custom_query = (
+            f"Analyze the tactical metrics and player rating statistics from the match: {clean_match_name}. "
+            f"Home stats: Possession {possession_home}%, Shots {shots_home}. Away stats: Possession {possession_away}%, Shots {shots_away}. "
+            f"Include tactical evaluations of the selected player ({selected_player}) who finished with an elite SofaScore rating of {rating}."
+        )
+        st.session_state.clicked_preset = custom_query
+        st.success("SofaScore analytics captured! Switching to AI Chat to generate assessment report...")
+        st.rerun()

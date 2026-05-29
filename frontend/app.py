@@ -922,18 +922,36 @@ with tab_sofa:
             p_val = "€35M"
             p_trait = "Sweeper-keeper & pin-point distributor"
             
-        # 1. Performance rating card
-        st.markdown(f"""
-        <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
-            <div>
-                <h4 style="margin: 0; color: #f3f4f6;">SofaScore Performance Rating</h4>
-                <p style="margin: 0.2rem 0 0 0; color: #6b7280; font-size: 0.85rem;">Scouting telemetry index based on active matchday</p>
+        # Determine appropriate avatar asset
+        if "Striker" in selected_player or "Winger" in selected_player:
+            avatar_path = "frontend/assets/striker.png"
+        elif "Midfielder" in selected_player or "Attacking" in selected_player or "Holding" in selected_player:
+            avatar_path = "frontend/assets/midfielder.png"
+        elif "Center Back" in selected_player:
+            avatar_path = "frontend/assets/defender.png"
+        elif "Goalkeeper" in selected_player:
+            avatar_path = "frontend/assets/goalkeeper.png"
+        else:
+            avatar_path = "frontend/assets/default_avatar.png"
+            
+        # Create a side-by-side row for the Cyberpunk Player Avatar Card and the SofaScore rating card
+        col_avatar, col_rating = st.columns([1.1, 1.0])
+        with col_avatar:
+            st.image(avatar_path, use_container_width=True)
+            
+        with col_rating:
+            # 1. Performance rating card
+            st.markdown(f"""
+            <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; margin-bottom: 1.2rem; height: 90%;">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <h4 style="margin: 0; color: #f3f4f6; font-size: 1.05rem; font-family: 'Space Grotesk';">SofaScore Rating</h4>
+                    <p style="margin: 0.2rem 0 0 0; color: #6b7280; font-size: 0.8rem;">Matchday Telemetry</p>
+                </div>
+                <div style="background-color: {rating_color}; color: #000; font-size: 2.5rem; font-weight: 800; padding: 0.6rem 1.5rem; border-radius: 0.5rem; text-align: center; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+                    {rating}
+                </div>
             </div>
-            <div style="background-color: {rating_color}; color: #000; font-size: 1.8rem; font-weight: 800; padding: 0.5rem 1rem; border-radius: 0.5rem; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                {rating}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
         # 2. Detailed Player Bio Profile Card
         st.markdown(f"""

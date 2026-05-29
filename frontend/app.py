@@ -922,15 +922,23 @@ with tab_sofa:
             p_val = "€35M"
             p_trait = "Sweeper-keeper & pin-point distributor"
             
-        # Determine appropriate avatar asset
-        if "Striker" in selected_player or "Winger" in selected_player:
-            avatar_path = "frontend/assets/striker.png"
-        elif "Midfielder" in selected_player or "Attacking" in selected_player or "Holding" in selected_player:
-            avatar_path = "frontend/assets/midfielder.png"
+        # Determine appropriate player image downloaded from the web
+        if "Striker" in selected_player:
+            avatar_path = "frontend/assets/haaland.png"
+        elif "Left Winger" in selected_player:
+            avatar_path = "frontend/assets/foden.png"
+        elif "Right Winger" in selected_player:
+            avatar_path = "frontend/assets/silva.png"
+        elif "Attacking" in selected_player:
+            avatar_path = "frontend/assets/debruyne.png"
+        elif "Central Midfielder" in selected_player:
+            avatar_path = "frontend/assets/bellingham.jpg"
+        elif "Holding Anchor" in selected_player:
+            avatar_path = "frontend/assets/rodri.png"
         elif "Center Back" in selected_player:
-            avatar_path = "frontend/assets/defender.png"
+            avatar_path = "frontend/assets/dias.png"
         elif "Goalkeeper" in selected_player:
-            avatar_path = "frontend/assets/goalkeeper.png"
+            avatar_path = "frontend/assets/ederson.png"
         else:
             avatar_path = "frontend/assets/default_avatar.png"
             

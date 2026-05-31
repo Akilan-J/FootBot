@@ -940,7 +940,7 @@ with tab_sofa:
         elif "Goalkeeper" in selected_player:
             avatar_path = "frontend/assets/ederson.png"
         else:
-            avatar_path = "frontend/assets/default_avatar.png"
+            avatar_path = "frontend/assets/haaland.png"
             
         # Create a side-by-side row for the Cyberpunk Player Avatar Card and the SofaScore rating card
         col_avatar, col_rating = st.columns([1.1, 1.0])

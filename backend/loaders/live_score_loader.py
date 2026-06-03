@@ -198,7 +198,7 @@ def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
     logger.info("Scraping historical football results from BBC Sport website...")
     results = []
     
-    url = "https://www.bbc.com/sport/football/results"
+    url = "https://www.bbc.com/sport/football/scores-fixtures"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     }

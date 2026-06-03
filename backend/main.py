@@ -397,19 +397,22 @@ def crawl_historical_matches_endpoint():
         from backend.database import save_historical_match
         
         matches = fetch_historical_results_from_html()
+        saved_count = 0
         for m in matches:
-            save_historical_match(
-                home=m["home_team"],
-                away=m["away_team"],
-                home_score=m["home_score"],
-                away_score=m["away_score"],
-                date_str=m["match_date"],
-                league=m["league"]
-            )
+            if m["home_score"] is not None and m["away_score"] is not None:
+                save_historical_match(
+                    home=m["home_team"],
+                    away=m["away_team"],
+                    home_score=m["home_score"],
+                    away_score=m["away_score"],
+                    date_str=m["match_date"],
+                    league=m["league"]
+                )
+                saved_count += 1
         return {
             "status": "success",
-            "count_crawled": len(matches),
-            "message": f"Successfully crawled and saved {len(matches)} historical matches."
+            "count_crawled": saved_count,
+            "message": f"Successfully crawled and saved {saved_count} historical matches."
         }
     except Exception as e:
         logger.error(f"Failed historical matches crawl: {str(e)}")

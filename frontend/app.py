@@ -1299,278 +1299,329 @@ with tab_sofa:
     """)
 
     if lineup_mode == "Lineups":
-        # Generate player tags
-        players_html = ""
+        # Resolve SofaScore Match ID
+        SOFASCORE_MATCH_IDS = {
+            "peru-spain": "16123045",
+            "spain-peru": "16123045",
+            "manchester city-real madrid": "12228399",
+            "real madrid-manchester city": "12228399",
+            "arsenal-bayern munich": "12228397",
+            "bayern munich-arsenal": "12228397",
+            "liverpool-manchester city": "11980838",
+            "manchester city-liverpool": "11980838",
+            "haiti-new zealand": "11352345",
+            "new zealand-haiti": "11352345",
+            "philippines-guam": "11352346",
+            "guam-philippines": "11352346",
+            "japan-portugal": "11352347",
+            "portugal-japan": "11352347"
+        }
         
-        # Home Team placement
-        for p in home_roster:
-            pos = p["pos"]
-            x, y = coords.get(pos, (50, 50))
-            left_pct = x
-            top_pct = y
-            
-            rating = p["rating"]
-            
-            # Setup dynamic metric values inside the badges
-            if metric_filter == "Performance":
-                badge_text = str(rating)
-                if rating >= 8.0:
-                    badge_bg = "#10b981"
-                    badge_fg = "#000"
-                elif rating >= 7.0:
-                    badge_bg = "#34d399"
-                    badge_fg = "#000"
-                elif rating >= 6.0:
-                    badge_bg = "#f59e0b"
-                    badge_fg = "#000"
-                else:
-                    badge_bg = "#ef4444"
-                    badge_fg = "#fff"
-            elif metric_filter == "Age":
-                badge_text = p["age"] + " yrs"
-                badge_bg = "#374151"
-                badge_fg = "#fff"
-            elif metric_filter == "Market Value":
-                badge_text = p["val"]
-                badge_bg = "#047857"
-                badge_fg = "#fff"
-            elif metric_filter == "Distance":
-                badge_text = p["distance"]
-                badge_bg = "#3b82f6"
-                badge_fg = "#fff"
-            elif metric_filter == "Nationality":
-                badge_text = p["nationality"]
-                badge_bg = "#8b5cf6"
-                badge_fg = "#fff"
-            elif metric_filter == "Fantasy":
-                badge_text = p["fantasy"]
-                badge_bg = "#ec4899"
-                badge_fg = "#fff"
-            else:
-                badge_text = p.get("height", "180 cm")
-                badge_bg = "#4b5563"
-                badge_fg = "#fff"
+        home_norm = home_team_name.lower().strip()
+        away_norm = away_team_name.lower().strip()
+        sofa_match_id = None
+        for k, v in SOFASCORE_MATCH_IDS.items():
+            k_parts = k.split("-")
+            if (k_parts[0] in home_norm and k_parts[1] in away_norm) or (k_parts[0] in away_norm and k_parts[1] in home_norm):
+                sofa_match_id = v
+                break
                 
-            img_src = get_image_base64(p.get("photo", ""))
-            if img_src:
-                circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
-            else:
-                circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{home_color}; color:#fff; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
-                
-            players_html += f"""
-            <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
-                <div class="player-circle">{circle_content}</div>
-                <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{badge_text}</div>
-                <div class="player-name-label">{p["name"]}</div>
-                <div class="player-jersey-label">#{p["jersey"]}</div>
+        if sofa_match_id:
+            st.markdown("##### 🎨 Visual Style Selector")
+            pitch_style = st.segmented_control(
+                "Pitch Visual Style:",
+                options=["2D Tactical Board", "Official SofaScore Widget"],
+                default="Official SofaScore Widget",
+                label_visibility="collapsed"
+            )
+            st.markdown("")
+        else:
+            pitch_style = "2D Tactical Board"
+            
+        if pitch_style == "Official SofaScore Widget":
+            st.html(f"""
+            <div style="display: flex; justify-content: center; margin-top: 1rem; width: 100%;">
+                <iframe id="sofa-lineups-embed-{sofa_match_id}" 
+                        src="https://widgets.sofascore.com/embed/lineups?id={sofa_match_id}&widgetTheme=dark" 
+                        style="height: 786px !important; max-width: 800px !important; width: 100% !important; border: none; border-radius: 0.75rem;" 
+                        frameborder="0" 
+                        scrolling="no">
+                </iframe>
             </div>
-            """
+            """)
+        else:
+            # Generate player tags
+            players_html = ""
             
-        # Away Team placement
-        for p in away_roster:
-            pos = p["pos"]
-            x, y = coords.get(pos, (50, 50))
-            left_pct = 100 - x
-            top_pct = y
-            
-            rating = p["rating"]
-            
-            # Setup dynamic metric values inside the badges
-            if metric_filter == "Performance":
-                badge_text = str(rating)
-                if rating >= 8.0:
-                    badge_bg = "#10b981"
-                    badge_fg = "#000"
-                elif rating >= 7.0:
-                    badge_bg = "#34d399"
-                    badge_fg = "#000"
-                elif rating >= 6.0:
-                    badge_bg = "#f59e0b"
-                    badge_fg = "#000"
-                else:
-                    badge_bg = "#ef4444"
+            # Home Team placement
+            for p in home_roster:
+                pos = p["pos"]
+                x, y = coords.get(pos, (50, 50))
+                left_pct = x
+                top_pct = y
+                
+                rating = p["rating"]
+                
+                # Setup dynamic metric values inside the badges
+                if metric_filter == "Performance":
+                    badge_text = str(rating)
+                    if rating >= 8.0:
+                        badge_bg = "#10b981"
+                        badge_fg = "#000"
+                    elif rating >= 7.0:
+                        badge_bg = "#34d399"
+                        badge_fg = "#000"
+                    elif rating >= 6.0:
+                        badge_bg = "#f59e0b"
+                        badge_fg = "#000"
+                    else:
+                        badge_bg = "#ef4444"
+                        badge_fg = "#fff"
+                elif metric_filter == "Age":
+                    badge_text = p["age"] + " yrs"
+                    badge_bg = "#374151"
                     badge_fg = "#fff"
-            elif metric_filter == "Age":
-                badge_text = p["age"] + " yrs"
-                badge_bg = "#374151"
-                badge_fg = "#fff"
-            elif metric_filter == "Market Value":
-                badge_text = p["val"]
-                badge_bg = "#047857"
-                badge_fg = "#fff"
-            elif metric_filter == "Distance":
-                badge_text = p["distance"]
-                badge_bg = "#3b82f6"
-                badge_fg = "#fff"
-            elif metric_filter == "Nationality":
-                badge_text = p["nationality"]
-                badge_bg = "#8b5cf6"
-                badge_fg = "#fff"
-            elif metric_filter == "Fantasy":
-                badge_text = p["fantasy"]
-                badge_bg = "#ec4899"
-                badge_fg = "#fff"
-            else:
-                badge_text = p.get("height", "180 cm")
-                badge_bg = "#4b5563"
-                badge_fg = "#fff"
+                elif metric_filter == "Market Value":
+                    badge_text = p["val"]
+                    badge_bg = "#047857"
+                    badge_fg = "#fff"
+                elif metric_filter == "Distance":
+                    badge_text = p["distance"]
+                    badge_bg = "#3b82f6"
+                    badge_fg = "#fff"
+                elif metric_filter == "Nationality":
+                    badge_text = p["nationality"]
+                    badge_bg = "#8b5cf6"
+                    badge_fg = "#fff"
+                elif metric_filter == "Fantasy":
+                    badge_text = p["fantasy"]
+                    badge_bg = "#ec4899"
+                    badge_fg = "#fff"
+                else:
+                    badge_text = p.get("height", "180 cm")
+                    badge_bg = "#4b5563"
+                    badge_fg = "#fff"
+                    
+                img_src = get_image_base64(p.get("photo", ""))
+                if img_src:
+                    circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
+                else:
+                    circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{home_color}; color:#fff; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+                    
+                players_html += f"""
+                <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
+                    <div class="player-circle">{circle_content}</div>
+                    <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{badge_text}</div>
+                    <div class="player-name-label">{p["name"]}</div>
+                    <div class="player-jersey-label">#{p["jersey"]}</div>
+                </div>
+                """
                 
-            img_src = get_image_base64(p.get("photo", ""))
-            if img_src:
-                circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
-            else:
-                circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{away_color}; color:{away_text}; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+            # Away Team placement
+            for p in away_roster:
+                pos = p["pos"]
+                x, y = coords.get(pos, (50, 50))
+                left_pct = 100 - x
+                top_pct = y
                 
-            players_html += f"""
-            <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
-                <div class="player-circle">{circle_content}</div>
-                <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{badge_text}</div>
-                <div class="player-name-label">{p["name"]}</div>
-                <div class="player-jersey-label">#{p["jersey"]}</div>
+                rating = p["rating"]
+                
+                # Setup dynamic metric values inside the badges
+                if metric_filter == "Performance":
+                    badge_text = str(rating)
+                    if rating >= 8.0:
+                        badge_bg = "#10b981"
+                        badge_fg = "#000"
+                    elif rating >= 7.0:
+                        badge_bg = "#34d399"
+                        badge_fg = "#000"
+                    elif rating >= 6.0:
+                        badge_bg = "#f59e0b"
+                        badge_fg = "#000"
+                    else:
+                        badge_bg = "#ef4444"
+                        badge_fg = "#fff"
+                elif metric_filter == "Age":
+                    badge_text = p["age"] + " yrs"
+                    badge_bg = "#374151"
+                    badge_fg = "#fff"
+                elif metric_filter == "Market Value":
+                    badge_text = p["val"]
+                    badge_bg = "#047857"
+                    badge_fg = "#fff"
+                elif metric_filter == "Distance":
+                    badge_text = p["distance"]
+                    badge_bg = "#3b82f6"
+                    badge_fg = "#fff"
+                elif metric_filter == "Nationality":
+                    badge_text = p["nationality"]
+                    badge_bg = "#8b5cf6"
+                    badge_fg = "#fff"
+                elif metric_filter == "Fantasy":
+                    badge_text = p["fantasy"]
+                    badge_bg = "#ec4899"
+                    badge_fg = "#fff"
+                else:
+                    badge_text = p.get("height", "180 cm")
+                    badge_bg = "#4b5563"
+                    badge_fg = "#fff"
+                    
+                img_src = get_image_base64(p.get("photo", ""))
+                if img_src:
+                    circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
+                else:
+                    circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{away_color}; color:{away_text}; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+                    
+                players_html += f"""
+                <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
+                    <div class="player-circle">{circle_content}</div>
+                    <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{badge_text}</div>
+                    <div class="player-name-label">{p["name"]}</div>
+                    <div class="player-jersey-label">#{p["jersey"]}</div>
+                </div>
+                """
+                
+            # Draw full pitch board using st.html to prevent any markdown preformatted / code block parsing errors
+            st.html(f"""
+            <style>
+            .pitch-board {{
+                position: relative;
+                width: 100%;
+                height: 520px;
+                background-color: #0c1c12;
+                border: 2px solid #1a3c25;
+                border-radius: 0.75rem;
+                overflow: hidden;
+                margin-bottom: 2rem;
+                box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            }}
+            .pitch-line-center {{
+                position: absolute;
+                left: 50%;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background-color: rgba(255,255,255,0.12);
+            }}
+            .pitch-line-circle {{
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 110px;
+                height: 110px;
+                border: 2px solid rgba(255,255,255,0.12);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+            }}
+            .pitch-line-center-dot {{
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 6px;
+                height: 6px;
+                background-color: rgba(255,255,255,0.15);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+            }}
+            .pitch-penalty-left {{
+                position: absolute;
+                left: 0;
+                top: 22%;
+                width: 75px;
+                height: 56%;
+                border: 2px solid rgba(255,255,255,0.12);
+                border-left: none;
+            }}
+            .pitch-penalty-left-inner {{
+                position: absolute;
+                left: 0;
+                top: 36%;
+                width: 25px;
+                height: 28%;
+                border: 2px solid rgba(255,255,255,0.12);
+                border-left: none;
+            }}
+            .pitch-penalty-right {{
+                position: absolute;
+                right: 0;
+                top: 22%;
+                width: 75px;
+                height: 56%;
+                border: 2px solid rgba(255,255,255,0.12);
+                border-right: none;
+            }}
+            .pitch-penalty-right-inner {{
+                position: absolute;
+                right: 0;
+                top: 36%;
+                width: 25px;
+                height: 28%;
+                border: 2px solid rgba(255,255,255,0.12);
+                border-right: none;
+            }}
+            .player-node {{
+                position: absolute;
+                transform: translate(-50%, -50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 75px;
+                transition: transform 0.2s ease;
+            }}
+            .player-node:hover {{
+                transform: translate(-50%, -50%) scale(1.1);
+                z-index: 100;
+            }}
+            .player-circle {{
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                border: 2px solid #ffffff;
+                background-color: #1a2c22;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }}
+            .rating-badge {{
+                font-size: 0.65rem;
+                font-weight: 800;
+                padding: 0.1rem 0.35rem;
+                border-radius: 0.25rem;
+                margin-top: -8px;
+                z-index: 10;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                border: 1px solid rgba(0,0,0,0.2);
+            }}
+            .player-name-label {{
+                color: #f3f4f6;
+                font-size: 0.68rem;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 4px;
+                white-space: nowrap;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5);
+            }}
+            .player-jersey-label {{
+                color: #9ca3af;
+                font-size: 0.62rem;
+                font-weight: 600;
+                margin-top: 1px;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            }}
+            </style>
+            <div class="pitch-board">
+                <div class="pitch-line-center"></div>
+                <div class="pitch-line-circle"></div>
+                <div class="pitch-line-center-dot"></div>
+                <div class="pitch-penalty-left"></div>
+                <div class="pitch-penalty-left-inner"></div>
+                <div class="pitch-penalty-right"></div>
+                <div class="pitch-penalty-right-inner"></div>
+                {players_html}
             </div>
-            """
-
-        # Draw full pitch board using st.html to prevent any markdown preformatted / code block parsing errors
-        st.html(f"""
-        <style>
-        .pitch-board {{
-            position: relative;
-            width: 100%;
-            height: 520px;
-            background-color: #0c1c12;
-            border: 2px solid #1a3c25;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-        }}
-        .pitch-line-center {{
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: rgba(255,255,255,0.12);
-        }}
-        .pitch-line-circle {{
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 110px;
-            height: 110px;
-            border: 2px solid rgba(255,255,255,0.12);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }}
-        .pitch-line-center-dot {{
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            width: 6px;
-            height: 6px;
-            background-color: rgba(255,255,255,0.15);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }}
-        .pitch-penalty-left {{
-            position: absolute;
-            left: 0;
-            top: 22%;
-            width: 75px;
-            height: 56%;
-            border: 2px solid rgba(255,255,255,0.12);
-            border-left: none;
-        }}
-        .pitch-penalty-left-inner {{
-            position: absolute;
-            left: 0;
-            top: 36%;
-            width: 25px;
-            height: 28%;
-            border: 2px solid rgba(255,255,255,0.12);
-            border-left: none;
-        }}
-        .pitch-penalty-right {{
-            position: absolute;
-            right: 0;
-            top: 22%;
-            width: 75px;
-            height: 56%;
-            border: 2px solid rgba(255,255,255,0.12);
-            border-right: none;
-        }}
-        .pitch-penalty-right-inner {{
-            position: absolute;
-            right: 0;
-            top: 36%;
-            width: 25px;
-            height: 28%;
-            border: 2px solid rgba(255,255,255,0.12);
-            border-right: none;
-        }}
-        .player-node {{
-            position: absolute;
-            transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 75px;
-            transition: transform 0.2s ease;
-        }}
-        .player-node:hover {{
-            transform: translate(-50%, -50%) scale(1.1);
-            z-index: 100;
-        }}
-        .player-circle {{
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 2px solid #ffffff;
-            background-color: #1a2c22;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }}
-        .rating-badge {{
-            font-size: 0.65rem;
-            font-weight: 800;
-            padding: 0.1rem 0.35rem;
-            border-radius: 0.25rem;
-            margin-top: -8px;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            border: 1px solid rgba(0,0,0,0.2);
-        }}
-        .player-name-label {{
-            color: #f3f4f6;
-            font-size: 0.68rem;
-            font-weight: 700;
-            text-align: center;
-            margin-top: 4px;
-            white-space: nowrap;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5);
-        }}
-        .player-jersey-label {{
-            color: #9ca3af;
-            font-size: 0.62rem;
-            font-weight: 600;
-            margin-top: 1px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-        }}
-        </style>
-        <div class="pitch-board">
-            <div class="pitch-line-center"></div>
-            <div class="pitch-line-circle"></div>
-            <div class="pitch-line-center-dot"></div>
-            <div class="pitch-penalty-left"></div>
-            <div class="pitch-penalty-left-inner"></div>
-            <div class="pitch-penalty-right"></div>
-            <div class="pitch-penalty-right-inner"></div>
-            {players_html}
-        </div>
-        """)
+            """)
     else:
         st.markdown("#### 📊 Roster Statistical Breakdown")
         

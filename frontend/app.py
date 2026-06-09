@@ -816,87 +816,91 @@ with tab_sofa:
             pass
         return ""
         
+    # Helper to strip leading whitespace from HTML strings to prevent Markdown preformatted/code block interpretation
+    def clean_html(html_str):
+        return "\n".join(line.strip() for line in html_str.split("\n"))
+
     # Roster mapping function
     def get_team_roster(team_name: str, is_home: bool):
         name_norm = team_name.lower()
         roster_data = {
             "manchester city": [
-                {"name": "Ederson", "jersey": "31", "rating": 6.2, "pos": "GK", "photo": "frontend/assets/ederson.png"},
-                {"name": "K. Walker", "jersey": "2", "rating": 6.8, "pos": "RB", "photo": ""},
-                {"name": "R. Dias", "jersey": "3", "rating": 7.2, "pos": "RCB", "photo": "frontend/assets/dias.png"},
-                {"name": "M. Akanji", "jersey": "25", "rating": 7.0, "pos": "LCB", "photo": ""},
-                {"name": "J. Gvardiol", "jersey": "24", "rating": 7.5, "pos": "LB", "photo": ""},
-                {"name": "Rodri", "jersey": "16", "rating": 8.0, "pos": "LDM", "photo": "frontend/assets/rodri.png"},
-                {"name": "J. Stones", "jersey": "5", "rating": 6.8, "pos": "RDM", "photo": ""},
-                {"name": "B. Silva", "jersey": "20", "rating": 8.2, "pos": "RAM", "photo": "frontend/assets/silva.png"},
-                {"name": "K. De Bruyne", "jersey": "17", "rating": 8.5, "pos": "CAM", "photo": "frontend/assets/debruyne.png"},
-                {"name": "P. Foden", "jersey": "47", "rating": 8.7, "pos": "LAM", "photo": "frontend/assets/foden.png"},
-                {"name": "E. Haaland", "jersey": "9", "rating": 8.4, "pos": "ST", "photo": "frontend/assets/haaland.png"},
+                {"name": "Ederson", "jersey": "31", "rating": 6.2, "pos": "GK", "photo": "frontend/assets/ederson.png", "age": "32", "val": "€35M", "height": "188 cm"},
+                {"name": "K. Walker", "jersey": "2", "rating": 6.8, "pos": "RB", "photo": "", "age": "35", "val": "€15M", "height": "183 cm"},
+                {"name": "R. Dias", "jersey": "3", "rating": 7.2, "pos": "RCB", "photo": "frontend/assets/dias.png", "age": "28", "val": "€80M", "height": "187 cm"},
+                {"name": "M. Akanji", "jersey": "25", "rating": 7.0, "pos": "LCB", "photo": "", "age": "30", "val": "€45M", "height": "187 cm"},
+                {"name": "J. Gvardiol", "jersey": "24", "rating": 7.5, "pos": "LB", "photo": "", "age": "24", "val": "€75M", "height": "185 cm"},
+                {"name": "Rodri", "jersey": "16", "rating": 8.0, "pos": "LDM", "photo": "frontend/assets/rodri.png", "age": "29", "val": "€120M", "height": "190 cm"},
+                {"name": "J. Stones", "jersey": "5", "rating": 6.8, "pos": "RDM", "photo": "", "age": "31", "val": "€38M", "height": "188 cm"},
+                {"name": "B. Silva", "jersey": "20", "rating": 8.2, "pos": "RAM", "photo": "frontend/assets/silva.png", "age": "31", "val": "€70M", "height": "173 cm"},
+                {"name": "K. De Bruyne", "jersey": "17", "rating": 8.5, "pos": "CAM", "photo": "frontend/assets/debruyne.png", "age": "34", "val": "€60M", "height": "181 cm"},
+                {"name": "P. Foden", "jersey": "47", "rating": 8.7, "pos": "LAM", "photo": "frontend/assets/foden.png", "age": "25", "val": "€150M", "height": "179 cm"},
+                {"name": "E. Haaland", "jersey": "9", "rating": 8.4, "pos": "ST", "photo": "frontend/assets/haaland.png", "age": "25", "val": "€180M", "height": "194 cm"},
             ],
             "real madrid": [
-                {"name": "A. Lunin", "jersey": "13", "rating": 6.5, "pos": "GK", "photo": ""},
-                {"name": "D. Carvajal", "jersey": "2", "rating": 7.0, "pos": "RB", "photo": ""},
-                {"name": "A. Rüdiger", "jersey": "22", "rating": 7.8, "pos": "RCB", "photo": ""},
-                {"name": "Nacho", "jersey": "6", "rating": 6.4, "pos": "LCB", "photo": ""},
-                {"name": "F. Mendy", "jersey": "23", "rating": 6.6, "pos": "LB", "photo": ""},
-                {"name": "F. Valverde", "jersey": "15", "rating": 7.4, "pos": "RCM", "photo": ""},
-                {"name": "T. Kroos", "jersey": "8", "rating": 8.1, "pos": "CM", "photo": ""},
-                {"name": "E. Camavinga", "jersey": "12", "rating": 7.2, "pos": "LCM", "photo": ""},
-                {"name": "J. Bellingham", "jersey": "5", "rating": 8.3, "pos": "AM", "photo": "frontend/assets/bellingham.jpg"},
-                {"name": "Vinícius Jr.", "jersey": "7", "rating": 8.6, "pos": "LST", "photo": ""},
-                {"name": "Rodrygo", "jersey": "11", "rating": 7.9, "pos": "RST", "photo": ""},
+                {"name": "A. Lunin", "jersey": "13", "rating": 6.5, "pos": "GK", "photo": "", "age": "27", "val": "€25M", "height": "191 cm"},
+                {"name": "D. Carvajal", "jersey": "2", "rating": 7.0, "pos": "RB", "photo": "", "age": "34", "val": "€12M", "height": "173 cm"},
+                {"name": "A. Rüdiger", "jersey": "22", "rating": 7.8, "pos": "RCB", "photo": "", "age": "33", "val": "€25M", "height": "190 cm"},
+                {"name": "Nacho", "jersey": "6", "rating": 6.4, "pos": "LCB", "photo": "", "age": "36", "val": "€4M", "height": "180 cm"},
+                {"name": "F. Mendy", "jersey": "23", "rating": 6.6, "pos": "LB", "photo": "", "age": "30", "val": "€20M", "height": "180 cm"},
+                {"name": "F. Valverde", "jersey": "15", "rating": 7.4, "pos": "RCM", "photo": "", "age": "27", "val": "€100M", "height": "182 cm"},
+                {"name": "T. Kroos", "jersey": "8", "rating": 8.1, "pos": "CM", "photo": "", "age": "36", "val": "€10M", "height": "183 cm"},
+                {"name": "E. Camavinga", "jersey": "12", "rating": 7.2, "pos": "LCM", "photo": "", "age": "23", "val": "€90M", "height": "182 cm"},
+                {"name": "J. Bellingham", "jersey": "5", "rating": 8.3, "pos": "AM", "photo": "frontend/assets/bellingham.jpg", "age": "22", "val": "€180M", "height": "186 cm"},
+                {"name": "Vinícius Jr.", "jersey": "7", "rating": 8.6, "pos": "LST", "photo": "", "age": "25", "val": "€150M", "height": "176 cm"},
+                {"name": "Rodrygo", "jersey": "11", "rating": 7.9, "pos": "RST", "photo": "", "age": "25", "val": "€100M", "height": "174 cm"},
             ],
             "bayern": [
-                {"name": "M. Neuer", "jersey": "1", "rating": 5.9, "pos": "GK", "photo": ""},
-                {"name": "J. Kimmich", "jersey": "6", "rating": 8.6, "pos": "RB", "photo": ""},
-                {"name": "M. de Ligt", "jersey": "4", "rating": 7.0, "pos": "RCB", "photo": ""},
-                {"name": "E. Dier", "jersey": "15", "rating": 6.4, "pos": "LCB", "photo": ""},
-                {"name": "N. Mazraoui", "jersey": "40", "rating": 6.8, "pos": "LB", "photo": ""},
-                {"name": "K. Laimer", "jersey": "27", "rating": 6.1, "pos": "LDM", "photo": ""},
-                {"name": "A. Pavlović", "jersey": "45", "rating": 8.1, "pos": "RDM", "photo": ""},
-                {"name": "L. Sané", "jersey": "10", "rating": 7.8, "pos": "RAM", "photo": ""},
-                {"name": "T. Müller", "jersey": "25", "rating": 7.2, "pos": "CAM", "photo": ""},
-                {"name": "J. Musiala", "jersey": "42", "rating": 8.5, "pos": "LAM", "photo": ""},
-                {"name": "H. Kane", "jersey": "9", "rating": 8.0, "pos": "ST", "photo": ""},
+                {"name": "M. Neuer", "jersey": "1", "rating": 5.9, "pos": "GK", "photo": "", "age": "40", "val": "€5M", "height": "193 cm"},
+                {"name": "J. Kimmich", "jersey": "6", "rating": 8.6, "pos": "RB", "photo": "", "age": "31", "val": "€50M", "height": "177 cm"},
+                {"name": "M. de Ligt", "jersey": "4", "rating": 7.0, "pos": "RCB", "photo": "", "age": "26", "val": "€65M", "height": "188 cm"},
+                {"name": "E. Dier", "jersey": "15", "rating": 6.4, "pos": "LCB", "photo": "", "age": "32", "val": "€12M", "height": "188 cm"},
+                {"name": "N. Mazraoui", "jersey": "40", "rating": 6.8, "pos": "LB", "photo": "", "age": "28", "val": "€30M", "height": "183 cm"},
+                {"name": "K. Laimer", "jersey": "27", "rating": 6.1, "pos": "LDM", "photo": "", "age": "29", "val": "€30M", "height": "180 cm"},
+                {"name": "A. Pavlović", "jersey": "45", "rating": 8.1, "pos": "RDM", "photo": "", "age": "22", "val": "€25M", "height": "188 cm"},
+                {"name": "L. Sané", "jersey": "10", "rating": 7.8, "pos": "RAM", "photo": "", "age": "30", "val": "€70M", "height": "183 cm"},
+                {"name": "T. Müller", "jersey": "25", "rating": 7.2, "pos": "CAM", "photo": "", "age": "36", "val": "€8M", "height": "185 cm"},
+                {"name": "J. Musiala", "jersey": "42", "rating": 8.5, "pos": "LAM", "photo": "", "age": "23", "val": "€110M", "height": "184 cm"},
+                {"name": "H. Kane", "jersey": "9", "rating": 8.0, "pos": "ST", "photo": "", "age": "32", "val": "€110M", "height": "188 cm"},
             ],
             "arsenal": [
-                {"name": "D. Raya", "jersey": "22", "rating": 6.8, "pos": "GK", "photo": ""},
-                {"name": "B. White", "jersey": "4", "rating": 7.2, "pos": "RB", "photo": ""},
-                {"name": "W. Saliba", "jersey": "2", "rating": 7.7, "pos": "RCB", "photo": ""},
-                {"name": "G. Magalhães", "jersey": "6", "rating": 7.3, "pos": "LCB", "photo": ""},
-                {"name": "J. Kiwior", "jersey": "15", "rating": 6.4, "pos": "LB", "photo": ""},
-                {"name": "D. Rice", "jersey": "41", "rating": 8.0, "pos": "LCM", "photo": ""},
-                {"name": "Jorginho", "jersey": "20", "rating": 7.1, "pos": "RCM", "photo": ""},
-                {"name": "M. Ødegaard", "jersey": "8", "rating": 8.4, "pos": "AM", "photo": ""},
-                {"name": "B. Saka", "jersey": "7", "rating": 8.2, "pos": "RW", "photo": ""},
-                {"name": "G. Martinelli", "jersey": "11", "rating": 7.5, "pos": "LW", "photo": ""},
-                {"name": "K. Havertz", "jersey": "29", "rating": 7.9, "pos": "ST", "photo": ""},
+                {"name": "D. Raya", "jersey": "22", "rating": 6.8, "pos": "GK", "photo": "", "age": "30", "val": "€35M", "height": "183 cm"},
+                {"name": "B. White", "jersey": "4", "rating": 7.2, "pos": "RB", "photo": "", "age": "28", "val": "€55M", "height": "186 cm"},
+                {"name": "W. Saliba", "jersey": "2", "rating": 7.7, "pos": "RCB", "photo": "", "age": "25", "val": "€80M", "height": "192 cm"},
+                {"name": "G. Magalhães", "jersey": "6", "rating": 7.3, "pos": "LCB", "photo": "", "age": "28", "val": "€65M", "height": "190 cm"},
+                {"name": "J. Kiwior", "jersey": "15", "rating": 6.4, "pos": "LB", "photo": "", "age": "26", "val": "€25M", "height": "189 cm"},
+                {"name": "D. Rice", "jersey": "41", "rating": 8.0, "pos": "LCM", "photo": "", "age": "27", "val": "€110M", "height": "185 cm"},
+                {"name": "Jorginho", "jersey": "20", "rating": 7.1, "pos": "RCM", "photo": "", "age": "34", "val": "€15M", "height": "180 cm"},
+                {"name": "M. Ødegaard", "jersey": "8", "rating": 8.4, "pos": "AM", "photo": "", "age": "27", "val": "€95M", "height": "178 cm"},
+                {"name": "B. Saka", "jersey": "7", "rating": 8.2, "pos": "RW", "photo": "", "age": "24", "val": "€130M", "height": "178 cm"},
+                {"name": "G. Martinelli", "jersey": "11", "rating": 7.5, "pos": "LW", "photo": "", "age": "24", "val": "€80M", "height": "178 cm"},
+                {"name": "K. Havertz", "jersey": "29", "rating": 7.9, "pos": "ST", "photo": "", "age": "26", "val": "€60M", "height": "193 cm"},
             ],
             "haiti": [
-                {"name": "Duverger", "jersey": "1", "rating": 6.8, "pos": "GK", "photo": ""},
-                {"name": "Gérard", "jersey": "2", "rating": 7.2, "pos": "RB", "photo": ""},
-                {"name": "Arise", "jersey": "4", "rating": 7.5, "pos": "RCB", "photo": ""},
-                {"name": "Adé", "jersey": "6", "rating": 7.1, "pos": "LCB", "photo": ""},
-                {"name": "Lacroix", "jersey": "3", "rating": 8.3, "pos": "LB", "photo": ""},
-                {"name": "Alceus", "jersey": "8", "rating": 7.0, "pos": "LCM", "photo": ""},
-                {"name": "L. Joseph", "jersey": "14", "rating": 8.1, "pos": "RCM", "photo": ""},
-                {"name": "R. Providence", "jersey": "10", "rating": 8.4, "pos": "AM", "photo": ""},
-                {"name": "Antoine", "jersey": "7", "rating": 6.9, "pos": "RW", "photo": ""},
-                {"name": "F. Pierrot", "jersey": "9", "rating": 8.6, "pos": "ST", "photo": ""},
-                {"name": "Nazon", "jersey": "11", "rating": 7.4, "pos": "LW", "photo": ""},
+                {"name": "Duverger", "jersey": "1", "rating": 6.8, "pos": "GK", "photo": "", "age": "26", "val": "€500K", "height": "188 cm"},
+                {"name": "Gérard", "jersey": "2", "rating": 7.2, "pos": "RB", "photo": "", "age": "24", "val": "€300K", "height": "178 cm"},
+                {"name": "Arise", "jersey": "4", "rating": 7.5, "pos": "RCB", "photo": "", "age": "25", "val": "€450K", "height": "185 cm"},
+                {"name": "Adé", "jersey": "6", "rating": 7.1, "pos": "LCB", "photo": "", "age": "31", "val": "€200K", "height": "190 cm"},
+                {"name": "Lacroix", "jersey": "3", "rating": 8.3, "pos": "LB", "photo": "", "age": "32", "val": "€400K", "height": "179 cm"},
+                {"name": "Alceus", "jersey": "8", "rating": 7.0, "pos": "LCM", "photo": "", "age": "29", "val": "€350K", "height": "177 cm"},
+                {"name": "L. Joseph", "jersey": "14", "rating": 8.1, "pos": "RCM", "photo": "", "age": "25", "val": "€1M", "height": "185 cm"},
+                {"name": "R. Providence", "jersey": "10", "rating": 8.4, "pos": "AM", "photo": "", "age": "24", "val": "€2M", "height": "179 cm"},
+                {"name": "Antoine", "jersey": "7", "rating": 6.9, "pos": "RW", "photo": "", "age": "32", "val": "€600K", "height": "178 cm"},
+                {"name": "F. Pierrot", "jersey": "9", "rating": 8.6, "pos": "ST", "photo": "", "age": "31", "val": "€4M", "height": "194 cm"},
+                {"name": "Nazon", "jersey": "11", "rating": 7.4, "pos": "LW", "photo": "", "age": "31", "val": "€1.5M", "height": "181 cm"},
             ],
             "new zealand": [
-                {"name": "Paulsen", "jersey": "12", "rating": 5.8, "pos": "GK", "photo": ""},
-                {"name": "Payne", "jersey": "2", "rating": 5.4, "pos": "RB", "photo": ""},
-                {"name": "Boxall", "jersey": "4", "rating": 6.0, "pos": "RCB", "photo": ""},
-                {"name": "Bindon", "jersey": "6", "rating": 6.2, "pos": "LCB", "photo": ""},
-                {"name": "Cacace", "jersey": "3", "rating": 6.7, "pos": "LB", "photo": ""},
-                {"name": "Bell", "jersey": "8", "rating": 6.1, "pos": "LDM", "photo": ""},
-                {"name": "Howieson", "jersey": "10", "rating": 5.9, "pos": "RDM", "photo": ""},
-                {"name": "Ruffer", "jersey": "7", "rating": 6.2, "pos": "RAM", "photo": ""},
-                {"name": "Just", "jersey": "14", "rating": 6.5, "pos": "CAM", "photo": ""},
-                {"name": "Garbett", "jersey": "11", "rating": 6.3, "pos": "LAM", "photo": ""},
-                {"name": "Wood", "jersey": "9", "rating": 6.1, "pos": "ST", "photo": ""},
+                {"name": "Paulsen", "jersey": "12", "rating": 5.8, "pos": "GK", "photo": "", "age": "23", "val": "€1M", "height": "195 cm"},
+                {"name": "Payne", "jersey": "2", "rating": 5.4, "pos": "RB", "photo": "", "age": "32", "val": "€500K", "height": "188 cm"},
+                {"name": "Boxall", "jersey": "4", "rating": 6.0, "pos": "RCB", "photo": "", "age": "37", "val": "€200K", "height": "188 cm"},
+                {"name": "Bindon", "jersey": "6", "rating": 6.2, "pos": "LCB", "photo": "", "age": "21", "val": "€600K", "height": "186 cm"},
+                {"name": "Cacace", "jersey": "3", "rating": 6.7, "pos": "LB", "photo": "", "age": "25", "val": "€3M", "height": "183 cm"},
+                {"name": "Bell", "jersey": "8", "rating": 6.1, "pos": "LDM", "photo": "", "age": "26", "val": "€1.2M", "height": "182 cm"},
+                {"name": "Howieson", "jersey": "10", "rating": 5.9, "pos": "RDM", "photo": "", "age": "31", "val": "€400K", "height": "180 cm"},
+                {"name": "Ruffer", "jersey": "7", "rating": 6.2, "pos": "RAM", "photo": "", "age": "25", "val": "€350K", "height": "178 cm"},
+                {"name": "Just", "jersey": "14", "rating": 6.5, "pos": "CAM", "photo": "", "age": "25", "val": "€500K", "height": "177 cm"},
+                {"name": "Garbett", "jersey": "11", "rating": 6.3, "pos": "LAM", "photo": "", "age": "24", "val": "€1.5M", "height": "188 cm"},
+                {"name": "Wood", "jersey": "9", "rating": 6.1, "pos": "ST", "photo": "", "age": "34", "val": "€6M", "height": "191 cm"},
             ]
         }
         for k, v in roster_data.items():
@@ -913,18 +917,93 @@ with tab_sofa:
         for i in range(11):
             p_seed = seed + i
             rating = round(6.0 + (p_seed % 30) / 10.0, 1)
+            age = str(20 + (p_seed % 15))
+            val = f"€{10 + (p_seed % 170)}M"
+            height = f"{170 + (p_seed % 28)} cm"
             roster.append({
                 "name": players[i],
                 "jersey": str((p_seed % 30) + 1),
                 "rating": rating,
                 "pos": positions[i],
-                "photo": ""
+                "photo": "",
+                "age": age,
+                "val": val,
+                "height": height
             })
         return roster
+
+    def get_team_nationality(team_name: str) -> str:
+        name = team_name.lower()
+        if "city" in name or "manchester" in name:
+            return "ENG"
+        elif "real" in name or "madrid" in name:
+            return "ESP"
+        elif "bayern" in name or "munich" in name:
+            return "GER"
+        elif "arsenal" in name:
+            return "ENG"
+        elif "haiti" in name:
+            return "HTI"
+        elif "new zealand" in name:
+            return "NZL"
+        elif "serbia" in name:
+            return "SRB"
+        elif "denmark" in name:
+            return "DEN"
+        elif "liverpool" in name:
+            return "ENG"
+        else:
+            clean = ''.join(c for c in team_name if c.isalnum())
+            return clean[:3].upper() if len(clean) >= 3 else "INT"
 
     # Load rosters
     home_roster = get_team_roster(home_team_name, is_home=True)
     away_roster = get_team_roster(away_team_name, is_home=False)
+
+    # Enrich rosters with extra metrics deterministically
+    def enrich_roster(roster, is_home):
+        t_nat = get_team_nationality(home_team_name if is_home else away_team_name)
+        for i, p in enumerate(roster):
+            p_seed = seed_val + int(p["jersey"]) + (100 if not is_home else 0)
+            
+            # Distance
+            pos = p.get("pos", "CM")
+            if pos == "GK":
+                dist_val = round(4.0 + (p_seed % 15) / 10.0, 1)
+            elif pos in ["CM", "LCM", "RCM", "DM", "LDM", "RDM", "AM", "CAM"]:
+                dist_val = round(10.5 + (p_seed % 25) / 10.0, 1)
+            elif pos in ["LB", "RB", "LWB", "RWB", "LM", "RM", "LW", "RW", "LAM", "RAM"]:
+                dist_val = round(9.8 + (p_seed % 20) / 10.0, 1)
+            else:
+                dist_val = round(8.8 + (p_seed % 20) / 10.0, 1)
+            p["distance"] = f"{dist_val} km"
+            
+            # Nationality
+            if p_seed % 6 == 0:
+                mix_nats = ["BRA", "FRA", "ESP", "ARG", "GER", "POR", "BEL", "NED"]
+                p["nationality"] = mix_nats[p_seed % len(mix_nats)]
+            else:
+                p["nationality"] = t_nat
+                
+            # Fantasy Points
+            base_points = int(p["rating"] * 10)
+            bonus = p_seed % 15
+            p["fantasy"] = f"{base_points + bonus} pts"
+            
+            # Height fallback
+            if "height" not in p:
+                p["height"] = f"{175 + (p_seed % 20)} cm"
+                
+            # Age fallback
+            if "age" not in p:
+                p["age"] = str(20 + (p_seed % 15))
+                
+            # Value fallback
+            if "val" not in p:
+                p["val"] = f"€{5 + (p_seed % 95)}M"
+
+    enrich_roster(home_roster, is_home=True)
+    enrich_roster(away_roster, is_home=False)
     
     # Calculate average ratings
     home_avg = round(sum(p["rating"] for p in home_roster) / 11, 2)
@@ -972,28 +1051,46 @@ with tab_sofa:
         "AM": (60, 50)
     }
     
-    # Render SofaScore lineup header
-    st.markdown(f"""
+    # Interactive display controls using segmented_control for premium visual styling
+    st.markdown("##### ⚙️ Roster Display Controls")
+    col_toggle, col_filter = st.columns([1, 2])
+    with col_toggle:
+        lineup_mode = st.segmented_control(
+            "Display Mode:", 
+            options=["Lineups", "Player Stats"], 
+            default="Lineups", 
+            label_visibility="collapsed"
+        )
+    with col_filter:
+        metric_filter = st.segmented_control(
+            "Overlay Metric:", 
+            options=["Performance", "Distance", "Nationality", "Age", "Market Value", "Fantasy"], 
+            default="Performance", 
+            label_visibility="collapsed"
+        )
+    st.markdown("")
+
+    # custom styling override for segmented control buttons to match the vibrant green active pill state in SofaScore
+    st.html(f"""
+    <style>
+    div[data-testid="stSegmentedControl"] button[aria-checked="true"] {{
+        background-color: #10b981 !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+    }}
+    div[data-testid="stSegmentedControl"] button {{
+        border-radius: 9999px !important;
+        font-family: "Space Grotesk", sans-serif !important;
+    }}
+    </style>
     <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; margin-bottom: 1rem;">
-        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
-            <button style="background-color: #10b981; color: #000; border: none; padding: 0.4rem 1.2rem; border-radius: 2rem; font-weight: 700; font-size: 0.85rem; cursor: pointer;">Lineups</button>
-            <button style="background-color: #15201b; color: #9ca3af; border: 1px solid #233e33; padding: 0.4rem 1.2rem; border-radius: 2rem; font-weight: 600; font-size: 0.85rem; cursor: pointer;">Player Stats</button>
-        </div>
-        <div style="display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1rem; scrollbar-width: none;">
-            <span style="background-color: #1a2c24; color: #34d399; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid #233e33; font-weight:600; white-space: nowrap;">Performance ▾</span>
-            <span style="background-color: #0e1714; color: #9ca3af; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid #1c2e26; white-space: nowrap;">Distance</span>
-            <span style="background-color: #0e1714; color: #9ca3af; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid #1c2e26; white-space: nowrap;">Nationality</span>
-            <span style="background-color: #0e1714; color: #9ca3af; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid #1c2e26; white-space: nowrap;">Age</span>
-            <span style="background-color: #0e1714; color: #9ca3af; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid #1c2e26; white-space: nowrap;">Market Value</span>
-            <span style="background-color: #0e1714; color: #9ca3af; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 1rem; border: 1px solid #1c2e26; white-space: nowrap;">Fantasy</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1c2e26; padding-top: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="font-weight: 700; color: #f3f4f6; font-size: 1.1rem;">{home_team_name}</span>
                 <span style="background-color: #10b981; color: #000; font-size: 0.85rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 0.25rem;">{home_avg}</span>
             </div>
             <div style="display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: #6b7280;">
-                <span style="font-weight: 700; color: #9ca3af;">Ratings Map</span>
+                <span style="font-weight: 700; color: #9ca3af;">{metric_filter} Overlay</span>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="background-color: #10b981; color: #000; font-size: 0.85rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 0.25rem;">{away_avg}</span>
@@ -1001,224 +1098,340 @@ with tab_sofa:
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
-    # Generate player tags
-    players_html = ""
-    
-    # Home Team placement
-    for p in home_roster:
-        pos = p["pos"]
-        x, y = coords.get(pos, (50, 50))
-        left_pct = x
-        top_pct = y
+    if lineup_mode == "Lineups":
+        # Generate player tags
+        players_html = ""
         
-        rating = p["rating"]
-        if rating >= 8.0:
-            badge_bg = "#10b981"
-            badge_fg = "#000"
-        elif rating >= 7.0:
-            badge_bg = "#34d399"
-            badge_fg = "#000"
-        elif rating >= 6.0:
-            badge_bg = "#f59e0b"
-            badge_fg = "#000"
-        else:
-            badge_bg = "#ef4444"
-            badge_fg = "#fff"
+        # Home Team placement
+        for p in home_roster:
+            pos = p["pos"]
+            x, y = coords.get(pos, (50, 50))
+            left_pct = x
+            top_pct = y
             
-        img_src = get_image_base64(p.get("photo", ""))
-        if img_src:
-            circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
-        else:
-            circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{home_color}; color:#fff; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+            rating = p["rating"]
             
-        players_html += f"""
-        <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
-            <div class="player-circle">{circle_content}</div>
-            <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{rating}</div>
-            <div class="player-name-label">{p["name"]}</div>
-            <div class="player-jersey-label">#{p["jersey"]}</div>
-        </div>
-        """
-        
-    # Away Team placement
-    for p in away_roster:
-        pos = p["pos"]
-        x, y = coords.get(pos, (50, 50))
-        left_pct = 100 - x
-        top_pct = y
-        
-        rating = p["rating"]
-        if rating >= 8.0:
-            badge_bg = "#10b981"
-            badge_fg = "#000"
-        elif rating >= 7.0:
-            badge_bg = "#34d399"
-            badge_fg = "#000"
-        elif rating >= 6.0:
-            badge_bg = "#f59e0b"
-            badge_fg = "#000"
-        else:
-            badge_bg = "#ef4444"
-            badge_fg = "#fff"
+            # Setup dynamic metric values inside the badges
+            if metric_filter == "Performance":
+                badge_text = str(rating)
+                if rating >= 8.0:
+                    badge_bg = "#10b981"
+                    badge_fg = "#000"
+                elif rating >= 7.0:
+                    badge_bg = "#34d399"
+                    badge_fg = "#000"
+                elif rating >= 6.0:
+                    badge_bg = "#f59e0b"
+                    badge_fg = "#000"
+                else:
+                    badge_bg = "#ef4444"
+                    badge_fg = "#fff"
+            elif metric_filter == "Age":
+                badge_text = p["age"] + " yrs"
+                badge_bg = "#374151"
+                badge_fg = "#fff"
+            elif metric_filter == "Market Value":
+                badge_text = p["val"]
+                badge_bg = "#047857"
+                badge_fg = "#fff"
+            elif metric_filter == "Distance":
+                badge_text = p["distance"]
+                badge_bg = "#3b82f6"
+                badge_fg = "#fff"
+            elif metric_filter == "Nationality":
+                badge_text = p["nationality"]
+                badge_bg = "#8b5cf6"
+                badge_fg = "#fff"
+            elif metric_filter == "Fantasy":
+                badge_text = p["fantasy"]
+                badge_bg = "#ec4899"
+                badge_fg = "#fff"
+            else:
+                badge_text = p.get("height", "180 cm")
+                badge_bg = "#4b5563"
+                badge_fg = "#fff"
+                
+            img_src = get_image_base64(p.get("photo", ""))
+            if img_src:
+                circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
+            else:
+                circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{home_color}; color:#fff; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+                
+            players_html += f"""
+            <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
+                <div class="player-circle">{circle_content}</div>
+                <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{badge_text}</div>
+                <div class="player-name-label">{p["name"]}</div>
+                <div class="player-jersey-label">#{p["jersey"]}</div>
+            </div>
+            """
             
-        img_src = get_image_base64(p.get("photo", ""))
-        if img_src:
-            circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
-        else:
-            circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{away_color}; color:{away_text}; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+        # Away Team placement
+        for p in away_roster:
+            pos = p["pos"]
+            x, y = coords.get(pos, (50, 50))
+            left_pct = 100 - x
+            top_pct = y
             
-        players_html += f"""
-        <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
-            <div class="player-circle">{circle_content}</div>
-            <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{rating}</div>
-            <div class="player-name-label">{p["name"]}</div>
-            <div class="player-jersey-label">#{p["jersey"]}</div>
-        </div>
-        """
+            rating = p["rating"]
+            
+            # Setup dynamic metric values inside the badges
+            if metric_filter == "Performance":
+                badge_text = str(rating)
+                if rating >= 8.0:
+                    badge_bg = "#10b981"
+                    badge_fg = "#000"
+                elif rating >= 7.0:
+                    badge_bg = "#34d399"
+                    badge_fg = "#000"
+                elif rating >= 6.0:
+                    badge_bg = "#f59e0b"
+                    badge_fg = "#000"
+                else:
+                    badge_bg = "#ef4444"
+                    badge_fg = "#fff"
+            elif metric_filter == "Age":
+                badge_text = p["age"] + " yrs"
+                badge_bg = "#374151"
+                badge_fg = "#fff"
+            elif metric_filter == "Market Value":
+                badge_text = p["val"]
+                badge_bg = "#047857"
+                badge_fg = "#fff"
+            elif metric_filter == "Distance":
+                badge_text = p["distance"]
+                badge_bg = "#3b82f6"
+                badge_fg = "#fff"
+            elif metric_filter == "Nationality":
+                badge_text = p["nationality"]
+                badge_bg = "#8b5cf6"
+                badge_fg = "#fff"
+            elif metric_filter == "Fantasy":
+                badge_text = p["fantasy"]
+                badge_bg = "#ec4899"
+                badge_fg = "#fff"
+            else:
+                badge_text = p.get("height", "180 cm")
+                badge_bg = "#4b5563"
+                badge_fg = "#fff"
+                
+            img_src = get_image_base64(p.get("photo", ""))
+            if img_src:
+                circle_content = f'<img src="{img_src}" style="width:100%; height:100%; object-fit:cover;" />'
+            else:
+                circle_content = f'<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:{away_color}; color:{away_text}; font-weight:800; font-size:0.85rem;">{p["jersey"]}</div>'
+                
+            players_html += f"""
+            <div class="player-node" style="left: {left_pct}%; top: {top_pct}%;">
+                <div class="player-circle">{circle_content}</div>
+                <div class="rating-badge" style="background-color: {badge_bg}; color: {badge_fg};">{badge_text}</div>
+                <div class="player-name-label">{p["name"]}</div>
+                <div class="player-jersey-label">#{p["jersey"]}</div>
+            </div>
+            """
 
-    # Draw full pitch board
-    st.markdown(f"""
-    <style>
-    .pitch-board {{
-        position: relative;
-        width: 100%;
-        height: 520px;
-        background-color: #0c1c12;
-        border: 2px solid #1a3c25;
-        border-radius: 0.75rem;
-        overflow: hidden;
-        margin-bottom: 2rem;
-        box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
-    }}
-    .pitch-line-center {{
-        position: absolute;
-        left: 50%;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background-color: rgba(255,255,255,0.12);
-    }}
-    .pitch-line-circle {{
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 110px;
-        height: 110px;
-        border: 2px solid rgba(255,255,255,0.12);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-    }}
-    .pitch-line-center-dot {{
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 6px;
-        height: 6px;
-        background-color: rgba(255,255,255,0.15);
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-    }}
-    .pitch-penalty-left {{
-        position: absolute;
-        left: 0;
-        top: 22%;
-        width: 75px;
-        height: 56%;
-        border: 2px solid rgba(255,255,255,0.12);
-        border-left: none;
-    }}
-    .pitch-penalty-left-inner {{
-        position: absolute;
-        left: 0;
-        top: 36%;
-        width: 25px;
-        height: 28%;
-        border: 2px solid rgba(255,255,255,0.12);
-        border-left: none;
-    }}
-    .pitch-penalty-right {{
-        position: absolute;
-        right: 0;
-        top: 22%;
-        width: 75px;
-        height: 56%;
-        border: 2px solid rgba(255,255,255,0.12);
-        border-right: none;
-    }}
-    .pitch-penalty-right-inner {{
-        position: absolute;
-        right: 0;
-        top: 36%;
-        width: 25px;
-        height: 28%;
-        border: 2px solid rgba(255,255,255,0.12);
-        border-right: none;
-    }}
-    .player-node {{
-        position: absolute;
-        transform: translate(-50%, -50%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 75px;
-        transition: transform 0.2s ease;
-    }}
-    .player-node:hover {{
-        transform: translate(-50%, -50%) scale(1.1);
-        z-index: 100;
-    }}
-    .player-circle {{
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 2px solid #ffffff;
-        background-color: #1a2c22;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }}
-    .rating-badge {{
-        font-size: 0.65rem;
-        font-weight: 800;
-        padding: 0.1rem 0.35rem;
-        border-radius: 0.25rem;
-        margin-top: -8px;
-        z-index: 10;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        border: 1px solid rgba(0,0,0,0.2);
-    }}
-    .player-name-label {{
-        color: #f3f4f6;
-        font-size: 0.68rem;
-        font-weight: 700;
-        text-align: center;
-        margin-top: 4px;
-        white-space: nowrap;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5);
-    }}
-    .player-jersey-label {{
-        color: #9ca3af;
-        font-size: 0.62rem;
-        font-weight: 600;
-        margin-top: 1px;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-    }}
-    </style>
-    <div class="pitch-board">
-        <div class="pitch-line-center"></div>
-        <div class="pitch-line-circle"></div>
-        <div class="pitch-line-center-dot"></div>
-        <div class="pitch-penalty-left"></div>
-        <div class="pitch-penalty-left-inner"></div>
-        <div class="pitch-penalty-right"></div>
-        <div class="pitch-penalty-right-inner"></div>
-        {players_html}
-    </div>
-    """, unsafe_allow_html=True)
+        # Draw full pitch board using st.html to prevent any markdown preformatted / code block parsing errors
+        st.html(f"""
+        <style>
+        .pitch-board {{
+            position: relative;
+            width: 100%;
+            height: 520px;
+            background-color: #0c1c12;
+            border: 2px solid #1a3c25;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }}
+        .pitch-line-center {{
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: rgba(255,255,255,0.12);
+        }}
+        .pitch-line-circle {{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 110px;
+            height: 110px;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }}
+        .pitch-line-center-dot {{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 6px;
+            height: 6px;
+            background-color: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }}
+        .pitch-penalty-left {{
+            position: absolute;
+            left: 0;
+            top: 22%;
+            width: 75px;
+            height: 56%;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-left: none;
+        }}
+        .pitch-penalty-left-inner {{
+            position: absolute;
+            left: 0;
+            top: 36%;
+            width: 25px;
+            height: 28%;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-left: none;
+        }}
+        .pitch-penalty-right {{
+            position: absolute;
+            right: 0;
+            top: 22%;
+            width: 75px;
+            height: 56%;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-right: none;
+        }}
+        .pitch-penalty-right-inner {{
+            position: absolute;
+            right: 0;
+            top: 36%;
+            width: 25px;
+            height: 28%;
+            border: 2px solid rgba(255,255,255,0.12);
+            border-right: none;
+        }}
+        .player-node {{
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 75px;
+            transition: transform 0.2s ease;
+        }}
+        .player-node:hover {{
+            transform: translate(-50%, -50%) scale(1.1);
+            z-index: 100;
+        }}
+        .player-circle {{
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            background-color: #1a2c22;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }}
+        .rating-badge {{
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.25rem;
+            margin-top: -8px;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.2);
+        }}
+        .player-name-label {{
+            color: #f3f4f6;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 4px;
+            white-space: nowrap;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5);
+        }}
+        .player-jersey-label {{
+            color: #9ca3af;
+            font-size: 0.62rem;
+            font-weight: 600;
+            margin-top: 1px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+        }}
+        </style>
+        <div class="pitch-board">
+            <div class="pitch-line-center"></div>
+            <div class="pitch-line-circle"></div>
+            <div class="pitch-line-center-dot"></div>
+            <div class="pitch-penalty-left"></div>
+            <div class="pitch-penalty-left-inner"></div>
+            <div class="pitch-penalty-right"></div>
+            <div class="pitch-penalty-right-inner"></div>
+            {players_html}
+        </div>
+        """)
+    else:
+        st.markdown("#### 📊 Roster Statistical Breakdown")
+        
+        # Build table rows
+        rows_html = ""
+        # Home roster rows
+        for p in home_roster:
+            rows_html += f"""
+            <tr>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #10b981;">{home_team_name}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['age']} yrs</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #34d399;">{p['val']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['height']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{p['distance']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #ec4899;">{p['fantasy']}</td>
+            </tr>
+            """
+        # Away roster rows
+        for p in away_roster:
+            rows_html += f"""
+            <tr>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{away_team_name}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['age']} yrs</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #34d399;">{p['val']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['height']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{p['distance']}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #ec4899;">{p['fantasy']}</td>
+            </tr>
+            """
+            
+        st.html(f"""
+        <table style="width: 100%; border-collapse: collapse; background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; overflow: hidden; font-size: 0.85rem;">
+            <thead>
+                <tr style="background-color: #10b981; color: #000; font-weight:800; text-align:left;">
+                    <th style="padding: 0.6rem;">Player</th>
+                    <th style="padding: 0.6rem;">Team</th>
+                    <th style="padding: 0.6rem;">Position</th>
+                    <th style="padding: 0.6rem;">Rating</th>
+                    <th style="padding: 0.6rem;">Nationality</th>
+                    <th style="padding: 0.6rem;">Age</th>
+                    <th style="padding: 0.6rem;">Market Value</th>
+                    <th style="padding: 0.6rem;">Height</th>
+                    <th style="padding: 0.6rem;">Distance</th>
+                    <th style="padding: 0.6rem;">Fantasy</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows_html}
+            </tbody>
+        </table>
+        """)
     
     st.markdown("---")
     

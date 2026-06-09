@@ -469,4 +469,21 @@ def get_session_pdf_endpoint(session_id: str, x_user_token: Optional[str] = Head
             detail=f"Failed to compile PDF brochure: {str(e)}"
         )
 
+@app.get("/roster", status_code=status.HTTP_200_OK)
+def get_roster_endpoint(team_name: str):
+    """Retrieves the real-world starting XI roster for a team, querying the LLM + cache if needed."""
+    try:
+        from backend.roster_store import get_real_world_roster
+        roster = get_real_world_roster(team_name)
+        if roster:
+            return {"status": "success", "roster": roster}
+        else:
+            return {"status": "fallback", "message": "Failed to get real roster, use fallback"}
+    except Exception as e:
+        logger.error(f"Error serving roster for {team_name}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch roster: {str(e)}"
+        )
+
 

@@ -1,0 +1,338 @@
+{
+    "chelsea": [
+        {
+            "name": "Kepa Arrizabalaga",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "",
+            "age": "29",
+            "val": "€55M",
+            "height": "191 cm"
+        },
+        {
+            "name": "Ben Chilwell",
+            "jersey": "2",
+            "rating": 7.5,
+            "pos": "LB",
+            "photo": "",
+            "age": "26",
+            "val": "€40M",
+            "height": "173 cm"
+        },
+        {
+            "name": "Reece James",
+            "jersey": "21",
+            "rating": 8.0,
+            "pos": "RB",
+            "photo": "",
+            "age": "23",
+            "val": "€100M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Thiago Silva",
+            "jersey": "22",
+            "rating": 7.8,
+            "pos": "RCB",
+            "photo": "",
+            "age": "37",
+            "val": "€20M",
+            "height": "183 cm"
+        },
+        {
+            "name": "Enzo Fernandez",
+            "jersey": "18",
+            "rating": 7.6,
+            "pos": "LCM",
+            "photo": "",
+            "age": "22",
+            "val": "€140M",
+            "height": "172 cm"
+        },
+        {
+            "name": "Conor Caicedo",
+            "jersey": "15",
+            "rating": 7.4,
+            "pos": "RCM",
+            "photo": "",
+            "age": "22",
+            "val": "€50M",
+            "height": "183 cm"
+        },
+        {
+            "name": "Moisés Caicedo",
+            "jersey": "23",
+            "rating": 7.3,
+            "pos": "LDM",
+            "photo": "",
+            "age": "22",
+            "val": "€100M",
+            "height": "173 cm"
+        },
+        {
+            "name": "Christopher Nkunku",
+            "jersey": "7",
+            "rating": 7.7,
+            "pos": "CAM",
+            "photo": "",
+            "age": "23",
+            "val": "€100M",
+            "height": "175 cm"
+        },
+        {
+            "name": "Cole Palmer",
+            "jersey": "10",
+            "rating": 7.9,
+            "pos": "LAM",
+            "photo": "",
+            "age": "21",
+            "val": "€60M",
+            "height": "175 cm"
+        },
+        {
+            "name": "Christopher Operi",
+            "jersey": "9",
+            "rating": 7.5,
+            "pos": "ST",
+            "photo": "",
+            "age": "22",
+            "val": "€40M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Nicolas Jackson",
+            "jersey": "11",
+            "rating": 7.6,
+            "pos": "RW",
+            "photo": "",
+            "age": "21",
+            "val": "€60M",
+            "height": "180 cm"
+        }
+    ],
+    "angola": [
+        {
+            "name": "Bukayo Saka",
+            "jersey": "18",
+            "rating": 7.4,
+            "pos": "RB",
+            "photo": "",
+            "age": "24",
+            "val": "€120M",
+            "height": "180 cm"
+        },
+        {
+            "name": "João Cancelo",
+            "jersey": "7",
+            "rating": 8.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "29",
+            "val": "€150M",
+            "height": "178 cm"
+        },
+        {
+            "name": "Rúben Dias",
+            "jersey": "10",
+            "rating": 7.8,
+            "pos": "LW",
+            "photo": "",
+            "age": "26",
+            "val": "€80M",
+            "height": "182 cm"
+        },
+        {
+            "name": "Ricardo Carvalho",
+            "jersey": "11",
+            "rating": 7.6,
+            "pos": "RCB",
+            "photo": "",
+            "age": "27",
+            "val": "€90M",
+            "height": "175 cm"
+        },
+        {
+            "name": "João Félix",
+            "jersey": "22",
+            "rating": 8.0,
+            "pos": "ST",
+            "photo": "",
+            "age": "26",
+            "val": "€200M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Diego Costa",
+            "jersey": "6",
+            "rating": 7.9,
+            "pos": "LAM",
+            "photo": "",
+            "age": "28",
+            "val": "€110M",
+            "height": "178 cm"
+        },
+        {
+            "name": "João Félix",
+            "jersey": "14",
+            "rating": 8.2,
+            "pos": "CAM",
+            "photo": "",
+            "age": "25",
+            "val": "€130M",
+            "height": "180 cm"
+        },
+        {
+            "name": "João Pedro",
+            "jersey": "5",
+            "rating": 7.3,
+            "pos": "LST",
+            "photo": "",
+            "age": "22",
+            "val": "€60M",
+            "height": "175 cm"
+        },
+        {
+            "name": "Fernando Torres",
+            "jersey": "9",
+            "rating": 8.5,
+            "pos": "RST",
+            "photo": "",
+            "age": "30",
+            "val": "€180M",
+            "height": "172 cm"
+        },
+        {
+            "name": "João Félix (alternate)",
+            "jersey": "12",
+            "rating": 8.0,
+            "pos": "RAM",
+            "photo": "",
+            "age": "26",
+            "val": "€140M",
+            "height": "183 cm"
+        },
+        {
+            "name": "João Pedro (alternate)",
+            "jersey": "8",
+            "rating": 7.7,
+            "pos": "LW",
+            "photo": "",
+            "age": "24",
+            "val": "€75M",
+            "height": "178 cm"
+        }
+    ],
+    "central african republic": [
+        {
+            "name": "Aristide N'Gounou",
+            "jersey": "1",
+            "rating": 7.1,
+            "pos": "GK",
+            "photo": "",
+            "age": "32",
+            "val": "€2M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Jeannot Ayé",
+            "jersey": "2",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "",
+            "age": "28",
+            "val": "€1.5M",
+            "height": "178 cm"
+        },
+        {
+            "name": "Hervé N'Kusi",
+            "jersey": "4",
+            "rating": 6.9,
+            "pos": "RCB",
+            "photo": "",
+            "age": "26",
+            "val": "€1.8M",
+            "height": "182 cm"
+        },
+        {
+            "name": "Maxwell Koni",
+            "jersey": "5",
+            "rating": 6.7,
+            "pos": "LCB",
+            "photo": "",
+            "age": "29",
+            "val": "€1.2M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Dieudonné N'Goubi",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "",
+            "age": "27",
+            "val": "€1.6M",
+            "height": "175 cm"
+        },
+        {
+            "name": "Fabrice Sarr",
+            "jersey": "6",
+            "rating": 7.2,
+            "pos": "LDM",
+            "photo": "",
+            "age": "25",
+            "val": "€2.5M",
+            "height": "183 cm"
+        },
+        {
+            "name": "Arnaud N'Kossi",
+            "jersey": "8",
+            "rating": 7.3,
+            "pos": "RDM",
+            "photo": "",
+            "age": "24",
+            "val": "€2.0M",
+            "height": "179 cm"
+        },
+        {
+            "name": "Jean-Baptiste Moukala",
+            "jersey": "10",
+            "rating": 7.5,
+            "pos": "CAM",
+            "photo": "",
+            "age": "23",
+            "val": "€3.0M",
+            "height": "172 cm"
+        },
+        {
+            "name": "Aristide N'djala",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "",
+            "age": "22",
+            "val": "€1.8M",
+            "height": "170 cm"
+        },
+        {
+            "name": "Herbert N'Kiala",
+            "jersey": "9",
+            "rating": 7.4,
+            "pos": "ST",
+            "photo": "",
+            "age": "21",
+            "val": "€2.2M",
+            "height": "175 cm"
+        },
+        {
+            "name": "Patrick N'Guessan",
+            "jersey": "11",
+            "rating": 6.9,
+            "pos": "RAM",
+            "photo": "",
+            "age": "20",
+            "val": "€1.5M",
+            "height": "168 cm"
+        }
+    ]
+}

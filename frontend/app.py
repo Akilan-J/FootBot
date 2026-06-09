@@ -842,6 +842,19 @@ with tab_sofa:
 
     # Roster mapping function
     def get_team_roster(team_name: str, is_home: bool):
+        name_norm = team_name.lower().strip()
+        
+        # Try fetching real-world roster from backend API first
+        try:
+            import requests
+            response = requests.get(f"{BACKEND_URL}/roster", params={"team_name": team_name}, timeout=10)
+            if response.status_code == 200:
+                res_data = response.json()
+                if res_data.get("status") == "success" and res_data.get("roster"):
+                    return res_data["roster"]
+        except Exception:
+            pass
+
         roster_data = {
             "manchester city": [
                 {"name": "Ederson", "jersey": "31", "rating": 6.2, "pos": "GK", "photo": "frontend/assets/ederson.png", "age": "32", "val": "€35M", "height": "188 cm"},
@@ -1145,7 +1158,11 @@ with tab_sofa:
     def enrich_roster(roster, is_home):
         t_nat = get_team_nationality(home_team_name if is_home else away_team_name)
         for i, p in enumerate(roster):
-            p_seed = seed_val + int(p["jersey"]) + (100 if not is_home else 0)
+            try:
+                jersey_int = int(''.join(c for c in str(p.get("jersey", "0")) if c.isdigit()))
+            except ValueError:
+                jersey_int = i + 1
+            p_seed = seed_val + jersey_int + (100 if not is_home else 0)
             
             # Distance
             pos = p.get("pos", "CM")

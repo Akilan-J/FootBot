@@ -1224,29 +1224,29 @@ with tab_sofa:
     elif "zealand" in away_team_name.lower():
         away_color = "#111827"
         
-    # Coords Mapping
+    # Coords Mapping (scaled to keep all players of a team in their respective half)
     coords = {
         "GK": (5, 50),
-        "LB": (20, 15),
-        "LCB": (20, 38),
-        "RCB": (20, 62),
-        "RB": (20, 85),
-        "LDM": (40, 33),
-        "RDM": (40, 67),
-        "LCM": (45, 25),
-        "CM": (45, 50),
-        "RCM": (45, 75),
-        "LAM": (60, 20),
-        "CAM": (60, 50),
-        "RAM": (60, 80),
-        "LW": (75, 15),
-        "ST": (80, 50),
-        "RW": (75, 85),
-        "LST": (78, 33),
-        "RST": (78, 67),
-        "LM": (48, 15),
-        "RM": (48, 85),
-        "AM": (60, 50)
+        "LB": (15, 15),
+        "LCB": (15, 38),
+        "RCB": (15, 62),
+        "RB": (15, 85),
+        "LDM": (25, 33),
+        "RDM": (25, 67),
+        "LCM": (28, 25),
+        "CM": (28, 50),
+        "RCM": (28, 75),
+        "LAM": (38, 20),
+        "CAM": (38, 50),
+        "RAM": (38, 80),
+        "LW": (44, 15),
+        "ST": (45, 50),
+        "RW": (44, 85),
+        "LST": (45, 33),
+        "RST": (45, 67),
+        "LM": (32, 15),
+        "RM": (32, 85),
+        "AM": (38, 50)
     }
     
     # Interactive display controls using segmented_control for premium visual styling

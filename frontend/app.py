@@ -1638,163 +1638,176 @@ with tab_sofa:
     
     col_pctrl, col_pheat = st.columns([1, 1])
     
-    # Retrieve customized player names
-    lw_lbl = locals().get("custom_lw", "LW")
-    rw_lbl = locals().get("custom_rw", "RW")
-    cf_lbl = locals().get("custom_cf", "CF")
-    am_lbl = locals().get("custom_am", "AM")
-    cm_lbl = locals().get("custom_cm", "CM")
-    dm_lbl = locals().get("custom_dm", "DM")
-    cb_lbl = locals().get("custom_cb", "CB")
-    gk_lbl = locals().get("custom_gk", "GK")
-    
-    player_options = [
-        f"🎯 Striker ({cf_lbl})",
-        f"⚡ Left Winger ({lw_lbl})",
-        f"⚡ Right Winger ({rw_lbl})",
-        f"🪄 Attacking Midfielder ({am_lbl})",
-        f"🧠 Central Midfielder ({cm_lbl})",
-        f"🛡️ Holding Anchor ({dm_lbl})",
-        f"🧱 Center Back ({cb_lbl})",
-        f"🧤 Goalkeeper ({gk_lbl})"
-    ]
-    
+    # 2. Dynamic Player Roster options from both teams
+    player_options = []
+    for p in home_roster:
+        player_options.append(f"🏠 {home_team_name}: {p['name']} ({p['pos']} #{p['jersey']})")
+    for p in away_roster:
+        player_options.append(f"✈️ {away_team_name}: {p['name']} ({p['pos']} #{p['jersey']})")
+        
+    if not player_options:
+        player_options = ["No active players"]
+        
     with col_pctrl:
         selected_player = st.selectbox("Select Player Slot:", options=player_options)
         
-        # SofaScore ratings and accurate bio details based on selection
-        if "Striker" in selected_player:
-            rating, rating_color = 8.4, "#10b981" # Green
-            phy, cre, dfn, tec, tac, att = 75, 70, 30, 85, 80, 92
-            p_name = "Erling Haaland"
-            p_team = "Manchester City"
-            p_nat = "🇳🇴 Norway"
-            p_age = "25"
-            p_foot = "Left"
-            p_height = "194 cm"
-            p_weight = "88 kg"
-            p_jersey = "#9"
-            p_val = "€180M"
-            p_trait = "Acrobatic target man & supreme finisher"
-        elif "Left Winger" in selected_player:
-            rating, rating_color = 7.8, "#10b981"
-            phy, cre, dfn, tec, tac, att = 88, 82, 35, 84, 75, 80
-            p_name = "Phil Foden"
-            p_team = "Manchester City"
-            p_nat = "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England"
-            p_age = "25"
-            p_foot = "Left"
-            p_height = "179 cm"
-            p_weight = "70 kg"
-            p_jersey = "#47"
-            p_val = "€150M"
-            p_trait = "Highly creative interior ball-carrier"
-        elif "Right Winger" in selected_player:
-            rating, rating_color = 7.9, "#10b981"
-            phy, cre, dfn, tec, tac, att = 82, 85, 38, 88, 79, 78
-            p_name = "Bernardo Silva"
-            p_team = "Manchester City"
-            p_nat = "🇵🇹 Portugal"
-            p_age = "31"
-            p_foot = "Left"
-            p_height = "173 cm"
-            p_weight = "64 kg"
-            p_jersey = "#20"
-            p_val = "€70M"
-            p_trait = "Relentless presser & half-space facilitator"
-        elif "Attacking" in selected_player:
-            rating, rating_color = 8.1, "#10b981"
-            phy, cre, dfn, tec, tac, att = 70, 90, 48, 92, 88, 75
-            p_name = "Kevin De Bruyne"
-            p_team = "Manchester City"
-            p_nat = "🇧🇪 Belgium"
-            p_age = "34"
-            p_foot = "Right"
-            p_height = "181 cm"
-            p_weight = "75 kg"
-            p_jersey = "#17"
-            p_val = "€60M"
-            p_trait = "Master crosser & elite play creator"
-        elif "Central Midfielder" in selected_player:
-            rating, rating_color = 8.2, "#10b981"
-            phy, cre, dfn, tec, tac, att = 75, 82, 60, 88, 85, 78
-            p_name = "Jude Bellingham"
-            p_team = "Real Madrid"
-            p_nat = "🏴󠁧󠁢󠁥󠁮󠁧󠁿 England"
-            p_age = "22"
-            p_foot = "Right"
-            p_height = "186 cm"
-            p_weight = "75 kg"
-            p_jersey = "#5"
-            p_val = "€180M"
-            p_trait = "Powerful box-to-box engine"
-        elif "Holding Anchor" in selected_player:
-            rating, rating_color = 7.5, "#10b981"
-            phy, cre, dfn, tec, tac, att = 80, 68, 85, 80, 90, 50
-            p_name = "Rodri (Rodrigo Hernández)"
-            p_team = "Manchester City"
-            p_nat = "🇪🇸 Spain"
-            p_age = "29"
-            p_foot = "Right"
-            p_height = "190 cm"
-            p_weight = "82 kg"
-            p_jersey = "#16"
-            p_val = "€120M"
-            p_trait = "Tactical pivot & rest-defense sweeper"
-        elif "Center Back" in selected_player:
-            rating, rating_color = 7.2, "#34d399" # Teal
-            phy, cre, dfn, tec, tac, att = 85, 50, 88, 65, 84, 40
-            p_name = "Rúben Dias"
-            p_team = "Manchester City"
-            p_nat = "🇵🇹 Portugal"
-            p_age = "28"
-            p_foot = "Right"
-            p_height = "187 cm"
-            p_weight = "83 kg"
-            p_jersey = "#3"
-            p_val = "€80M"
-            p_trait = "Commanding stopper & backline leader"
-        else: # Goalkeeper
-            rating, rating_color = 6.9, "#f59e0b" # Orange
-            phy, cre, dfn, tec, tac, att = 75, 40, 90, 60, 85, 10
-            p_name = "Ederson Moraes"
-            p_team = "Manchester City"
-            p_nat = "🇧🇷 Brazil"
-            p_age = "32"
-            p_foot = "Left"
-            p_height = "188 cm"
-            p_weight = "86 kg"
-            p_jersey = "#31"
-            p_val = "€35M"
-            p_trait = "Sweeper-keeper & pin-point distributor"
+        # Find player details
+        selected_p_obj = None
+        p_is_home = True
+        for p in home_roster:
+            opt = f"🏠 {home_team_name}: {p['name']} ({p['pos']} #{p['jersey']})"
+            if opt == selected_player:
+                selected_p_obj = p
+                p_is_home = True
+                break
+        if not selected_p_obj:
+            for p in away_roster:
+                opt = f"✈️ {away_team_name}: {p['name']} ({p['pos']} #{p['jersey']})"
+                if opt == selected_player:
+                    selected_p_obj = p
+                    p_is_home = False
+                    break
+                    
+        # Fallback in case no match
+        if not selected_p_obj and home_roster:
+            selected_p_obj = home_roster[0]
+            p_is_home = True
             
-        # Determine appropriate player image downloaded from the web
-        if "Striker" in selected_player:
-            avatar_path = "frontend/assets/haaland.png"
-        elif "Left Winger" in selected_player:
-            avatar_path = "frontend/assets/foden.png"
-        elif "Right Winger" in selected_player:
-            avatar_path = "frontend/assets/silva.png"
-        elif "Attacking" in selected_player:
-            avatar_path = "frontend/assets/debruyne.png"
-        elif "Central Midfielder" in selected_player:
-            avatar_path = "frontend/assets/bellingham.jpg"
-        elif "Holding Anchor" in selected_player:
-            avatar_path = "frontend/assets/rodri.png"
-        elif "Center Back" in selected_player:
-            avatar_path = "frontend/assets/dias.png"
-        elif "Goalkeeper" in selected_player:
-            avatar_path = "frontend/assets/ederson.png"
+        if selected_p_obj:
+            pos = selected_p_obj["pos"]
+            rating = selected_p_obj["rating"]
+            p_name = selected_p_obj["name"]
+            p_team = home_team_name if p_is_home else away_team_name
+            p_nat = selected_p_obj.get("nationality", "INT")
+            p_age = selected_p_obj.get("age", "25")
+            p_height = selected_p_obj.get("height", "180 cm")
+            p_jersey = f"#{selected_p_obj['jersey']}"
+            p_val = selected_p_obj.get("val", "€20M")
+            
+            # Deterministic traits, foot, weight, and attribute scores from name hash
+            import hashlib
+            p_hash = int(hashlib.md5(p_name.encode()).hexdigest(), 16)
+            offset = p_hash % 15
+            p_foot = "Right" if p_hash % 3 != 0 else "Left"
+            p_weight = f"{70 + (p_hash % 20)} kg"
+            
+            # Traits map
+            traits_map = {
+                "GK": "Sweeper-keeper & pin-point distributor",
+                "LB": "Overlapping fullback & defensive anchor",
+                "RB": "Overlapping fullback & defensive anchor",
+                "LCB": "Commanding stopper & backline leader",
+                "RCB": "Commanding stopper & backline leader",
+                "LDM": "Tactical pivot & rest-defense blocker",
+                "RDM": "Tactical pivot & rest-defense blocker",
+                "LCM": "Box-to-box transition engine",
+                "CM": "Box-to-box transition engine",
+                "RCM": "Box-to-box transition engine",
+                "LAM": "Creative playmaker & half-space facilitator",
+                "CAM": "Creative playmaker & half-space facilitator",
+                "RAM": "Creative playmaker & half-space facilitator",
+                "AM": "Creative playmaker & half-space facilitator",
+                "LW": "Dynamic touchline speedster & inside cutter",
+                "RW": "Dynamic touchline speedster & inside cutter",
+                "ST": "Acrobatic target man & clinical finisher",
+                "LST": "Acrobatic target man & clinical finisher",
+                "RST": "Acrobatic target man & clinical finisher",
+                "LM": "Hard-working wide transition midfielder",
+                "RM": "Hard-working wide transition midfielder"
+            }
+            p_trait = traits_map.get(pos, "Versatile tactical contributor")
+            
+            # Generate attribute scores based on position
+            base_val = int(rating * 10)
+            if pos == "GK":
+                phy = int(base_val * 0.9) + (offset % 10)
+                cre = 30 + (offset % 20)
+                dfn = int(base_val * 1.1) + (offset % 5)
+                tec = 50 + (offset % 15)
+                tac = int(base_val * 1.0) + (offset % 10)
+                att = 10 + (offset % 10)
+            elif pos in ["RCB", "LCB", "LB", "RB"]:
+                phy = int(base_val * 1.05) + (offset % 8)
+                cre = 40 + (offset % 20)
+                dfn = int(base_val * 1.1) + (offset % 5)
+                tec = 60 + (offset % 15)
+                tac = int(base_val * 1.0) + (offset % 10)
+                att = 30 + (offset % 15)
+            elif pos in ["LDM", "RDM", "CM", "LCM", "RCM", "LM", "RM"]:
+                phy = int(base_val * 0.95) + (offset % 10)
+                cre = int(base_val * 1.0) + (offset % 8)
+                dfn = int(base_val * 0.9) + (offset % 10)
+                tec = int(base_val * 1.0) + (offset % 5)
+                tac = int(base_val * 1.05) + (offset % 5)
+                att = 55 + (offset % 15)
+            elif pos in ["CAM", "LAM", "RAM", "AM", "LW", "RW"]:
+                phy = 70 + (offset % 10)
+                cre = int(base_val * 1.1) + (offset % 5)
+                dfn = 35 + (offset % 15)
+                tec = int(base_val * 1.1) + (offset % 5)
+                tac = int(base_val * 0.95) + (offset % 10)
+                att = int(base_val * 1.0) + (offset % 8)
+            else: # ST, LST, RST
+                phy = int(base_val * 1.0) + (offset % 10)
+                cre = 65 + (offset % 15)
+                dfn = 25 + (offset % 15)
+                tec = int(base_val * 1.0) + (offset % 10)
+                tac = int(base_val * 0.95) + (offset % 10)
+                att = int(base_val * 1.15) + (offset % 5)
+                
+            phy = max(10, min(99, phy))
+            cre = max(10, min(99, cre))
+            dfn = max(10, min(99, dfn))
+            tec = max(10, min(99, tec))
+            tac = max(10, min(99, tac))
+            att = max(10, min(99, att))
+            
+            # Rating badge color
+            if rating >= 8.0:
+                rating_color = "#10b981"
+            elif rating >= 7.0:
+                rating_color = "#34d399"
+            elif rating >= 6.0:
+                rating_color = "#f59e0b"
+            else:
+                rating_color = "#ef4444"
+                
+            # Resolve player photo
+            avatar_path = selected_p_obj.get("photo", "")
+            import os
+            if not avatar_path or not os.path.exists(avatar_path):
+                if pos == "GK":
+                    avatar_path = "frontend/assets/goalkeeper_avatar_1780075822964.png"
+                elif pos in ["LB", "LCB", "RCB", "RB"]:
+                    avatar_path = "frontend/assets/defender_avatar_1780075900879.png"
+                elif pos in ["LDM", "RDM", "LCM", "CM", "RCM", "LM", "RM", "LAM", "CAM", "RAM", "AM"]:
+                    avatar_path = "frontend/assets/midfielder_avatar_1780075866999.png"
+                elif pos in ["LW", "RW", "ST", "LST", "RST"]:
+                    avatar_path = "frontend/assets/striker_avatar_1780075841841.png"
+                else:
+                    avatar_path = "frontend/assets/default_avatar_1780075726952.png"
         else:
-            avatar_path = "frontend/assets/haaland.png"
-            
-        # Create a side-by-side row for the Cyberpunk Player Avatar Card and the SofaScore rating card
+            # Absolute fallback values
+            rating, rating_color = 7.0, "#34d399"
+            phy = cre = dfn = tec = tac = att = 70
+            p_name = "Unknown Player"
+            p_jersey = "#0"
+            p_age = "25"
+            p_nat = "INT"
+            p_foot = "Right"
+            p_height = "180 cm"
+            p_weight = "75 kg"
+            p_val = "€1M"
+            p_trait = "Tactical option"
+            avatar_path = "frontend/assets/default_avatar_1780075726952.png"
+            pos = "CM"
+
+        # Create a side-by-side row for the Player Avatar Card and the SofaScore rating card
         col_avatar, col_rating = st.columns([1.1, 1.0])
         with col_avatar:
             st.image(avatar_path, use_container_width=True)
             
         with col_rating:
-            # 1. Performance rating card
             st.markdown(f"""
             <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; margin-bottom: 1.2rem; height: 90%;">
                 <div style="text-align: center; margin-bottom: 1rem;">
@@ -1806,8 +1819,8 @@ with tab_sofa:
                 </div>
             </div>
             """, unsafe_allow_html=True)
-        
-        # 2. Detailed Player Bio Profile Card
+            
+        # Detailed Player Bio Profile Card
         st.markdown(f"""
         <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; margin-bottom: 1.2rem;">
             <h5 style="color: #34d399; font-family: 'Space Grotesk'; margin: 0 0 0.8rem 0;">👤 ACCURATE PLAYER PROFILE</h5>
@@ -1844,8 +1857,8 @@ with tab_sofa:
     with col_pheat:
         st.markdown("#### 🗺️ SofaScore Positional Intensity Heatmap")
         
-        # Custom Heatmap layouts based on player slot selected
-        if "Striker" in selected_player:
+        # Custom Heatmap layouts based on player position
+        if pos in ["ST", "LST", "RST"]:
             heatmap_grid = (
                 " ┌────────────────────────────────────────┐ \n"
                 " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
@@ -1857,7 +1870,7 @@ with tab_sofa:
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
                 " └────────────────────────────────────────┘ "
             )
-        elif "Left Winger" in selected_player:
+        elif pos in ["LW", "LAM", "LM"]:
             heatmap_grid = (
                 " ┌────────────────────────────────────────┐ \n"
                 " │        █  █  ▓  ▒  ░  ░  ░  ░          │ [OPP BOX]\n"
@@ -1869,7 +1882,7 @@ with tab_sofa:
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
                 " └────────────────────────────────────────┘ "
             )
-        elif "Right Winger" in selected_player:
+        elif pos in ["RW", "RAM", "RM"]:
             heatmap_grid = (
                 " ┌────────────────────────────────────────┐ \n"
                 " │        ░  ░  ░  ░  ▒  ▓  █  █          │ [OPP BOX]\n"
@@ -1881,7 +1894,7 @@ with tab_sofa:
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
                 " └────────────────────────────────────────┘ "
             )
-        elif "Attacking" in selected_player or "Central Midfielder" in selected_player:
+        elif pos in ["CAM", "CM", "LCM", "RCM", "AM"]:
             heatmap_grid = (
                 " ┌────────────────────────────────────────┐ \n"
                 " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
@@ -1893,7 +1906,7 @@ with tab_sofa:
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
                 " └────────────────────────────────────────┘ "
             )
-        elif "Holding Anchor" in selected_player:
+        elif pos in ["LDM", "RDM"]:
             heatmap_grid = (
                 " ┌────────────────────────────────────────┐ \n"
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
@@ -1905,7 +1918,7 @@ with tab_sofa:
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
                 " └────────────────────────────────────────┘ "
             )
-        elif "Center Back" in selected_player:
+        elif pos in ["LB", "LCB", "RCB", "RB"]:
             heatmap_grid = (
                 " ┌────────────────────────────────────────┐ \n"
                 " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"

@@ -291,7 +291,7 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
         conn.close()
 
 def get_historical_matches(limit: int = 50) -> List[Dict[str, Any]]:
-    """Retrieves saved historical matches."""
+    """Retrieves saved historical matches, filtering out women's matches."""
     conn = get_db_connection()
     cursor = conn.cursor()
     results = []
@@ -300,6 +300,7 @@ def get_historical_matches(limit: int = 50) -> List[Dict[str, Any]]:
         cursor.execute("""
             SELECT home_team, away_team, home_score, away_score, match_date, league 
             FROM historical_matches 
+            WHERE NOT (home_team LIKE '%women%' OR away_team LIKE '%women%' OR league LIKE '%women%')
             ORDER BY created_at DESC LIMIT ?
         """, (limit,))
         rows = cursor.fetchall()
@@ -320,7 +321,7 @@ def get_historical_matches(limit: int = 50) -> List[Dict[str, Any]]:
     return results
 
 def search_historical_matches(team_name: str) -> List[Dict[str, Any]]:
-    """Searches historical matches involving a specific team name."""
+    """Searches historical matches involving a specific team name, filtering out women's matches."""
     conn = get_db_connection()
     cursor = conn.cursor()
     results = []
@@ -330,7 +331,8 @@ def search_historical_matches(team_name: str) -> List[Dict[str, Any]]:
         cursor.execute("""
             SELECT home_team, away_team, home_score, away_score, match_date, league 
             FROM historical_matches 
-            WHERE home_team LIKE ? OR away_team LIKE ? OR league LIKE ?
+            WHERE (home_team LIKE ? OR away_team LIKE ? OR league LIKE ?)
+              AND NOT (home_team LIKE '%women%' OR away_team LIKE '%women%' OR league LIKE '%women%')
             ORDER BY created_at DESC LIMIT 30
         """, (pattern, pattern, pattern))
         rows = cursor.fetchall()

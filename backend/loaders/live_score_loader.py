@@ -59,6 +59,13 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
             if away_team_container and not away_team_el:
                 away_team_el = away_team_container.find('span')
             away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
+
+            # Filter to include only men's football matches
+            league_lower = league.lower()
+            home_lower = home_team.lower()
+            away_lower = away_team.lower()
+            if "women" in league_lower or "women" in home_lower or "women" in away_lower:
+                continue
             
             # Extract scores if they exist
             home_score_el = ancestor.find(class_=lambda x: x and 'HomeScore' in x)
@@ -246,6 +253,13 @@ def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
             if away_team_container and not away_team_el:
                 away_team_el = away_team_container.find('span')
             away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
+
+            # Filter to include only men's football matches
+            league_lower = league.lower()
+            home_lower = home_team.lower()
+            away_lower = away_team.lower()
+            if "women" in league_lower or "women" in home_lower or "women" in away_lower:
+                continue
             
             # Extract scores
             home_score_el = ancestor.find(class_=lambda x: x and 'HomeScore' in x)

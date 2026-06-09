@@ -175,21 +175,41 @@ def trigger_backend_ingestion() -> Dict[str, Any]:
         return {"status": "error", "message": f"Connection error: {str(e)}"}
 
 def get_live_matches_feed() -> Dict[str, Any]:
-    """Queries backend live matches feed."""
+    """Queries backend live matches feed, filtering to include only men's matches."""
     try:
         response = requests.get(f"{BACKEND_URL}/live-matches", timeout=10)
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            feed = data.get("feed", [])
+            filtered_feed = []
+            for m in feed:
+                title = m.get("title", "").lower()
+                league = m.get("league", "").lower()
+                if "women" in title or "women" in league:
+                    continue
+                filtered_feed.append(m)
+            data["feed"] = filtered_feed
+            data["count"] = len(filtered_feed)
+            return data
     except Exception:
         pass
     return {"status": "error", "count": 0, "feed": []}
 
 def get_historical_matches_feed() -> List[Dict[str, Any]]:
-    """Queries backend historical matches database."""
+    """Queries backend historical matches database, filtering to include only men's matches."""
     try:
         response = requests.get(f"{BACKEND_URL}/historical-matches", timeout=10)
         if response.status_code == 200:
-            return response.json()
+            matches = response.json()
+            filtered = []
+            for m in matches:
+                home = m.get("home_team", "").lower()
+                away = m.get("away_team", "").lower()
+                league = m.get("league", "").lower()
+                if "women" in home or "women" in away or "women" in league:
+                    continue
+                filtered.append(m)
+            return filtered
     except Exception:
         pass
     return []
@@ -908,20 +928,91 @@ with tab_sofa:
                 return v
         import hashlib
         seed = int(hashlib.md5(team_name.encode()).hexdigest(), 16)
-        if is_home:
-            players = ["A. Müller", "B. Schmidt", "C. Schneider", "D. Fischer", "E. Weber", "F. Meyer", "G. Wagner", "H. Becker", "I. Schulz", "J. Hoffmann", "K. Schäfer"]
+        
+        name_lower = team_name.lower()
+        # Classify naming style by keyword detection
+        if any(c in name_lower for c in ["spain", "peru", "colombia", "argentina", "chile", "uruguay", "paraguay", "bolivia", "ecuador", "venezuela", "mexico", "costa", "honduras", "panama", "salvador", "nicaragua", "guatemala", "cuba", "madrid", "barcelona", "sevilla", "valencia", "atletico"]):
+            style = "spanish"
+        elif any(c in name_lower for c in ["portugal", "brazil", "angola", "cape verde", "mozambique", "porto", "lisbon", "benfica"]):
+            style = "portuguese"
+        elif any(c in name_lower for c in ["germany", "austria", "swiss", "switzerland", "munich", "bayern", "dortmund", "berlin", "hamburg", "leipzig"]):
+            style = "german"
+        elif any(c in name_lower for c in ["italy", "milan", "inter", "juventus", "roma", "napoli", "lazio", "florence"]):
+            style = "italian"
+        elif any(c in name_lower for c in ["france", "haiti", "belgium", "senegal", "cameroon", "ivory", "mali", "guinea", "congo", "gabon", "paris", "marseille", "lyon"]):
+            style = "french"
+        elif any(c in name_lower for c in ["netherlands", "dutch", "ajax", "psv", "feyenoord"]):
+            style = "dutch"
+        elif any(c in name_lower for c in ["china", "japan", "korea", "vietnam", "myanmar", "thailand", "malaysia", "indonesia", "singapore", "philippines", "guam", "tokyo", "beijing", "seoul", "bangkok"]):
+            style = "asian"
+        elif any(c in name_lower for c in ["russia", "ukraine", "poland", "croatia", "serbia", "czech", "slovak", "bulgaria", "romania", "hungary", "albania", "greece", "turkey", "georgia", "armenia", "azerbaijan", "uzbekistan", "kazakh", "kyrgyz", "tajik", "turkmen"]):
+            style = "eastern_european"
         else:
-            players = ["L. Rossi", "M. Bianchi", "N. Ferrari", "O. Russo", "P. Colombo", "Q. Ricci", "R. Marino", "S. Greco", "T. Bruno", "U. Gallo", "V. Conti"]
+            style = "english"
+            
+        # Name lists
+        spanish_first = ["Álvaro", "Sergio", "Ferran", "Pedro", "Dani", "Marc", "Carlos", "Luis", "Jorge", "Javier", "Andrés", "Diego", "Francisco", "Manuel", "Alejandro", "Héctor", "Santiago", "Juan", "Mateo", "Lucas"]
+        spanish_last = ["García", "Rodríguez", "González", "Fernández", "López", "Martínez", "Sánchez", "Pérez", "Gómez", "Díaz", "Torres", "Ramírez", "Cruz", "Ortiz", "Flores", "Giménez", "Romero", "Alvarez", "Ruiz", "Morales"]
+        
+        portuguese_first = ["Cristiano", "Bernardo", "Bruno", "João", "Diogo", "Rúben", "Gonçalo", "Vítor", "António", "Pedro", "Nuno", "Lucas", "Gabriel", "Mateus", "Felipe", "Rafael", "Tiago", "André", "Duarte", "Miguel"]
+        portuguese_last = ["Silva", "Santos", "Ferreira", "Pereira", "Oliveira", "Costa", "Rodrigues", "Almeida", "Nascimento", "Sousa", "Gomes", "Lopes", "Marques", "Cardoso", "Ribeiro", "Carvalho", "Teixeira", "Pinto", "Mendes", "Moreira"]
+        
+        german_first = ["Thomas", "Manuel", "Joshua", "Leon", "Serge", "Leroy", "Alexander", "Florian", "Lukas", "Sebastian", "Philipp", "Bastian", "Timo", "Jonas", "Julian", "Max", "Robin", "Kai", "Niklas", "Felix"]
+        german_last = ["Müller", "Schmidt", "Schneider", "Fischer", "Weber", "Meyer", "Wagner", "Becker", "Schulz", "Hoffmann", "Schäfer", "Koch", "Bauer", "Richter", "Klein", "Wolf", "Neumann", "Schrader", "Hartmann", "Lange"]
+        
+        italian_first = ["Lorenzo", "Marco", "Niccolò", "Orlando", "Paolo", "Roberto", "Salvatore", "Tommaso", "Umberto", "Vincenzo", "Alessandro", "Davide", "Gianluca", "Andrea", "Federico", "Giorgio", "Matteo", "Filippo", "Francesco", "Giovanni"]
+        italian_last = ["Rossi", "Bianchi", "Ferrari", "Russo", "Colombo", "Ricci", "Marino", "Greco", "Bruno", "Gallo", "Conti", "Moretti", "Mancini", "Rizzo", "Lombardi", "Giordano", "Barbieri", "Fontana", "Santoro", "Caruso"]
+        
+        french_first = ["Jean", "Pierre", "Frantz", "Duckens", "Wilde-Donald", "Steeven", "Carlens", "Derrick", "Louicius", "Alex", "Antoine", "Bryan", "Guerry", "Johny", "Olivier", "Hugo", "Lucas", "Nicolas", "Mathieu", "Guillaume"]
+        french_last = ["Duverger", "Gérard", "Arise", "Adé", "Lacroix", "Alceus", "Joseph", "Providence", "Antoine", "Pierrot", "Nazon", "Guerrier", "Placide", "Christian", "Martin", "Bernard", "Thomas", "Petit", "Dubois", "Durand"]
+        
+        dutch_first = ["Virgil", "Frenkie", "Memphis", "Cody", "Nathan", "Stefan", "Denzel", "Daley", "Steven", "Georginio", "Matthijs", "Martens", "Luuk", "Justin", "Sven", "Jan", "Wouter", "Piet", "Henk", "Klaas"]
+        dutch_last = ["de Jong", "van Dijk", "de Ligt", "Dumfries", "Depay", "Gakpo", "Aké", "Blind", "Wijnaldum", "Bergwijn", "de Vrij", "Janssen", "de Bakker", "Vermeer", "Klaassen", "van de Beek", "Stekelenburg", "Krul", "Cillessen", "Promes"]
+        
+        asian_first = ["Hiroki", "Takumi", "Wataru", "Kaoru", "Shogo", "Koki", "Daiki", "Junjie", "Lei", "Xiang", "Zhi", "Lin", "Yong", "Wei", "Bo", "Chao", "Zihan", "Min", "Kwang", "Kyung"]
+        asian_last = ["Minamino", "Endo", "Mitoma", "Taniguchi", "Machida", "Wang", "Zhang", "Li", "Liu", "Chen", "Yang", "Huang", "Zhao", "Wu", "Zhou", "Xu", "Sun", "Park", "Kim", "Lee"]
+        
+        ee_first = ["Luka", "Mateo", "Ivan", "Domagoj", "Andrej", "Nikola", "Marcelo", "Dejan", "Josip", "Lovro", "Borislav", "Dragan", "Milan", "Stanko", "Zoran", "Sergei", "Vladimir", "Aleksandr", "Dmitry", "Alexei"]
+        ee_last = ["Modric", "Kovacic", "Perisic", "Vida", "Kramaric", "Vlasic", "Brozovic", "Lovren", "Stanisic", "Majer", "Petkovic", "Orsic", "Livakovic", "Ivanusic", "Sutalo", "Smirnov", "Ivanov", "Petrov", "Sokolov", "Popov"]
+        
+        english_first = ["John", "James", "Robert", "William", "David", "Richard", "Joseph", "Thomas", "Charles", "Daniel", "Matthew", "Harry", "Jack", "Oliver", "George", "Charlie", "Mason", "Jude", "Declan", "Bukayo"]
+        english_last = ["Smith", "Jones", "Taylor", "Brown", "Williams", "Wilson", "Johnson", "Davies", "Robinson", "Wright", "Thompson", "Evans", "Walker", "White", "Green", "Stones", "Bellingham", "Rice", "Saka", "Kane"]
+        
+        # Select naming lists
+        if style == "spanish":
+            first_list, last_list = spanish_first, spanish_last
+        elif style == "portuguese":
+            first_list, last_list = portuguese_first, portuguese_last
+        elif style == "german":
+            first_list, last_list = german_first, german_last
+        elif style == "italian":
+            first_list, last_list = italian_first, italian_last
+        elif style == "french":
+            first_list, last_list = french_first, french_last
+        elif style == "dutch":
+            first_list, last_list = dutch_first, dutch_last
+        elif style == "asian":
+            first_list, last_list = asian_first, asian_last
+        elif style == "eastern_european":
+            first_list, last_list = ee_first, ee_last
+        else:
+            first_list, last_list = english_first, english_last
+            
         roster = []
         positions = ["GK", "RB", "RCB", "LCB", "LB", "LDM", "RDM", "RAM", "CAM", "LAM", "ST"]
         for i in range(11):
             p_seed = seed + i
+            # Select first & last name deterministically using p_seed
+            first = first_list[p_seed % len(first_list)]
+            last = last_list[(p_seed * 7) % len(last_list)]
+            
+            p_name = f"{first[0]}. {last}"
             rating = round(6.0 + (p_seed % 30) / 10.0, 1)
             age = str(20 + (p_seed % 15))
-            val = f"€{10 + (p_seed % 170)}M"
+            val = f"€{10 + (p_seed % 170)}M" if p_seed % 3 != 0 else f"€{1 + (p_seed % 10)}M"
             height = f"{170 + (p_seed % 28)} cm"
             roster.append({
-                "name": players[i],
+                "name": p_name,
                 "jersey": str((p_seed % 30) + 1),
                 "rating": rating,
                 "pos": positions[i],

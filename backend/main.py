@@ -29,6 +29,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount the static assets folder so images are directly accessible via Postman
+from fastapi.staticfiles import StaticFiles
+app.mount("/assets", StaticFiles(directory="frontend/assets"), name="assets")
+app.mount("/postman", StaticFiles(directory="postman"), name="postman")
+
 # --- Pydantic Data Models ---
 
 class UserRegisterRequest(BaseModel):
@@ -485,5 +490,124 @@ def get_roster_endpoint(team_name: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch roster: {str(e)}"
         )
+
+@app.get("/player/image", status_code=status.HTTP_200_OK)
+def get_player_image_endpoint(
+    name: Optional[str] = None,
+    sofa_id: Optional[str] = None,
+    filename: Optional[str] = None,
+    pos: Optional[str] = None
+):
+    """
+    Returns the player headshot image. Resolves by name, sofa_id, or direct filename.
+    Falls back to a position-specific vector silhouette if not found.
+    """
+    from fastapi.responses import FileResponse
+    from pathlib import Path
+    
+    base_dir = Path(__file__).resolve().parent.parent
+    assets_dir = base_dir / "frontend" / "assets"
+    
+    # 1. Resolve by filename directly
+    if filename:
+        clean_filename = os.path.basename(filename)  # Prevent directory traversal
+        file_path = assets_dir / clean_filename
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(str(file_path))
+            
+    # 2. Resolve by sofa_id
+    if sofa_id:
+        sofa_id_str = str(sofa_id).strip()
+        found_photo = None
+        # Check predefined rosters
+        from backend.roster_store import PREDEFINED_ROSTERS
+        for team, players in PREDEFINED_ROSTERS.items():
+            for p in players:
+                if p.get("sofa_id") == sofa_id_str:
+                    found_photo = p.get("photo", "")
+                    if not pos and p.get("pos"):
+                        pos = p.get("pos")
+                    break
+            if found_photo:
+                break
+                
+        # Check cache if not found in predefined
+        if not found_photo:
+            from backend.roster_store import load_cache
+            cache = load_cache()
+            for team, players in cache.items():
+                for p in players:
+                    if p.get("sofa_id") == sofa_id_str:
+                        found_photo = p.get("photo", "")
+                        if not pos and p.get("pos"):
+                            pos = p.get("pos")
+                        break
+                if found_photo:
+                    break
+                    
+        if found_photo and found_photo != "none":
+            file_path = base_dir / found_photo if not Path(found_photo).is_absolute() else Path(found_photo)
+            if file_path.exists() and file_path.is_file():
+                return FileResponse(str(file_path))
+                
+    # 3. Resolve by name
+    if name:
+        from backend.roster_store import slugify
+        slug = slugify(name)
+        for ext in [".jpg", ".png", ".jpeg", ".svg"]:
+            file_path = assets_dir / f"{slug}{ext}"
+            if file_path.exists() and file_path.is_file():
+                return FileResponse(str(file_path))
+                
+        # Try checking predefined/cached rosters to get position or cached photo path
+        norm_name = name.lower().strip()
+        from backend.roster_store import PREDEFINED_ROSTERS
+        found_photo = None
+        for team, players in PREDEFINED_ROSTERS.items():
+            for p in players:
+                if p["name"].lower().strip() == norm_name:
+                    found_photo = p.get("photo", "")
+                    if not pos and p.get("pos"):
+                        pos = p.get("pos")
+                    break
+            if found_photo:
+                break
+                
+        if not found_photo:
+            from backend.roster_store import load_cache
+            cache = load_cache()
+            for team, players in cache.items():
+                for p in players:
+                    if p["name"].lower().strip() == norm_name:
+                        found_photo = p.get("photo", "")
+                        if not pos and p.get("pos"):
+                            pos = p.get("pos")
+                        break
+                if found_photo:
+                    break
+                    
+        if found_photo and found_photo != "none":
+            file_path = base_dir / found_photo if not Path(found_photo).is_absolute() else Path(found_photo)
+            if file_path.exists() and file_path.is_file():
+                return FileResponse(str(file_path))
+
+    # 4. Fallback Silhouette Resolution
+    silhouette = "default_avatar.svg"
+    if pos:
+        pos_upper = pos.upper().strip()
+        if pos_upper == "GK":
+            silhouette = "goalkeeper_avatar.svg"
+        elif pos_upper in ["LB", "LCB", "RCB", "RB", "DF", "CB", "LWB", "RWB"]:
+            silhouette = "defender_avatar.svg"
+        elif pos_upper in ["LDM", "RDM", "LCM", "CM", "RCM", "LM", "RM", "CAM", "AM", "MF"]:
+            silhouette = "midfielder_avatar.svg"
+        elif pos_upper in ["LW", "RW", "ST", "LST", "RST", "FW", "CF"]:
+            silhouette = "striker_avatar.svg"
+            
+    fallback_path = assets_dir / silhouette
+    if fallback_path.exists() and fallback_path.is_file():
+        return FileResponse(str(fallback_path))
+        
+    raise HTTPException(status_code=404, detail="Player image not found.")
 
 

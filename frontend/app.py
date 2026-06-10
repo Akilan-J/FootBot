@@ -1029,6 +1029,52 @@ with tab_sofa:
                 {"name": "Bruno Fernandes", "jersey": "8", "rating": 8.3, "pos": "CAM", "photo": "", "age": "31", "val": "€70M", "height": "179 cm"},
                 {"name": "Rafael Leão", "jersey": "17", "rating": 8.1, "pos": "LAM", "photo": "", "age": "26", "val": "€75M", "height": "188 cm"},
                 {"name": "C. Ronaldo", "jersey": "7", "rating": 8.2, "pos": "ST", "photo": "", "age": "41", "val": "€15M", "height": "187 cm"},
+            ],
+            "argentina": [
+                {"name": "G. Rulli", "jersey": "12", "rating": 6.8, "pos": "GK", "photo": "", "age": "34", "val": "€4M", "height": "189 cm", "sofa_id": "83163", "sub": False},
+                {"name": "F. Medina", "jersey": "25", "rating": 6.7, "pos": "LB", "photo": "", "age": "27", "val": "€22M", "height": "184 cm", "sofa_id": "935560", "sub": False},
+                {"name": "L. Martínez", "jersey": "6", "rating": 7.0, "pos": "LCB", "photo": "", "age": "28", "val": "€45M", "height": "178 cm", "sofa_id": "867205", "sub": False},
+                {"name": "N. Otamendi", "jersey": "19", "rating": 7.0, "pos": "RCB", "photo": "", "age": "38", "val": "€1.5M", "height": "183 cm", "sofa_id": "47355", "sub": False},
+                {"name": "A. Giay", "jersey": "28", "rating": 7.2, "pos": "RB", "photo": "", "age": "21", "val": "€8M", "height": "180 cm", "sofa_id": "1110091", "sub": False},
+                {"name": "V. Barco", "jersey": "8", "rating": 7.8, "pos": "LM", "photo": "", "age": "21", "val": "€9M", "height": "172 cm", "sofa_id": "1018596", "sub": False},
+                {"name": "E. Palacios", "jersey": "14", "rating": 7.0, "pos": "LCM", "photo": "", "age": "27", "val": "€40M", "height": "177 cm", "sofa_id": "831626", "sub": False},
+                {"name": "G. Lo Celso", "jersey": "11", "rating": 7.0, "pos": "RCM", "photo": "", "age": "30", "val": "€16M", "height": "177 cm", "sofa_id": "349479", "sub": False},
+                {"name": "G. Simeone", "jersey": "17", "rating": 6.5, "pos": "RM", "photo": "", "age": "23", "val": "€10M", "height": "180 cm", "sofa_id": "1023773", "sub": False},
+                {"name": "J. López", "jersey": "21", "rating": 6.8, "pos": "LST", "photo": "", "age": "25", "val": "€15M", "height": "188 cm", "sofa_id": "1026027", "sub": False},
+                {"name": "N. Paz", "jersey": "18", "rating": 6.9, "pos": "RST", "photo": "", "age": "21", "val": "€10M", "height": "186 cm", "sofa_id": "1085352", "sub": False},
+                # Substitutes
+                {"name": "Cristian Romero", "jersey": "13", "rating": 6.7, "pos": "RCB", "photo": "", "age": "28", "val": "€60M", "height": "185 cm", "sofa_id": "865063", "sub": True},
+                {"name": "Enzo Fernández", "jersey": "24", "rating": 6.8, "pos": "CM", "photo": "", "age": "25", "val": "€75M", "height": "178 cm", "sofa_id": "966236", "sub": True},
+                {"name": "Rodrigo De Paul", "jersey": "7", "rating": 7.7, "pos": "RCM", "photo": "", "age": "32", "val": "€30M", "height": "180 cm", "sofa_id": "233054", "sub": True},
+                {"name": "Alexis Mac Allister", "jersey": "20", "rating": 6.9, "pos": "LCM", "photo": "", "age": "27", "val": "€75M", "height": "176 cm", "sofa_id": "868357", "sub": True},
+                {"name": "Lautaro Martínez", "jersey": "22", "rating": 7.3, "pos": "ST", "photo": "", "age": "28", "val": "€110M", "height": "174 cm", "sofa_id": "830206", "sub": True},
+                {"name": "Thiago Almada", "jersey": "16", "rating": 7.7, "pos": "CAM", "photo": "", "age": "25", "val": "€27M", "height": "171 cm", "sofa_id": "925345", "sub": True},
+                {"name": "Nicolás González", "jersey": "15", "rating": 6.5, "pos": "LM", "photo": "", "age": "28", "val": "€35M", "height": "180 cm", "sofa_id": "828236", "sub": True},
+                {"name": "Gonzalo Montiel", "jersey": "4", "rating": 6.8, "pos": "RB", "photo": "", "age": "29", "val": "€10M", "height": "175 cm", "sofa_id": "831548", "sub": True},
+                {"name": "Lionel Messi", "jersey": "10", "rating": 7.7, "pos": "ST", "photo": "", "age": "38", "val": "€30M", "height": "170 cm", "sofa_id": "206", "sub": True}
+            ],
+            "iceland": [
+                {"name": "E. Ólafsson", "jersey": "1", "rating": 6.9, "pos": "GK", "photo": "", "age": "26", "val": "€1M", "height": "201 cm", "sofa_id": "964344", "sub": False},
+                {"name": "L. Tómasson", "jersey": "2", "rating": 6.6, "pos": "LB", "photo": "", "age": "27", "val": "€800K", "height": "183 cm", "sofa_id": "865769", "sub": False},
+                {"name": "H. Magnússon", "jersey": "23", "rating": 6.1, "pos": "LCB", "photo": "", "age": "33", "val": "€1.2M", "height": "190 cm", "sofa_id": "117973", "sub": False},
+                {"name": "D. Grétarsson", "jersey": "3", "rating": 6.1, "pos": "RCB", "photo": "", "age": "30", "val": "€500K", "height": "185 cm", "sofa_id": "263590", "sub": False},
+                {"name": "V. Pálsson", "jersey": "4", "rating": 6.3, "pos": "RB", "photo": "", "age": "35", "val": "€400K", "height": "186 cm", "sofa_id": "45664", "sub": False},
+                {"name": "M. Ellertsson", "jersey": "19", "rating": 6.3, "pos": "LM", "photo": "", "age": "24", "val": "€2.5M", "height": "182 cm", "sofa_id": "966456", "sub": False},
+                {"name": "Í. B. Jóhannesson", "jersey": "8", "rating": 6.4, "pos": "LCM", "photo": "", "age": "23", "val": "€3.5M", "height": "180 cm", "sofa_id": "951952", "sub": False},
+                {"name": "A. Baldursson", "jersey": "14", "rating": 6.4, "pos": "RCM", "photo": "", "age": "24", "val": "€800K", "height": "183 cm", "sofa_id": "926252", "sub": False},
+                {"name": "A. Guðmundsson", "jersey": "11", "rating": 7.0, "pos": "RM", "photo": "", "age": "28", "val": "€22M", "height": "177 cm", "sofa_id": "826388", "sub": False},
+                {"name": "H. Haraldsson", "jersey": "7", "rating": 6.4, "pos": "LST", "photo": "", "age": "23", "val": "€15M", "height": "180 cm", "sofa_id": "994468", "sub": False},
+                {"name": "O. S. Óskarsson", "jersey": "9", "rating": 6.5, "pos": "RST", "photo": "", "age": "21", "val": "€5M", "height": "186 cm", "sofa_id": "1012975", "sub": False},
+                # Substitutes
+                {"name": "Kristian Hlynsson", "jersey": "20", "rating": 6.1, "pos": "CAM", "photo": "", "age": "22", "val": "€5M", "height": "179 cm", "sofa_id": "966453", "sub": True},
+                {"name": "Dagur Dan Þórhallsson", "jersey": "15", "rating": 5.9, "pos": "LB", "photo": "", "age": "26", "val": "€1M", "height": "178 cm", "sofa_id": "926251", "sub": True},
+                {"name": "Aron Gunnarsson", "jersey": "17", "rating": 6.3, "pos": "CM", "photo": "", "age": "37", "val": "€300K", "height": "177 cm", "sofa_id": "44738", "sub": True},
+                {"name": "Jón Dagur Þorsteinsson", "jersey": "18", "rating": 7.0, "pos": "LM", "photo": "", "age": "27", "val": "€3M", "height": "178 cm", "sofa_id": "837269", "sub": True},
+                {"name": "Hjörtur Hermannsson", "jersey": "6", "rating": 6.3, "pos": "RCB", "photo": "", "age": "30", "val": "€800K", "height": "188 cm", "sofa_id": "260021", "sub": True},
+                {"name": "Gísli Þórðarson", "jersey": "5", "rating": 6.3, "pos": "RCM", "photo": "", "age": "24", "val": "€300K", "height": "180 cm", "sofa_id": "964343", "sub": True},
+                {"name": "Kristall Máni Ingason", "jersey": "16", "rating": 6.4, "pos": "ST", "photo": "", "age": "24", "val": "€500K", "height": "180 cm", "sofa_id": "994467", "sub": True},
+                {"name": "Arnór Sigurðsson", "jersey": "21", "rating": 6.4, "pos": "LM", "photo": "", "age": "26", "val": "€3M", "height": "177 cm", "sofa_id": "865767", "sub": True},
+                {"name": "Gylfi Sigurðsson", "jersey": "10", "rating": 6.6, "pos": "CAM", "photo": "", "age": "36", "val": "€500K", "height": "186 cm", "sofa_id": "44722", "sub": True}
             ]
         }
         for k, v in roster_data.items():
@@ -1209,8 +1255,8 @@ with tab_sofa:
     enrich_roster(away_roster, is_home=False)
     
     # Calculate average ratings
-    home_avg = round(sum(p["rating"] for p in home_roster) / 11, 2)
-    away_avg = round(sum(p["rating"] for p in away_roster) / 11, 2)
+    home_avg = round(sum(p["rating"] for p in home_roster) / len(home_roster), 2)
+    away_avg = round(sum(p["rating"] for p in away_roster) / len(away_roster), 2)
     
     # Setup team configurations & colors
     home_color = "#b91c1c"
@@ -1222,12 +1268,16 @@ with tab_sofa:
         home_color = "#ef0107"
     elif "haiti" in home_team_name.lower():
         home_color = "#0020c2"
+    elif "argentina" in home_team_name.lower():
+        home_color = "#75aadb"
         
     if "madrid" in away_team_name.lower():
         away_color = "#ffffff"
         away_text = "#000"
     elif "zealand" in away_team_name.lower():
         away_color = "#111827"
+    elif "iceland" in away_team_name.lower():
+        away_color = "#00589b"
         
     # Coords Mapping (scaled to keep all players of a team in their respective half)
     coords = {
@@ -1319,7 +1369,9 @@ with tab_sofa:
             "philippines-guam": "11352346",
             "guam-philippines": "11352346",
             "japan-portugal": "11352347",
-            "portugal-japan": "11352347"
+            "portugal-japan": "11352347",
+            "argentina-iceland": "11352348",
+            "iceland-argentina": "11352348"
         }
         
         home_norm = home_team_name.lower().strip()
@@ -1360,6 +1412,8 @@ with tab_sofa:
             
             # Home Team placement
             for p in home_roster:
+                if p.get("sub", False):
+                    continue
                 pos = p["pos"]
                 x, y = coords.get(pos, (50, 50))
                 left_pct = x
@@ -1424,6 +1478,8 @@ with tab_sofa:
                 
             # Away Team placement
             for p in away_roster:
+                if p.get("sub", False):
+                    continue
                 pos = p["pos"]
                 x, y = coords.get(pos, (50, 50))
                 left_pct = 100 - x
@@ -1632,8 +1688,11 @@ with tab_sofa:
         
         # Build table rows
         rows_html = ""
-        # Home roster rows
+        # Home roster rows - Starters
+        rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #10b981; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{home_team_name} - STARTING XI</td></tr>"""
         for p in home_roster:
+            if p.get("sub", False):
+                continue
             rows_html += f"""
             <tr>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
@@ -1648,8 +1707,30 @@ with tab_sofa:
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #ec4899;">{p['fantasy']}</td>
             </tr>
             """
-        # Away roster rows
+        # Home roster rows - Substitutes
+        home_subs = [p for p in home_roster if p.get("sub", False)]
+        if home_subs:
+            rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #e5e7eb; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{home_team_name} - SUBSTITUTES</td></tr>"""
+            for p in home_subs:
+                rows_html += f"""
+                <tr>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #10b981;">{home_team_name}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['age']} yrs</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #34d399;">{p['val']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['height']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{p['distance']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #ec4899;">{p['fantasy']}</td>
+                </tr>
+                """
+        # Away roster rows - Starters
+        rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #3b82f6; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{away_team_name} - STARTING XI</td></tr>"""
         for p in away_roster:
+            if p.get("sub", False):
+                continue
             rows_html += f"""
             <tr>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
@@ -1664,6 +1745,25 @@ with tab_sofa:
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #ec4899;">{p['fantasy']}</td>
             </tr>
             """
+        # Away roster rows - Substitutes
+        away_subs = [p for p in away_roster if p.get("sub", False)]
+        if away_subs:
+            rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #e5e7eb; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{away_team_name} - SUBSTITUTES</td></tr>"""
+            for p in away_subs:
+                rows_html += f"""
+                <tr>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{away_team_name}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['age']} yrs</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #34d399;">{p['val']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af;">{p['height']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{p['distance']}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #ec4899;">{p['fantasy']}</td>
+                </tr>
+                """
             
         st.html(f"""
         <table style="width: 100%; border-collapse: collapse; background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; overflow: hidden; font-size: 0.85rem;">

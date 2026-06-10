@@ -1,0 +1,289 @@
+{
+	"info": {
+		"_postman_id": "4d5db073-6a9c-4ee3-be25-63e80cc00d6c",
+		"name": "FootBot Player Headshots & Rosters",
+		"description": "Postman Collection for querying FootBot's player headshot images, direct static assets, and team rosters containing SofaScore IDs.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Player Headshots",
+			"description": "Endpoints resolving player photos dynamically using names, SofaScore IDs, filename matches, or custom role-based silhouettes.",
+			"item": [
+				{
+					"name": "Resolve by Player Name (Lionel Messi)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?name=Lionel Messi",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Lionel Messi",
+									"description": "Full name of the player to slugify and search (e.g. lionel_messi.jpg)"
+								}
+							]
+						},
+						"description": "Queries the player image endpoint using the player's full name. The backend slugifies the name and returns the cached Wikipedia image if available."
+					},
+					"response": []
+				},
+				{
+					"name": "Resolve by SofaScore ID (Erling Haaland)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?sofa_id=826725",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "sofa_id",
+									"value": "826725",
+									"description": "SofaScore ID of the player (e.g. 826725 for Haaland)"
+								}
+							]
+						},
+						"description": "Queries the player image endpoint using the player's unique SofaScore ID. The backend checks both predefined and dynamically cached rosters to resolve the image."
+					},
+					"response": []
+				},
+				{
+					"name": "Resolve by Filename directly (Foden)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?filename=foden.png",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "filename",
+									"value": "foden.png",
+									"description": "Direct file name with extension stored in frontend/assets/"
+								}
+							]
+						},
+						"description": "Queries the player image endpoint using the direct filename. The endpoint validates the file extension and prevents directory traversal before returning the file response."
+					},
+					"response": []
+				},
+				{
+					"name": "Fallback: Goalkeeper (GK)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?name=Nonexistent Player&pos=GK",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Nonexistent Player"
+								},
+								{
+									"key": "pos",
+									"value": "GK",
+									"description": "GK returns goalkeeper_avatar.svg fallback silhouette"
+								}
+							]
+						},
+						"description": "Demonstrates the dynamic role-based silhouette fallback for a Goalkeeper (GK) when a player's image is not found in assets, rosters, or Wikipedia caches."
+					},
+					"response": []
+				},
+				{
+					"name": "Fallback: Defender (DF)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?name=Nonexistent Player&pos=DF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Nonexistent Player"
+								},
+								{
+									"key": "pos",
+									"value": "DF",
+									"description": "DF, CB, LB, RB etc. return defender_avatar.svg fallback silhouette"
+								}
+							]
+						},
+						"description": "Demonstrates the dynamic role-based silhouette fallback for a Defender (DF) when a player's image is not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Fallback: Midfielder (MF)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?name=Nonexistent Player&pos=MF",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Nonexistent Player"
+								},
+								{
+									"key": "pos",
+									"value": "MF",
+									"description": "MF, CM, DM, AM, LM, RM etc. return midfielder_avatar.svg fallback silhouette"
+								}
+							]
+						},
+						"description": "Demonstrates the dynamic role-based silhouette fallback for a Midfielder (MF) when a player's image is not found."
+					},
+					"response": []
+				},
+				{
+					"name": "Fallback: Forward / Striker (FW)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/player/image?name=Nonexistent Player&pos=FW",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"player",
+								"image"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Nonexistent Player"
+								},
+								{
+									"key": "pos",
+									"value": "FW",
+									"description": "FW, ST, LW, RW, CF return striker_avatar.svg fallback silhouette"
+								}
+							]
+						},
+						"description": "Demonstrates the dynamic role-based silhouette fallback for a Forward/Striker (FW) when a player's image is not found."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Static Assets Mount",
+			"description": "Endpoints directly accessing files mounted under /assets statically.",
+			"item": [
+				{
+					"name": "Direct Download Messi Image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/assets/lionel_messi.jpg",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"assets",
+								"lionel_messi.jpg"
+							]
+						},
+						"description": "Accesses the static assets mount directly to download the file `lionel_messi.jpg`."
+					},
+					"response": []
+				},
+				{
+					"name": "Direct Download Haaland Image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/assets/haaland.png",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"assets",
+								"haaland.png"
+							]
+						},
+						"description": "Accesses the static assets mount directly to download the file `haaland.png`."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reference Data",
+			"description": "Reference requests to extract data structure containing SofaScore IDs, names, positions, and photo paths.",
+			"item": [
+				{
+					"name": "Get Team Roster (Manchester City)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roster?team_name=Manchester City",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roster"
+							],
+							"query": [
+								{
+									"key": "team_name",
+									"value": "Manchester City",
+									"description": "Name of the club or national team"
+								}
+							]
+						},
+						"description": "Fetches the full roster metadata for Manchester City from predefined store or LLM resolution, listing players along with their SofaScore IDs, positions, and local photo paths. Use these details to query player headshots."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

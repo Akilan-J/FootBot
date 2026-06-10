@@ -262,6 +262,25 @@ streamlit run frontend/app.py
 
 ---
 
+# 📬 Postman API Integration (Player Headshots)
+
+To test, consume, or retrieve player headshots and position-based avatar silhouettes programmatically:
+
+1. **Import Integration Files**:
+   - Open Postman, click **Import**, and select the collection file: [FootBot_Player_Headshots.postman_collection.json](file:///Users/akilan/Documents/FootBot/FootBot/postman/FootBot_Player_Headshots.postman_collection.json)
+   - Import the corresponding local environment variables file: [FootBot_Local.postman_environment.json](file:///Users/akilan/Documents/FootBot/FootBot/postman/FootBot_Local.postman_environment.json)
+2. **Select Environment**:
+   - In the top-right corner of Postman, select the **FootBot Local** environment. This defines the `{{base_url}}` variable as `http://127.0.0.1:8000`.
+3. **Run Requests**:
+   - **Resolve by Player Name**: `GET {{base_url}}/player/image?name=Lionel Messi` returns Messi's headshot.
+   - **Resolve by SofaScore ID**: `GET {{base_url}}/player/image?sofa_id=826725` returns Erling Haaland's photo.
+   - **Resolve by Filename directly**: `GET {{base_url}}/player/image?filename=foden.png`
+   - **Fallback Silhouette**: `GET {{base_url}}/player/image?name=Nonexistent&pos=GK` (GK silhouette fallback).
+   - **Direct Static Assets**: `GET {{base_url}}/assets/lionel_messi.jpg`
+   - **Roster Reference Details**: `GET {{base_url}}/roster?team_name=Manchester City` (returns a team's roster with all player details and `sofa_id`).
+
+---
+
 # 🔥 Example Queries
 
 ```text

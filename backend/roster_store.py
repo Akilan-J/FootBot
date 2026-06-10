@@ -180,8 +180,55 @@ PREDEFINED_ROSTERS = {
         {"name": "Bruno Fernandes", "jersey": "8", "rating": 8.3, "pos": "CAM", "photo": "", "age": "31", "val": "€70M", "height": "179 cm", "sofa_id": "155029"},
         {"name": "Rafael Leão", "jersey": "17", "rating": 8.1, "pos": "LAM", "photo": "", "age": "26", "val": "€75M", "height": "188 cm", "sofa_id": "833099"},
         {"name": "C. Ronaldo", "jersey": "7", "rating": 8.2, "pos": "ST", "photo": "", "age": "41", "val": "€15M", "height": "187 cm", "sofa_id": "222"},
+    ],
+    "argentina": [
+        {"name": "G. Rulli", "jersey": "12", "rating": 6.8, "pos": "GK", "photo": "", "age": "34", "val": "€4M", "height": "189 cm", "sofa_id": "83163", "sub": False},
+        {"name": "F. Medina", "jersey": "25", "rating": 6.7, "pos": "LB", "photo": "", "age": "27", "val": "€22M", "height": "184 cm", "sofa_id": "935560", "sub": False},
+        {"name": "L. Martínez", "jersey": "6", "rating": 7.0, "pos": "LCB", "photo": "", "age": "28", "val": "€45M", "height": "178 cm", "sofa_id": "867205", "sub": False},
+        {"name": "N. Otamendi", "jersey": "19", "rating": 7.0, "pos": "RCB", "photo": "", "age": "38", "val": "€1.5M", "height": "183 cm", "sofa_id": "47355", "sub": False},
+        {"name": "A. Giay", "jersey": "28", "rating": 7.2, "pos": "RB", "photo": "", "age": "21", "val": "€8M", "height": "180 cm", "sofa_id": "1110091", "sub": False},
+        {"name": "V. Barco", "jersey": "8", "rating": 7.8, "pos": "LM", "photo": "", "age": "21", "val": "€9M", "height": "172 cm", "sofa_id": "1018596", "sub": False},
+        {"name": "E. Palacios", "jersey": "14", "rating": 7.0, "pos": "LCM", "photo": "", "age": "27", "val": "€40M", "height": "177 cm", "sofa_id": "831626", "sub": False},
+        {"name": "G. Lo Celso", "jersey": "11", "rating": 7.0, "pos": "RCM", "photo": "", "age": "30", "val": "€16M", "height": "177 cm", "sofa_id": "349479", "sub": False},
+        {"name": "G. Simeone", "jersey": "17", "rating": 6.5, "pos": "RM", "photo": "", "age": "23", "val": "€10M", "height": "180 cm", "sofa_id": "1023773", "sub": False},
+        {"name": "J. López", "jersey": "21", "rating": 6.8, "pos": "LST", "photo": "", "age": "25", "val": "€15M", "height": "188 cm", "sofa_id": "1026027", "sub": False},
+        {"name": "N. Paz", "jersey": "18", "rating": 6.9, "pos": "RST", "photo": "", "age": "21", "val": "€10M", "height": "186 cm", "sofa_id": "1085352", "sub": False},
+        # Substitutes
+        {"name": "Cristian Romero", "jersey": "13", "rating": 6.7, "pos": "RCB", "photo": "", "age": "28", "val": "€60M", "height": "185 cm", "sofa_id": "865063", "sub": True},
+        {"name": "Enzo Fernández", "jersey": "24", "rating": 6.8, "pos": "CM", "photo": "", "age": "25", "val": "€75M", "height": "178 cm", "sofa_id": "966236", "sub": True},
+        {"name": "Rodrigo De Paul", "jersey": "7", "rating": 7.7, "pos": "RCM", "photo": "", "age": "32", "val": "€30M", "height": "180 cm", "sofa_id": "233054", "sub": True},
+        {"name": "Alexis Mac Allister", "jersey": "20", "rating": 6.9, "pos": "LCM", "photo": "", "age": "27", "val": "€75M", "height": "176 cm", "sofa_id": "868357", "sub": True},
+        {"name": "Lautaro Martínez", "jersey": "22", "rating": 7.3, "pos": "ST", "photo": "", "age": "28", "val": "€110M", "height": "174 cm", "sofa_id": "830206", "sub": True},
+        {"name": "Thiago Almada", "jersey": "16", "rating": 7.7, "pos": "CAM", "photo": "", "age": "25", "val": "€27M", "height": "171 cm", "sofa_id": "925345", "sub": True},
+        {"name": "Nicolás González", "jersey": "15", "rating": 6.5, "pos": "LM", "photo": "", "age": "28", "val": "€35M", "height": "180 cm", "sofa_id": "828236", "sub": True},
+        {"name": "Gonzalo Montiel", "jersey": "4", "rating": 6.8, "pos": "RB", "photo": "", "age": "29", "val": "€10M", "height": "175 cm", "sofa_id": "831548", "sub": True},
+        {"name": "Lionel Messi", "jersey": "10", "rating": 7.7, "pos": "ST", "photo": "", "age": "38", "val": "€30M", "height": "170 cm", "sofa_id": "206", "sub": True}
+    ],
+    "iceland": [
+        {"name": "E. Ólafsson", "jersey": "1", "rating": 6.9, "pos": "GK", "photo": "", "age": "26", "val": "€1M", "height": "201 cm", "sofa_id": "964344", "sub": False},
+        {"name": "L. Tómasson", "jersey": "2", "rating": 6.6, "pos": "LB", "photo": "", "age": "27", "val": "€800K", "height": "183 cm", "sofa_id": "865769", "sub": False},
+        {"name": "H. Magnússon", "jersey": "23", "rating": 6.1, "pos": "LCB", "photo": "", "age": "33", "val": "€1.2M", "height": "190 cm", "sofa_id": "117973", "sub": False},
+        {"name": "D. Grétarsson", "jersey": "3", "rating": 6.1, "pos": "RCB", "photo": "", "age": "30", "val": "€500K", "height": "185 cm", "sofa_id": "263590", "sub": False},
+        {"name": "V. Pálsson", "jersey": "4", "rating": 6.3, "pos": "RB", "photo": "", "age": "35", "val": "€400K", "height": "186 cm", "sofa_id": "45664", "sub": False},
+        {"name": "M. Ellertsson", "jersey": "19", "rating": 6.3, "pos": "LM", "photo": "", "age": "24", "val": "€2.5M", "height": "182 cm", "sofa_id": "966456", "sub": False},
+        {"name": "Í. B. Jóhannesson", "jersey": "8", "rating": 6.4, "pos": "LCM", "photo": "", "age": "23", "val": "€3.5M", "height": "180 cm", "sofa_id": "951952", "sub": False},
+        {"name": "A. Baldursson", "jersey": "14", "rating": 6.4, "pos": "RCM", "photo": "", "age": "24", "val": "€800K", "height": "183 cm", "sofa_id": "926252", "sub": False},
+        {"name": "A. Guðmundsson", "jersey": "11", "rating": 7.0, "pos": "RM", "photo": "", "age": "28", "val": "€22M", "height": "177 cm", "sofa_id": "826388", "sub": False},
+        {"name": "H. Haraldsson", "jersey": "7", "rating": 6.4, "pos": "LST", "photo": "", "age": "23", "val": "€15M", "height": "180 cm", "sofa_id": "994468", "sub": False},
+        {"name": "O. S. Óskarsson", "jersey": "9", "rating": 6.5, "pos": "RST", "photo": "", "age": "21", "val": "€5M", "height": "186 cm", "sofa_id": "1012975", "sub": False},
+        # Substitutes
+        {"name": "Kristian Hlynsson", "jersey": "20", "rating": 6.1, "pos": "CAM", "photo": "", "age": "22", "val": "€5M", "height": "179 cm", "sofa_id": "966453", "sub": True},
+        {"name": "Dagur Dan Þórhallsson", "jersey": "15", "rating": 5.9, "pos": "LB", "photo": "", "age": "26", "val": "€1M", "height": "178 cm", "sofa_id": "926251", "sub": True},
+        {"name": "Aron Gunnarsson", "jersey": "17", "rating": 6.3, "pos": "CM", "photo": "", "age": "37", "val": "€300K", "height": "177 cm", "sofa_id": "44738", "sub": True},
+        {"name": "Jón Dagur Þorsteinsson", "jersey": "18", "rating": 7.0, "pos": "LM", "photo": "", "age": "27", "val": "€3M", "height": "178 cm", "sofa_id": "837269", "sub": True},
+        {"name": "Hjörtur Hermannsson", "jersey": "6", "rating": 6.3, "pos": "RCB", "photo": "", "age": "30", "val": "€800K", "height": "188 cm", "sofa_id": "260021", "sub": True},
+        {"name": "Gísli Þórðarson", "jersey": "5", "rating": 6.3, "pos": "RCM", "photo": "", "age": "24", "val": "€300K", "height": "180 cm", "sofa_id": "964343", "sub": True},
+        {"name": "Kristall Máni Ingason", "jersey": "16", "rating": 6.4, "pos": "ST", "photo": "", "age": "24", "val": "€500K", "height": "180 cm", "sofa_id": "994467", "sub": True},
+        {"name": "Arnór Sigurðsson", "jersey": "21", "rating": 6.4, "pos": "LM", "photo": "", "age": "26", "val": "€3M", "height": "177 cm", "sofa_id": "865767", "sub": True},
+        {"name": "Gylfi Sigurðsson", "jersey": "10", "rating": 6.6, "pos": "CAM", "photo": "", "age": "36", "val": "€500K", "height": "186 cm", "sofa_id": "44722", "sub": True}
     ]
 }
+
 
 def normalize_name(name: str) -> str:
     """Normalizes team names to lower case, stripping spaces and extra qualifiers like U20."""

@@ -182,7 +182,7 @@ PREDEFINED_ROSTERS = {
         {"name": "C. Ronaldo", "jersey": "7", "rating": 8.2, "pos": "ST", "photo": "", "age": "41", "val": "€15M", "height": "187 cm", "sofa_id": "222"},
     ],
     "argentina": [
-        {"name": "G. Rulli", "jersey": "12", "rating": 6.8, "pos": "GK", "photo": "", "age": "34", "val": "€4M", "height": "189 cm", "sofa_id": "83163", "sub": False},
+        {"name": "G. Rulli", "jersey": "12", "rating": 6.8, "pos": "GK", "photo": "", "age": "34", "val": "€4M", "height": "189 cm", "sofa_id": "155427", "sub": False},
         {"name": "F. Medina", "jersey": "25", "rating": 6.7, "pos": "LB", "photo": "", "age": "27", "val": "€22M", "height": "184 cm", "sofa_id": "935560", "sub": False},
         {"name": "L. Martínez", "jersey": "6", "rating": 7.0, "pos": "LCB", "photo": "", "age": "28", "val": "€45M", "height": "178 cm", "sofa_id": "867205", "sub": False},
         {"name": "N. Otamendi", "jersey": "19", "rating": 7.0, "pos": "RCB", "photo": "", "age": "38", "val": "€1.5M", "height": "183 cm", "sofa_id": "47355", "sub": False},
@@ -259,18 +259,170 @@ def slugify(name: str) -> str:
     name_clean = re.sub(r'[^a-zA-Z0-9\s-]', '', name)
     return re.sub(r'[\s-]+', '_', name_clean).lower()
 
+NAME_EXPANSIONS = {
+    # Manchester City
+    "K. Walker": "Kyle Walker",
+    "R. Dias": "Rúben Dias",
+    "M. Akanji": "Manuel Akanji",
+    "J. Gvardiol": "Joško Gvardiol",
+    "J. Stones": "John Stones",
+    "B. Silva": "Bernardo Silva",
+    "K. De Bruyne": "Kevin De Bruyne",
+    "P. Foden": "Phil Foden",
+    "E. Haaland": "Erling Haaland",
+    
+    # Real Madrid
+    "A. Lunin": "Andriy Lunin",
+    "D. Carvajal": "Dani Carvajal",
+    "A. Rüdiger": "Antonio Rüdiger",
+    "F. Mendy": "Ferland Mendy",
+    "F. Valverde": "Federico Valverde",
+    "T. Kroos": "Toni Kroos",
+    "E. Camavinga": "Eduardo Camavinga",
+    "J. Bellingham": "Jude Bellingham",
+    "Vinícius Jr.": "Vinícius Júnior",
+    
+    # Bayern
+    "M. Neuer": "Manuel Neuer",
+    "J. Kimmich": "Joshua Kimmich",
+    "M. de Ligt": "Matthijs de Ligt",
+    "E. Dier": "Eric Dier",
+    "N. Mazraoui": "Noussair Mazraoui",
+    "K. Laimer": "Konrad Laimer",
+    "A. Pavlović": "Aleksandar Pavlović",
+    "L. Sané": "Leroy Sané",
+    "T. Müller": "Thomas Müller",
+    "J. Musiala": "Jamal Musiala",
+    "H. Kane": "Harry Kane",
+    
+    # Arsenal
+    "D. Raya": "David Raya",
+    "B. White": "Ben White",
+    "W. Saliba": "William Saliba",
+    "G. Magalhães": "Gabriel Magalhães",
+    "J. Kiwior": "Jakub Kiwior",
+    "D. Rice": "Declan Rice",
+    "M. Ødegaard": "Martin Ødegaard",
+    "B. Saka": "Bukayo Saka",
+    "G. Martinelli": "Gabriel Martinelli",
+    "K. Havertz": "Kai Havertz",
+    
+    # Haiti
+    "L. Joseph": "Leonel Joseph",
+    "R. Providence": "Ruben Providence",
+    "F. Pierrot": "Frantzdy Pierrot",
+    
+    # Spain
+    "U. Simón": "Unai Simón",
+    "M. Llorente": "Marcos Llorente",
+    "P. Cubarsí": "Pau Cubarsí",
+    "A. Laporte": "Aymeric Laporte",
+    "M. Cucurella": "Marc Cucurella",
+    "A. Baena": "Alex Baena",
+    "F. Ruiz": "Fabian Ruiz",
+    "F. Torres": "Ferran Torres",
+    "M. Oyarzabal": "Mikel Oyarzabal",
+    
+    # Peru
+    "P. Gallese": "Pedro Gallese",
+    "R. Garces": "Renzo Garcés",
+    "F. Gruber": "Franz Gruber",
+    "O. Sonne": "Oliver Sonne",
+    "J. Pretell": "Jesús Pretell",
+    "E. Noriega": "Erick Noriega",
+    "J. Vélez": "Jairo Vélez",
+    "Y. Yotún": "Yoshimar Yotún",
+    "M. López": "Marcos López",
+    "A. Ugarriza": "Adrián Ugarriza",
+    
+    # Liverpool
+    "Alisson B.": "Alisson Becker",
+    "I. Konaté": "Ibrahima Konaté",
+    "V. van Dijk": "Virgil van Dijk",
+    "A. Robertson": "Andrew Robertson",
+    "W. Endo": "Wataru Endo",
+    "L. Díaz": "Luis Díaz",
+    "D. Núñez": "Darwin Núñez",
+    
+    # Philippines
+    "N. Etheridge": "Neil Etheridge",
+    "C. de Murga": "Carli de Murga",
+    "A. Aguinaldo": "Amani Aguinaldo",
+    "C. Rontini": "Christian Rontini",
+    "D. Sato": "Daisuke Sato",
+    "K. Ingreso": "Kevin Ingreso",
+    "S. Schröck": "Stephan Schröck",
+    "P. Reichelt": "Patrick Reichelt",
+    
+    # Guam
+    "D. Jaye": "Dallas Jaye",
+    "T. Nicklaw": "Travis Nicklaw",
+    "M. Grimes": "Marcus Grimes",
+    "J. Grindeland": "Joey Grindeland",
+    "M. Chargualaf": "Mark Chargualaf",
+    "I. Mariano": "Ian Mariano",
+    "M. Lopez": "Marcus Lopez",
+    "J. Cunliffe": "Jason Cunliffe",
+    "S. Spindel": "Shawn Spindel",
+    "S. Malcolm": "Shane Malcolm",
+    
+    # Japan
+    "Z. Suzuki": "Zion Suzuki",
+    "Y. Sugawara": "Yukinari Sugawara",
+    "K. Itakura": "Ko Itakura",
+    "K. Machida": "Koki Machida",
+    "H. Ito": "Hiroki Ito",
+    "H. Morita": "Hidemasa Morita",
+    "R. Doan": "Ritsu Doan",
+    "T. Minamino": "Takumi Minamino",
+    "K. Mitoma": "Kaoru Mitoma",
+    "A. Ueda": "Ayase Ueda",
+    
+    # Portugal
+    "C. Ronaldo": "Cristiano Ronaldo",
+    
+    # Argentina
+    "G. Rulli": "Gerónimo Rulli",
+    "F. Medina": "Facundo Medina",
+    "L. Martínez": "Lisandro Martínez",
+    "N. Otamendi": "Nicolás Otamendi",
+    "A. Giay": "Agustín Giay",
+    "V. Barco": "Valentín Barco",
+    "E. Palacios": "Exequiel Palacios",
+    "G. Lo Celso": "Giovani Lo Celso",
+    "G. Simeone": "Giuliano Simeone",
+    "J. López": "José Manuel López",
+    "N. Paz": "Nico Paz",
+    
+    # Iceland
+    "E. Ólafsson": "Elías Rafn Ólafsson",
+    "L. Tómasson": "Logi Tómasson",
+    "H. Magnússon": "Hörður Björgvin Magnússon",
+    "D. Grétarsson": "Daníel Leó Grétarsson",
+    "V. Pálsson": "Victor Pálsson",
+    "M. Ellertsson": "Mikael Egill Ellertsson",
+    "Í. B. Jóhannesson": "Ísak Bergmann Jóhannesson",
+    "A. Baldursson": "Andri Baldursson",
+    "A. Guðmundsson": "Albert Guðmundsson",
+    "H. Haraldsson": "Hákon Arnar Haraldsson",
+    "O. S. Óskarsson": "Orri Óskarsson",
+}
+
 def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
     headers = {'User-Agent': 'FootBotTacticsApp/1.0 (akilan@example.com)'}
     search_url = 'https://en.wikipedia.org/w/api.php'
     
+    # Expand name to full canonical format for searching if applicable
+    search_name = NAME_EXPANSIONS.get(player_name, player_name)
+    
     # Try search queries in order of specificity
-    queries = [f"{player_name} football", f"{player_name} footballer", player_name]
+    queries = [f"{search_name} football", f"{search_name} footballer", search_name]
     
     for q in queries:
         search_params = {
             'action': 'opensearch',
             'search': q,
-            'limit': 3,
+            'limit': 5, # Check up to 5 results to ensure we don't miss the real player
             'format': 'json'
         }
         try:
@@ -279,23 +431,87 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
                 data = r.json()
                 if len(data) >= 2 and data[1]:
                     # Check first few search results
-                    for title in data[1][:3]:
-                        img_params = {
+                    for title in data[1]:
+                        # Query both extracts and pageimages to verify article category & get thumbnail
+                        info_params = {
                             'action': 'query',
                             'titles': title,
-                            'prop': 'pageimages',
+                            'prop': 'extracts|pageimages',
+                            'exintro': True,
+                            'explaintext': True,
                             'format': 'json',
                             'pithumbsize': 500
                         }
-                        r_img = requests.get(search_url, params=img_params, headers=headers, timeout=5)
-                        if r_img.status_code == 200:
-                            pages = r_img.json().get('query', {}).get('pages', {})
+                        r_info = requests.get(search_url, params=info_params, headers=headers, timeout=5)
+                        if r_info.status_code == 200:
+                            pages = r_info.json().get('query', {}).get('pages', {})
                             for pid, pinfo in pages.items():
-                                if 'thumbnail' in pinfo:
+                                extract_text = pinfo.get('extract', '').lower()
+                                
+                                # Verify if the article is actually about a football player/coach or sport team/club
+                                is_football = False
+                                football_keywords = [
+                                    "footballer", "football player", "soccer player", "fútbol", 
+                                    "futbolista", "goalkeeper", "midfielder", "defender", "striker", 
+                                    "winger", "forward", "football club", "national football team"
+                                ]
+                                for kw in football_keywords:
+                                    if kw in extract_text:
+                                        is_football = True
+                                        break
+                                
+                                # Fallback sports keywords
+                                if not is_football:
+                                    fallback_keywords = [
+                                        "plays as a", "caps for", "represented his country", 
+                                        "association football", "national team"
+                                    ]
+                                    for kw in fallback_keywords:
+                                        if kw in extract_text:
+                                            is_football = True
+                                            break
+                                
+                                # Only accept the thumbnail if it is a verified sports entity
+                                if is_football and 'thumbnail' in pinfo:
                                     return pinfo['thumbnail']['source']
         except Exception as e:
             logger.error(f"Error searching Wikipedia for {q}: {e}")
             
+    return None
+
+def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
+    import urllib.parse
+    from bs4 import BeautifulSoup
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9"
+    }
+    
+    # Expand player name if abbreviated
+    search_name = NAME_EXPANSIONS.get(player_name, player_name)
+    query = urllib.parse.quote_plus(search_name)
+    url = f"https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query={query}"
+    
+    try:
+        r = requests.get(url, headers=headers, timeout=5)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.content, 'html.parser')
+            # Look for player search result table
+            table = soup.find('table', class_='items')
+            if table:
+                tbody = table.find('tbody')
+                if tbody:
+                    first_row = tbody.find('tr', class_=['odd', 'even'])
+                    if first_row:
+                        img_tag = first_row.find('img')
+                        if img_tag and img_tag.get('src'):
+                            src = img_tag.get('src')
+                            # Ensure we don't return blank placeholder images
+                            if "placeholder" not in src:
+                                return src
+    except Exception as e:
+        logger.error(f"Error fetching Transfermarkt image for {player_name}: {e}")
     return None
 
 def download_image(url: str, dest_path: Path) -> bool:
@@ -315,7 +531,7 @@ def download_image(url: str, dest_path: Path) -> bool:
 def ensure_player_photos(roster: List[Dict[str, Any]]) -> bool:
     """
     Checks each player in the roster and resolves their photo path.
-    If photo is empty or doesn't exist, queries Wikipedia and downloads it.
+    If photo is empty or doesn't exist, queries Transfermarkt, falling back to Wikipedia.
     Returns True if any player's photo was updated.
     """
     updated = False
@@ -347,21 +563,25 @@ def ensure_player_photos(roster: List[Dict[str, Any]]) -> bool:
             updated = True
             continue
             
-        logger.info(f"Attempting to resolve Wikipedia photo for {player_name}...")
-        url = fetch_wikipedia_image_url(player_name)
+        logger.info(f"Attempting to resolve photo for {player_name}...")
+        url = fetch_transfermarkt_image_url(player_name)
+        
+        if not url:
+            logger.info(f"Transfermarkt photo not resolved, trying Wikipedia for {player_name}...")
+            url = fetch_wikipedia_image_url(player_name)
+            
         if url:
             if download_image(url, dest_path):
                 p["photo"] = relative_path
                 updated = True
             else:
-                logger.info(f"Failed to download resolved Wikipedia photo for {player_name}.")
+                logger.info(f"Failed to download resolved photo for {player_name}.")
                 p["photo"] = "none"
                 updated = True
         else:
-            logger.info(f"No Wikipedia photo found for {player_name}.")
+            logger.info(f"No photo found for {player_name} on Transfermarkt or Wikipedia.")
             p["photo"] = "none"
             updated = True
-
 
     return updated
 

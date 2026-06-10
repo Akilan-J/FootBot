@@ -1486,7 +1486,7 @@
             "age": "34",
             "val": "€4M",
             "height": "189 cm",
-            "sofa_id": "83163",
+            "sofa_id": "155427",
             "sub": false
         },
         {
@@ -1602,7 +1602,7 @@
             "jersey": "18",
             "rating": 6.9,
             "pos": "RST",
-            "photo": "frontend/assets/n_paz.jpg",
+            "photo": "none",
             "age": "21",
             "val": "€10M",
             "height": "186 cm",
@@ -1958,6 +1958,129 @@
             "height": "186 cm",
             "sofa_id": "44722",
             "sub": true
+        }
+    ],
+    "manchester city": [
+        {
+            "name": "Ederson",
+            "jersey": "31",
+            "rating": 6.2,
+            "pos": "GK",
+            "photo": "frontend/assets/ederson.png",
+            "age": "32",
+            "val": "€35M",
+            "height": "188 cm",
+            "sofa_id": "84511"
+        },
+        {
+            "name": "K. Walker",
+            "jersey": "2",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "frontend/assets/k_walker.jpg",
+            "age": "35",
+            "val": "€15M",
+            "height": "183 cm",
+            "sofa_id": "14298"
+        },
+        {
+            "name": "R. Dias",
+            "jersey": "3",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "frontend/assets/dias.png",
+            "age": "28",
+            "val": "€80M",
+            "height": "187 cm",
+            "sofa_id": "830225"
+        },
+        {
+            "name": "M. Akanji",
+            "jersey": "25",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/m_akanji.jpg",
+            "age": "30",
+            "val": "€45M",
+            "height": "187 cm",
+            "sofa_id": "316654"
+        },
+        {
+            "name": "J. Gvardiol",
+            "jersey": "24",
+            "rating": 7.5,
+            "pos": "LB",
+            "photo": "frontend/assets/j_gvardiol.jpg",
+            "age": "24",
+            "val": "€75M",
+            "height": "185 cm",
+            "sofa_id": "966601"
+        },
+        {
+            "name": "Rodri",
+            "jersey": "16",
+            "rating": 8.0,
+            "pos": "LDM",
+            "photo": "frontend/assets/rodri.png",
+            "age": "29",
+            "val": "€120M",
+            "height": "190 cm",
+            "sofa_id": "333346"
+        },
+        {
+            "name": "J. Stones",
+            "jersey": "5",
+            "rating": 6.8,
+            "pos": "RDM",
+            "photo": "frontend/assets/j_stones.jpg",
+            "age": "31",
+            "val": "€38M",
+            "height": "188 cm",
+            "sofa_id": "148425"
+        },
+        {
+            "name": "B. Silva",
+            "jersey": "20",
+            "rating": 8.2,
+            "pos": "RAM",
+            "photo": "frontend/assets/silva.png",
+            "age": "31",
+            "val": "€70M",
+            "height": "173 cm",
+            "sofa_id": "244465"
+        },
+        {
+            "name": "K. De Bruyne",
+            "jersey": "17",
+            "rating": 8.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/debruyne.png",
+            "age": "34",
+            "val": "€60M",
+            "height": "181 cm",
+            "sofa_id": "40387"
+        },
+        {
+            "name": "P. Foden",
+            "jersey": "47",
+            "rating": 8.7,
+            "pos": "LAM",
+            "photo": "frontend/assets/foden.png",
+            "age": "25",
+            "val": "€150M",
+            "height": "179 cm",
+            "sofa_id": "860471"
+        },
+        {
+            "name": "E. Haaland",
+            "jersey": "9",
+            "rating": 8.4,
+            "pos": "ST",
+            "photo": "frontend/assets/haaland.png",
+            "age": "25",
+            "val": "€180M",
+            "height": "194 cm",
+            "sofa_id": "826725"
         }
     ]
 }

@@ -829,9 +829,14 @@ with tab_sofa:
     def get_image_base64(path):
         try:
             if path and os.path.exists(path):
+                mime = "image/png"
+                if path.endswith(".svg"):
+                    mime = "image/svg+xml"
+                elif path.endswith(".jpg") or path.endswith(".jpeg"):
+                    mime = "image/jpeg"
                 with open(path, "rb") as image_file:
                     encoded = base64.b64encode(image_file.read()).decode()
-                    return f"data:image/png;base64,{encoded}"
+                    return f"data:{mime};base64,{encoded}"
         except Exception:
             pass
         return ""
@@ -1828,15 +1833,15 @@ with tab_sofa:
             import os
             if not avatar_path or not os.path.exists(avatar_path):
                 if pos == "GK":
-                    avatar_path = "frontend/assets/goalkeeper_avatar_1780075822964.png"
+                    avatar_path = "frontend/assets/goalkeeper_avatar.svg"
                 elif pos in ["LB", "LCB", "RCB", "RB"]:
-                    avatar_path = "frontend/assets/defender_avatar_1780075900879.png"
+                    avatar_path = "frontend/assets/defender_avatar.svg"
                 elif pos in ["LDM", "RDM", "LCM", "CM", "RCM", "LM", "RM", "LAM", "CAM", "RAM", "AM"]:
-                    avatar_path = "frontend/assets/midfielder_avatar_1780075866999.png"
+                    avatar_path = "frontend/assets/midfielder_avatar.svg"
                 elif pos in ["LW", "RW", "ST", "LST", "RST"]:
-                    avatar_path = "frontend/assets/striker_avatar_1780075841841.png"
+                    avatar_path = "frontend/assets/striker_avatar.svg"
                 else:
-                    avatar_path = "frontend/assets/default_avatar_1780075726952.png"
+                    avatar_path = "frontend/assets/default_avatar.svg"
         else:
             # Absolute fallback values
             rating, rating_color = 7.0, "#34d399"
@@ -1850,7 +1855,7 @@ with tab_sofa:
             p_weight = "75 kg"
             p_val = "€1M"
             p_trait = "Tactical option"
-            avatar_path = "frontend/assets/default_avatar_1780075726952.png"
+            avatar_path = "frontend/assets/default_avatar.svg"
             pos = "CM"
 
         # Create a side-by-side row for the Player Avatar Card and the SofaScore rating card
@@ -1908,94 +1913,117 @@ with tab_sofa:
     with col_pheat:
         st.markdown("#### 🗺️ SofaScore Positional Intensity Heatmap")
         
-        # Custom Heatmap layouts based on player position
-        if pos in ["ST", "LST", "RST"]:
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
-                " │        ░  ░  ▒  █  █  ▒  ░  ░          │ \n"
-                " │        ░  ░  ░  ▓  ▓  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ▒  ▒  ░  ░  ░          │ [MIDFIELD]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
-                " └────────────────────────────────────────┘ "
+        # Check if the player has a valid SofaScore ID to show the widget
+        sofa_id = selected_p_obj.get("sofa_id", "") if selected_p_obj else ""
+        
+        if sofa_id:
+            widget_mode = st.segmented_control(
+                "Heatmap Display Mode:",
+                options=["🗺️ Live SofaScore Widget", "📊 Classic ASCII Map"],
+                default="🗺️ Live SofaScore Widget",
+                key=f"widget_mode_{sofa_id}"  # Unique key per player
             )
-        elif pos in ["LW", "LAM", "LM"]:
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        █  █  ▓  ▒  ░  ░  ░  ░          │ [OPP BOX]\n"
-                " │        █  █  ▓  ░  ░  ░  ░  ░          │ \n"
-                " │        ▓  ▓  ▒  ░  ░  ░  ░  ░          │ \n"
-                " │        ▒  ▒  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
-                " └────────────────────────────────────────┘ "
-            )
-        elif pos in ["RW", "RAM", "RM"]:
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        ░  ░  ░  ░  ▒  ▓  █  █          │ [OPP BOX]\n"
-                " │        ░  ░  ░  ░  ░  ▓  █  █          │ \n"
-                " │        ░  ░  ░  ░  ░  ▒  ▓  ▓          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ▒  ▒          │ [MIDFIELD]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
-                " └────────────────────────────────────────┘ "
-            )
-        elif pos in ["CAM", "CM", "LCM", "RCM", "AM"]:
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
-                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
-                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
-                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [MIDFIELD]\n"
-                " │        ░  ░  ░  ▒  ▒  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
-                " └────────────────────────────────────────┘ "
-            )
-        elif pos in ["LDM", "RDM"]:
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ▒  ▒  ▒  ▒  ░  ░          │ \n"
-                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ [MIDFIELD]\n"
-                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
-                " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
-                " └────────────────────────────────────────┘ "
-            )
-        elif pos in ["LB", "LCB", "RCB", "RB"]:
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
-                " │        ░  ░  ▒  ▒  ▒  ▒  ░  ░          │ \n"
-                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
-                " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ [OWN HALF]\n"
-                " └────────────────────────────────────────┘ "
-            )
-        else: # Goalkeeper
-            heatmap_grid = (
-                " ┌────────────────────────────────────────┐ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
-                " │        ░  ░  ▒  █  █  ▒  ░  ░          │ [GOAL BOX]\n"
-                " └────────────────────────────────────────┘ "
-            )
+        else:
+            widget_mode = "📊 Classic ASCII Map"
             
-        st.code(heatmap_grid, language="text")
-        st.caption("Intensity scale: █ (High Touch Zone) ➔ ▓ ➔ ▒ ➔ ░ (Low Touch Zone)")
+        if widget_mode == "🗺️ Live SofaScore Widget":
+            st.html(f"""
+            <iframe 
+                src="https://widgets.sofascore.com/embed/player/{sofa_id}?widgetTheme=dark" 
+                style="height:730px!important;width:100%!important;max-width:480px!important;border:none;border-radius:0.75rem;" 
+                frameborder="0" 
+                scrolling="no">
+            </iframe>
+            """)
+        else:
+            # Custom Heatmap layouts based on player position
+            if pos in ["ST", "LST", "RST"]:
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
+                    " │        ░  ░  ▒  █  █  ▒  ░  ░          │ \n"
+                    " │        ░  ░  ░  ▓  ▓  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ▒  ▒  ░  ░  ░          │ [MIDFIELD]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+            elif pos in ["LW", "LAM", "LM"]:
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        █  █  ▓  ▒  ░  ░  ░  ░          │ [OPP BOX]\n"
+                    " │        █  █  ▓  ░  ░  ░  ░  ░          │ \n"
+                    " │        ▓  ▓  ▒  ░  ░  ░  ░  ░          │ \n"
+                    " │        ▒  ▒  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+            elif pos in ["RW", "RAM", "RM"]:
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        ░  ░  ░  ░  ▒  ▓  █  █          │ [OPP BOX]\n"
+                    " │        ░  ░  ░  ░  ░  ▓  █  █          │ \n"
+                    " │        ░  ░  ░  ░  ░  ▒  ▓  ▓          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ▒  ▒          │ [MIDFIELD]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+            elif pos in ["CAM", "CM", "LCM", "RCM", "AM"]:
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [OPP BOX]\n"
+                    " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                    " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                    " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ [MIDFIELD]\n"
+                    " │        ░  ░  ░  ▒  ▒  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+            elif pos in ["LDM", "RDM"]:
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ▒  ▒  ▒  ▒  ░  ░          │ \n"
+                    " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ [MIDFIELD]\n"
+                    " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                    " │        ░  ░  ▒  ▓  ▓  ▒  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OWN HALF]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+            elif pos in ["LB", "LCB", "RCB", "RB"]:
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
+                    " │        ░  ░  ▒  ▒  ▒  ▒  ░  ░          │ \n"
+                    " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ \n"
+                    " │        ░  ▒  ▓  █  █  ▓  ▒  ░          │ [OWN HALF]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+            else: # Goalkeeper
+                heatmap_grid = (
+                    " ┌────────────────────────────────────────┐ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [OPP BOX]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ [MIDFIELD]\n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ░  ░  ░  ░  ░  ░          │ \n"
+                    " │        ░  ░  ▒  █  █  ▒  ░  ░          │ [GOAL BOX]\n"
+                    " └────────────────────────────────────────┘ "
+                )
+                
+            st.code(heatmap_grid, language="text")
+            st.caption("Intensity scale: █ (High Touch Zone) ➔ ▓ ➔ ▒ ➔ ░ (Low Touch Zone)")
         
     st.markdown("---")
     

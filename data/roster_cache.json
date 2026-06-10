@@ -5,7 +5,7 @@
             "jersey": "1",
             "rating": 7.2,
             "pos": "GK",
-            "photo": "",
+            "photo": "frontend/assets/kepa_arrizabalaga.jpg",
             "age": "29",
             "val": "€55M",
             "height": "191 cm"
@@ -15,7 +15,7 @@
             "jersey": "2",
             "rating": 7.5,
             "pos": "LB",
-            "photo": "",
+            "photo": "frontend/assets/ben_chilwell.jpg",
             "age": "26",
             "val": "€40M",
             "height": "173 cm"
@@ -25,7 +25,7 @@
             "jersey": "21",
             "rating": 8.0,
             "pos": "RB",
-            "photo": "",
+            "photo": "none",
             "age": "23",
             "val": "€100M",
             "height": "180 cm"
@@ -35,7 +35,7 @@
             "jersey": "22",
             "rating": 7.8,
             "pos": "RCB",
-            "photo": "",
+            "photo": "frontend/assets/thiago_silva.jpg",
             "age": "37",
             "val": "€20M",
             "height": "183 cm"
@@ -45,7 +45,7 @@
             "jersey": "18",
             "rating": 7.6,
             "pos": "LCM",
-            "photo": "",
+            "photo": "frontend/assets/enzo_fernandez.jpg",
             "age": "22",
             "val": "€140M",
             "height": "172 cm"
@@ -55,7 +55,7 @@
             "jersey": "15",
             "rating": 7.4,
             "pos": "RCM",
-            "photo": "",
+            "photo": "none",
             "age": "22",
             "val": "€50M",
             "height": "183 cm"
@@ -65,7 +65,7 @@
             "jersey": "23",
             "rating": 7.3,
             "pos": "LDM",
-            "photo": "",
+            "photo": "frontend/assets/moiss_caicedo.jpg",
             "age": "22",
             "val": "€100M",
             "height": "173 cm"
@@ -75,7 +75,7 @@
             "jersey": "7",
             "rating": 7.7,
             "pos": "CAM",
-            "photo": "",
+            "photo": "none",
             "age": "23",
             "val": "€100M",
             "height": "175 cm"
@@ -85,7 +85,7 @@
             "jersey": "10",
             "rating": 7.9,
             "pos": "LAM",
-            "photo": "",
+            "photo": "frontend/assets/cole_palmer.jpg",
             "age": "21",
             "val": "€60M",
             "height": "175 cm"
@@ -95,7 +95,7 @@
             "jersey": "9",
             "rating": 7.5,
             "pos": "ST",
-            "photo": "",
+            "photo": "frontend/assets/christopher_operi.jpg",
             "age": "22",
             "val": "€40M",
             "height": "185 cm"
@@ -105,7 +105,7 @@
             "jersey": "11",
             "rating": 7.6,
             "pos": "RW",
-            "photo": "",
+            "photo": "frontend/assets/nicolas_jackson.jpg",
             "age": "21",
             "val": "€60M",
             "height": "180 cm"
@@ -333,6 +333,1259 @@
             "age": "20",
             "val": "€1.5M",
             "height": "168 cm"
+        }
+    ],
+    "spain": [
+        {
+            "name": "U. Simón",
+            "jersey": "23",
+            "rating": 6.9,
+            "pos": "GK",
+            "photo": "frontend/assets/u_simn.jpg",
+            "age": "28",
+            "val": "€30M",
+            "height": "190 cm"
+        },
+        {
+            "name": "M. Llorente",
+            "jersey": "5",
+            "rating": 6.6,
+            "pos": "RB",
+            "photo": "frontend/assets/m_llorente.jpg",
+            "age": "31",
+            "val": "€30M",
+            "height": "184 cm"
+        },
+        {
+            "name": "P. Cubarsí",
+            "jersey": "22",
+            "rating": 7.5,
+            "pos": "RCB",
+            "photo": "frontend/assets/p_cubars.jpg",
+            "age": "19",
+            "val": "€40M",
+            "height": "184 cm"
+        },
+        {
+            "name": "A. Laporte",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "",
+            "age": "32",
+            "val": "€20M",
+            "height": "191 cm"
+        },
+        {
+            "name": "M. Cucurella",
+            "jersey": "24",
+            "rating": 6.2,
+            "pos": "LB",
+            "photo": "",
+            "age": "27",
+            "val": "€25M",
+            "height": "173 cm"
+        },
+        {
+            "name": "Pedri",
+            "jersey": "20",
+            "rating": 7.7,
+            "pos": "RDM",
+            "photo": "frontend/assets/pedri.jpg",
+            "age": "23",
+            "val": "€80M",
+            "height": "174 cm"
+        },
+        {
+            "name": "Rodri",
+            "jersey": "16",
+            "rating": 7.7,
+            "pos": "LDM",
+            "photo": "frontend/assets/rodri.jpg",
+            "age": "29",
+            "val": "€120M",
+            "height": "190 cm"
+        },
+        {
+            "name": "A. Baena",
+            "jersey": "15",
+            "rating": 6.5,
+            "pos": "RAM",
+            "photo": "frontend/assets/a_baena.jpg",
+            "age": "24",
+            "val": "€40M",
+            "height": "177 cm"
+        },
+        {
+            "name": "F. Ruiz",
+            "jersey": "8",
+            "rating": 6.7,
+            "pos": "CAM",
+            "photo": "",
+            "age": "30",
+            "val": "€30M",
+            "height": "189 cm"
+        },
+        {
+            "name": "F. Torres",
+            "jersey": "7",
+            "rating": 6.9,
+            "pos": "LAM",
+            "photo": "",
+            "age": "26",
+            "val": "€35M",
+            "height": "184 cm"
+        },
+        {
+            "name": "M. Oyarzabal",
+            "jersey": "21",
+            "rating": 6.7,
+            "pos": "ST",
+            "photo": "frontend/assets/m_oyarzabal.jpg",
+            "age": "29",
+            "val": "€40M",
+            "height": "181 cm"
+        }
+    ],
+    "guam": [
+        {
+            "name": "D. Jaye",
+            "jersey": "1",
+            "rating": 5.9,
+            "pos": "GK",
+            "photo": "frontend/assets/d_jaye.jpg",
+            "age": "32",
+            "val": "€50K",
+            "height": "187 cm"
+        },
+        {
+            "name": "Alex Lee",
+            "jersey": "2",
+            "rating": 5.8,
+            "pos": "RB",
+            "photo": "none",
+            "age": "36",
+            "val": "€25K",
+            "height": "178 cm"
+        },
+        {
+            "name": "T. Nicklaw",
+            "jersey": "4",
+            "rating": 6.0,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "34",
+            "val": "€50K",
+            "height": "181 cm"
+        },
+        {
+            "name": "M. Grimes",
+            "jersey": "5",
+            "rating": 5.9,
+            "pos": "LCB",
+            "photo": "frontend/assets/m_grimes.jpg",
+            "age": "33",
+            "val": "€25K",
+            "height": "185 cm"
+        },
+        {
+            "name": "J. Grindeland",
+            "jersey": "3",
+            "rating": 5.7,
+            "pos": "LB",
+            "photo": "none",
+            "age": "28",
+            "val": "€10K",
+            "height": "175 cm"
+        },
+        {
+            "name": "M. Chargualaf",
+            "jersey": "8",
+            "rating": 6.0,
+            "pos": "RDM",
+            "photo": "none",
+            "age": "36",
+            "val": "€10K",
+            "height": "170 cm"
+        },
+        {
+            "name": "I. Mariano",
+            "jersey": "10",
+            "rating": 6.1,
+            "pos": "LDM",
+            "photo": "frontend/assets/i_mariano.jpg",
+            "age": "38",
+            "val": "€10K",
+            "height": "172 cm"
+        },
+        {
+            "name": "M. Lopez",
+            "jersey": "7",
+            "rating": 6.2,
+            "pos": "RAM",
+            "photo": "none",
+            "age": "34",
+            "val": "€50K",
+            "height": "175 cm"
+        },
+        {
+            "name": "J. Cunliffe",
+            "jersey": "11",
+            "rating": 6.5,
+            "pos": "CAM",
+            "photo": "none",
+            "age": "42",
+            "val": "€10K",
+            "height": "170 cm"
+        },
+        {
+            "name": "S. Spindel",
+            "jersey": "9",
+            "rating": 5.9,
+            "pos": "LAM",
+            "photo": "frontend/assets/s_spindel.jpg",
+            "age": "35",
+            "val": "€10K",
+            "height": "174 cm"
+        },
+        {
+            "name": "S. Malcolm",
+            "jersey": "19",
+            "rating": 6.1,
+            "pos": "ST",
+            "photo": "none",
+            "age": "34",
+            "val": "€50K",
+            "height": "182 cm"
+        }
+    ],
+    "peru": [
+        {
+            "name": "P. Gallese",
+            "jersey": "1",
+            "rating": 5.4,
+            "pos": "GK",
+            "photo": "frontend/assets/p_gallese.jpg",
+            "age": "36",
+            "val": "€1.5M",
+            "height": "189 cm"
+        },
+        {
+            "name": "J. Vidales",
+            "jersey": "27",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "frontend/assets/j_vidales.jpg",
+            "age": "33",
+            "val": "€300K",
+            "height": "175 cm"
+        },
+        {
+            "name": "R. Garces",
+            "jersey": "15",
+            "rating": 6.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/r_garces.jpg",
+            "age": "29",
+            "val": "€700K",
+            "height": "183 cm"
+        },
+        {
+            "name": "F. Gruber",
+            "jersey": "3",
+            "rating": 6.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "23",
+            "val": "€400K",
+            "height": "188 cm"
+        },
+        {
+            "name": "O. Sonne",
+            "jersey": "22",
+            "rating": 5.9,
+            "pos": "LB",
+            "photo": "frontend/assets/o_sonne.jpg",
+            "age": "25",
+            "val": "€1.2M",
+            "height": "187 cm"
+        },
+        {
+            "name": "J. Pretell",
+            "jersey": "6",
+            "rating": 6.3,
+            "pos": "RDM",
+            "photo": "",
+            "age": "26",
+            "val": "€600K",
+            "height": "170 cm"
+        },
+        {
+            "name": "E. Noriega",
+            "jersey": "8",
+            "rating": 6.4,
+            "pos": "LDM",
+            "photo": "",
+            "age": "24",
+            "val": "€500K",
+            "height": "178 cm"
+        },
+        {
+            "name": "J. Vélez",
+            "jersey": "11",
+            "rating": 8.1,
+            "pos": "RAM",
+            "photo": "",
+            "age": "29",
+            "val": "€1M",
+            "height": "176 cm"
+        },
+        {
+            "name": "Y. Yotún",
+            "jersey": "19",
+            "rating": 6.6,
+            "pos": "CAM",
+            "photo": "frontend/assets/y_yotn.jpg",
+            "age": "36",
+            "val": "€1.5M",
+            "height": "171 cm"
+        },
+        {
+            "name": "M. López",
+            "jersey": "4",
+            "rating": 6.6,
+            "pos": "LAM",
+            "photo": "frontend/assets/m_lpez.jpg",
+            "age": "26",
+            "val": "€2M",
+            "height": "176 cm"
+        },
+        {
+            "name": "A. Ugarriza",
+            "jersey": "9",
+            "rating": 6.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "29",
+            "val": "€500K",
+            "height": "181 cm"
+        }
+    ],
+    "philippines": [
+        {
+            "name": "N. Etheridge",
+            "jersey": "1",
+            "rating": 6.7,
+            "pos": "GK",
+            "photo": "none",
+            "age": "36",
+            "val": "€350K",
+            "height": "188 cm"
+        },
+        {
+            "name": "C. de Murga",
+            "jersey": "2",
+            "rating": 6.2,
+            "pos": "RB",
+            "photo": "none",
+            "age": "39",
+            "val": "€50K",
+            "height": "180 cm"
+        },
+        {
+            "name": "A. Aguinaldo",
+            "jersey": "12",
+            "rating": 6.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/a_aguinaldo.jpg",
+            "age": "30",
+            "val": "€150K",
+            "height": "180 cm"
+        },
+        {
+            "name": "C. Rontini",
+            "jersey": "4",
+            "rating": 6.3,
+            "pos": "LCB",
+            "photo": "frontend/assets/c_rontini.jpg",
+            "age": "25",
+            "val": "€150K",
+            "height": "186 cm"
+        },
+        {
+            "name": "D. Sato",
+            "jersey": "11",
+            "rating": 6.5,
+            "pos": "LB",
+            "photo": "frontend/assets/d_sato.jpg",
+            "age": "31",
+            "val": "€200K",
+            "height": "170 cm"
+        },
+        {
+            "name": "Manny Ott",
+            "jersey": "8",
+            "rating": 6.6,
+            "pos": "RDM",
+            "photo": "frontend/assets/manny_ott.jpg",
+            "age": "34",
+            "val": "€200K",
+            "height": "172 cm"
+        },
+        {
+            "name": "K. Ingreso",
+            "jersey": "14",
+            "rating": 6.3,
+            "pos": "LDM",
+            "photo": "frontend/assets/k_ingreso.jpg",
+            "age": "31",
+            "val": "€150K",
+            "height": "178 cm"
+        },
+        {
+            "name": "OJ Porteria",
+            "jersey": "7",
+            "rating": 6.8,
+            "pos": "RAM",
+            "photo": "none",
+            "age": "32",
+            "val": "€200K",
+            "height": "167 cm"
+        },
+        {
+            "name": "Mike Ott",
+            "jersey": "10",
+            "rating": 6.9,
+            "pos": "CAM",
+            "photo": "frontend/assets/mike_ott.jpg",
+            "age": "31",
+            "val": "€225K",
+            "height": "168 cm"
+        },
+        {
+            "name": "S. Schröck",
+            "jersey": "17",
+            "rating": 7.0,
+            "pos": "LAM",
+            "photo": "none",
+            "age": "39",
+            "val": "€50K",
+            "height": "170 cm"
+        },
+        {
+            "name": "P. Reichelt",
+            "jersey": "9",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "none",
+            "age": "37",
+            "val": "€100K",
+            "height": "180 cm"
+        }
+    ],
+    "new zealand": [
+        {
+            "name": "Paulsen",
+            "jersey": "12",
+            "rating": 5.8,
+            "pos": "GK",
+            "photo": "frontend/assets/paulsen.jpg",
+            "age": "23",
+            "val": "€1M",
+            "height": "195 cm"
+        },
+        {
+            "name": "Payne",
+            "jersey": "2",
+            "rating": 5.4,
+            "pos": "RB",
+            "photo": "frontend/assets/payne.jpg",
+            "age": "32",
+            "val": "€500K",
+            "height": "188 cm"
+        },
+        {
+            "name": "Boxall",
+            "jersey": "4",
+            "rating": 6.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/boxall.jpg",
+            "age": "37",
+            "val": "€200K",
+            "height": "188 cm"
+        },
+        {
+            "name": "Bindon",
+            "jersey": "6",
+            "rating": 6.2,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "21",
+            "val": "€600K",
+            "height": "186 cm"
+        },
+        {
+            "name": "Cacace",
+            "jersey": "3",
+            "rating": 6.7,
+            "pos": "LB",
+            "photo": "frontend/assets/cacace.jpg",
+            "age": "3M",
+            "height": "183 cm"
+        },
+        {
+            "name": "Bell",
+            "jersey": "8",
+            "rating": 6.1,
+            "pos": "LDM",
+            "photo": "frontend/assets/bell.jpg",
+            "age": "26",
+            "val": "€1.2M",
+            "height": "182 cm"
+        },
+        {
+            "name": "Howieson",
+            "jersey": "10",
+            "rating": 5.9,
+            "pos": "RDM",
+            "photo": "frontend/assets/howieson.jpg",
+            "age": "31",
+            "val": "€400K",
+            "height": "180 cm"
+        },
+        {
+            "name": "Ruffer",
+            "jersey": "7",
+            "rating": 6.2,
+            "pos": "RAM",
+            "photo": "none",
+            "age": "25",
+            "val": "€350K",
+            "height": "178 cm"
+        },
+        {
+            "name": "Just",
+            "jersey": "14",
+            "rating": 6.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/just.jpg",
+            "age": "25",
+            "val": "€500K",
+            "height": "177 cm"
+        },
+        {
+            "name": "Garbett",
+            "jersey": "11",
+            "rating": 6.3,
+            "pos": "LAM",
+            "photo": "frontend/assets/garbett.jpg",
+            "age": "24",
+            "val": "€1.5M",
+            "height": "188 cm"
+        },
+        {
+            "name": "Wood",
+            "jersey": "9",
+            "rating": 6.1,
+            "pos": "ST",
+            "photo": "frontend/assets/wood.jpg",
+            "age": "34",
+            "val": "€6M",
+            "height": "191 cm"
+        }
+    ],
+    "haiti": [
+        {
+            "name": "Duverger",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "none",
+            "age": "26",
+            "val": "€500K",
+            "height": "188 cm"
+        },
+        {
+            "name": "Gérard",
+            "jersey": "2",
+            "rating": 7.2,
+            "pos": "RB",
+            "photo": "frontend/assets/grard.jpg",
+            "age": "24",
+            "val": "€300K",
+            "height": "178 cm"
+        },
+        {
+            "name": "Arise",
+            "jersey": "4",
+            "rating": 7.5,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "25",
+            "val": "€450K",
+            "height": "185 cm"
+        },
+        {
+            "name": "Adé",
+            "jersey": "6",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "frontend/assets/ad.jpg",
+            "age": "31",
+            "val": "€200K",
+            "height": "190 cm"
+        },
+        {
+            "name": "Lacroix",
+            "jersey": "3",
+            "rating": 8.3,
+            "pos": "LB",
+            "photo": "frontend/assets/lacroix.jpg",
+            "age": "32",
+            "val": "€400K",
+            "height": "179 cm"
+        },
+        {
+            "name": "Alceus",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "LCM",
+            "photo": "none",
+            "age": "29",
+            "val": "€350K",
+            "height": "177 cm"
+        },
+        {
+            "name": "L. Joseph",
+            "jersey": "14",
+            "rating": 8.1,
+            "pos": "RCM",
+            "photo": "frontend/assets/l_joseph.jpg",
+            "age": "25",
+            "val": "€1M",
+            "height": "185 cm"
+        },
+        {
+            "name": "R. Providence",
+            "jersey": "10",
+            "rating": 8.4,
+            "pos": "AM",
+            "photo": "none",
+            "age": "24",
+            "val": "€2M",
+            "height": "179 cm"
+        },
+        {
+            "name": "Antoine",
+            "jersey": "7",
+            "rating": 6.9,
+            "pos": "RW",
+            "photo": "frontend/assets/antoine.jpg",
+            "age": "32",
+            "val": "€600K",
+            "height": "178 cm"
+        },
+        {
+            "name": "F. Pierrot",
+            "jersey": "9",
+            "rating": 8.6,
+            "pos": "ST",
+            "photo": "frontend/assets/f_pierrot.jpg",
+            "age": "31",
+            "val": "€4M",
+            "height": "194 cm"
+        },
+        {
+            "name": "Nazon",
+            "jersey": "11",
+            "rating": 7.4,
+            "pos": "LW",
+            "photo": "frontend/assets/nazon.jpg",
+            "age": "31",
+            "val": "€1.5M",
+            "height": "181 cm"
+        }
+    ],
+    "saudi arabia": [
+        {
+            "name": "Haq Ahmed",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "none",
+            "age": "35",
+            "val": "€100M",
+            "height": "175 cm"
+        },
+        {
+            "name": "Salim Al-Mari",
+            "jersey": "10",
+            "rating": 8.5,
+            "pos": "RB",
+            "photo": "none",
+            "age": "28",
+            "val": "€200M",
+            "height": "170 cm"
+        },
+        {
+            "name": "Rashid Al-Khatib",
+            "jersey": "9",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "40",
+            "val": "€150M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Fahmy Al-Hazawi",
+            "jersey": "11",
+            "rating": 6.8,
+            "pos": "LB",
+            "photo": "none",
+            "age": "32",
+            "val": "€80M",
+            "height": "165 cm"
+        },
+        {
+            "name": "Abdulrahman Al-Hajj",
+            "jersey": "12",
+            "rating": 8.9,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "45",
+            "val": "€300M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Yusuf Al-Farouq",
+            "jersey": "13",
+            "rating": 7.1,
+            "pos": "RDM",
+            "photo": "none",
+            "age": "33",
+            "val": "€120M",
+            "height": "160 cm"
+        },
+        {
+            "name": "Omar Al-Mualla",
+            "jersey": "14",
+            "rating": 7.5,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "38",
+            "val": "€250M",
+            "height": "170 cm"
+        },
+        {
+            "name": "Ahmed Al-Sayed",
+            "jersey": "15",
+            "rating": 8.0,
+            "pos": "ST",
+            "photo": "frontend/assets/ahmed_al_sayed.jpg",
+            "age": "26",
+            "val": "€180M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Hassan Al-Sheikh",
+            "jersey": "16",
+            "rating": 7.7,
+            "pos": "CM",
+            "photo": "none",
+            "age": "35",
+            "val": "€90M",
+            "height": "165 cm"
+        },
+        {
+            "name": "Ali Salim",
+            "jersey": "17",
+            "rating": 7.3,
+            "pos": "RW",
+            "photo": "none",
+            "age": "29",
+            "val": "€150M",
+            "height": "170 cm"
+        },
+        {
+            "name": "Zayd Al-Mansoor",
+            "jersey": "18",
+            "rating": 6.5,
+            "pos": "LW",
+            "photo": "none",
+            "age": "40",
+            "val": "€75M",
+            "height": "160 cm"
+        }
+    ],
+    "senegal": [
+        {
+            "name": "Moustapha Gomis",
+            "jersey": "1",
+            "rating": 7.5,
+            "pos": "GK",
+            "photo": "none",
+            "age": "36",
+            "val": "€10M",
+            "height": "188 cm"
+        },
+        {
+            "name": "Khadim N'Diaye",
+            "jersey": "2",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/khadim_ndiaye.jpg",
+            "age": "27",
+            "val": "€5M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Kalidou Koulibaly",
+            "jersey": "5",
+            "rating": 7.8,
+            "pos": "RCB",
+            "photo": "frontend/assets/kalidou_koulibaly.jpg",
+            "age": "33",
+            "val": "€25M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Moussa Niakhaté",
+            "jersey": "6",
+            "rating": 7.2,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "31",
+            "val": "€15M",
+            "height": "183 cm"
+        },
+        {
+            "name": "Saliou Ciss",
+            "jersey": "3",
+            "rating": 6.8,
+            "pos": "LB",
+            "photo": "none",
+            "age": "31",
+            "val": "€8M",
+            "height": "176 cm"
+        },
+        {
+            "name": "Idrissa Gueye",
+            "jersey": "8",
+            "rating": 7.3,
+            "pos": "RDM",
+            "photo": "frontend/assets/idrissa_gueye.jpg",
+            "age": "33",
+            "val": "€20M",
+            "height": "182 cm"
+        },
+        {
+            "name": "Moussa Gueye",
+            "jersey": "14",
+            "rating": 7.1,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "23",
+            "val": "€6M",
+            "height": "179 cm"
+        },
+        {
+            "name": "Sadio Mané",
+            "jersey": "10",
+            "rating": 8.2,
+            "pos": "LW",
+            "photo": "frontend/assets/sadio_man.jpg",
+            "age": "32",
+            "val": "€45M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Boulaye Dia",
+            "jersey": "9",
+            "rating": 7.6,
+            "pos": "ST",
+            "photo": "frontend/assets/boulaye_dia.jpg",
+            "age": "28",
+            "val": "€30M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Ismaïla Sarr",
+            "jersey": "11",
+            "rating": 7.4,
+            "pos": "RW",
+            "photo": "frontend/assets/ismala_sarr.jpg",
+            "age": "28",
+            "val": "€25M",
+            "height": "176 cm"
+        },
+        {
+            "name": "Moussa Konaté",
+            "jersey": "7",
+            "rating": 7.5,
+            "pos": "CAM",
+            "photo": "none",
+            "age": "26",
+            "val": "€12M",
+            "height": "183 cm"
+        }
+    ],
+    "japan": [
+        {
+            "name": "Z. Suzuki",
+            "jersey": "1",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "none",
+            "age": "23",
+            "val": "€15M",
+            "height": "190 cm",
+            "sofa_id": "986427"
+        },
+        {
+            "name": "Y. Sugawara",
+            "jersey": "2",
+            "rating": 7.2,
+            "pos": "RB",
+            "photo": "frontend/assets/y_sugawara.jpg",
+            "age": "25",
+            "val": "€12M",
+            "height": "179 cm",
+            "sofa_id": "943960"
+        },
+        {
+            "name": "K. Itakura",
+            "jersey": "4",
+            "rating": 7.3,
+            "pos": "RCB",
+            "photo": "frontend/assets/k_itakura.jpg",
+            "age": "29",
+            "val": "€15M",
+            "height": "186 cm",
+            "sofa_id": "830214"
+        },
+        {
+            "name": "K. Machida",
+            "jersey": "15",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "28",
+            "val": "€10M",
+            "height": "190 cm",
+            "sofa_id": "834273"
+        },
+        {
+            "name": "H. Ito",
+            "jersey": "21",
+            "rating": 7.4,
+            "pos": "LB",
+            "photo": "frontend/assets/h_ito.jpg",
+            "age": "27",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "867258"
+        },
+        {
+            "name": "W. Endo",
+            "jersey": "6",
+            "rating": 7.6,
+            "pos": "RDM",
+            "photo": "frontend/assets/w_endo.jpg",
+            "age": "33",
+            "val": "€13M",
+            "height": "178 cm",
+            "sofa_id": "232470"
+        },
+        {
+            "name": "H. Morita",
+            "jersey": "5",
+            "rating": 7.5,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "31",
+            "val": "€15M",
+            "height": "177 cm",
+            "sofa_id": "866504"
+        },
+        {
+            "name": "R. Doan",
+            "jersey": "8",
+            "rating": 7.5,
+            "pos": "RAM",
+            "photo": "frontend/assets/r_doan.jpg",
+            "age": "27",
+            "val": "€18M",
+            "height": "172 cm",
+            "sofa_id": "826724"
+        },
+        {
+            "name": "T. Minamino",
+            "jersey": "10",
+            "rating": 7.7,
+            "pos": "CAM",
+            "photo": "none",
+            "age": "31",
+            "val": "€20M",
+            "height": "174 cm",
+            "sofa_id": "232471"
+        },
+        {
+            "name": "K. Mitoma",
+            "jersey": "7",
+            "rating": 8.2,
+            "pos": "LAM",
+            "photo": "none",
+            "age": "29",
+            "val": "€45M",
+            "height": "178 cm",
+            "sofa_id": "863212"
+        },
+        {
+            "name": "A. Ueda",
+            "jersey": "9",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "frontend/assets/a_ueda.jpg",
+            "age": "27",
+            "val": "€8M",
+            "height": "182 cm",
+            "sofa_id": "886367"
+        }
+    ],
+    "portugal": [
+        {
+            "name": "Diogo Costa",
+            "jersey": "22",
+            "rating": 7.4,
+            "pos": "GK",
+            "photo": "frontend/assets/diogo_costa.jpg",
+            "age": "26",
+            "val": "€45M",
+            "height": "186 cm",
+            "sofa_id": "852504"
+        },
+        {
+            "name": "João Cancelo",
+            "jersey": "20",
+            "rating": 7.5,
+            "pos": "RB",
+            "photo": "frontend/assets/joo_cancelo.jpg",
+            "age": "32",
+            "val": "€25M",
+            "height": "182 cm",
+            "sofa_id": "832367"
+        },
+        {
+            "name": "Rúben Dias",
+            "jersey": "4",
+            "rating": 7.8,
+            "pos": "RCB",
+            "photo": "frontend/assets/dias.png",
+            "age": "29",
+            "val": "€80M",
+            "height": "187 cm",
+            "sofa_id": "830225"
+        },
+        {
+            "name": "Pepe",
+            "jersey": "3",
+            "rating": 7.2,
+            "pos": "LCB",
+            "photo": "frontend/assets/pepe.jpg",
+            "age": "43",
+            "val": "€1M",
+            "height": "188 cm",
+            "sofa_id": "11797"
+        },
+        {
+            "name": "Nuno Mendes",
+            "jersey": "19",
+            "rating": 7.6,
+            "pos": "LB",
+            "photo": "frontend/assets/nuno_mendes.jpg",
+            "age": "23",
+            "val": "€55M",
+            "height": "176 cm",
+            "sofa_id": "966835"
+        },
+        {
+            "name": "João Palhinha",
+            "jersey": "6",
+            "rating": 7.5,
+            "pos": "RDM",
+            "photo": "frontend/assets/joo_palhinha.jpg",
+            "age": "30",
+            "val": "€50M",
+            "height": "190 cm",
+            "sofa_id": "341499"
+        },
+        {
+            "name": "Vitinha",
+            "jersey": "23",
+            "rating": 7.9,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "26",
+            "val": "€55M",
+            "height": "172 cm",
+            "sofa_id": "967268"
+        },
+        {
+            "name": "Bernardo Silva",
+            "jersey": "10",
+            "rating": 8.0,
+            "pos": "RAM",
+            "photo": "frontend/assets/silva.png",
+            "age": "31",
+            "val": "€70M",
+            "height": "173 cm",
+            "sofa_id": "244465"
+        },
+        {
+            "name": "Bruno Fernandes",
+            "jersey": "8",
+            "rating": 8.3,
+            "pos": "CAM",
+            "photo": "frontend/assets/bruno_fernandes.jpg",
+            "age": "31",
+            "val": "€70M",
+            "height": "179 cm",
+            "sofa_id": "155029"
+        },
+        {
+            "name": "Rafael Leão",
+            "jersey": "17",
+            "rating": 8.1,
+            "pos": "LAM",
+            "photo": "frontend/assets/rafael_leo.jpg",
+            "age": "26",
+            "val": "€75M",
+            "height": "188 cm",
+            "sofa_id": "833099"
+        },
+        {
+            "name": "C. Ronaldo",
+            "jersey": "7",
+            "rating": 8.2,
+            "pos": "ST",
+            "photo": "none",
+            "age": "41",
+            "val": "€15M",
+            "height": "187 cm",
+            "sofa_id": "222"
+        }
+    ],
+    "iceland": [
+        {
+            "name": "Hákon Rafn Valdimarsson",
+            "jersey": "1",
+            "rating": 7.1,
+            "pos": "GK",
+            "photo": "none",
+            "age": "24",
+            "val": "€15M",
+            "height": "192 cm"
+        },
+        {
+            "name": "Kristófer Páll Kristinsson",
+            "jersey": "2",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "none",
+            "age": "32",
+            "val": "€900K",
+            "height": "183 cm"
+        },
+        {
+            "name": "Sverrir Ingi Ingason",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/sverrir_ingi_ingason.jpg",
+            "age": "32",
+            "val": "€600K",
+            "height": "187 cm"
+        },
+        {
+            "name": "Ísak Snær Þorvaldsson",
+            "jersey": "3",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "25",
+            "val": "€4M",
+            "height": "194 cm"
+        },
+        {
+            "name": "Hörður Björgvin Magnússon",
+            "jersey": "14",
+            "rating": 6.9,
+            "pos": "LB",
+            "photo": "frontend/assets/hrur_bjrgvin_magnsson.jpg",
+            "age": "33",
+            "val": "€800K",
+            "height": "186 cm"
+        },
+        {
+            "name": "Viktor Karl Elíasson",
+            "jersey": "8",
+            "rating": 6.9,
+            "pos": "RDM",
+            "photo": "none",
+            "age": "24",
+            "val": "€5M",
+            "height": "180 cm"
+        },
+        {
+            "name": "Aron Gunnarsson",
+            "jersey": "17",
+            "rating": 6.8,
+            "pos": "LDM",
+            "photo": "frontend/assets/aron_gunnarsson.jpg",
+            "age": "37",
+            "val": "€300K",
+            "height": "177 cm"
+        },
+        {
+            "name": "Hákon Arnar Haraldsson",
+            "jersey": "10",
+            "rating": 7.3,
+            "pos": "LAM",
+            "photo": "none",
+            "age": "23",
+            "val": "€18M",
+            "height": "184 cm"
+        },
+        {
+            "name": "Albert Guðmundsson",
+            "jersey": "11",
+            "rating": 7.6,
+            "pos": "CAM",
+            "photo": "frontend/assets/albert_gumundsson.jpg",
+            "age": "28",
+            "val": "€25M",
+            "height": "185 cm"
+        },
+        {
+            "name": "Orri Óskarsson",
+            "jersey": "19",
+            "rating": 7.2,
+            "pos": "RAM",
+            "photo": "none",
+            "age": "21",
+            "val": "€12M",
+            "height": "183 cm"
+        },
+        {
+            "name": "Hólmbjörn Friðjónsson",
+            "jersey": "9",
+            "rating": 7.0,
+            "pos": "ST",
+            "photo": "none",
+            "age": "33",
+            "val": "€600K",
+            "height": "189 cm"
         }
     ]
 }

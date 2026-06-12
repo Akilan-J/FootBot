@@ -2205,5 +2205,128 @@
             "height": "188 cm",
             "sofa_id": "900123"
         }
+    ],
+    "czech republic": [
+        {
+            "name": "Ondrej Kudela",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "none",
+            "age": "33",
+            "val": "€2M",
+            "height": "192 cm",
+            "sofa_id": "123456"
+        },
+        {
+            "name": "Vladimir Coufal",
+            "jersey": "2",
+            "rating": 7.2,
+            "pos": "RB",
+            "photo": "frontend/assets/vladimir_coufal.jpg",
+            "age": "29",
+            "val": "€8M",
+            "height": "182 cm",
+            "sofa_id": "789012"
+        },
+        {
+            "name": "Jakub Jugas",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "26",
+            "val": "€5M",
+            "height": "185 cm",
+            "sofa_id": "345678"
+        },
+        {
+            "name": "David Zima",
+            "jersey": "4",
+            "rating": 6.9,
+            "pos": "LCB",
+            "photo": "frontend/assets/david_zima.jpg",
+            "age": "27",
+            "val": "€4M",
+            "height": "188 cm",
+            "sofa_id": "901234"
+        },
+        {
+            "name": "Jan Boril",
+            "jersey": "5",
+            "rating": 7.1,
+            "pos": "LB",
+            "photo": "frontend/assets/jan_boril.jpg",
+            "age": "28",
+            "val": "€6M",
+            "height": "178 cm",
+            "sofa_id": "567890"
+        },
+        {
+            "name": "Tomas Soucek",
+            "jersey": "6",
+            "rating": 7.4,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "28",
+            "val": "€25M",
+            "height": "188 cm",
+            "sofa_id": "112233"
+        },
+        {
+            "name": "Jakub Hromada",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "RDM",
+            "photo": "none",
+            "age": "27",
+            "val": "€7M",
+            "height": "183 cm",
+            "sofa_id": "445566"
+        },
+        {
+            "name": "Jakub Jankto",
+            "jersey": "11",
+            "rating": 7.5,
+            "pos": "LAM",
+            "photo": "frontend/assets/jakub_jankto.jpg",
+            "age": "28",
+            "val": "€15M",
+            "height": "180 cm",
+            "sofa_id": "778899"
+        },
+        {
+            "name": "Jan Kuchta",
+            "jersey": "10",
+            "rating": 7.3,
+            "pos": "CAM",
+            "photo": "frontend/assets/jan_kuchta.jpg",
+            "age": "26",
+            "val": "€12M",
+            "height": "182 cm",
+            "sofa_id": "889900"
+        },
+        {
+            "name": "Patrik Schick",
+            "jersey": "9",
+            "rating": 7.6,
+            "pos": "ST",
+            "photo": "frontend/assets/patrik_schick.jpg",
+            "age": "27",
+            "val": "€25M",
+            "height": "185 cm",
+            "sofa_id": "826725"
+        },
+        {
+            "name": "Adam Hlousek",
+            "jersey": "11",
+            "rating": 7.2,
+            "pos": "RW",
+            "photo": "none",
+            "age": "29",
+            "val": "€8M",
+            "height": "178 cm",
+            "sofa_id": "990011"
+        }
     ]
 }

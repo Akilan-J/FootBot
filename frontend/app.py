@@ -2196,7 +2196,7 @@ with tab_sofa:
         heat_blobs = generate_graphical_heatmap(pos, player_name, sofa_id)
         
         svg_code = f"""
-        <svg viewBox="0 0 500 320" width="100%" height="auto" style="border-radius: 0.75rem; background-color: #0c1c12; border: 2px solid #1a3c25; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 1rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" width="100%" height="auto" style="width: 100%; height: auto; aspect-ratio: 500 / 320; display: block; border-radius: 0.75rem; background-color: #0c1c12; border: 2px solid #1a3c25; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 1rem;">
           <defs>
             <filter id="heat-blur" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="15"/>
@@ -2267,7 +2267,7 @@ with tab_sofa:
             
         if widget_mode == "🔥 Graphical Heatmap":
             heatmap_svg = draw_graphical_heatmap_pitch(pos, p_name, sofa_id)
-            st.html(heatmap_svg)
+            st.markdown(clean_html(heatmap_svg), unsafe_allow_html=True)
             st.caption("Intensity scale: Red (Peak Touch Zone) ➔ Orange ➔ Yellow ➔ Green ➔ Blue (Coverage Boundary)")
         elif widget_mode == "🗺️ Live SofaScore Widget":
             st.html(f"""

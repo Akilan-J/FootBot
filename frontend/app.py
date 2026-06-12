@@ -1993,23 +1993,116 @@ with tab_sofa:
         </div>
         """, unsafe_allow_html=True)
         
+        # Helper to generate the Radar Hexagon Chart SVG
+        def draw_attribute_hexagon(att: int, tec: int, cre: int, phy: int, tac: int, dfn: int) -> str:
+            cx, cy = 110, 110
+            R = 75  # radius adjusted to keep labels safe from clipping
+            
+            import math
+            # 6 angles for a regular hexagon: ATT, TEC, CRE, PHY, TAC, DEF
+            # Starting at -90 degrees (pointing straight up)
+            angles = [-math.pi/2, -math.pi/6, math.pi/6, math.pi/2, 5*math.pi/6, 7*math.pi/6]
+            
+            def get_coords(r_val, angle):
+                return cx + r_val * math.cos(angle), cy + r_val * math.sin(angle)
+                
+            # Grid polygons (concentric hexagons at 25%, 50%, 75%, 100%)
+            grid_lines = []
+            for pct in [0.25, 0.50, 0.75, 1.0]:
+                r_curr = R * pct
+                pts = [get_coords(r_curr, a) for a in angles]
+                pts_str = " ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+                grid_lines.append(f'<polygon points="{pts_str}" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>')
+                
+            # Axis diagonal lines from center to outer corners
+            axis_paths = []
+            outer_pts = [get_coords(R, a) for a in angles]
+            for ox, oy in outer_pts:
+                axis_paths.append(f'<line x1="{cx}" y1="{cy}" x2="{ox:.1f}" y2="{oy:.1f}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>')
+                
+            # Player polygon coordinates based on values
+            vals = [att, tec, cre, phy, tac, dfn]
+            ply_pts = []
+            for val, angle in zip(vals, angles):
+                r_curr = R * (val / 100.0)
+                ply_pts.append(get_coords(r_curr, angle))
+            ply_pts_str = " ".join(f"{x:.1f},{y:.1f}" for x, y in ply_pts)
+            
+            # Draw semi-transparent filled polygon and main stroke outline
+            player_polygon = f'<polygon points="{ply_pts_str}" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2"/>'
+            
+            # Vertex circle dots
+            vertex_dots = []
+            for px, py in ply_pts:
+                vertex_dots.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="3" fill="#10b981" stroke="#ffffff" stroke-width="0.75"/>')
+                
+            # Labels placed outside vertices
+            labels = ["ATT", "TEC", "CRE", "PHY", "TAC", "DEF"]
+            label_elems = []
+            for label, angle in zip(labels, angles):
+                lx, ly = get_coords(R + 14, angle)
+                
+                # Determine text alignment anchor based on horizontal angle position
+                if math.cos(angle) > 0.1:
+                    text_anchor = "start"
+                elif math.cos(angle) < -0.1:
+                    text_anchor = "end"
+                else:
+                    text_anchor = "middle"
+                    
+                # Adjust vertical baseline offset
+                if math.sin(angle) > 0.1:
+                    dy = "0.75em"
+                elif math.sin(angle) < -0.1:
+                    dy = "-0.2em"
+                else:
+                    dy = "0.35em"
+                    
+                label_elems.append(
+                    f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{text_anchor}" dy="{dy}" '
+                    f'fill="#9ca3af" font-size="9" font-weight="700" font-family="\'Space Grotesk\', sans-serif">{label}</text>'
+                )
+                
+            svg_code = f"""
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" width="100%" height="auto" style="max-width: 170px; display: block; margin: auto;">
+              <!-- Concentric Grid -->
+              {"".join(grid_lines)}
+              {"".join(axis_paths)}
+              <!-- Radar Area -->
+              {player_polygon}
+              {"".join(vertex_dots)}
+              <!-- Axis Labels -->
+              {"".join(label_elems)}
+            </svg>
+            """
+            return svg_code
+
         st.markdown("##### 🎭 Playstyle Attribute Hexagon Profile")
         
-        def render_attribute(label: str, pct: int):
-            filled = "█" * (pct // 10)
-            empty = "░" * (10 - len(filled))
-            st.markdown(f"""
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.85rem;">
-                <span style="color: #9ca3af;">{label}</span>
-                <span style="font-family: monospace; color: #34d399;">{filled}{empty} {pct}%</span>
-            </div>
-            """, unsafe_allow_html=True)
+        # Split attributes and Hexagon side-by-side using columns
+        col_attr_list, col_attr_hex = st.columns([1.2, 0.8])
+        
+        with col_attr_list:
+            def render_attribute(label: str, pct: int):
+                filled = "█" * (pct // 10)
+                empty = "░" * (10 - len(filled))
+                st.markdown(f"""
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; font-size: 0.8rem;">
+                    <span style="color: #9ca3af;">{label}</span>
+                    <span style="font-family: monospace; color: #34d399;">{filled}{empty} {pct}%</span>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            render_attribute("🚀 Attacking & Finishing", att)
+            render_attribute("🎛️ Technical & Control", tec)
+            render_attribute("🪄 Creativity & Key Passes", cre)
+            render_attribute("🏃‍♂️ Physicality & Workrate", phy)
+            render_attribute("🧠 Tactical Scanning & Def", tac)
+            render_attribute("🛡️ Defending & Swarming", dfn)
             
-        render_attribute("🚀 Attacking & Finishing", att)
-        render_attribute("🪄 Creativity & Key Passes", cre)
-        render_attribute("🏃‍♂️ Physicality & Workrate", phy)
-        render_attribute("🧠 Tactical Scanning & Rest-Defense", tac)
-        render_attribute("🛡️ Defending & Swarming Interceptions", dfn)
+        with col_attr_hex:
+            hexagon_svg = draw_attribute_hexagon(att, tec, cre, phy, tac, dfn)
+            st.markdown(clean_html(hexagon_svg), unsafe_allow_html=True)
         
     # Helper functions for the Graphical Heatmap
     def generate_graphical_heatmap(pos: str, player_name: str, sofa_id: str) -> str:

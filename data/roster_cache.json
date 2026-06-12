@@ -5,7 +5,7 @@
             "jersey": "1",
             "rating": 7.2,
             "pos": "GK",
-            "photo": "frontend/assets/kepa_arrizabalaga.jpg",
+            "photo": "frontend/assets/kepa_arrizabalaga.png",
             "age": "29",
             "val": "€55M",
             "height": "191 cm"
@@ -15,7 +15,7 @@
             "jersey": "2",
             "rating": 7.5,
             "pos": "LB",
-            "photo": "frontend/assets/ben_chilwell.jpg",
+            "photo": "frontend/assets/ben_chilwell.png",
             "age": "26",
             "val": "€40M",
             "height": "173 cm"
@@ -25,7 +25,7 @@
             "jersey": "21",
             "rating": 8.0,
             "pos": "RB",
-            "photo": "none",
+            "photo": "frontend/assets/reece_james.png",
             "age": "23",
             "val": "€100M",
             "height": "180 cm"
@@ -35,7 +35,7 @@
             "jersey": "22",
             "rating": 7.8,
             "pos": "RCB",
-            "photo": "frontend/assets/thiago_silva.jpg",
+            "photo": "frontend/assets/thiago_silva.png",
             "age": "37",
             "val": "€20M",
             "height": "183 cm"
@@ -45,7 +45,7 @@
             "jersey": "18",
             "rating": 7.6,
             "pos": "LCM",
-            "photo": "frontend/assets/enzo_fernandez.jpg",
+            "photo": "frontend/assets/enzo_fernandez.png",
             "age": "22",
             "val": "€140M",
             "height": "172 cm"
@@ -65,7 +65,7 @@
             "jersey": "23",
             "rating": 7.3,
             "pos": "LDM",
-            "photo": "frontend/assets/moiss_caicedo.jpg",
+            "photo": "frontend/assets/moiss_caicedo.png",
             "age": "22",
             "val": "€100M",
             "height": "173 cm"
@@ -75,7 +75,7 @@
             "jersey": "7",
             "rating": 7.7,
             "pos": "CAM",
-            "photo": "none",
+            "photo": "frontend/assets/christopher_nkunku.png",
             "age": "23",
             "val": "€100M",
             "height": "175 cm"
@@ -85,7 +85,7 @@
             "jersey": "10",
             "rating": 7.9,
             "pos": "LAM",
-            "photo": "frontend/assets/cole_palmer.jpg",
+            "photo": "frontend/assets/cole_palmer.png",
             "age": "21",
             "val": "€60M",
             "height": "175 cm"
@@ -95,7 +95,7 @@
             "jersey": "9",
             "rating": 7.5,
             "pos": "ST",
-            "photo": "frontend/assets/christopher_operi.jpg",
+            "photo": "frontend/assets/christopher_operi.png",
             "age": "22",
             "val": "€40M",
             "height": "185 cm"
@@ -105,7 +105,7 @@
             "jersey": "11",
             "rating": 7.6,
             "pos": "RW",
-            "photo": "frontend/assets/nicolas_jackson.jpg",
+            "photo": "frontend/assets/nicolas_jackson.png",
             "age": "21",
             "val": "€60M",
             "height": "180 cm"
@@ -117,7 +117,7 @@
             "jersey": "18",
             "rating": 7.4,
             "pos": "RB",
-            "photo": "",
+            "photo": "frontend/assets/bukayo_saka.png",
             "age": "24",
             "val": "€120M",
             "height": "180 cm"
@@ -127,7 +127,7 @@
             "jersey": "7",
             "rating": 8.1,
             "pos": "LCB",
-            "photo": "",
+            "photo": "frontend/assets/joo_cancelo.png",
             "age": "29",
             "val": "€150M",
             "height": "178 cm"
@@ -137,7 +137,7 @@
             "jersey": "10",
             "rating": 7.8,
             "pos": "LW",
-            "photo": "",
+            "photo": "frontend/assets/rben_dias.png",
             "age": "26",
             "val": "€80M",
             "height": "182 cm"
@@ -147,7 +147,7 @@
             "jersey": "11",
             "rating": 7.6,
             "pos": "RCB",
-            "photo": "",
+            "photo": "frontend/assets/ricardo_carvalho.png",
             "age": "27",
             "val": "€90M",
             "height": "175 cm"
@@ -157,7 +157,7 @@
             "jersey": "22",
             "rating": 8.0,
             "pos": "ST",
-            "photo": "",
+            "photo": "frontend/assets/joo_flix.png",
             "age": "26",
             "val": "€200M",
             "height": "185 cm"
@@ -167,7 +167,7 @@
             "jersey": "6",
             "rating": 7.9,
             "pos": "LAM",
-            "photo": "",
+            "photo": "frontend/assets/diego_costa.png",
             "age": "28",
             "val": "€110M",
             "height": "178 cm"
@@ -177,7 +177,7 @@
             "jersey": "14",
             "rating": 8.2,
             "pos": "CAM",
-            "photo": "",
+            "photo": "frontend/assets/joo_flix.png",
             "age": "25",
             "val": "€130M",
             "height": "180 cm"
@@ -187,7 +187,7 @@
             "jersey": "5",
             "rating": 7.3,
             "pos": "LST",
-            "photo": "",
+            "photo": "frontend/assets/joo_pedro.png",
             "age": "22",
             "val": "€60M",
             "height": "175 cm"
@@ -197,7 +197,7 @@
             "jersey": "9",
             "rating": 8.5,
             "pos": "RST",
-            "photo": "",
+            "photo": "frontend/assets/fernando_torres.png",
             "age": "30",
             "val": "€180M",
             "height": "172 cm"
@@ -207,7 +207,7 @@
             "jersey": "12",
             "rating": 8.0,
             "pos": "RAM",
-            "photo": "",
+            "photo": "none",
             "age": "26",
             "val": "€140M",
             "height": "183 cm"
@@ -217,7 +217,7 @@
             "jersey": "8",
             "rating": 7.7,
             "pos": "LW",
-            "photo": "",
+            "photo": "none",
             "age": "24",
             "val": "€75M",
             "height": "178 cm"
@@ -229,7 +229,7 @@
             "jersey": "1",
             "rating": 7.1,
             "pos": "GK",
-            "photo": "",
+            "photo": "none",
             "age": "32",
             "val": "€2M",
             "height": "185 cm"
@@ -239,7 +239,7 @@
             "jersey": "2",
             "rating": 6.8,
             "pos": "RB",
-            "photo": "",
+            "photo": "none",
             "age": "28",
             "val": "€1.5M",
             "height": "178 cm"
@@ -249,7 +249,7 @@
             "jersey": "4",
             "rating": 6.9,
             "pos": "RCB",
-            "photo": "",
+            "photo": "none",
             "age": "26",
             "val": "€1.8M",
             "height": "182 cm"
@@ -259,7 +259,7 @@
             "jersey": "5",
             "rating": 6.7,
             "pos": "LCB",
-            "photo": "",
+            "photo": "frontend/assets/maxwell_koni.jpg",
             "age": "29",
             "val": "€1.2M",
             "height": "180 cm"
@@ -269,7 +269,7 @@
             "jersey": "3",
             "rating": 7.0,
             "pos": "LB",
-            "photo": "",
+            "photo": "none",
             "age": "27",
             "val": "€1.6M",
             "height": "175 cm"
@@ -279,7 +279,7 @@
             "jersey": "6",
             "rating": 7.2,
             "pos": "LDM",
-            "photo": "",
+            "photo": "none",
             "age": "25",
             "val": "€2.5M",
             "height": "183 cm"
@@ -289,7 +289,7 @@
             "jersey": "8",
             "rating": 7.3,
             "pos": "RDM",
-            "photo": "",
+            "photo": "none",
             "age": "24",
             "val": "€2.0M",
             "height": "179 cm"
@@ -299,7 +299,7 @@
             "jersey": "10",
             "rating": 7.5,
             "pos": "CAM",
-            "photo": "",
+            "photo": "none",
             "age": "23",
             "val": "€3.0M",
             "height": "172 cm"
@@ -309,7 +309,7 @@
             "jersey": "7",
             "rating": 7.0,
             "pos": "RW",
-            "photo": "",
+            "photo": "none",
             "age": "22",
             "val": "€1.8M",
             "height": "170 cm"
@@ -319,7 +319,7 @@
             "jersey": "9",
             "rating": 7.4,
             "pos": "ST",
-            "photo": "",
+            "photo": "none",
             "age": "21",
             "val": "€2.2M",
             "height": "175 cm"
@@ -329,7 +329,7 @@
             "jersey": "11",
             "rating": 6.9,
             "pos": "RAM",
-            "photo": "",
+            "photo": "none",
             "age": "20",
             "val": "€1.5M",
             "height": "168 cm"
@@ -519,7 +519,7 @@
             "jersey": "8",
             "rating": 6.0,
             "pos": "RDM",
-            "photo": "none",
+            "photo": "frontend/assets/m_chargualaf.jpg",
             "age": "36",
             "val": "€10K",
             "height": "170 cm",
@@ -1168,7 +1168,7 @@
             "jersey": "17",
             "rating": 7.3,
             "pos": "RW",
-            "photo": "none",
+            "photo": "frontend/assets/ali_salim.jpg",
             "age": "29",
             "val": "€150M",
             "height": "170 cm"
@@ -1210,7 +1210,7 @@
             "jersey": "5",
             "rating": 7.8,
             "pos": "RCB",
-            "photo": "frontend/assets/kalidou_koulibaly.jpg",
+            "photo": "frontend/assets/kalidou_koulibaly.png",
             "age": "33",
             "val": "€25M",
             "height": "185 cm"
@@ -1220,7 +1220,7 @@
             "jersey": "6",
             "rating": 7.2,
             "pos": "LCB",
-            "photo": "none",
+            "photo": "frontend/assets/moussa_niakhat.png",
             "age": "31",
             "val": "€15M",
             "height": "183 cm"
@@ -1230,7 +1230,7 @@
             "jersey": "3",
             "rating": 6.8,
             "pos": "LB",
-            "photo": "none",
+            "photo": "frontend/assets/saliou_ciss.png",
             "age": "31",
             "val": "€8M",
             "height": "176 cm"
@@ -1240,7 +1240,7 @@
             "jersey": "8",
             "rating": 7.3,
             "pos": "RDM",
-            "photo": "frontend/assets/idrissa_gueye.jpg",
+            "photo": "frontend/assets/idrissa_gueye.png",
             "age": "33",
             "val": "€20M",
             "height": "182 cm"
@@ -1260,7 +1260,7 @@
             "jersey": "10",
             "rating": 8.2,
             "pos": "LW",
-            "photo": "frontend/assets/sadio_man.jpg",
+            "photo": "frontend/assets/sadio_man.png",
             "age": "32",
             "val": "€45M",
             "height": "185 cm"
@@ -1270,7 +1270,7 @@
             "jersey": "9",
             "rating": 7.6,
             "pos": "ST",
-            "photo": "frontend/assets/boulaye_dia.jpg",
+            "photo": "frontend/assets/boulaye_dia.png",
             "age": "28",
             "val": "€30M",
             "height": "180 cm"
@@ -1280,7 +1280,7 @@
             "jersey": "11",
             "rating": 7.4,
             "pos": "RW",
-            "photo": "frontend/assets/ismala_sarr.jpg",
+            "photo": "frontend/assets/ismala_sarr.png",
             "age": "28",
             "val": "€25M",
             "height": "176 cm"
@@ -1290,7 +1290,7 @@
             "jersey": "7",
             "rating": 7.5,
             "pos": "CAM",
-            "photo": "none",
+            "photo": "frontend/assets/moussa_konat.png",
             "age": "26",
             "val": "€12M",
             "height": "183 cm"

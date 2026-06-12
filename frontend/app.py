@@ -1402,7 +1402,8 @@ with tab_sofa:
                         src="https://widgets.sofascore.com/embed/lineups?id={sofa_match_id}&widgetTheme=dark" 
                         style="height: 786px !important; max-width: 800px !important; width: 100% !important; border: none; border-radius: 0.75rem;" 
                         frameborder="0" 
-                        scrolling="no">
+                        scrolling="no"
+                        referrerpolicy="no-referrer">
                 </iframe>
             </div>
             """)
@@ -2010,29 +2011,272 @@ with tab_sofa:
         render_attribute("🧠 Tactical Scanning & Rest-Defense", tac)
         render_attribute("🛡️ Defending & Swarming Interceptions", dfn)
         
+    # Helper functions for the Graphical Heatmap
+    def generate_graphical_heatmap(pos: str, player_name: str, sofa_id: str) -> str:
+        # Deterministic random generator based on player metadata
+        seed = sum(ord(c) for c in player_name) + int(sofa_id or 0)
+        import random
+        rng = random.Random(seed)
+        
+        # Base layout configurations (scaled to viewBox 500x320)
+        layouts = {}
+        
+        # Forward / Strikers (Attack final third central, heavy box presence)
+        layouts["ST"] = [
+            (430, 160, 1.2), # Main box presence
+            (405, 140, 0.9), # Left channel box
+            (410, 185, 0.9), # Right channel box
+            (370, 160, 1.0), # Edge of the box / central channel
+            (330, 150, 0.7), # Drop down link-up
+            (445, 160, 0.7), # Near goal face
+        ]
+        
+        # Left Wingers (High left flank, cut inside opponent box)
+        layouts["LW"] = [
+            (420, 60, 1.1),  # Inside left of penalty area
+            (380, 50, 1.0),  # Left wing final third
+            (440, 70, 0.9),  # Byline left crossing zone
+            (320, 55, 0.8),  # Midfield progression left
+            (260, 65, 0.7),  # Halfway line left transition
+            (410, 110, 0.6), # Cut inside central shot zone
+        ]
+        
+        # Right Wingers (High right flank, cut inside opponent box)
+        layouts["RW"] = [
+            (420, 260, 1.1), # Inside right of penalty area
+            (380, 270, 1.0), # Right wing final third
+            (440, 250, 0.9), # Byline right crossing zone
+            (320, 265, 0.8), # Midfield progression right
+            (260, 255, 0.7), # Halfway line right transition
+            (410, 210, 0.6), # Cut inside central shot zone
+        ]
+        
+        # Attacking Midfielders (Final third central channels, support wings)
+        layouts["CAM"] = [
+            (350, 160, 1.2), # Main CAM pocket
+            (380, 120, 0.8), # Left half-space support
+            (380, 200, 0.8), # Right half-space support
+            (310, 160, 1.0), # Midfield distribution zone
+            (270, 150, 0.7), # Deep central transition
+            (415, 160, 0.6), # Box entrance link up
+        ]
+        
+        # Central Midfielders (Box-to-box, extensive coverage)
+        layouts["CM"] = [
+            (280, 160, 1.3), # Central engine zone
+            (320, 130, 0.9), # Attacking midfield left
+            (320, 190, 0.9), # Attacking midfield right
+            (240, 140, 0.8), # Defensive midfield cover left
+            (240, 180, 0.8), # Defensive midfield cover right
+            (360, 160, 0.6), # Box edge drop off
+            (190, 160, 0.5), # Back support cover
+        ]
+        
+        # Defensive Midfielders (Pivot, central defensive third cover)
+        layouts["DM"] = [
+            (220, 160, 1.3), # Pivot zone center
+            (200, 120, 0.9), # Left pivot coverage
+            (200, 200, 0.9), # Right pivot coverage
+            (260, 160, 1.0), # Forward pressing transition
+            (170, 160, 0.7), # Deep backline shield
+            (250, 110, 0.5), # Left flank cover
+            (250, 210, 0.5), # Right flank cover
+        ]
+        
+        # Left Backs (Flank defense and wide overlapping runs)
+        layouts["LB"] = [
+            (160, 50, 1.2),  # Main left back defensive zone
+            (230, 45, 1.0),  # Left flank midfield transition
+            (110, 55, 0.9),  # Deep left defensive cover
+            (300, 40, 0.8),  # Midfield-attacking third transition
+            (360, 45, 0.7),  # High overlapping cross zone
+            (180, 100, 0.6), # Central recovery assistance
+        ]
+        
+        # Right Backs (Flank defense and wide overlapping runs)
+        layouts["RB"] = [
+            (160, 270, 1.2), # Main right back defensive zone
+            (230, 275, 1.0), # Right flank midfield transition
+            (110, 265, 0.9), # Deep right defensive cover
+            (300, 280, 0.8), # Midfield-attacking third transition
+            (360, 275, 0.7), # High overlapping cross zone
+            (180, 220, 0.6), # Central recovery assistance
+        ]
+        
+        # Center Backs (Defensive third block, penalty box protection)
+        layouts["CB"] = [
+            (120, 160, 1.3), # Heart of own box
+            (140, 115, 0.9), # Left center back channel
+            (140, 205, 0.9), # Right center back channel
+            (85, 160, 0.8),  # Six yard box recovery
+            (175, 160, 0.9), # Top of penalty box cover
+            (190, 120, 0.5), # High line left cover
+            (190, 200, 0.5), # High line right cover
+        ]
+        
+        # Goalkeepers (Goal line, six yard box, penalty box)
+        layouts["GK"] = [
+            (28, 160, 1.2), # Centered on goal line
+            (38, 160, 0.9), # Six yard box center
+            (48, 150, 0.7), # Penalty spot area
+            (55, 170, 0.6), # Penalty box boundaries
+            (75, 160, 0.4), # Sweeper clearance zone
+        ]
+        
+        # Map player positions to layout configurations
+        pos_key = "CM"
+        if pos in ["ST", "LST", "RST"]:
+            pos_key = "ST"
+        elif pos in ["LW", "LAM", "LM"]:
+            pos_key = "LW"
+        elif pos in ["RW", "RAM", "RM"]:
+            pos_key = "RW"
+        elif pos in ["CAM", "AM"]:
+            pos_key = "CAM"
+        elif pos in ["CM", "LCM", "RCM"]:
+            pos_key = "CM"
+        elif pos in ["LDM", "RDM"]:
+            pos_key = "DM"
+        elif pos in ["LB"]:
+            pos_key = "LB"
+        elif pos in ["RB"]:
+            pos_key = "RB"
+        elif pos in ["LCB", "RCB", "CB"]:
+            pos_key = "CB"
+        elif pos in ["GK"]:
+            pos_key = "GK"
+            
+        base_points = layouts.get(pos_key, layouts["CM"])
+        
+        # Generate customized points with small organic variations (hotspots)
+        custom_points = []
+        for x, y, weight in base_points:
+            dx = rng.randint(-15, 15)
+            dy = rng.randint(-12, 12)
+            dw = rng.uniform(-0.15, 0.15)
+            
+            # Clamp coordinates to stay within the bounds of the pitch
+            new_x = max(25, min(475, x + dx))
+            new_y = max(25, min(295, y + dy))
+            new_weight = max(0.4, weight + dw)
+            
+            custom_points.append((new_x, new_y, new_weight))
+            
+        # Build the SVG elements
+        svg_elements = []
+        
+        # Layer 1: Blue (Base coverage, wide)
+        for cx, cy, w in custom_points:
+            r = int(55 * w)
+            svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#2563eb" opacity="0.18"/>')
+            
+        # Layer 2: Green (Active presence, medium)
+        for cx, cy, w in custom_points:
+            r = int(40 * w)
+            svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#10b981" opacity="0.32"/>')
+            
+        # Layer 3: Yellow (High activity, medium-small)
+        for cx, cy, w in custom_points:
+            r = int(28 * w)
+            svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#eab308" opacity="0.45"/>')
+            
+        # Layer 4: Orange (Intense zones, small)
+        for cx, cy, w in custom_points:
+            r = int(18 * w)
+            svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#f97316" opacity="0.55"/>')
+            
+        # Layer 5: Red (Core peak touchzones, very small)
+        for cx, cy, w in custom_points[:3]:
+            r = int(10 * w)
+            svg_elements.append(f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="#ef4444" opacity="0.75"/>')
+            
+        return "\n    ".join(svg_elements)
+
+    def draw_graphical_heatmap_pitch(pos: str, player_name: str, sofa_id: str) -> str:
+        heat_blobs = generate_graphical_heatmap(pos, player_name, sofa_id)
+        
+        svg_code = f"""
+        <svg viewBox="0 0 500 320" width="100%" height="auto" style="border-radius: 0.75rem; background-color: #0c1c12; border: 2px solid #1a3c25; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); margin-bottom: 1rem;">
+          <defs>
+            <filter id="heat-blur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="15"/>
+            </filter>
+            <pattern id="stripes" width="100" height="320" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="50" height="320" fill="#0c1c12"/>
+              <rect x="50" y="0" width="50" height="320" fill="#08150d"/>
+            </pattern>
+          </defs>
+          
+          <!-- Grass stripes -->
+          <rect width="500" height="320" fill="url(#stripes)"/>
+          
+          <!-- Outer boundary lines -->
+          <rect x="15" y="15" width="470" height="290" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          
+          <!-- Center line -->
+          <line x1="250" y1="15" x2="250" y2="305" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          
+          <!-- Center circle -->
+          <circle cx="250" cy="160" r="45" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <circle cx="250" cy="160" r="3" fill="rgba(255,255,255,0.3)"/>
+          
+          <!-- Left penalty box -->
+          <rect x="15" y="65" width="75" height="190" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <rect x="15" y="115" width="25" height="90" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <circle cx="65" cy="160" r="2.5" fill="rgba(255,255,255,0.3)"/>
+          <path d="M 90 130 A 45 45 0 0 1 90 190" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          
+          <!-- Right penalty box -->
+          <rect x="410" y="65" width="75" height="190" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <rect x="460" y="115" width="25" height="90" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          <circle cx="435" cy="160" r="2.5" fill="rgba(255,255,255,0.3)"/>
+          <path d="M 410 130 A 45 45 0 0 0 410 190" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+          
+          <!-- Corner arcs -->
+          <path d="M 15 25 A 10 10 0 0 0 25 15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          <path d="M 15 295 A 10 10 0 0 1 25 305" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          <path d="M 485 25 A 10 10 0 0 1 475 15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          <path d="M 485 295 A 10 10 0 0 0 475 305" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          
+          <!-- Goals -->
+          <rect x="5" y="140" width="10" height="40" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          <rect x="485" y="140" width="10" height="40" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+          
+          <!-- HEATMAP OVERLAY LAYER -->
+          <g filter="url(#heat-blur)">
+            {heat_blobs}
+          </g>
+        </svg>
+        """
+        return svg_code
+
     with col_pheat:
         st.markdown("#### 🗺️ SofaScore Positional Intensity Heatmap")
         
         # Check if the player has a valid SofaScore ID to show the widget
         sofa_id = selected_p_obj.get("sofa_id", "") if selected_p_obj else ""
         
-        if sofa_id:
-            widget_mode = st.segmented_control(
-                "Heatmap Display Mode:",
-                options=["🗺️ Live SofaScore Widget", "📊 Classic ASCII Map"],
-                default="🗺️ Live SofaScore Widget",
-                key=f"widget_mode_{sofa_id}"  # Unique key per player
-            )
-        else:
-            widget_mode = "📊 Classic ASCII Map"
+        # Setup display mode selector
+        options_list = ["🔥 Graphical Heatmap", "🗺️ Live SofaScore Widget", "📊 Classic ASCII Map"] if sofa_id else ["🔥 Graphical Heatmap", "📊 Classic ASCII Map"]
+        widget_mode = st.segmented_control(
+            "Heatmap Display Mode:",
+            options=options_list,
+            default="🔥 Graphical Heatmap",
+            key=f"widget_mode_{sofa_id}" if sofa_id else "widget_mode_no_sofa"
+        )
             
-        if widget_mode == "🗺️ Live SofaScore Widget":
+        if widget_mode == "🔥 Graphical Heatmap":
+            heatmap_svg = draw_graphical_heatmap_pitch(pos, p_name, sofa_id)
+            st.html(heatmap_svg)
+            st.caption("Intensity scale: Red (Peak Touch Zone) ➔ Orange ➔ Yellow ➔ Green ➔ Blue (Coverage Boundary)")
+        elif widget_mode == "🗺️ Live SofaScore Widget":
             st.html(f"""
             <iframe 
                 src="https://widgets.sofascore.com/embed/player/{sofa_id}?widgetTheme=dark" 
                 style="height:730px!important;width:100%!important;max-width:480px!important;border:none;border-radius:0.75rem;" 
                 frameborder="0" 
-                scrolling="no">
+                scrolling="no"
+                referrerpolicy="no-referrer">
             </iframe>
             """)
         else:

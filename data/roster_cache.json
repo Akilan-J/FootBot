@@ -2082,5 +2082,128 @@
             "height": "194 cm",
             "sofa_id": "826725"
         }
+    ],
+    "south korea": [
+        {
+            "name": "Jo Hyeon-woo",
+            "jersey": "21",
+            "rating": 7.1,
+            "pos": "GK",
+            "photo": "frontend/assets/jo_hyeon_woo.jpg",
+            "age": "33",
+            "val": "€1.5M",
+            "height": "189 cm",
+            "sofa_id": "301234"
+        },
+        {
+            "name": "Seol Young-woo",
+            "jersey": "2",
+            "rating": 6.9,
+            "pos": "RB",
+            "photo": "frontend/assets/seol_young_woo.jpg",
+            "age": "26",
+            "val": "€3M",
+            "height": "183 cm",
+            "sofa_id": "450123"
+        },
+        {
+            "name": "Kim Min-jae",
+            "jersey": "19",
+            "rating": 7.8,
+            "pos": "RCB",
+            "photo": "frontend/assets/kim_min_jae.jpg",
+            "age": "28",
+            "val": "€50M",
+            "height": "190 cm",
+            "sofa_id": "850000"
+        },
+        {
+            "name": "Kim Young-gwon",
+            "jersey": "20",
+            "rating": 6.8,
+            "pos": "LCB",
+            "photo": "frontend/assets/kim_young_gwon.jpg",
+            "age": "34",
+            "val": "€1M",
+            "height": "187 cm",
+            "sofa_id": "200456"
+        },
+        {
+            "name": "Kim Jin-su",
+            "jersey": "3",
+            "rating": 6.7,
+            "pos": "LB",
+            "photo": "none",
+            "age": "32",
+            "val": "€1.5M",
+            "height": "177 cm",
+            "sofa_id": "300789"
+        },
+        {
+            "name": "Park Yong-woo",
+            "jersey": "6",
+            "rating": 6.6,
+            "pos": "RDM",
+            "photo": "none",
+            "age": "31",
+            "val": "€2M",
+            "height": "180 cm",
+            "sofa_id": "350123"
+        },
+        {
+            "name": "Hwang In-beom",
+            "jersey": "5",
+            "rating": 7.3,
+            "pos": "LDM",
+            "photo": "frontend/assets/hwang_in_beom.jpg",
+            "age": "28",
+            "val": "€12M",
+            "height": "177 cm",
+            "sofa_id": "800456"
+        },
+        {
+            "name": "Lee Kang-in",
+            "jersey": "18",
+            "rating": 7.5,
+            "pos": "RAM",
+            "photo": "frontend/assets/lee_kang_in.jpg",
+            "age": "23",
+            "val": "€40M",
+            "height": "173 cm",
+            "sofa_id": "1050000"
+        },
+        {
+            "name": "Son Heung-min",
+            "jersey": "7",
+            "rating": 8.2,
+            "pos": "CAM",
+            "photo": "frontend/assets/son_heung_min.jpg",
+            "age": "32",
+            "val": "€50M",
+            "height": "183 cm",
+            "sofa_id": "450000"
+        },
+        {
+            "name": "Hwang Hee-chan",
+            "jersey": "11",
+            "rating": 7.2,
+            "pos": "LAM",
+            "photo": "frontend/assets/hwang_hee_chan.jpg",
+            "age": "28",
+            "val": "€20M",
+            "height": "177 cm",
+            "sofa_id": "800789"
+        },
+        {
+            "name": "Cho Gue-sung",
+            "jersey": "9",
+            "rating": 7.0,
+            "pos": "ST",
+            "photo": "frontend/assets/cho_gue_sung.jpg",
+            "age": "26",
+            "val": "€10M",
+            "height": "188 cm",
+            "sofa_id": "900123"
+        }
     ]
 }

@@ -1,6 +1,8 @@
 import json
 import re
 import requests
+import unicodedata
+import urllib.parse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -273,7 +275,7 @@ NAME_EXPANSIONS = {
     
     # Real Madrid
     "A. Lunin": "Andriy Lunin",
-    "D. Carvajal": "Dani Carvajal",
+    "D. Carvajal": "Daniel Carvajal",
     "A. Rüdiger": "Antonio Rüdiger",
     "F. Mendy": "Ferland Mendy",
     "F. Valverde": "Federico Valverde",
@@ -395,10 +397,10 @@ NAME_EXPANSIONS = {
     "N. Paz": "Nico Paz",
     
     # Iceland
-    "E. Ólafsson": "Elías Rafn Ólafsson",
+    "E. Ólafsson": "Elías Ólafsson",
     "L. Tómasson": "Logi Tómasson",
-    "H. Magnússon": "Hörður Björgvin Magnússon",
-    "D. Grétarsson": "Daníel Leó Grétarsson",
+    "H. Magnússon": "Hörður Magnússon",
+    "D. Grétarsson": "Daníel Grétarsson",
     "V. Pálsson": "Victor Pálsson",
     "M. Ellertsson": "Mikael Egill Ellertsson",
     "Í. B. Jóhannesson": "Ísak Bergmann Jóhannesson",
@@ -406,6 +408,11 @@ NAME_EXPANSIONS = {
     "A. Guðmundsson": "Albert Guðmundsson",
     "H. Haraldsson": "Hákon Arnar Haraldsson",
     "O. S. Óskarsson": "Orri Óskarsson",
+    "Dagur Dan Þórhallsson": "Dagur Thórhallsson",
+    "Jón Dagur Þorsteinsson": "Jón Thorsteinsson",
+    "Kristall Máni Ingason": "Kristall Ingason",
+    "Manny Ott": "Manuel Ott",
+    "OJ Porteria": "José Porteria",
 }
 
 def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
@@ -528,10 +535,90 @@ def download_image(url: str, dest_path: Path) -> bool:
         logger.error(f"Failed to download image from {url} to {dest_path}: {e}")
     return False
 
-def ensure_player_photos(roster: List[Dict[str, Any]]) -> bool:
+def clean_text(text: str) -> str:
+    """Removes accents, lowercases, and strips non-alphanumeric chars for matching."""
+    text_unicode = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
+    text_clean = re.sub(r'[^a-zA-Z0-9\s]', '', text_unicode).lower().strip()
+    return re.sub(r'\s+', ' ', text_clean)
+
+def clean_special_chars(input_str: str) -> str:
+    # Handle specific Icelandic characters and other non-standard chars
+    s = input_str.replace('ð', 'd').replace('Ð', 'D')
+    s = s.replace('þ', 'th').replace('Þ', 'Th')
+    s = s.replace('æ', 'ae').replace('Æ', 'Ae')
+    return clean_text(s)
+
+def resolve_fotmob_id(player_name: str, team_name: str = "") -> str:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    }
+    
+    # Expand name
+    search_name = NAME_EXPANSIONS.get(player_name, player_name)
+    
+    # Try different query options
+    queries = [search_name, clean_special_chars(search_name), clean_special_chars(player_name)]
+    
+    for query in queries:
+        if not query:
+            continue
+        url = f"https://apigw.fotmob.com/searchapi/suggest?term={urllib.parse.quote_plus(query)}&lang=en"
+        try:
+            r = requests.get(url, headers=headers, timeout=5)
+            if r.status_code == 200:
+                data = r.json()
+                options = []
+                for val in data.values():
+                    if isinstance(val, list):
+                        for group in val:
+                            if isinstance(group, dict) and "options" in group:
+                                options.extend(group["options"])
+                
+                if not options:
+                    continue
+                    
+                target_clean = clean_text(search_name)
+                
+                best_opt = None
+                best_match_level = 0 # 0=none, 1=partial name, 2=exact name, 3=exact name + team
+                
+                for opt in options:
+                    payload = opt.get("payload", {})
+                    pid = payload.get("id")
+                    if not pid:
+                        continue
+                        
+                    opt_name = opt.get("text", "").split("|")[0]
+                    opt_name_clean = clean_text(opt_name)
+                    opt_team = payload.get("teamName", "")
+                    
+                    match_level = 0
+                    if opt_name_clean == target_clean:
+                        match_level = 2
+                        if team_name and clean_text(team_name) in clean_text(opt_team):
+                            match_level = 3
+                    elif target_clean in opt_name_clean or opt_name_clean in target_clean:
+                        match_level = 1
+                    
+                    if match_level > best_match_level:
+                        best_match_level = match_level
+                        best_opt = opt
+                    elif match_level == best_match_level and best_opt:
+                        if opt.get("score", 0) > best_opt.get("score", 0):
+                            best_opt = opt
+                            
+                if best_opt:
+                    return best_opt.get("payload", {}).get("id", "")
+        except Exception as e:
+            logger.error(f"Error resolving FotMob ID for {player_name} with query '{query}': {e}")
+            
+    return ""
+
+def ensure_player_photos(roster: List[Dict[str, Any]], team_name: str = "") -> bool:
     """
     Checks each player in the roster and resolves their photo path.
-    If photo is empty or doesn't exist, queries Transfermarkt, falling back to Wikipedia.
+    First tries to resolve via FotMob ID and download from FotMob CDN.
+    If that fails, queries Transfermarkt, falling back to Wikipedia.
     Returns True if any player's photo was updated.
     """
     updated = False
@@ -539,50 +626,62 @@ def ensure_player_photos(roster: List[Dict[str, Any]]) -> bool:
     assets_dir = base_dir / "frontend" / "assets"
     
     for p in roster:
-        photo_path = p.get("photo", "")
-        # If we already searched and found no photo, skip
-        if photo_path == "none":
-            continue
-            
-        # If photo is the local file path and it exists, skip
-        if photo_path:
-            full_path = base_dir / photo_path if not Path(photo_path).is_absolute() else Path(photo_path)
-            if full_path.exists():
-                continue
-                
-        # Needs resolution
         player_name = p["name"]
         slug = slugify(player_name)
-        dest_filename = f"{slug}.jpg"
-        dest_path = assets_dir / dest_filename
-        relative_path = f"frontend/assets/{dest_filename}"
         
-        # Check if the slug file already exists locally from a previous download
-        if dest_path.exists():
-            p["photo"] = relative_path
-            updated = True
+        # Check if the PNG file already exists locally from a previous download
+        dest_filename_png = f"{slug}.png"
+        dest_path_png = assets_dir / dest_filename_png
+        relative_path_png = f"frontend/assets/{dest_filename_png}"
+        
+        if dest_path_png.exists():
+            if p.get("photo") != relative_path_png:
+                p["photo"] = relative_path_png
+                updated = True
             continue
             
-        logger.info(f"Attempting to resolve photo for {player_name}...")
+        logger.info(f"Attempting to resolve FotMob photo for {player_name}...")
+        fotmob_id = resolve_fotmob_id(player_name, team_name)
+        download_success = False
+        if fotmob_id:
+            fotmob_url = f"https://images.fotmob.com/image_resources/playerimages/{fotmob_id}.png"
+            if download_image(fotmob_url, dest_path_png):
+                p["photo"] = relative_path_png
+                updated = True
+                download_success = True
+                
+        if download_success:
+            continue
+            
+        # Fallback to existing JPG check or Transfermarkt/Wikipedia
+        dest_filename_jpg = f"{slug}.jpg"
+        dest_path_jpg = assets_dir / dest_filename_jpg
+        relative_path_jpg = f"frontend/assets/{dest_filename_jpg}"
+        
+        if dest_path_jpg.exists():
+            if p.get("photo") != relative_path_jpg:
+                p["photo"] = relative_path_jpg
+                updated = True
+            continue
+            
+        logger.info(f"FotMob photo not resolved for {player_name}, trying Transfermarkt...")
         url = fetch_transfermarkt_image_url(player_name)
         
         if not url:
-            logger.info(f"Transfermarkt photo not resolved, trying Wikipedia for {player_name}...")
+            logger.info(f"Transfermarkt photo not resolved for {player_name}, trying Wikipedia...")
             url = fetch_wikipedia_image_url(player_name)
             
         if url:
-            if download_image(url, dest_path):
-                p["photo"] = relative_path
+            if download_image(url, dest_path_jpg):
+                p["photo"] = relative_path_jpg
                 updated = True
             else:
-                logger.info(f"Failed to download resolved photo for {player_name}.")
                 p["photo"] = "none"
                 updated = True
         else:
-            logger.info(f"No photo found for {player_name} on Transfermarkt or Wikipedia.")
             p["photo"] = "none"
             updated = True
-
+            
     return updated
 
 def get_real_world_roster(team_name: str) -> Optional[List[Dict[str, Any]]]:
@@ -623,7 +722,7 @@ def get_real_world_roster(team_name: str) -> Optional[List[Dict[str, Any]]]:
                     p["sofa_id"] = predefined_map.get(norm_p_name, "")
                     cache_updated = True
                     
-        updated_photos = ensure_player_photos(roster)
+        updated_photos = ensure_player_photos(roster, team_name)
         if cache_updated or updated_photos:
             cache[norm_name] = roster
             save_cache(cache)
@@ -632,7 +731,7 @@ def get_real_world_roster(team_name: str) -> Optional[List[Dict[str, Any]]]:
     if predefined_val is not None:
         import copy
         roster = copy.deepcopy(predefined_val)
-        ensure_player_photos(roster)
+        ensure_player_photos(roster, team_name)
         cache[norm_name] = roster
         save_cache(cache)
         return roster
@@ -685,7 +784,7 @@ Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (lik
                 
                 if valid:
                     logger.info(f"Successfully retrieved and validated LLM roster for '{team_name}'. Caching...")
-                    ensure_player_photos(roster)
+                    ensure_player_photos(roster, team_name)
                     cache[norm_name] = roster
                     save_cache(cache)
                     return roster

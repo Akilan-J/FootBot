@@ -96,7 +96,9 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
                 "link": link,
                 "published": "Today",
                 "is_match": True,
-                "league": league
+                "league": league,
+                "home_team": home_team,
+                "away_team": away_team
             })
             
     except Exception as e:

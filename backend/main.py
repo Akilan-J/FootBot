@@ -1,6 +1,6 @@
 import os
 from typing import Optional, List, Dict, Any
-from fastapi import FastAPI, HTTPException, status, Header, Response
+from fastapi import FastAPI, HTTPException, status, Header, Response, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -126,6 +126,23 @@ class MessageSchema(BaseModel):
     content: str
     sources: List[SourceDocSchema]
     created_at: str
+
+def resolve_rosters_and_headshots(teams: List[str]):
+    from backend.roster_store import get_real_world_roster
+    unique_teams = []
+    seen = set()
+    for t in teams:
+        if t:
+            norm = t.lower().strip()
+            if norm not in seen:
+                seen.add(norm)
+                unique_teams.append(t)
+    logger.info(f"Background task: Resolving rosters/headshots for {len(unique_teams)} teams: {unique_teams}")
+    for team in unique_teams:
+        try:
+            get_real_world_roster(team)
+        except Exception as e:
+            logger.error(f"Background task error for team '{team}': {e}")
 
 # --- Endpoints ---
 
@@ -372,7 +389,7 @@ async def ingest_url_endpoint(request: UrlIngestRequest):
         )
 
 @app.get("/live-matches", status_code=status.HTTP_200_OK)
-def live_matches_endpoint():
+def live_matches_endpoint(background_tasks: BackgroundTasks):
     """
     Crawls the latest live football match scores, breaking transfer news, 
     and updates from public RSS feeds.
@@ -381,6 +398,20 @@ def live_matches_endpoint():
     try:
         from backend.loaders.live_score_loader import fetch_live_football_feed
         feed = fetch_live_football_feed()
+        
+        # Proactively load rosters and headshots for the matches found
+        teams_to_resolve = []
+        for m in feed:
+            if m.get("is_match"):
+                home = m.get("home_team")
+                away = m.get("away_team")
+                if home:
+                    teams_to_resolve.append(home)
+                if away:
+                    teams_to_resolve.append(away)
+        if teams_to_resolve:
+            background_tasks.add_task(resolve_rosters_and_headshots, teams_to_resolve)
+
         return {
             "status": "success",
             "count": len(feed),
@@ -394,7 +425,7 @@ def live_matches_endpoint():
         )
 
 @app.post("/historical-matches/crawl", status_code=status.HTTP_200_OK)
-def crawl_historical_matches_endpoint():
+def crawl_historical_matches_endpoint(background_tasks: BackgroundTasks):
     """Scrapes historical match scores from BBC results page and saves them to SQLite."""
     logger.info("Historical match crawl triggered via API.")
     try:
@@ -403,6 +434,7 @@ def crawl_historical_matches_endpoint():
         
         matches = fetch_historical_results_from_html()
         saved_count = 0
+        teams_to_resolve = []
         for m in matches:
             if m["home_score"] is not None and m["away_score"] is not None:
                 save_historical_match(
@@ -414,6 +446,14 @@ def crawl_historical_matches_endpoint():
                     league=m["league"]
                 )
                 saved_count += 1
+                if m["home_team"]:
+                    teams_to_resolve.append(m["home_team"])
+                if m["away_team"]:
+                    teams_to_resolve.append(m["away_team"])
+                    
+        if teams_to_resolve:
+            background_tasks.add_task(resolve_rosters_and_headshots, teams_to_resolve)
+
         return {
             "status": "success",
             "count_crawled": saved_count,
@@ -427,11 +467,24 @@ def crawl_historical_matches_endpoint():
         )
 
 @app.get("/historical-matches", response_model=List[HistoricalMatchSchema], status_code=status.HTTP_200_OK)
-def get_historical_matches_endpoint(limit: int = 50):
+def get_historical_matches_endpoint(background_tasks: BackgroundTasks, limit: int = 50):
     """Retrieves all historical match scores stored in the database."""
     try:
         from backend.database import get_historical_matches
-        return get_historical_matches(limit=limit)
+        matches = get_historical_matches(limit=limit)
+        
+        teams_to_resolve = []
+        for m in matches:
+            home = m.get("home_team")
+            away = m.get("away_team")
+            if home:
+                teams_to_resolve.append(home)
+            if away:
+                teams_to_resolve.append(away)
+        if teams_to_resolve:
+            background_tasks.add_task(resolve_rosters_and_headshots, teams_to_resolve)
+
+        return matches
     except Exception as e:
         logger.error(f"Failed to fetch historical matches: {str(e)}")
         raise HTTPException(

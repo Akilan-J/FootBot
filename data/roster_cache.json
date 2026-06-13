@@ -2212,5 +2212,128 @@
             "height": "184 cm",
             "sofa_id": "107654"
         }
+    ],
+    "switzerland": [
+        {
+            "name": "Yann Sommer",
+            "jersey": "1",
+            "rating": 7.8,
+            "pos": "GK",
+            "photo": "frontend/assets/yann_sommer.png",
+            "age": "38",
+            "val": "€5M",
+            "height": "189 cm",
+            "sofa_id": "44754"
+        },
+        {
+            "name": "Noah Baumann",
+            "jersey": "27",
+            "rating": 7.1,
+            "pos": "RB",
+            "photo": "frontend/assets/noah_baumann.png",
+            "age": "27",
+            "val": "€2M",
+            "height": "184 cm",
+            "sofa_id": "398712"
+        },
+        {
+            "name": "Denis Zakaria",
+            "jersey": "4",
+            "rating": 7.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/denis_zakaria.png",
+            "age": "28",
+            "val": "€25M",
+            "height": "185 cm",
+            "sofa_id": "384921"
+        },
+        {
+            "name": "Granit Xhaka",
+            "jersey": "6",
+            "rating": 7.6,
+            "pos": "LCB",
+            "photo": "frontend/assets/granit_xhaka.png",
+            "age": "31",
+            "val": "€15M",
+            "height": "185 cm",
+            "sofa_id": "388765"
+        },
+        {
+            "name": "Kevin Mbabu",
+            "jersey": "19",
+            "rating": 7.2,
+            "pos": "LB",
+            "photo": "frontend/assets/kevin_mbabu.png",
+            "age": "28",
+            "val": "€12M",
+            "height": "188 cm",
+            "sofa_id": "384912"
+        },
+        {
+            "name": "Remo Freuler",
+            "jersey": "8",
+            "rating": 7.3,
+            "pos": "CM",
+            "photo": "frontend/assets/remo_freuler.png",
+            "age": "30",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "384923"
+        },
+        {
+            "name": "Valon Behrami",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/valon_behrami.png",
+            "age": "36",
+            "val": "€3M",
+            "height": "180 cm",
+            "sofa_id": "384927"
+        },
+        {
+            "name": "Xherdan Shaqiri",
+            "jersey": "10",
+            "rating": 7.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/xherdan_shaqiri.png",
+            "age": "33",
+            "val": "€4M",
+            "height": "173 cm",
+            "sofa_id": "384938"
+        },
+        {
+            "name": "Ruben Vargas",
+            "jersey": "20",
+            "rating": 7.2,
+            "pos": "RW",
+            "photo": "frontend/assets/ruben_vargas.png",
+            "age": "25",
+            "val": "€18M",
+            "height": "176 cm",
+            "sofa_id": "384945"
+        },
+        {
+            "name": "Harold \"Haris\" Seferovic",
+            "jersey": "9",
+            "rating": 7.4,
+            "pos": "ST",
+            "photo": "none",
+            "age": "31",
+            "val": "€12M",
+            "height": "185 cm",
+            "sofa_id": "384950"
+        },
+        {
+            "name": "Breel Embolo",
+            "jersey": "11",
+            "rating": 7.3,
+            "pos": "LW",
+            "photo": "frontend/assets/breel_embolo.png",
+            "age": "28",
+            "val": "€20M",
+            "height": "188 cm",
+            "sofa_id": "384960"
+        }
     ]
 }

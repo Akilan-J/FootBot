@@ -953,7 +953,7 @@ with tab_live:
                 st.markdown(f"""
                 <div class='metric-card hover-effect' style='background-color:#050c09; border:1px solid #0d9488;'>
                     <span class='badge badge-online' style='margin-bottom:0.4rem;'>Completed • {m['match_date']}</span>
-                    <h5 style='color:#f3f4f6; margin:0;'>📊 {m['home_team']} {home_score} - {away_score} {m['away_team']}</h5>
+                    <h5 style='color:#f3f4f6; margin:0;'>{m['home_team']} {home_score} - {away_score} {m['away_team']}</h5>
                     <p style='color:#64748b; font-size:0.8rem; margin:0.3rem 0 0 0;'>Competition: <b>{m['league']}</b></p>
                 </div>
                 """, unsafe_allow_html=True)

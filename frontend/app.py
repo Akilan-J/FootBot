@@ -650,7 +650,7 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("<div style='font-size:0.8rem; color:#6b7280; text-align:center;'>FootBot v1.0.0 • Akilan Flagship AI</div>", unsafe_allow_html=True)
 
 # --- Main Application Tabs Layout ---
-tab_chat, tab_pitch, tab_live, tab_sofa = st.tabs(["💬 Tactical AI Chat", "📋 2D Formation Board", "⚽ Live & Historical Scorelines", "📊 SofaScore Match Centre"])
+tab_chat, tab_pitch, tab_live, tab_sofa = st.tabs(["💬 Tactical AI Chat", "📋 2D Formation Board", "⚽ Live & Historical Scorelines", "SofaScore Match Centre"])
 
 with tab_chat:
     # --- Quick Start / Preset Prompts Cards ---
@@ -961,7 +961,7 @@ with tab_live:
             st.info("Historical match database is empty. Click the crawl button above to populate completed matches.")
 
 with tab_sofa:
-    st.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-top:0;'>📊 SofaScore Premium Match Centre</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-top:0;'>SofaScore Premium Match Centre</h3>", unsafe_allow_html=True)
     st.markdown("Advanced minute-by-minute attacking momentum tracking, squad comparison statistics, and positional performance heatmaps.")
     
     # 1. Match Selector - Dynamic Live matches & Completed SQLite results
@@ -990,7 +990,7 @@ with tab_sofa:
     default_options = [
         "🏆 [COMPLETED] Liverpool 1 - 1 Manchester City (Premier League)",
         "🏆 [COMPLETED] Real Madrid 3 - 2 Barcelona (La Liga)",
-        "🏆 [COMPLETED] Argentina 3 - 3 France (World Cup)",
+        f"🏆 [COMPLETED] {get_team_name_with_flag('Argentina')} 3 - 3 {get_team_name_with_flag('France')} (World Cup)",
         "🏆 [COMPLETED] Bayern Munich 3 - 0 Borussia Dortmund (Bundesliga)"
     ]
     
@@ -2019,14 +2019,14 @@ with tab_sofa:
         # Build table rows
         rows_html = ""
         # Home roster rows - Starters
-        rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #10b981; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{home_team_name} - STARTING XI</td></tr>"""
+        rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #10b981; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{get_team_name_with_flag(home_team_name)} - STARTING XI</td></tr>"""
         for p in home_roster:
             if p.get("sub", False):
                 continue
             rows_html += f"""
             <tr>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
-                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #10b981;">{home_team_name}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #10b981;">{get_team_name_with_flag(home_team_name)}</td>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
@@ -2040,12 +2040,12 @@ with tab_sofa:
         # Home roster rows - Substitutes
         home_subs = [p for p in home_roster if p.get("sub", False)]
         if home_subs:
-            rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #e5e7eb; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{home_team_name} - SUBSTITUTES</td></tr>"""
+            rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #e5e7eb; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{get_team_name_with_flag(home_team_name)} - SUBSTITUTES</td></tr>"""
             for p in home_subs:
                 rows_html += f"""
                 <tr>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
-                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #10b981;">{home_team_name}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #10b981;">{get_team_name_with_flag(home_team_name)}</td>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
@@ -2057,14 +2057,14 @@ with tab_sofa:
                 </tr>
                 """
         # Away roster rows - Starters
-        rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #3b82f6; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{away_team_name} - STARTING XI</td></tr>"""
+        rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #3b82f6; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{get_team_name_with_flag(away_team_name)} - STARTING XI</td></tr>"""
         for p in away_roster:
             if p.get("sub", False):
                 continue
             rows_html += f"""
             <tr>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
-                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{away_team_name}</td>
+                <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{get_team_name_with_flag(away_team_name)}</td>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
                 <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
@@ -2078,12 +2078,12 @@ with tab_sofa:
         # Away roster rows - Substitutes
         away_subs = [p for p in away_roster if p.get("sub", False)]
         if away_subs:
-            rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #e5e7eb; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{away_team_name} - SUBSTITUTES</td></tr>"""
+            rows_html += f"""<tr style="background-color: #0c1814;"><td colspan="10" style="padding: 0.5rem; color: #e5e7eb; font-weight: 800; text-align: left; border-bottom: 1px solid #142820; font-family: 'Space Grotesk';">{get_team_name_with_flag(away_team_name)} - SUBSTITUTES</td></tr>"""
             for p in away_subs:
                 rows_html += f"""
                 <tr>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6; font-weight:600;">{p['name']}</td>
-                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{away_team_name}</td>
+                    <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #3b82f6;">{get_team_name_with_flag(away_team_name)}</td>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #9ca3af; font-family:monospace;">{p['pos']}</td>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; font-weight:700; color:#10b981;">{p['rating']}</td>
                     <td style="padding: 0.5rem; border-bottom: 1px solid #142820; color: #f3f4f6;">{p['nationality']}</td>
@@ -2127,9 +2127,9 @@ with tab_sofa:
     # 2. Dynamic Player Roster options from both teams
     player_options = []
     for p in home_roster:
-        player_options.append(f"🏠 {home_team_name}: {p['name']} ({p['pos']} #{p['jersey']})")
+        player_options.append(f"🏠 {get_team_name_with_flag(home_team_name)}: {p['name']} ({p['pos']} #{p['jersey']})")
     for p in away_roster:
-        player_options.append(f"✈️ {away_team_name}: {p['name']} ({p['pos']} #{p['jersey']})")
+        player_options.append(f"✈️ {get_team_name_with_flag(away_team_name)}: {p['name']} ({p['pos']} #{p['jersey']})")
         
     if not player_options:
         player_options = ["No active players"]
@@ -2141,14 +2141,14 @@ with tab_sofa:
         selected_p_obj = None
         p_is_home = True
         for p in home_roster:
-            opt = f"🏠 {home_team_name}: {p['name']} ({p['pos']} #{p['jersey']})"
+            opt = f"🏠 {get_team_name_with_flag(home_team_name)}: {p['name']} ({p['pos']} #{p['jersey']})"
             if opt == selected_player:
                 selected_p_obj = p
                 p_is_home = True
                 break
         if not selected_p_obj:
             for p in away_roster:
-                opt = f"✈️ {away_team_name}: {p['name']} ({p['pos']} #{p['jersey']})"
+                opt = f"✈️ {get_team_name_with_flag(away_team_name)}: {p['name']} ({p['pos']} #{p['jersey']})"
                 if opt == selected_player:
                     selected_p_obj = p
                     p_is_home = False

@@ -241,8 +241,19 @@ def trigger_backend_ingestion() -> Dict[str, Any]:
     except Exception as e:
         return {"status": "error", "message": f"Connection error: {str(e)}"}
 
+def is_allowed_league(league_name: str) -> bool:
+    """Checks if the league name contains any of the allowed competition keywords:
+    world cup, la liga, laliga, premier league, ligue 1, ligue1, bundesliga, serie a.
+    """
+    allowed_keywords = [
+        "world cup", "la liga", "laliga", "premier league", 
+        "ligue 1", "ligue1", "bundesliga", "serie a"
+    ]
+    name_lower = league_name.lower()
+    return any(kw in name_lower for kw in allowed_keywords)
+
 def get_live_matches_feed() -> Dict[str, Any]:
-    """Queries backend live matches feed, filtering to include only men's matches."""
+    """Queries backend live matches feed, filtering to include only men's matches from allowed competitions."""
     try:
         response = requests.get(f"{BACKEND_URL}/live-matches", timeout=10)
         if response.status_code == 200:
@@ -254,6 +265,9 @@ def get_live_matches_feed() -> Dict[str, Any]:
                 league = m.get("league", "").lower()
                 if "women" in title or "women" in league:
                     continue
+                # If it is a match item, verify it belongs to allowed competitions
+                if m.get("is_match") and not is_allowed_league(league):
+                    continue
                 filtered_feed.append(m)
             data["feed"] = filtered_feed
             data["count"] = len(filtered_feed)
@@ -263,7 +277,7 @@ def get_live_matches_feed() -> Dict[str, Any]:
     return {"status": "error", "count": 0, "feed": []}
 
 def get_historical_matches_feed() -> List[Dict[str, Any]]:
-    """Queries backend historical matches database, filtering to include only men's matches."""
+    """Queries backend historical matches database, filtering to include only men's matches from allowed competitions."""
     try:
         response = requests.get(f"{BACKEND_URL}/historical-matches", timeout=10)
         if response.status_code == 200:
@@ -274,6 +288,8 @@ def get_historical_matches_feed() -> List[Dict[str, Any]]:
                 away = m.get("away_team", "").lower()
                 league = m.get("league", "").lower()
                 if "women" in home or "women" in away or "women" in league:
+                    continue
+                if not is_allowed_league(league):
                     continue
                 filtered.append(m)
             return filtered
@@ -782,11 +798,12 @@ with tab_sofa:
             as_ = m["away_score"] if m["away_score"] is not None else 0
             completed_options.append(f"🏆 [COMPLETED] {m['home_team']} {hs} - {as_} {m['away_team']} ({m['match_date']})")
             
-    # Fallback defaults if lists are empty
+    # Fallback defaults if lists are empty (limited to allowed competitions)
     default_options = [
-        "🏆 [COMPLETED] Manchester City 3 - 3 Real Madrid (Champions League)",
-        "🏆 [COMPLETED] Arsenal 2 - 2 Bayern Munich (Champions League)",
-        "🏆 [COMPLETED] Liverpool 1 - 1 Manchester City (Premier League)"
+        "🏆 [COMPLETED] Liverpool 1 - 1 Manchester City (Premier League)",
+        "🏆 [COMPLETED] Real Madrid 3 - 2 Barcelona (La Liga)",
+        "🏆 [COMPLETED] Argentina 3 - 3 France (World Cup)",
+        "🏆 [COMPLETED] Bayern Munich 3 - 0 Borussia Dortmund (Bundesliga)"
     ]
     
     match_options = live_options + completed_options

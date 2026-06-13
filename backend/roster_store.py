@@ -415,6 +415,8 @@ NAME_EXPANSIONS = {
     "OJ Porteria": "José Porteria",
 }
 
+TRANSFERMARKT_BLOCKED = False
+
 def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
     headers = {'User-Agent': 'FootBotTacticsApp/1.0 (akilan@example.com)'}
     search_url = 'https://en.wikipedia.org/w/api.php'
@@ -433,7 +435,7 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
             'format': 'json'
         }
         try:
-            r = requests.get(search_url, params=search_params, headers=headers, timeout=5)
+            r = requests.get(search_url, params=search_params, headers=headers, timeout=2.0)
             if r.status_code == 200:
                 data = r.json()
                 if len(data) >= 2 and data[1]:
@@ -449,7 +451,7 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
                             'format': 'json',
                             'pithumbsize': 500
                         }
-                        r_info = requests.get(search_url, params=info_params, headers=headers, timeout=5)
+                        r_info = requests.get(search_url, params=info_params, headers=headers, timeout=2.0)
                         if r_info.status_code == 200:
                             pages = r_info.json().get('query', {}).get('pages', {})
                             for pid, pinfo in pages.items():
@@ -487,6 +489,10 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
     return None
 
 def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
+    global TRANSFERMARKT_BLOCKED
+    if TRANSFERMARKT_BLOCKED:
+        return None
+        
     import urllib.parse
     from bs4 import BeautifulSoup
     
@@ -501,7 +507,7 @@ def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
     url = f"https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query={query}"
     
     try:
-        r = requests.get(url, headers=headers, timeout=5)
+        r = requests.get(url, headers=headers, timeout=2.0)
         if r.status_code == 200:
             soup = BeautifulSoup(r.content, 'html.parser')
             # Look for player search result table
@@ -517,6 +523,9 @@ def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
                             # Ensure we don't return blank placeholder images
                             if "placeholder" not in src:
                                 return src
+    except requests.exceptions.Timeout:
+        logger.error(f"Transfermarkt request timed out for {player_name}. Tripping circuit breaker to prevent cascading timeouts.")
+        TRANSFERMARKT_BLOCKED = True
     except Exception as e:
         logger.error(f"Error fetching Transfermarkt image for {player_name}: {e}")
     return None

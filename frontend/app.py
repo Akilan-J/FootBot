@@ -852,7 +852,7 @@ with tab_sofa:
         # Try fetching real-world roster from backend API first
         try:
             import requests
-            response = requests.get(f"{BACKEND_URL}/roster", params={"team_name": team_name}, timeout=10)
+            response = requests.get(f"{BACKEND_URL}/roster", params={"team_name": team_name}, timeout=35)
             if response.status_code == 200:
                 res_data = response.json()
                 if res_data.get("status") == "success" and res_data.get("roster"):

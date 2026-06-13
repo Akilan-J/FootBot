@@ -323,6 +323,89 @@ def trigger_backend_ingestion() -> Dict[str, Any]:
     except Exception as e:
         return {"status": "error", "message": f"Connection error: {str(e)}"}
 
+def strip_emoji(text: str) -> str:
+    """Strips flag emojis and leading/trailing whitespace from the text."""
+    return "".join(c for c in text if not (0x1F000 <= ord(c) <= 0x1F9FF or 0x2600 <= ord(c) <= 0x27BF)).strip()
+
+def get_team_name_with_flag(team_name: str) -> str:
+    """Prepends the country flag emoji to the team name if it is a national team.
+    Otherwise, returns the team name as is.
+    """
+    flags = {
+        "argentina": "🇦🇷",
+        "france": "🇫🇷",
+        "qatar": "🇶🇦",
+        "switzerland": "🇨🇭",
+        "brazil": "🇧🇷",
+        "iceland": "🇮🇸",
+        "portugal": "🇵🇹",
+        "spain": "🇪🇸",
+        "england": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+        "germany": "🇩🇪",
+        "italy": "🇮🇹",
+        "netherlands": "🇳🇱",
+        "croatia": "🇭🇷",
+        "belgium": "🇧🇪",
+        "uruguay": "🇺🇾",
+        "ecuador": "🇪🇨",
+        "senegal": "🇸🇳",
+        "united states": "🇺🇸",
+        "usa": "🇺🇸",
+        "canada": "🇨🇦",
+        "mexico": "🇲🇽",
+        "australia": "🇦🇺",
+        "south korea": "🇰🇷",
+        "japan": "🇯🇵",
+        "saudi arabia": "🇸🇦",
+        "morocco": "🇲🇦",
+        "poland": "🇵🇱",
+        "sweden": "🇸🇪",
+        "denmark": "🇩🇰",
+        "serbia": "🇷🇸",
+        "wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+        "costa rica": "🇨🇷",
+        "tunisia": "🇹🇳",
+        "ghana": "🇬🇭",
+        "cameroon": "🇨🇲",
+        "new zealand": "🇳🇿",
+        "haiti": "🇭🇹",
+        "guam": "🇬🇺",
+        "philippines": "🇵🇭",
+        "peru": "🇵🇪",
+        "colombia": "🇨🇴",
+        "chile": "🇨🇱",
+        "paraguay": "🇵🇾",
+        "venezuela": "🇻🇪",
+        "bolivia": "🇧🇴",
+        "panama": "🇵🇦",
+        "curacao": "🇨🇼",
+        "south africa": "🇿🇦",
+        "egypt": "🇪🇬",
+        "algeria": "🇩🇿",
+        "dr congo": "🇨🇩",
+        "ivory coast": "🇨🇮",
+        "cape verde": "🇨🇻",
+        "jordan": "🇯🇴",
+        "uzbekistan": "🇺🇿",
+        "iraq": "🇮🇶",
+        "iran": "🇮🇷",
+        "scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+        "turkey": "🇹🇷",
+        "austria": "🇦🇹",
+        "norway": "🇳🇴",
+        "bosnia": "🇧🇦",
+        "czech": "🇨🇿",
+        "ukraine": "🇺🇦"
+    }
+    
+    name_lower = team_name.lower().strip()
+    for country, emoji in flags.items():
+        if name_lower == country or (len(country) > 3 and country in name_lower):
+            if not team_name.startswith(emoji):
+                return f"{emoji} {team_name}"
+            return team_name
+    return team_name
+
 def is_allowed_league(league_name: str) -> bool:
     """Checks if the league name contains any of the allowed competition keywords:
     world cup, la liga, laliga, premier league, ligue 1, ligue1, bundesliga, serie a.
@@ -335,7 +418,7 @@ def is_allowed_league(league_name: str) -> bool:
     return any(kw in name_lower for kw in allowed_keywords)
 
 def get_live_matches_feed() -> Dict[str, Any]:
-    """Queries backend live matches feed, filtering to include only men's matches from allowed competitions."""
+    """Queries backend live matches feed, filtering and prepending flags to national teams."""
     try:
         response = requests.get(f"{BACKEND_URL}/live-matches", timeout=10)
         if response.status_code == 200:
@@ -348,8 +431,25 @@ def get_live_matches_feed() -> Dict[str, Any]:
                 if "women" in title or "women" in league:
                     continue
                 # If it is a match item, verify it belongs to allowed competitions
-                if m.get("is_match") and not is_allowed_league(league):
-                    continue
+                if m.get("is_match"):
+                    if not is_allowed_league(league):
+                        continue
+                    # Prepend flags to home and away teams
+                    home = m.get("home_team", "")
+                    away = m.get("away_team", "")
+                    home_flagged = get_team_name_with_flag(home)
+                    away_flagged = get_team_name_with_flag(away)
+                    m["home_team"] = home_flagged
+                    m["away_team"] = away_flagged
+                    # Reconstruct title to include flags
+                    if " vs " in m["title"]:
+                        m["title"] = f"{home_flagged} vs {away_flagged}"
+                    else:
+                        import re
+                        score_match = re.search(r'\d+\s*-\s*\d+', m["title"])
+                        if score_match:
+                            score_str = score_match.group(0)
+                            m["title"] = f"{home_flagged} {score_str} {away_flagged}"
                 filtered_feed.append(m)
             data["feed"] = filtered_feed
             data["count"] = len(filtered_feed)
@@ -359,7 +459,7 @@ def get_live_matches_feed() -> Dict[str, Any]:
     return {"status": "error", "count": 0, "feed": []}
 
 def get_historical_matches_feed() -> List[Dict[str, Any]]:
-    """Queries backend historical matches database, filtering to include only men's matches from allowed competitions."""
+    """Queries backend historical matches database, filtering and prepending flags to national teams."""
     try:
         response = requests.get(f"{BACKEND_URL}/historical-matches", timeout=10)
         if response.status_code == 200:
@@ -373,6 +473,9 @@ def get_historical_matches_feed() -> List[Dict[str, Any]]:
                     continue
                 if not is_allowed_league(league):
                     continue
+                # Prepend flags to home and away teams
+                m["home_team"] = get_team_name_with_flag(m["home_team"])
+                m["away_team"] = get_team_name_with_flag(m["away_team"])
                 filtered.append(m)
             return filtered
     except Exception:
@@ -1031,8 +1134,8 @@ with tab_sofa:
     import re
     team_parts = re.split(r'\s+\d+\s*-\s*\d+\s+|\s+vs\s+', clean_title)
     if len(team_parts) >= 2:
-        home_team_name = team_parts[0].strip()
-        away_team_name = team_parts[1].strip()
+        home_team_name = strip_emoji(team_parts[0].strip())
+        away_team_name = strip_emoji(team_parts[1].strip())
     else:
         home_team_name = "Home Team"
         away_team_name = "Away Team"
@@ -1560,7 +1663,7 @@ with tab_sofa:
     <div style="background-color: #0c1210; border: 1px solid #142820; border-radius: 0.75rem; padding: 1.2rem; margin-bottom: 1rem;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-weight: 700; color: #f3f4f6; font-size: 1.1rem;">{home_team_name}</span>
+                <span style="font-weight: 700; color: #f3f4f6; font-size: 1.1rem;">{get_team_name_with_flag(home_team_name)}</span>
                 <span style="background-color: #10b981; color: #000; font-size: 0.85rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 0.25rem;">{home_avg}</span>
             </div>
             <div style="display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: #6b7280;">
@@ -1568,7 +1671,7 @@ with tab_sofa:
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
                 <span style="background-color: #10b981; color: #000; font-size: 0.85rem; font-weight: 800; padding: 0.15rem 0.4rem; border-radius: 0.25rem;">{away_avg}</span>
-                <span style="font-weight: 700; color: #f3f4f6; font-size: 1.1rem;">{away_team_name}</span>
+                <span style="font-weight: 700; color: #f3f4f6; font-size: 1.1rem;">{get_team_name_with_flag(away_team_name)}</span>
             </div>
         </div>
     </div>

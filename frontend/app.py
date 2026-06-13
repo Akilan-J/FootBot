@@ -1423,6 +1423,7 @@ with tab_sofa:
         else:
             # Generate player tags
             players_html = ""
+            placed_rendered_coords = []
             
             # Home Team placement
             for p in home_roster:
@@ -1432,6 +1433,24 @@ with tab_sofa:
                 x, y = coords.get(pos, (50, 50))
                 left_pct = x
                 top_pct = y
+                
+                # Resolve collisions on the rendered coordinates
+                attempts = 0
+                while attempts < 10:
+                    collision = False
+                    for rx, ry in placed_rendered_coords:
+                        if abs(rx - left_pct) < 6 and abs(ry - top_pct) < 12:
+                            collision = True
+                            break
+                    if not collision:
+                        break
+                    if top_pct > 80:
+                        top_pct -= 12
+                    else:
+                        top_pct += 12
+                    attempts += 1
+                
+                placed_rendered_coords.append((left_pct, top_pct))
                 
                 rating = p["rating"]
                 
@@ -1498,6 +1517,24 @@ with tab_sofa:
                 x, y = coords.get(pos, (50, 50))
                 left_pct = 100 - x
                 top_pct = y
+                
+                # Resolve collisions on the rendered coordinates
+                attempts = 0
+                while attempts < 10:
+                    collision = False
+                    for rx, ry in placed_rendered_coords:
+                        if abs(rx - left_pct) < 6 and abs(ry - top_pct) < 12:
+                            collision = True
+                            break
+                    if not collision:
+                        break
+                    if top_pct > 80:
+                        top_pct -= 12
+                    else:
+                        top_pct += 12
+                    attempts += 1
+                
+                placed_rendered_coords.append((left_pct, top_pct))
                 
                 rating = p["rating"]
                 
@@ -1671,21 +1708,30 @@ with tab_sofa:
             }}
             .player-name-label {{
                 color: #f3f4f6;
-                font-size: 0.68rem;
+                font-size: 0.65rem;
                 font-weight: 700;
                 text-align: center;
                 margin-top: 4px;
+                padding: 1px 5px;
+                background-color: rgba(12, 18, 16, 0.85);
+                border-radius: 4px;
+                border: 1px solid rgba(255,255,255,0.08);
                 white-space: nowrap;
-                text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5);
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+                display: block;
             }}
             .player-jersey-label {{
-                color: #9ca3af;
-                font-size: 0.62rem;
-                font-weight: 600;
+                color: #a7f3d0;
+                font-size: 0.6rem;
+                font-weight: 700;
                 margin-top: 1px;
                 text-shadow: 0 1px 3px rgba(0,0,0,0.9);
             }}
             </style>
+
             <div class="pitch-board">
                 <div class="pitch-line-center"></div>
                 <div class="pitch-line-circle"></div>

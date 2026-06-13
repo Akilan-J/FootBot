@@ -416,8 +416,12 @@ NAME_EXPANSIONS = {
 }
 
 TRANSFERMARKT_BLOCKED = False
+WIKIPEDIA_BLOCKED = False
 
 def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
+    global WIKIPEDIA_BLOCKED
+    if WIKIPEDIA_BLOCKED:
+        return None
     headers = {'User-Agent': 'FootBotTacticsApp/1.0 (akilan@example.com)'}
     search_url = 'https://en.wikipedia.org/w/api.php'
     
@@ -483,6 +487,10 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
                                 # Only accept the thumbnail if it is a verified sports entity
                                 if is_football and 'thumbnail' in pinfo:
                                     return pinfo['thumbnail']['source']
+        except requests.exceptions.Timeout:
+            logger.error(f"Wikipedia request timed out for {q}. Tripping circuit breaker to prevent cascading timeouts.")
+            WIKIPEDIA_BLOCKED = True
+            break
         except Exception as e:
             logger.error(f"Error searching Wikipedia for {q}: {e}")
             
@@ -748,8 +756,8 @@ def get_real_world_roster(team_name: str) -> Optional[List[Dict[str, Any]]]:
     # 3. LLM Query if OpenAI is initialized
     if rag_engine.openai_client is not None:
         logger.info(f"Roster for '{team_name}' not found in cache. Querying LLM...")
-        try:
-            prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world current (or recent) starting XI lineup/squad for the football team '{team_name}'.
+        
+        prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world current (or recent) starting XI lineup/squad for the football team '{team_name}'.
 You must output exactly 11 players in JSON format.
 Each player must have exactly the following keys:
 - 'name': The real player's full name (e.g. 'Bukayo Saka' or 'A. Lunin')
@@ -762,47 +770,71 @@ Each player must have exactly the following keys:
 - 'height': The player's height as a string (e.g. '178 cm')
 - 'sofa_id': The player's official numerical Sofascore player ID as a string if known (e.g. '826725' for Erling Haaland, '40387' for Kevin De Bruyne). Guess a highly realistic numerical ID if you know it, otherwise return empty string "".
 
-Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (like ```json), notes, explanations, or extra characters. Simply return the raw JSON text."""
-            
-            completion = rag_engine.openai_client.chat.completions.create(
-                model=rag_engine.model_name,
-                messages=[
-                    {"role": "system", "content": "You are a database system returning raw JSON arrays only."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3
-            )
-            response_text = completion.choices[0].message.content.strip()
-            
-            # Clean markdown wrappers if any
-            if response_text.startswith("```json"):
-                response_text = response_text[7:]
-            if response_text.endswith("```"):
-                response_text = response_text[:-3]
-            response_text = response_text.strip()
-            
-            roster = json.loads(response_text)
-            if isinstance(roster, list) and len(roster) == 11:
-                # Validate structures
-                valid = True
-                required_keys = {"name", "jersey", "rating", "pos", "photo", "age", "val", "height", "sofa_id"}
-                for p in roster:
-                    if not required_keys.issubset(p.keys()):
-                        valid = False
-                        break
+Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (like ```json), notes, explanations, or extra characters. Simply return the raw JSON text. Make sure to double check that you are returning EXACTLY 11 players."""
+
+        for attempt in range(1, 4):
+            try:
+                completion = rag_engine.openai_client.chat.completions.create(
+                    model=rag_engine.model_name,
+                    messages=[
+                        {"role": "system", "content": "You are a database system returning raw JSON arrays only. Double check that you output exactly 11 players, one of which has position 'GK'."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3 + (attempt * 0.1)
+                )
+                response_text = completion.choices[0].message.content.strip()
                 
-                if valid:
-                    logger.info(f"Successfully retrieved and validated LLM roster for '{team_name}'. Caching...")
-                    ensure_player_photos(roster, team_name)
-                    cache[norm_name] = roster
-                    save_cache(cache)
-                    return roster
+                # Clean markdown wrappers if any
+                if response_text.startswith("```json"):
+                    response_text = response_text[7:]
+                if response_text.endswith("```"):
+                    response_text = response_text[:-3]
+                response_text = response_text.strip()
+                
+                try:
+                    roster = json.loads(response_text)
+                except Exception as json_err:
+                    logger.warning(f"Standard json.loads failed on attempt {attempt}: {json_err}. Attempting cleaning and ast.literal_eval...")
+                    import ast
+                    cleaned_text = response_text
+                    # strip markdown wrappers
+                    cleaned_text = re.sub(r"^```json\s*", "", cleaned_text)
+                    cleaned_text = re.sub(r"\s*```$", "", cleaned_text)
+                    cleaned_text = cleaned_text.strip()
+                    # Replace JSON literals with Python equivalents
+                    cleaned_text = cleaned_text.replace("true", "True").replace("false", "False").replace("null", "None")
+                    try:
+                        roster = ast.literal_eval(cleaned_text)
+                    except Exception as ast_err:
+                        logger.error(f"ast.literal_eval also failed on attempt {attempt}: {ast_err}")
+                        raise json_err
+                
+                if isinstance(roster, list) and len(roster) == 11:
+                    # Validate structures
+                    valid = True
+                    required_keys = {"name", "jersey", "rating", "pos", "photo", "age", "val", "height", "sofa_id"}
+                    for p in roster:
+                        if not required_keys.issubset(p.keys()):
+                            valid = False
+                            break
+                    
+                    if valid:
+                        logger.info(f"Successfully retrieved and validated LLM roster for '{team_name}' on attempt {attempt}. Caching...")
+                        ensure_player_photos(roster, team_name)
+                        cache[norm_name] = roster
+                        save_cache(cache)
+                        return roster
+                    else:
+                        logger.warning(f"Attempt {attempt}: LLM returned JSON list but it was missing required player keys.")
                 else:
-                    logger.warning("LLM returned JSON list but it was missing required player keys.")
-            else:
-                logger.warning(f"LLM did not return exactly 11 players. Length: {len(roster) if isinstance(roster, list) else 'not a list'}")
-        except Exception as e:
-            logger.error(f"Failed to query LLM for roster: {e}")
+                    logger.warning(f"Attempt {attempt}: LLM did not return exactly 11 players. Length: {len(roster) if isinstance(roster, list) else 'not a list'}")
+                
+            except Exception as e:
+                logger.error(f"Attempt {attempt} failed to query LLM for roster: {e}")
+            
+            if attempt < 3:
+                import time
+                time.sleep(1.5)
     else:
         logger.warning("OpenAI client not initialized. Cannot fetch roster via LLM.")
 

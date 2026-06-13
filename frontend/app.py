@@ -61,18 +61,35 @@ st.markdown("""
     
     /* Custom Sidebar styling */
     section[data-testid="stSidebar"] {
-        background-color: #050807 !important;
-        border-right: 1px solid #1f2937;
+        background: linear-gradient(180deg, #040706 0%, #010302 100%) !important;
+        border-right: 1px solid rgba(16, 185, 129, 0.1) !important;
+    }
+    
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+        letter-spacing: 0.05rem !important;
+        font-weight: 800 !important;
+        background: linear-gradient(90deg, #10b981 0%, #34d399 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
     }
     
     /* Cards and badges */
     .metric-card {
-        background-color: #0c1210;
-        border: 1px solid #142820;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(145deg, #0c1210 0%, #060908 100%) !important;
+        border: 1px solid rgba(16, 185, 129, 0.12) !important;
+        border-left: 3px solid #10b981 !important;
+        border-radius: 0.75rem !important;
+        padding: 1.2rem !important;
+        margin-bottom: 1rem !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+        transition: all 0.25s ease-in-out !important;
+    }
+    
+    .metric-card:hover {
+        border-color: rgba(16, 185, 129, 0.4) !important;
+        border-left-color: #34d399 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.1) !important;
     }
     
     .badge {
@@ -110,6 +127,71 @@ st.markdown("""
         border-radius: 0.5rem;
         display: inline-block;
         text-align: left;
+    }
+    
+    /* Custom Streamlit Tabs style */
+    div[data-testid="stTabBar"] {
+        background: rgba(12, 18, 16, 0.5) !important;
+        border: 1px solid rgba(16, 185, 129, 0.15) !important;
+        border-radius: 9999px !important;
+        padding: 0.3rem !important;
+        margin-bottom: 2rem !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    div[data-testid="stTabBar"] button {
+        border-radius: 9999px !important;
+        color: #9ca3af !important;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        border: none !important;
+        background: transparent !important;
+        transition: all 0.3s ease-in-out !important;
+        padding: 0.5rem 1.2rem !important;
+    }
+    
+    div[data-testid="stTabBar"] button[aria-selected="true"] {
+        background: linear-gradient(135deg, #10b981 0%, #0d9488 100%) !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+    }
+    
+    div[data-testid="stTabBar"] button:hover {
+        color: #34d399 !important;
+    }
+    
+    /* Custom Chat Message Styling */
+    div[data-testid="stChatMessage"] {
+        background-color: rgba(20, 35, 28, 0.45) !important;
+        border: 1px solid rgba(16, 185, 129, 0.15) !important;
+        border-radius: 1rem !important;
+        padding: 1.2rem !important;
+        margin-bottom: 1.2rem !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+        backdrop-filter: blur(8px) !important;
+        transition: all 0.3s ease-in-out !important;
+    }
+    
+    div[data-testid="stChatMessage"]:hover {
+        border-color: rgba(16, 185, 129, 0.4) !important;
+        box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.08) !important;
+        background-color: rgba(20, 35, 28, 0.55) !important;
+    }
+    
+    /* Custom Chat Input styling */
+    div[data-testid="stChatInput"] textarea {
+        background-color: #0c1210 !important;
+        border: 1px solid rgba(16, 185, 129, 0.2) !important;
+        color: #f3f4f6 !important;
+        border-radius: 0.75rem !important;
+        font-family: 'Outfit', sans-serif !important;
+    }
+    
+    div[data-testid="stChatInput"] textarea:focus {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important;
     }
     
     /* Micro animations */
@@ -309,12 +391,15 @@ def download_session_pdf(session_id: str) -> Optional[bytes]:
     return None
 
 # --- App Header Layout ---
-col_logo, col_desc = st.columns([1, 8])
-with col_logo:
-    st.markdown("<h1 style='font-size: 3.5rem; text-align: center; margin-top: 0.5rem;'>⚽</h1>", unsafe_allow_html=True)
-with col_desc:
-    st.markdown("<div class='title-gradient'>FootBot</div>", unsafe_allow_html=True)
-    st.markdown("<div class='subtitle-text'>Intelligent RAG Platform for Elite Football Tactics, Philosophy, and Player Analysis</div>", unsafe_allow_html=True)
+st.markdown("""
+<div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(13, 148, 136, 0.02) 100%); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 1rem; padding: 1.5rem; display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(8px);">
+    <div style="font-size: 3.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 0.75rem; width: 75px; height: 75px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 15px rgba(16,185,129,0.2);">⚽</div>
+    <div>
+        <div class="title-gradient" style="margin:0; line-height: 1.1;">FootBot</div>
+        <div class="subtitle-text" style="margin: 0.3rem 0 0 0; font-size: 1rem; color: #9ca3af; font-weight: 300;">Intelligent RAG Platform for Elite Football Tactics, Philosophy, and Player Analysis</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # --- Sidebar Header and Control Panel ---
 st.sidebar.markdown("<h3 style='color:#10b981; font-family:\"Space Grotesk\"; margin-bottom:0;'>👤 COACH PORTAL</h3>", unsafe_allow_html=True)

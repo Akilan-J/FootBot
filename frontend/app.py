@@ -762,8 +762,21 @@ with tab_sofa:
             "Away Pressure": a_pres
         }, index=minutes)
         
-        # Plot styled Streamlit Area Chart (uninteractive/unzoomable as requested)
-        st.area_chart(mom_df, use_container_width=True, interactive=False)
+        # Melt to long format for Altair to prevent interactive zooming/panning
+        chart_df = mom_df.reset_index().rename(columns={"index": "Minute"})
+        mom_df_long = chart_df.melt(id_vars=["Minute"], value_vars=["Home Pressure", "Away Pressure"], 
+                                    var_name="Team", value_name="Pressure")
+        
+        import altair as alt
+        alt_chart = alt.Chart(mom_df_long).mark_area(opacity=0.6).encode(
+            x=alt.X("Minute:Q", title="Minute", scale=alt.Scale(domain=[1, 90])),
+            y=alt.Y("Pressure:Q", title="Attacking Pressure", scale=alt.Scale(domain=[-100, 100]), stack=None),
+            color=alt.Color("Team:N", scale=alt.Scale(domain=["Home Pressure", "Away Pressure"], range=["#10b981", "#374151"])),
+            tooltip=["Minute", "Team", "Pressure"]
+        ).properties(
+            height=280
+        )
+        st.altair_chart(alt_chart, use_container_width=True)
         
     with col_stats:
         st.markdown("#### 📊 Match Box Score Comparison")

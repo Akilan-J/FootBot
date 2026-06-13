@@ -762,8 +762,8 @@ with tab_sofa:
             "Away Pressure": a_pres
         }, index=minutes)
         
-        # Plot styled Streamlit Area Chart
-        st.area_chart(mom_df, use_container_width=True)
+        # Plot styled Streamlit Area Chart (uninteractive/unzoomable as requested)
+        st.area_chart(mom_df, use_container_width=True, interactive=False)
         
     with col_stats:
         st.markdown("#### 📊 Match Box Score Comparison")

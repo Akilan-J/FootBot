@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import os
 import re
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
 # Define Backend URL (load from env or fall back to localhost)
 BACKEND_URL = os.getenv("FOOTBOT_BACKEND_URL", "http://127.0.0.1:8000")
@@ -119,6 +119,73 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+def relax_coordinates(roster: List[Dict[str, Any]], is_away: bool, base_coords: Dict[str, Tuple[int, int]]) -> List[Dict[str, Any]]:
+    """Applies iterative force-directed relaxation to prevent player label/node congestion on the pitch.
+    Ensures that GK stays fixed, and all other players are pushed apart if they overlap.
+    """
+    import math
+    placed = []
+    for p in roster:
+        if p.get("sub", False):
+            continue
+        pos = p["pos"]
+        x, y = base_coords.get(pos, (50, 50))
+        if is_away:
+            x = 100 - x
+        placed.append({
+            "player": p,
+            "x": float(x),
+            "y": float(y),
+            "fixed": (pos == "GK")
+        })
+        
+    min_dx = 12.0
+    min_dy = 16.0
+    iterations = 100
+    learning_rate = 0.2
+    
+    for _ in range(iterations):
+        forces = [{"dx": 0.0, "dy": 0.0} for _ in placed]
+        for i in range(len(placed)):
+            if placed[i]["fixed"]:
+                continue
+            for j in range(len(placed)):
+                if i == j:
+                    continue
+                
+                dx = placed[i]["x"] - placed[j]["x"]
+                dy = placed[i]["y"] - placed[j]["y"]
+                
+                dist_x = dx / min_dx
+                dist_y = dy / min_dy
+                dist_sq = dist_x**2 + dist_y**2
+                
+                if dist_sq < 1.0:
+                    dist = math.sqrt(dist_sq)
+                    if dist < 1e-4:
+                        forces[i]["dx"] += min_dx * 0.5
+                        forces[i]["dy"] += min_dy * 0.5
+                    else:
+                        force = (1.0 - dist) / dist
+                        forces[i]["dx"] += dist_x * min_dx * force * 0.5
+                        forces[i]["dy"] += dist_y * min_dy * force * 0.5
+                        
+        # Apply forces and clamp
+        for i, p in enumerate(placed):
+            if p["fixed"]:
+                continue
+            p["x"] += forces[i]["dx"] * learning_rate
+            p["y"] += forces[i]["dy"] * learning_rate
+            
+            # Clamp to boundaries
+            if is_away:
+                p["x"] = max(52.0, min(92.0, p["x"]))
+            else:
+                p["x"] = max(8.0, min(48.0, p["x"]))
+            p["y"] = max(8.0, min(92.0, p["y"]))
+            
+    return placed
 
 # --- Backend API Interaction Helpers ---
 
@@ -1423,34 +1490,13 @@ with tab_sofa:
         else:
             # Generate player tags
             players_html = ""
-            placed_rendered_coords = []
             
-            # Home Team placement
-            for p in home_roster:
-                if p.get("sub", False):
-                    continue
-                pos = p["pos"]
-                x, y = coords.get(pos, (50, 50))
-                left_pct = x
-                top_pct = y
-                
-                # Resolve collisions on the rendered coordinates
-                attempts = 0
-                while attempts < 10:
-                    collision = False
-                    for rx, ry in placed_rendered_coords:
-                        if abs(rx - left_pct) < 6 and abs(ry - top_pct) < 12:
-                            collision = True
-                            break
-                    if not collision:
-                        break
-                    if top_pct > 80:
-                        top_pct -= 12
-                    else:
-                        top_pct += 12
-                    attempts += 1
-                
-                placed_rendered_coords.append((left_pct, top_pct))
+            # Relax Home Team coordinates
+            home_placed = relax_coordinates(home_roster, False, coords)
+            for item in home_placed:
+                p = item["player"]
+                left_pct = item["x"]
+                top_pct = item["y"]
                 
                 rating = p["rating"]
                 
@@ -1509,32 +1555,12 @@ with tab_sofa:
                 </div>
                 """
                 
-            # Away Team placement
-            for p in away_roster:
-                if p.get("sub", False):
-                    continue
-                pos = p["pos"]
-                x, y = coords.get(pos, (50, 50))
-                left_pct = 100 - x
-                top_pct = y
-                
-                # Resolve collisions on the rendered coordinates
-                attempts = 0
-                while attempts < 10:
-                    collision = False
-                    for rx, ry in placed_rendered_coords:
-                        if abs(rx - left_pct) < 6 and abs(ry - top_pct) < 12:
-                            collision = True
-                            break
-                    if not collision:
-                        break
-                    if top_pct > 80:
-                        top_pct -= 12
-                    else:
-                        top_pct += 12
-                    attempts += 1
-                
-                placed_rendered_coords.append((left_pct, top_pct))
+            # Relax Away Team coordinates
+            away_placed = relax_coordinates(away_roster, True, coords)
+            for item in away_placed:
+                p = item["player"]
+                left_pct = item["x"]
+                top_pct = item["y"]
                 
                 rating = p["rating"]
                 

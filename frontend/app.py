@@ -798,73 +798,78 @@ with tab_sofa:
     # Clean selected match name for professional RAG prompts
     clean_match_name = selected_match.replace("🏆 [COMPLETED] ", "").replace("🟢 [LIVE] ", "").split(" (")[0]
     
+    import hashlib
+    seed_val = int(hashlib.md5(selected_match.encode()).hexdigest(), 16) % 10000
+    
     col_mom, col_stats = st.columns([7, 5])
     
     with col_mom:
         st.markdown("#### 📈 SofaScore Attacking Momentum (Pressure Graph)")
         st.caption("Positive peaks show Home Team dominance; Negative peaks show Away Team dominance.")
         
-        # Generate momentum timeline based on selected match seed
-        import pandas as pd
-        import numpy as np
-        import hashlib
-        
-        seed_val = int(hashlib.md5(selected_match.encode()).hexdigest(), 16) % 10000
-        np.random.seed(seed_val)
-        
-        minutes = list(range(1, 91))
-        # Simulated attacking pressure
-        h_pres = np.random.normal(25, 25, 90)
-        a_pres = np.random.normal(-25, 25, 90)
-        
-        h_pres = np.clip(h_pres, 0, 100)
-        a_pres = np.clip(a_pres, -100, 0)
-        
-        # Smoothing moving average filter
-        h_pres = np.convolve(h_pres, np.ones(5)/5, mode='same')
-        a_pres = np.convolve(a_pres, np.ones(5)/5, mode='same')
-        
-        mom_df = pd.DataFrame({
-            "Home Pressure": h_pres,
-            "Away Pressure": a_pres
-        }, index=minutes)
-        
-        # Melt to long format for Altair to prevent interactive zooming/panning
-        chart_df = mom_df.reset_index().rename(columns={"index": "Minute"})
-        mom_df_long = chart_df.melt(id_vars=["Minute"], value_vars=["Home Pressure", "Away Pressure"], 
-                                    var_name="Team", value_name="Pressure")
-        
-        import altair as alt
-        alt_chart = alt.Chart(mom_df_long).mark_area(opacity=0.6).encode(
-            x=alt.X("Minute:Q", title="Minute", scale=alt.Scale(domain=[1, 90])),
-            y=alt.Y("Pressure:Q", title="Attacking Pressure", scale=alt.Scale(domain=[-100, 100]), stack=None),
-            color=alt.Color("Team:N", scale=alt.Scale(domain=["Home Pressure", "Away Pressure"], range=["#10b981", "#374151"])),
-            tooltip=["Minute", "Team", "Pressure"]
-        ).properties(
-            height=280
-        )
-        st.altair_chart(alt_chart, use_container_width=True)
+        if " vs " in selected_match:
+            st.html("""
+            <div style="background-color: #0c1210; border: 1px dashed #142820; border-radius: 0.75rem; height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #6b7280; padding: 2rem; text-align: center;">
+                <span style="font-size: 2.5rem; margin-bottom: 0.5rem;">📈</span>
+                <span style="font-weight: 700; color: #9ca3af; font-size: 1.1rem; margin-bottom: 0.2rem;">Attacking Momentum Unavailable</span>
+                <span style="font-size: 0.85rem; max-width: 320px;">This match has not started yet. Minute-by-minute momentum tracking will begin immediately after kickoff.</span>
+            </div>
+            """)
+        else:
+            # Generate momentum timeline based on selected match seed
+            import pandas as pd
+            import numpy as np
+            
+            np.random.seed(seed_val)
+            
+            minutes = list(range(1, 91))
+            # Simulated attacking pressure
+            h_pres = np.random.normal(25, 25, 90)
+            a_pres = np.random.normal(-25, 25, 90)
+            
+            h_pres = np.clip(h_pres, 0, 100)
+            a_pres = np.clip(a_pres, -100, 0)
+            
+            # Smoothing moving average filter
+            h_pres = np.convolve(h_pres, np.ones(5)/5, mode='same')
+            a_pres = np.convolve(a_pres, np.ones(5)/5, mode='same')
+            
+            mom_df = pd.DataFrame({
+                "Home Pressure": h_pres,
+                "Away Pressure": a_pres
+            }, index=minutes)
+            
+            # Melt to long format for Altair to prevent interactive zooming/panning
+            chart_df = mom_df.reset_index().rename(columns={"index": "Minute"})
+            mom_df_long = chart_df.melt(id_vars=["Minute"], value_vars=["Home Pressure", "Away Pressure"], 
+                                        var_name="Team", value_name="Pressure")
+            
+            import altair as alt
+            alt_chart = alt.Chart(mom_df_long).mark_area(opacity=0.6).encode(
+                x=alt.X("Minute:Q", title="Minute", scale=alt.Scale(domain=[1, 90])),
+                y=alt.Y("Pressure:Q", title="Attacking Pressure", scale=alt.Scale(domain=[-100, 100]), stack=None),
+                color=alt.Color("Team:N", scale=alt.Scale(domain=["Home Pressure", "Away Pressure"], range=["#10b981", "#374151"])),
+                tooltip=["Minute", "Team", "Pressure"]
+            ).properties(
+                height=280
+            )
+            st.altair_chart(alt_chart, use_container_width=True)
         
     with col_stats:
         st.markdown("#### 📊 Match Box Score Comparison")
         
-        # Deterministic stats based on seed
-        possession_home = int(np.clip(np.random.normal(52, 8), 35, 65))
-        possession_away = 100 - possession_home
-        
-        shots_home = int(np.clip(np.random.normal(14, 4), 5, 25))
-        shots_away = int(np.clip(np.random.normal(11, 3), 4, 20))
-        
-        chances_home = int(np.clip(np.random.normal(3, 1.5), 0, 8))
-        chances_away = int(np.clip(np.random.normal(2, 1.2), 0, 6))
-        
-        passes_home = possession_home * 8 + int(np.random.normal(50, 10))
-        passes_away = possession_away * 8 + int(np.random.normal(50, 10))
-        
         def render_stat_row(label: str, home_val: int, away_val: int, is_percent: bool = False):
             total = home_val + away_val
-            home_ratio = (home_val / max(1, total)) * 100
-            away_ratio = 100 - home_ratio
+            if total == 0:
+                home_ratio = 50
+                away_ratio = 50
+                bar_home_color = "#374151"
+                bar_away_color = "#374151"
+            else:
+                home_ratio = (home_val / total) * 100
+                away_ratio = 100 - home_ratio
+                bar_home_color = "#10b981"
+                bar_away_color = "#4b5563"
             suffix = "%" if is_percent else ""
             st.markdown(f"""
             <div style="margin-bottom: 0.8rem;">
@@ -874,16 +879,43 @@ with tab_sofa:
                     <span><b>{away_val}{suffix}</b></span>
                 </div>
                 <div style="display: flex; height: 6px; border-radius: 3px; overflow: hidden; background-color: #1f2937;">
-                    <div style="width: {home_ratio}%; background-color: #10b981;"></div>
-                    <div style="width: {away_ratio}%; background-color: #4b5563;"></div>
+                    <div style="width: {home_ratio}%; background-color: {bar_home_color};"></div>
+                    <div style="width: {away_ratio}%; background-color: {bar_away_color};"></div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-        render_stat_row("Ball Possession", possession_home, possession_away, is_percent=True)
-        render_stat_row("Total Shots", shots_home, shots_away)
-        render_stat_row("Big Chances Created", chances_home, chances_away)
-        render_stat_row("Accurate Passes Completed", passes_home, passes_away)
+        if " vs " in selected_match:
+            render_stat_row("Ball Possession", 0, 0, is_percent=True)
+            render_stat_row("Total Shots", 0, 0)
+            render_stat_row("Big Chances Created", 0, 0)
+            render_stat_row("Accurate Passes Completed", 0, 0)
+            st.html("""
+            <div style="text-align: center; font-size: 0.8rem; color: #6b7280; margin-top: 1rem; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.03); background-color: rgba(255,255,255,0.01);">
+                ⏳ Match stats are currently 0. Real-time updates will feed once the fixture commences.
+            </div>
+            """)
+        else:
+            # Deterministic stats based on seed
+            import numpy as np
+            np.random.seed(seed_val)
+            
+            possession_home = int(np.clip(np.random.normal(52, 8), 35, 65))
+            possession_away = 100 - possession_home
+            
+            shots_home = int(np.clip(np.random.normal(14, 4), 5, 25))
+            shots_away = int(np.clip(np.random.normal(11, 3), 4, 20))
+            
+            chances_home = int(np.clip(np.random.normal(3, 1.5), 0, 8))
+            chances_away = int(np.clip(np.random.normal(2, 1.2), 0, 6))
+            
+            passes_home = possession_home * 8 + int(np.random.normal(50, 10))
+            passes_away = possession_away * 8 + int(np.random.normal(50, 10))
+            
+            render_stat_row("Ball Possession", possession_home, possession_away, is_percent=True)
+            render_stat_row("Total Shots", shots_home, shots_away)
+            render_stat_row("Big Chances Created", chances_home, chances_away)
+            render_stat_row("Accurate Passes Completed", passes_home, passes_away)
         
     # --- SofaScore Visual Match Ratings & Lineups Pitch ---
     st.markdown("---")
@@ -1288,6 +1320,7 @@ with tab_sofa:
     # Enrich rosters with extra metrics deterministically
     def enrich_roster(roster, is_home):
         t_nat = get_team_nationality(home_team_name if is_home else away_team_name)
+        is_fixture = " vs " in selected_match
         for i, p in enumerate(roster):
             try:
                 jersey_int = int(''.join(c for c in str(p.get("jersey", "0")) if c.isdigit()))
@@ -1296,16 +1329,19 @@ with tab_sofa:
             p_seed = seed_val + jersey_int + (100 if not is_home else 0)
             
             # Distance
-            pos = p.get("pos", "CM")
-            if pos == "GK":
-                dist_val = round(4.0 + (p_seed % 15) / 10.0, 1)
-            elif pos in ["CM", "LCM", "RCM", "DM", "LDM", "RDM", "AM", "CAM"]:
-                dist_val = round(10.5 + (p_seed % 25) / 10.0, 1)
-            elif pos in ["LB", "RB", "LWB", "RWB", "LM", "RM", "LW", "RW", "LAM", "RAM"]:
-                dist_val = round(9.8 + (p_seed % 20) / 10.0, 1)
+            if is_fixture:
+                p["distance"] = "0.0 km"
             else:
-                dist_val = round(8.8 + (p_seed % 20) / 10.0, 1)
-            p["distance"] = f"{dist_val} km"
+                pos = p.get("pos", "CM")
+                if pos == "GK":
+                    dist_val = round(4.0 + (p_seed % 15) / 10.0, 1)
+                elif pos in ["CM", "LCM", "RCM", "DM", "LDM", "RDM", "AM", "CAM"]:
+                    dist_val = round(10.5 + (p_seed % 25) / 10.0, 1)
+                elif pos in ["LB", "RB", "LWB", "RWB", "LM", "RM", "LW", "RW", "LAM", "RAM"]:
+                    dist_val = round(9.8 + (p_seed % 20) / 10.0, 1)
+                else:
+                    dist_val = round(8.8 + (p_seed % 20) / 10.0, 1)
+                p["distance"] = f"{dist_val} km"
             
             # Nationality
             if p_seed % 6 == 0:
@@ -1315,9 +1351,12 @@ with tab_sofa:
                 p["nationality"] = t_nat
                 
             # Fantasy Points
-            base_points = int(p["rating"] * 10)
-            bonus = p_seed % 15
-            p["fantasy"] = f"{base_points + bonus} pts"
+            if is_fixture:
+                p["fantasy"] = "0 pts"
+            else:
+                base_points = int(p["rating"] * 10)
+                bonus = p_seed % 15
+                p["fantasy"] = f"{base_points + bonus} pts"
             
             # Height fallback
             if "height" not in p:

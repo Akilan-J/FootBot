@@ -399,18 +399,9 @@ def live_matches_endpoint(background_tasks: BackgroundTasks):
         from backend.loaders.live_score_loader import fetch_live_football_feed
         feed = fetch_live_football_feed()
         
-        # Proactively load rosters and headshots for the matches found
-        teams_to_resolve = []
-        for m in feed:
-            if m.get("is_match"):
-                home = m.get("home_team")
-                away = m.get("away_team")
-                if home:
-                    teams_to_resolve.append(home)
-                if away:
-                    teams_to_resolve.append(away)
-        if teams_to_resolve:
-            background_tasks.add_task(resolve_rosters_and_headshots, teams_to_resolve)
+        # Roster preloading disabled to prevent concurrent lock contention and LLM rate-limiting.
+        # Rosters will be resolved dynamically on-demand when loaded in the tactical overview.
+        pass
 
         return {
             "status": "success",
@@ -434,7 +425,6 @@ def crawl_historical_matches_endpoint(background_tasks: BackgroundTasks):
         
         matches = fetch_historical_results_from_html()
         saved_count = 0
-        teams_to_resolve = []
         for m in matches:
             if m["home_score"] is not None and m["away_score"] is not None:
                 save_historical_match(
@@ -446,13 +436,6 @@ def crawl_historical_matches_endpoint(background_tasks: BackgroundTasks):
                     league=m["league"]
                 )
                 saved_count += 1
-                if m["home_team"]:
-                    teams_to_resolve.append(m["home_team"])
-                if m["away_team"]:
-                    teams_to_resolve.append(m["away_team"])
-                    
-        if teams_to_resolve:
-            background_tasks.add_task(resolve_rosters_and_headshots, teams_to_resolve)
 
         return {
             "status": "success",
@@ -472,17 +455,6 @@ def get_historical_matches_endpoint(background_tasks: BackgroundTasks, limit: in
     try:
         from backend.database import get_historical_matches
         matches = get_historical_matches(limit=limit)
-        
-        teams_to_resolve = []
-        for m in matches:
-            home = m.get("home_team")
-            away = m.get("away_team")
-            if home:
-                teams_to_resolve.append(home)
-            if away:
-                teams_to_resolve.append(away)
-        if teams_to_resolve:
-            background_tasks.add_task(resolve_rosters_and_headshots, teams_to_resolve)
 
         return matches
     except Exception as e:

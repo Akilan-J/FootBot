@@ -18,4 +18,5 @@ Thumbs.db
 # Local SQLite Database files
 *.db
 data/*.db
-
+*.lock
+scratch/temp_cache.json

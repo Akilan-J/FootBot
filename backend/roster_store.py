@@ -3,6 +3,7 @@ import re
 import requests
 import unicodedata
 import urllib.parse
+import fcntl
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -240,19 +241,30 @@ def normalize_name(name: str) -> str:
     return n
 
 def load_cache() -> Dict[str, List[Dict[str, Any]]]:
-    if CACHE_PATH.exists():
+    lock_path = CACHE_PATH.with_suffix(".lock")
+    if not lock_path.exists():
         try:
-            with open(CACHE_PATH, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"Error loading roster cache from {CACHE_PATH}: {e}")
+            lock_path.touch()
+        except Exception:
+            pass
+    try:
+        with open(lock_path, "r") as lock_f:
+            fcntl.flock(lock_f.fileno(), fcntl.LOCK_SH)
+            if CACHE_PATH.exists():
+                with open(CACHE_PATH, "r", encoding="utf-8") as f:
+                    return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading roster cache from {CACHE_PATH}: {e}")
     return {}
 
 def save_cache(cache: Dict[str, List[Dict[str, Any]]]) -> None:
     try:
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(CACHE_PATH, "w", encoding="utf-8") as f:
-            json.dump(cache, f, indent=4, ensure_ascii=False)
+        lock_path = CACHE_PATH.with_suffix(".lock")
+        with open(lock_path, "w") as lock_f:
+            fcntl.flock(lock_f.fileno(), fcntl.LOCK_EX)
+            with open(CACHE_PATH, "w", encoding="utf-8") as f:
+                json.dump(cache, f, indent=4, ensure_ascii=False)
     except Exception as e:
         logger.error(f"Error saving roster cache to {CACHE_PATH}: {e}")
 
@@ -741,16 +753,18 @@ def get_real_world_roster(team_name: str) -> Optional[List[Dict[str, Any]]]:
                     
         updated_photos = ensure_player_photos(roster, team_name)
         if cache_updated or updated_photos:
-            cache[norm_name] = roster
-            save_cache(cache)
+            current_cache = load_cache()
+            current_cache[norm_name] = roster
+            save_cache(current_cache)
         return roster
 
     if predefined_val is not None:
         import copy
         roster = copy.deepcopy(predefined_val)
         ensure_player_photos(roster, team_name)
-        cache[norm_name] = roster
-        save_cache(cache)
+        current_cache = load_cache()
+        current_cache[norm_name] = roster
+        save_cache(current_cache)
         return roster
 
     # 3. LLM Query if OpenAI is initialized
@@ -821,8 +835,9 @@ Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (lik
                     if valid:
                         logger.info(f"Successfully retrieved and validated LLM roster for '{team_name}' on attempt {attempt}. Caching...")
                         ensure_player_photos(roster, team_name)
-                        cache[norm_name] = roster
-                        save_cache(cache)
+                        current_cache = load_cache()
+                        current_cache[norm_name] = roster
+                        save_cache(current_cache)
                         return roster
                     else:
                         logger.warning(f"Attempt {attempt}: LLM returned JSON list but it was missing required player keys.")

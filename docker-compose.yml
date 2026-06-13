@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./frontend/assets:/app/frontend/assets
+    env_file:
+      - .env
+    environment:
+      - RAW_DATA_PATH=/app/data/raw
+      - DB_PATH=/app/data/footbot.db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./frontend/assets:/app/frontend/assets
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - FOOTBOT_BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend

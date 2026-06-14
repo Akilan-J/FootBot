@@ -2039,7 +2039,7 @@ function renderMatchCentre() {
         <button class="metric-btn" onclick="setMetric('value',this)">💰 Value</button>
         <button class="metric-btn" onclick="setMetric('flag',this)">🌍 Nationality</button>
       </div>
-      <canvas id="lineup-canvas" height="480" style="width:100%;display:block;cursor:pointer;"></canvas>
+      <canvas id="lineup-canvas" height="720" style="width:100%;display:block;cursor:pointer;"></canvas>
     </div>
   `;
 
@@ -2167,28 +2167,44 @@ function drawLineup() {
   const canvas = document.getElementById('lineup-canvas');
   if (!canvas || !currentMatch) return;
   canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-  canvas.height = 480 * window.devicePixelRatio;
+  canvas.height = 720 * window.devicePixelRatio;
   canvas.style.width = canvas.offsetWidth + 'px';
-  canvas.style.height = '480px';
+  canvas.style.height = '720px';
   const ctx = canvas.getContext('2d');
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  const W = canvas.offsetWidth, H = 480;
+  const W = canvas.offsetWidth, H = 720;
   const m = currentMatch;
 
-  // Pitch bg
+  // Pitch bg — alternating grass stripes
   ctx.fillStyle = '#0c2118'; ctx.fillRect(0,0,W,H);
-  for (let i=0;i<6;i++) {
-    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.015)':'transparent';
-    ctx.fillRect(0,i*(H/6),W,H/6);
+  for (let i=0;i<10;i++) {
+    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.018)':'transparent';
+    ctx.fillRect(0,i*(H/10),W,H/10);
   }
 
   // Lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5;
   ctx.strokeRect(20,10,W-40,H-20);
+  // Halfway line
   ctx.beginPath(); ctx.moveTo(20,H/2); ctx.lineTo(W-20,H/2); ctx.stroke();
-  const cw=W*0.35, ch=H*0.14;
+  // Centre circle
+  ctx.beginPath(); ctx.arc(W/2, H/2, Math.min(W,H)*0.08, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1; ctx.stroke();
+  // Centre spot
+  ctx.beginPath(); ctx.arc(W/2, H/2, 3, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fill();
+  // Penalty boxes
+  const cw=W*0.42, ch=H*0.13;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
   ctx.strokeRect((W-cw)/2,10,cw,ch);
   ctx.strokeRect((W-cw)/2,H-10-ch,cw,ch);
+  // 6-yard boxes
+  const sw=W*0.20, sh=H*0.055;
+  ctx.strokeRect((W-sw)/2,10,sw,sh);
+  ctx.strokeRect((W-sw)/2,H-10-sh,sw,sh);
+  // Penalty spots
+  ctx.beginPath(); ctx.arc(W/2, H*0.13, 3, 0, Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(W/2, H*0.87, 3, 0, Math.PI*2); ctx.fill();
 
   function drawTeam(players, isHome) {
     if (!players || !players.length) return;

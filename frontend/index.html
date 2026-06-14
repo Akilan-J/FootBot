@@ -1132,7 +1132,16 @@ function getFlagEmoji(text) {
     'argentina': '🇦🇷', 'france': '🇫🇷', 'brazil': '🇧🇷', 'portugal': '🇵🇹', 'spain': '🇪🇸',
     'germany': '🇩🇪', 'italy': '🇮🇹', 'netherlands': '🇳🇱', 'england': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     'croatia': '🇭🇷', 'belgium': '🇧🇪', 'uruguay': '🇺🇾', 'switzerland': '🇨🇭',
-    'qatar': '🇶🇦', 'iceland': '🇮🇸', 'haiti': '🇭🇳', 'new zealand': '🇳🇿',
+    'qatar': '🇶🇦', 'iceland': '🇮🇸', 'haiti': '🇭🇹', 'new zealand': '🇳🇿',
+    'morocco': '🇲🇦', 'united states': '🇺🇸', 'usa': '🇺🇸', 'paraguay': '🇵🇾',
+    'canada': '🇨🇦', 'bosnia': '🇧🇦', 'scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'turkey': '🇹🇷',
+    'australia': '🇦🇺', 'japan': '🇯🇵', 'south korea': '🇰🇷', 'saudi arabia': '🇸🇦',
+    'jordan': '🇯🇴', 'uzbekistan': '🇺🇿', 'algeria': '🇩🇿', 'cape verde': '🇨🇻',
+    'dr congo': '🇨🇩', 'ivory coast': '🇨🇮', 'egypt': '🇪🇬', 'ghana': '🇬🇭',
+    'south africa': '🇿🇦', 'tunisia': '🇹🇳', 'colombia': '🇨🇴', 'ecuador': '🇪🇨',
+    'austria': '🇦🇹', 'norway': '🇳🇴', 'sweden': '🇸🇪', 'ukraine': '🇺🇦',
+    'poland': '🇵🇱', 'denmark': '🇩🇰', 'mexico': '🇲🇽', 'wales': '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
+    'senegal': '🇸🇳', 'iran': '🇮🇷', 'iraq': '🇮🇶',
     'liverpool': '🔴', 'man city': '🔵', 'manchester city': '🔵', 'barcelona': '🔵⚪',
     'real madrid': '⚪', 'bayern': '🔴', 'dortmund': '🟡'
   };
@@ -1502,9 +1511,9 @@ function renderMatches(matches) {
         <div class="match-league">${m.league}</div>
         <div class="match-status" style="${statusStyle}">${m.status}</div>
         <div class="match-teams">
-          <span class="team-name">${m.home}</span>
+          <span class="team-name">${getFlagEmoji(m.home)} ${stripEmoji(m.home)}</span>
           <span class="match-score">${m.hs}–${m.as}</span>
-          <span class="team-name" style="text-align:right">${m.away}</span>
+          <span class="team-name" style="text-align:right">${stripEmoji(m.away)} ${getFlagEmoji(m.away)}</span>
         </div>
         <div class="match-date">${m.date}</div>
       </div>
@@ -1648,7 +1657,9 @@ function updateSelectorOptions() {
       return;
     }
     const key = `db_${idx}`;
-    dynamicOptions += `<option value="${key}">🏆 [COMPLETED] ${m.home} ${m.hs}–${m.as} ${m.away} (${m.league})</option>`;
+    const homeWithFlag = `${getFlagEmoji(m.home)} ${stripEmoji(m.home)}`;
+    const awayWithFlag = `${stripEmoji(m.away)} ${getFlagEmoji(m.away)}`;
+    dynamicOptions += `<option value="${key}">🏆 [COMPLETED] ${homeWithFlag} ${m.hs}–${m.as} ${awayWithFlag} (${m.league})</option>`;
   });
   
   selectEl.innerHTML = staticOptions + dynamicOptions;
@@ -1971,9 +1982,9 @@ function renderMatchCentre() {
     <div class="momentum-chart-wrap">
       <div class="section-head">📈 Attacking Momentum</div>
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:8px;">
-        <span style="color:var(--emerald)">▲ ${m.home}</span>
+        <span style="color:var(--emerald)">▲ ${m.homeFlag} ${m.home}</span>
         <span>Minute</span>
-        <span style="color:var(--blue)">▼ ${m.away}</span>
+        <span style="color:var(--blue)">▼ ${m.away} ${m.awayFlag}</span>
       </div>
       <canvas id="momentum-canvas" height="120" style="width:100%;display:block;touch-action:none;"></canvas>
     </div>

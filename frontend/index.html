@@ -2268,34 +2268,91 @@ function drawLineup() {
 }
 
 function forceLayout(players, W, startY, teamH, isHome) {
-  const n = players.length;
-  const positions = players.map((_, i) => {
-    const row = Math.floor(i / 3);
-    const col = i % 3;
-    const cols = Math.min(n - row*3, 3);
-    const spacing = (W-80) / Math.max(cols, 1);
-    return {
-      x: 40 + spacing*(col + (3-cols)*0.5) + spacing/2,
-      y: startY + (row * teamH/(Math.ceil(n/3)-0.5))
-    };
+  // Role-based canonical positions: [xFraction 0=left..1=right, yFraction 0=own goal..1=halfway]
+  // For home team: y=0 is top of their half; for away: we'll mirror vertically
+  const ROLE_POS = {
+    // Goalkeeper
+    'GK':  { x: 0.50, y: 0.04 },
+    // Defenders
+    'LB':  { x: 0.12, y: 0.22 }, 'LWB': { x: 0.10, y: 0.30 },
+    'LCB': { x: 0.30, y: 0.18 }, 'CB':  { x: 0.50, y: 0.18 },
+    'RCB': { x: 0.70, y: 0.18 }, 'RB':  { x: 0.88, y: 0.22 },
+    'RWB': { x: 0.90, y: 0.30 },
+    // Defensive/Central Midfielders
+    'LDM': { x: 0.30, y: 0.40 }, 'RDM': { x: 0.70, y: 0.40 },
+    'DM':  { x: 0.50, y: 0.38 }, 'CDM': { x: 0.50, y: 0.38 },
+    'LCM': { x: 0.28, y: 0.52 }, 'CM':  { x: 0.50, y: 0.52 },
+    'RCM': { x: 0.72, y: 0.52 },
+    'LM':  { x: 0.14, y: 0.50 }, 'RM':  { x: 0.86, y: 0.50 },
+    // Attacking Midfielders
+    'LAM': { x: 0.28, y: 0.66 }, 'CAM': { x: 0.50, y: 0.67 },
+    'RAM': { x: 0.72, y: 0.66 }, 'AM':  { x: 0.50, y: 0.67 },
+    'SS':  { x: 0.50, y: 0.70 },
+    // Forwards/Wingers
+    'LW':  { x: 0.12, y: 0.80 }, 'RW':  { x: 0.88, y: 0.80 },
+    'LST': { x: 0.34, y: 0.88 }, 'ST':  { x: 0.50, y: 0.88 },
+    'RST': { x: 0.66, y: 0.88 }, 'CF':  { x: 0.50, y: 0.86 },
+    'FW':  { x: 0.50, y: 0.88 },
+  };
+
+  // Count how many players share the same role to spread them horizontally
+  const roleCounts = {};
+  const roleIndexes = {};
+  players.forEach(p => {
+    const r = (p.role || 'CM').toUpperCase();
+    roleCounts[r] = (roleCounts[r] || 0) + 1;
+    roleIndexes[r] = roleIndexes[r] || [];
+    roleIndexes[r].push(p);
   });
 
-  // Simple repulsion
-  for (let iter=0; iter<30; iter++) {
-    for (let i=0; i<positions.length; i++) {
-      for (let j=i+1; j<positions.length; j++) {
+  const roleSlot = {};
+  const positions = players.map(p => {
+    const r = (p.role || 'CM').toUpperCase();
+    const base = ROLE_POS[r] || { x: 0.50, y: 0.50 };
+    const count = roleCounts[r] || 1;
+    roleSlot[r] = (roleSlot[r] || 0);
+    const slot = roleSlot[r];
+    roleSlot[r]++;
+
+    // Spread multiple same-role players evenly across x
+    let xFrac = base.x;
+    if (count > 1) {
+      const spread = 0.55; // total x range to spread across
+      xFrac = 0.5 - spread/2 + (slot / (count - 1)) * spread;
+      // For edge roles (wingers, fullbacks) keep asymmetric
+      if (['LW','LB','LWB'].includes(r)) xFrac = base.x + slot * 0.06;
+      if (['RW','RB','RWB'].includes(r)) xFrac = base.x - slot * 0.06;
+    }
+
+    const xPx = 28 + xFrac * (W - 56);
+    // y: home half is top half, away is bottom half
+    const yPx = isHome
+      ? startY + base.y * teamH
+      : startY + (1 - base.y) * teamH;
+
+    return { x: Math.max(28, Math.min(W - 28, xPx)), y: yPx };
+  });
+
+  // Light repulsion pass to prevent overlap between adjacent players
+  for (let iter = 0; iter < 40; iter++) {
+    for (let i = 0; i < positions.length; i++) {
+      for (let j = i + 1; j < positions.length; j++) {
         const dx = positions[i].x - positions[j].x;
         const dy = positions[i].y - positions[j].y;
-        const dist = Math.sqrt(dx*dx+dy*dy) || 1;
-        if (dist < 36) {
-          const force = (36-dist)/dist*0.3;
-          positions[i].x += dx*force; positions[i].y += dy*force;
-          positions[j].x -= dx*force; positions[j].y -= dy*force;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const minDist = 38;
+        if (dist < minDist) {
+          const force = (minDist - dist) / dist * 0.25;
+          positions[i].x += dx * force;
+          positions[j].x -= dx * force;
+          // Minimal y push to preserve formation rows
+          positions[i].y += dy * force * 0.15;
+          positions[j].y -= dy * force * 0.15;
         }
       }
-      // Clamp
-      positions[i].x = Math.max(30, Math.min(W-30, positions[i].x));
-      positions[i].y = Math.max(startY+10, Math.min(startY+teamH-20, positions[i].y));
+      // Clamp within pitch half
+      positions[i].x = Math.max(28, Math.min(W - 28, positions[i].x));
+      positions[i].y = Math.max(startY + 4, Math.min(startY + teamH - 4, positions[i].y));
     }
   }
   return positions;

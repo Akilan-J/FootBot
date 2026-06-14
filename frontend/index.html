@@ -1474,14 +1474,14 @@ function renderMatches(matches) {
   }
   grid.innerHTML = matches.map(m => `
     <div class="match-card fade-in">
-      <div class="match-league">\${m.league}</div>
-      <div class="match-status">\${m.status}</div>
+      <div class="match-league">${m.league}</div>
+      <div class="match-status">${m.status}</div>
       <div class="match-teams">
-        <span class="team-name">\${m.home}</span>
-        <span class="match-score">\${m.hs}–\${m.as}</span>
-        <span class="team-name" style="text-align:right">\${m.away}</span>
+        <span class="team-name">${m.home}</span>
+        <span class="match-score">${m.hs}–${m.as}</span>
+        <span class="team-name" style="text-align:right">${m.away}</span>
       </div>
-      <div class="match-date">\${m.date}</div>
+      <div class="match-date">${m.date}</div>
     </div>`).join('');
 }
 
@@ -1535,8 +1535,8 @@ function updateSelectorOptions() {
     ) {
       return;
     }
-    const key = `db_\${idx}`;
-    dynamicOptions += `<option value="\${key}">🏆 [COMPLETED] \${m.home} \${m.hs}–\${m.as} \${m.away} (\${m.league})</option>`;
+    const key = `db_${idx}`;
+    dynamicOptions += `<option value="${key}">🏆 [COMPLETED] ${m.home} ${m.hs}–${m.as} ${m.away} (${m.league})</option>`;
   });
   
   selectEl.innerHTML = staticOptions + dynamicOptions;

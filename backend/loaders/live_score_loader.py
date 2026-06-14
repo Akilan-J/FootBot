@@ -24,6 +24,7 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
         from bs4 import BeautifulSoup
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
+        response.encoding = 'utf-8'  # Force UTF-8 so special chars (ç, é, ñ) decode correctly
         
         soup = BeautifulSoup(response.text, 'html.parser')
         
@@ -227,6 +228,7 @@ def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
             from bs4 import BeautifulSoup
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
+            response.encoding = 'utf-8'  # Force UTF-8 so special chars (ç, é, ñ) decode correctly
             
             soup = BeautifulSoup(response.text, 'html.parser')
             

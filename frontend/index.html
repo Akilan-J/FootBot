@@ -1142,8 +1142,19 @@ function getFlagEmoji(text) {
     'austria': '🇦🇹', 'norway': '🇳🇴', 'sweden': '🇸🇪', 'ukraine': '🇺🇦',
     'poland': '🇵🇱', 'denmark': '🇩🇰', 'mexico': '🇲🇽', 'wales': '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
     'senegal': '🇸🇳', 'iran': '🇮🇷', 'iraq': '🇮🇶',
+    // Curaçao & variant spellings
+    'cura\u00e7ao': '🇨🇼', 'curacao': '🇨🇼', 'cura': '🇨🇼',
+    // Côte d'Ivoire variants
+    'c\u00f4te': '🇨🇮', "cote d'ivoire": '🇨🇮', 'cote divoire': '🇨🇮',
+    // Bosnia variants
+    'herzegovina': '🇧🇦',
+    // Club teams
     'liverpool': '🔴', 'man city': '🔵', 'manchester city': '🔵', 'barcelona': '🔵⚪',
-    'real madrid': '⚪', 'bayern': '🔴', 'dortmund': '🟡'
+    'real madrid': '⚪', 'bayern': '🔴', 'dortmund': '🟡',
+    'arsenal': '🔴', 'chelsea': '🔵', 'tottenham': '⚪', 'spurs': '⚪',
+    'psg': '🔵🔴', 'paris saint-germain': '🔵🔴', 'juventus': '⚫⚪',
+    'inter': '🔵⚫', 'ac milan': '🔴⚫', 'atletico': '🔴⚪',
+    'celtic': '🟢', 'rangers': '🔵',
   };
   for (const [team, emoji] of Object.entries(flags)) {
     if (clean.includes(team)) return emoji;

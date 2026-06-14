@@ -380,7 +380,7 @@ input[type=range]::-webkit-slider-thumb{
   border-radius:14px;padding:20px;
   transition:.2s;cursor:pointer;
 }
-.match-card:hover{background:rgba(255,255,255,0.06);transform:translateY(-2px);}
+.match-card:hover{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.4);transform:translateY(-3px);box-shadow:0 8px 24px rgba(16,185,129,0.12);}
 .match-league{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
 .match-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .team-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;}
@@ -1496,6 +1496,25 @@ async function silentCrawlMatches() {
   }
 }
 
+async function openMatchInCentre(idx) {
+  // Find the Match Centre nav tab button (index 3) and click it
+  const matchCentreBtn = document.querySelectorAll('.nav-tab')[3];
+  if (matchCentreBtn) matchCentreBtn.click();
+  
+  // Short delay to let the tab render, then load the match
+  setTimeout(async () => {
+    const key = `db_${idx}`;
+    // Sync the select dropdown to match
+    const sel = document.getElementById('match-select');
+    if (sel) {
+      sel.value = key;
+      // If option not found, it may be a static match — fall back gracefully
+      if (!sel.value) sel.value = 'arg_fra';
+    }
+    await loadMatch(key);
+  }, 120);
+}
+
 function filterLeague(league, el) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -1510,15 +1529,16 @@ function renderMatches(matches) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No matches for selected league.</div>';
     return;
   }
-  grid.innerHTML = matches.map(m => {
+  grid.innerHTML = matches.map((m, idx) => {
     let statusStyle = 'background:rgba(16,185,129,0.1);color:var(--emerald);';
     if (m.status === 'LIVE') {
       statusStyle = 'background:rgba(239,68,68,0.15);color:#ef4444;';
     } else if (m.status === 'Fixture') {
       statusStyle = 'background:rgba(59,130,246,0.15);color:#3b82f6;';
     }
+    const globalIdx = loadedMatches.indexOf(m);
     return `
-      <div class="match-card fade-in">
+      <div class="match-card fade-in" onclick="openMatchInCentre(${globalIdx})" title="Open in Match Centre">
         <div class="match-league">${m.league}</div>
         <div class="match-status" style="${statusStyle}">${m.status}</div>
         <div class="match-teams">
@@ -1527,6 +1547,7 @@ function renderMatches(matches) {
           <span class="team-name" style="text-align:right">${stripEmoji(m.away)} ${getFlagEmoji(m.away)}</span>
         </div>
         <div class="match-date">${m.date}</div>
+        <div style="margin-top:10px;font-size:10px;color:var(--emerald);opacity:0.6;text-align:center;letter-spacing:.5px;">🏟️ TAP TO OPEN IN MATCH CENTRE</div>
       </div>
     `;
   }).join('');

@@ -609,6 +609,15 @@ input[type=range]::-webkit-slider-thumb{
             </div>
           </div>
           <div class="sidebar-card">
+            <div class="sidebar-title" style="display:flex;justify-content:space-between;align-items:center;">
+              <span>💬 Coaching Logs</span>
+              <button onclick="startNewSession()" style="background:none;border:none;color:var(--emerald);cursor:pointer;font-size:16px;padding:0;line-height:1;" title="Start New Session">➕</button>
+            </div>
+            <div id="sessions-list" style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;margin-top:8px;padding-right:4px;">
+              <p style="font-size:12px;color:var(--text-muted);margin:0;">No coaching logs found.</p>
+            </div>
+          </div>
+          <div class="sidebar-card">
             <div class="sidebar-title">📤 Export Dossier</div>
             <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Compile your chat log, match telemetry, and tactical grids into a professional PDF dossier.</p>
             <button class="btn-export" onclick="exportPDF()">📄 Export PDF Dossier</button>
@@ -759,6 +768,8 @@ input[type=range]::-webkit-slider-thumb{
 // ============================================================
 // STATE
 // ============================================================
+const BACKEND_URL = window.location.protocol.startsWith('http') ? '' : 'http://127.0.0.1:8000';
+
 let currentUser = null;
 let currentSessionId = null;
 let sessionsList = [];
@@ -796,7 +807,7 @@ async function doAuth() {
 
   if (!u || !p) { showErr('Please enter username and password.'); return; }
 
-  const url = authMode === 'signup' ? '/register' : '/login';
+  const url = authMode === 'signup' ? `${BACKEND_URL}/register` : `${BACKEND_URL}/login`;
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -866,7 +877,7 @@ async function sendChat() {
   chatMessages.push({role:'user', content: msg});
 
   const topicEl = document.getElementById('recent-topics');
-  const topicTag = `<div style="font-size:12px;padding:5px 10px;background:rgba(255,255,255,0.04);border-radius:6px;color:var(--text-dim)">${msg.substring(0,40)}${msg.length > 40 ? '...' : ''}</div>`;
+  const topicTag = `<div style="font-size:12px;padding:5px 10px;background:rgba(255,255,255,0.04);border-radius:6px;color:var(--text-dim);margin-bottom:4px;">${msg.substring(0,40)}${msg.length > 40 ? '...' : ''}</div>`;
   if (topicEl.querySelector('p')) topicEl.innerHTML = '';
   topicEl.insertAdjacentHTML('afterbegin', topicTag);
 
@@ -880,25 +891,39 @@ async function sendChat() {
   chatWin.insertAdjacentHTML('beforeend', `<div class="msg-bubble ai" id="${typingId}"><div class="msg-avatar">🤖</div><div class="msg-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`);
   chatWin.scrollTop = chatWin.scrollHeight;
 
+  const token = localStorage.getItem('fb_token');
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+    const res = await fetch(`${BACKEND_URL}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Token': token
+      },
       body: JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        system: chatMessages[0].content,
-        messages: chatMessages.slice(1)
+        query: msg,
+        session_id: currentSessionId || undefined
       })
     });
+    
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.detail || `Server error (${res.status})`);
+    }
+    
     const data = await res.json();
-    const reply = data.content?.map(b => b.text || '').join('') || 'Analysis complete.';
-    chatMessages.push({role:'assistant', content: reply});
+    currentSessionId = data.session_id; // Store session ID
+    await loadSessions(); // Refresh list to show title if new
+    
+    chatMessages.push({role:'assistant', content: data.response});
     document.getElementById(typingId)?.remove();
-    appendMsg('ai', formatAIReply(reply));
+    appendMsg('ai', formatAIReply(data.response));
+    
+    if (data.sources && data.sources.length) {
+      appendCitations(data.sources);
+    }
   } catch(e) {
     document.getElementById(typingId)?.remove();
-    appendMsg('ai', '⚠️ Connection error. Please check your network and try again.');
+    appendMsg('ai', '⚠️ Connection error: ' + e.message);
   }
 }
 
@@ -922,73 +947,229 @@ function appendMsg(role, content) {
   document.getElementById('msg-count').textContent = document.querySelectorAll('#chat-window .msg-bubble').length;
 }
 
+function appendCitations(sources) {
+  if (!sources || !sources.length) return;
+  const chatWin = document.getElementById('chat-window');
+  
+  const cards = sources.map(src => {
+    const typeLabel = src.type === 'web_search' ? '🔍 Web Search' : src.type === 'live_scores' ? '⚡ Live Scores' : '📄 Document';
+    const scorePct = Math.round(src.score * 100);
+    const tooltipText = src.text.replace(/"/g, '&quot;');
+    return `
+      <div class="citation-card" title="${tooltipText}" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px 12px; font-size: 11px; max-width: 200px; cursor: help; display: flex; flex-direction: column; gap: 4px; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.05)';this.style.borderColor='var(--emerald)'" onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='var(--glass-border)'">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+          <span style="font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${src.source}</span>
+          <span style="font-size:9px; color:var(--emerald); background:rgba(16,185,129,0.1); padding:1px 4px; border-radius:4px;">${scorePct}%</span>
+        </div>
+        <div style="color:var(--text-muted); font-size:9px;">${typeLabel} ${src.page ? `· Page ${src.page}` : ''}</div>
+      </div>
+    `;
+  }).join('');
+  
+  chatWin.insertAdjacentHTML('beforeend', `
+    <div class="msg-bubble ai-citations fade-in" style="margin-left:52px; margin-top:-8px; margin-bottom:12px;">
+      <div style="font-size:10px; color:var(--emerald); font-weight:700; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+        <span>📚</span> Grounded Sources (${sources.length})
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; overflow-x:auto; padding-bottom:4px;">
+        ${cards}
+      </div>
+    </div>
+  `);
+  chatWin.scrollTop = chatWin.scrollHeight;
+}
+
 async function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const W = 210, margin = 20;
-  const emerald = [16,185,129];
-
-  // Header
-  doc.setFillColor(6,9,8);
-  doc.rect(0,0,W,297,'F');
-  doc.setFillColor(...emerald);
-  doc.rect(0,0,W,18,'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(14);
-  doc.setFont('helvetica','bold');
-  doc.text('FootBot AI Tactical Dossier',margin,12);
-  doc.setFontSize(9);
-  doc.setFont('helvetica','normal');
-  doc.text(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}), W-margin, 12, {align:'right'});
-
-  doc.setTextColor(200,200,200);
-  doc.setFontSize(10);
-  doc.setFont('helvetica','bold');
-  doc.text(`User: ${currentUser}`, margin, 30);
-
-  let y = 42;
-  const bubbles = document.querySelectorAll('#chat-window .msg-bubble');
-  doc.setFontSize(9);
-
-  bubbles.forEach((b, i) => {
-    const isAI = b.classList.contains('ai');
-    const contentEl = b.querySelector('.msg-content');
-    if (!contentEl || contentEl.querySelector('.typing-indicator')) return;
-    const text = contentEl.innerText || '';
-    if (!text.trim()) return;
-
-    doc.setFillColor(isAI ? 20 : 59, isAI ? 40 : 130, isAI ? 30 : 246, 0.5);
-    doc.setTextColor(isAI ? 16 : 59, isAI ? 185 : 130, isAI ? 129 : 246);
-    doc.setFont('helvetica','bold');
-    doc.text(isAI ? '🤖 FootBot AI' : '👤 You', margin, y);
-    y += 5;
-
-    doc.setTextColor(220,220,220);
-    doc.setFont('helvetica','normal');
-    const lines = doc.splitTextToSize(text, W - margin*2);
-    lines.forEach(line => {
-      if (y > 275) { doc.addPage(); y = 20; }
-      doc.text(line, margin, y);
-      y += 5;
-    });
-    y += 4;
-
-    if (y > 275) { doc.addPage(); y = 20; }
-  });
-
-  // Footer
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFillColor(16,185,129);
-    doc.rect(0,289,W,8,'F');
-    doc.setTextColor(255,255,255);
-    doc.setFontSize(8);
-    doc.text(`FootBot Intelligence Platform — Confidential`, margin, 294);
-    doc.text(`Page ${i} of ${pageCount}`, W-margin, 294, {align:'right'});
+  if (!currentSessionId) {
+    alert("Please send a message to start a coaching session first.");
+    return;
   }
+  const token = localStorage.getItem('fb_token');
+  if (!token) {
+    alert("Authentication required.");
+    return;
+  }
+  
+  const btn = document.querySelector('.btn-export');
+  const oldText = btn.textContent;
+  btn.innerHTML = '<span class="spinner"></span> Compiling...';
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch(`${BACKEND_URL}/sessions/${currentSessionId}/pdf`, {
+      headers: { 'X-User-Token': token }
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to compile PDF: ${res.statusText}`);
+    }
+    
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `footbot_dossier_${currentSessionId.substring(0,8)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    btn.textContent = '✅ Dossier Exported';
+  } catch(e) {
+    console.error(e);
+    alert("Error exporting PDF: " + e.message);
+    btn.textContent = '⚠️ Export Failed';
+  }
+  
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = oldText; }, 3000);
+}
 
-  doc.save('FootBot_Tactical_Dossier.pdf');
+async function loadSessions() {
+  const token = localStorage.getItem('fb_token');
+  if (!token) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/sessions`, {
+      headers: { 'X-User-Token': token }
+    });
+    if (res.ok) {
+      sessionsList = await res.json();
+      renderSessions();
+    }
+  } catch(e) {
+    console.error("Failed to load sessions:", e);
+  }
+}
+
+function renderSessions() {
+  const listEl = document.getElementById('sessions-list');
+  if (!listEl) return;
+  if (!sessionsList.length) {
+    listEl.innerHTML = '<p style="font-size:12px;color:var(--text-muted);margin:0;">No coaching logs found.</p>';
+    return;
+  }
+  listEl.innerHTML = sessionsList.map(s => {
+    const isActive = s.id === currentSessionId;
+    return `
+      <div onclick="selectSession('${s.id}')" class="session-item ${isActive ? 'active' : ''}" style="font-size:12px;padding:8px 10px;background:${isActive ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.03)'};border:1px solid ${isActive ? 'var(--emerald)' : 'var(--glass-border)'};border-radius:8px;color:${isActive ? '#fff' : 'var(--text-dim)'};cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.1)'" onmouseout="this.style.background='${isActive ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.03)'}'">
+        💬 ${s.title}
+      </div>
+    `;
+  }).join('');
+}
+
+function startNewSession() {
+  currentSessionId = null;
+  resetChat();
+  const chatWin = document.getElementById('chat-window');
+  chatWin.innerHTML = `
+    <div class="msg-bubble ai fade-in">
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-content">
+        Welcome to <strong>FootBot AI</strong> — your personal football intelligence analyst.<br><br>
+        Ask me anything about tactics, player comparisons, pressing systems, formation analysis, or scouting reports. I can analyse shape, compare coaches, and break down match structure in detail.
+      </div>
+    </div>
+  `;
+  document.getElementById('msg-count').textContent = '1';
+  document.getElementById('topic-count').textContent = '0';
+  document.getElementById('recent-topics').innerHTML = '<p style="font-size:12px;color:var(--text-muted);">Topics from your session will appear here.</p>';
+  renderSessions();
+}
+
+async function selectSession(sessionId) {
+  currentSessionId = sessionId;
+  renderSessions();
+  const token = localStorage.getItem('fb_token');
+  if (!token) return;
+  try {
+    const res = await fetch(`${BACKEND_URL}/sessions/${sessionId}/messages`, {
+      headers: { 'X-User-Token': token }
+    });
+    if (res.ok) {
+      const msgs = await res.json();
+      chatMessages = [{role:'system',content:`You are FootBot, an elite football tactical analyst and scouting AI. You provide deep, insightful analysis on tactics, formations, player roles, pressing systems, and match strategy. Use football terminology accurately. Be detailed, analytical, and use structured responses when helpful. Reference real coaches (Guardiola, Klopp, Arteta, etc.) and players when relevant.`}];
+      const chatWin = document.getElementById('chat-window');
+      chatWin.innerHTML = '';
+      
+      msgs.forEach(m => {
+        chatMessages.push({role: m.role, content: m.content});
+        appendMsg(m.role === 'user' ? 'user' : 'ai', formatAIReply(m.content));
+        
+        if (m.sources && m.sources.length) {
+          appendCitations(m.sources);
+        }
+      });
+      
+      document.getElementById('msg-count').textContent = document.querySelectorAll('#chat-window .msg-bubble').length;
+      
+      const topicsEl = document.getElementById('recent-topics');
+      topicsEl.innerHTML = '';
+      msgs.filter(m => m.role === 'user').forEach(m => {
+        const topicTag = `<div style="font-size:12px;padding:5px 10px;background:rgba(255,255,255,0.04);border-radius:6px;color:var(--text-dim);margin-bottom:4px;">${m.content.substring(0,40)}${m.content.length > 40 ? '...' : ''}</div>`;
+        topicsEl.insertAdjacentHTML('afterbegin', topicTag);
+      });
+      document.getElementById('topic-count').textContent = document.querySelectorAll('#recent-topics div').length;
+    }
+  } catch(e) {
+    console.error("Failed to load session messages:", e);
+  }
+}
+
+function stripEmoji(text) {
+  if (!text) return '';
+  return text.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+}
+
+function getFlagEmoji(text) {
+  if (!text) return '⚽';
+  const flagMatch = text.match(/[\uD83C\uDDE6-\uD83C\uDDFF]{2}/u);
+  if (flagMatch) return flagMatch[0];
+  
+  const clean = stripEmoji(text).toLowerCase();
+  const flags = {
+    'argentina': '🇦🇷', 'france': '🇫🇷', 'brazil': '🇧🇷', 'portugal': '🇵🇹', 'spain': '🇪🇸',
+    'germany': '🇩🇪', 'italy': '🇮🇹', 'netherlands': '🇳🇱', 'england': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'croatia': '🇭🇷', 'belgium': '🇧🇪', 'uruguay': '🇺🇾', 'switzerland': '🇨🇭',
+    'qatar': '🇶🇦', 'iceland': '🇮🇸', 'haiti': '🇭🇳', 'new zealand': '🇳🇿',
+    'liverpool': '🔴', 'man city': '🔵', 'manchester city': '🔵', 'barcelona': '🔵⚪',
+    'real madrid': '⚪', 'bayern': '🔴', 'dortmund': '🟡'
+  };
+  for (const [team, emoji] of Object.entries(flags)) {
+    if (clean.includes(team)) return emoji;
+  }
+  return '⚽';
+}
+
+function generateFallbackSquad(teamName, isHome) {
+  const positions = ['GK', 'RB', 'CB', 'CB', 'LB', 'DM', 'CM', 'CM', 'RW', 'ST', 'LW'];
+  const names = {
+    'GK': ['Keeper'],
+    'RB': ['Right Back'],
+    'CB': ['Defender A', 'Defender B'],
+    'LB': ['Left Back'],
+    'DM': ['Midfielder D'],
+    'CM': ['Midfielder A', 'Midfielder B'],
+    'RW': ['Winger R'],
+    'ST': ['Striker'],
+    'LW': ['Winger L']
+  };
+  const mockPlayers = [];
+  const counts = {};
+  positions.forEach((pos, i) => {
+    counts[pos] = (counts[pos] || 0) + 1;
+    const nameList = names[pos];
+    const name = nameList[ (counts[pos] - 1) % nameList.length ];
+    mockPlayers.push({
+      name: `${teamName} ${name}`,
+      jersey: i === 0 ? '1' : String(2 + i),
+      rating: 6.5 + (i % 3) * 0.5,
+      pos: pos,
+      age: 22 + (i % 8),
+      val: '€15M',
+      height: '182 cm'
+    });
+  });
+  return mockPlayers;
 }
 
 // ============================================================
@@ -1259,7 +1440,7 @@ async function crawlMatches() {
   
   const token = localStorage.getItem('fb_token');
   try {
-    const crawlRes = await fetch('/historical-matches/crawl', {
+    const crawlRes = await fetch(`${BACKEND_URL}/historical-matches/crawl`, {
       method: 'POST',
       headers: { 'X-User-Token': token }
     });
@@ -1307,7 +1488,7 @@ function renderMatches(matches) {
 async function loadHistoricalMatches() {
   const token = localStorage.getItem('fb_token');
   try {
-    const res = await fetch('/historical-matches', {
+    const res = await fetch(`${BACKEND_URL}/historical-matches`, {
       headers: { 'X-User-Token': token }
     });
     if (res.ok) {
@@ -1518,8 +1699,117 @@ function generateMomentum(isCompleted) {
   return data;
 }
 
-function loadMatch(id) {
-  currentMatch = MATCHES[id] || MATCHES['arg_fra'];
+async function loadMatch(id) {
+  if (id.startsWith('db_')) {
+    const idx = parseInt(id.replace('db_', ''));
+    const m = loadedMatches[idx];
+    if (m) {
+      const main = document.getElementById('match-main');
+      main.innerHTML = `<div style="text-align:center;padding:100px;color:var(--text-muted);"><div class="spinner" style="margin: 0 auto 12px; border:3px solid rgba(255,255,255,0.1); border-top-color:var(--emerald); border-radius:50%; width:24px; height:24px; animation:spin 1s linear infinite;"></div>Loading squad telemetry and rosters for ${m.home} vs ${m.away}...</div>`;
+      
+      try {
+        const homeClean = stripEmoji(m.home);
+        const awayClean = stripEmoji(m.away);
+        
+        const [homeRes, awayRes] = await Promise.all([
+          fetch(`${BACKEND_URL}/roster?team_name=${encodeURIComponent(homeClean)}`),
+          fetch(`${BACKEND_URL}/roster?team_name=${encodeURIComponent(awayClean)}`)
+        ]);
+        
+        let homePlayers = [];
+        let awayPlayers = [];
+        
+        if (homeRes.ok) {
+          const data = await homeRes.json();
+          if (data.status === 'success' && data.roster) {
+            homePlayers = data.roster;
+          }
+        }
+        if (awayRes.ok) {
+          const data = await awayRes.json();
+          if (data.status === 'success' && data.roster) {
+            awayPlayers = data.roster;
+          }
+        }
+        
+        if (!homePlayers.length) {
+          homePlayers = generateFallbackSquad(homeClean, true);
+        }
+        if (!awayPlayers.length) {
+          awayPlayers = generateFallbackSquad(awayClean, false);
+        }
+        
+        const mapPlayer = (p, i, isHome) => {
+          const rating = p.rating || 6.5;
+          const role = p.pos || 'CM';
+          const isAtt = ['ST', 'RW', 'LW', 'LST', 'RST', 'RAM', 'LAM'].includes(role);
+          const isMid = ['CM', 'DM', 'AM', 'CAM', 'LDM', 'RDM', 'RCM', 'LCM'].includes(role);
+          const isDef = ['CB', 'RCB', 'LCB', 'RB', 'LB', 'GK'].includes(role);
+          
+          return {
+            name: p.name,
+            num: parseInt(p.jersey) || (i + 1),
+            role: role,
+            emoji: role === 'GK' ? '🧤' : isDef ? '🛡️' : isMid ? '🧠' : '🔥',
+            rating: rating,
+            age: parseInt(p.age) || 25,
+            height: p.height || '180cm',
+            weight: p.weight || '75kg',
+            value: p.val || '€10M',
+            sofa_id: p.sofa_id || '',
+            att: Math.max(30, Math.min(99, Math.round(rating * 10 + (isAtt ? 8 : -15)))),
+            ctrl: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 5 : -5)))),
+            crea: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 8 : -20)))),
+            phys: Math.max(30, Math.min(99, Math.round(rating * 9.5))),
+            scan: Math.max(30, Math.min(99, Math.round(rating * 9.5 + (isMid ? 5 : 0)))),
+            def: Math.max(30, Math.min(99, Math.round(rating * 10 + (isDef ? 8 : -25))))
+          };
+        };
+        
+        const enrichedHome = homePlayers.map((p, i) => mapPlayer(p, i, true));
+        const enrichedAway = awayPlayers.map((p, i) => mapPlayer(p, i, false));
+        
+        currentMatch = {
+          home: homeClean,
+          away: awayClean,
+          homeFlag: getFlagEmoji(m.home),
+          awayFlag: getFlagEmoji(m.away),
+          hs: m.hs,
+          as: m.as,
+          league: m.league,
+          status: 'completed',
+          possession: [52, 48],
+          shots: [13, 9],
+          bigChances: [3, 1],
+          passes: [510, 420],
+          momentum: generateMomentum(true),
+          homePlayers: enrichedHome,
+          awayPlayers: enrichedAway
+        };
+      } catch(e) {
+        console.error("Error loading db match rosters:", e);
+        currentMatch = {
+          home: stripEmoji(m.home),
+          away: stripEmoji(m.away),
+          homeFlag: getFlagEmoji(m.home),
+          awayFlag: getFlagEmoji(m.away),
+          hs: m.hs,
+          as: m.as,
+          league: m.league,
+          status: 'completed',
+          possession: [50, 50],
+          shots: [10, 10],
+          bigChances: [2, 2],
+          passes: [450, 450],
+          momentum: generateMomentum(true),
+          homePlayers: [],
+          awayPlayers: []
+        };
+      }
+    }
+  } else {
+    currentMatch = MATCHES[id] || MATCHES['arg_fra'];
+  }
   selectedPlayer = null;
   renderMatchCentre();
 }
@@ -1869,7 +2159,7 @@ function renderPlayerBio(p) {
   const labels = ['ATT','CTRL','CREA','PHYS','SCAN','DEF'];
   const rColor = p.rating >= 8 ? '#10b981' : p.rating >= 7 ? '#f59e0b' : '#ef4444';
 
-  const imgUrl = `/player/image?name=${encodeURIComponent(p.name)}&sofa_id=${p.sofa_id || ''}&pos=${p.role || ''}`;
+  const imgUrl = `${BACKEND_URL}/player/image?name=${encodeURIComponent(p.name)}&sofa_id=${p.sofa_id || ''}&pos=${p.role || ''}`;
   bio.innerHTML = `
     <div class="player-photo-area">
       <img src="${imgUrl}" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--glass-border);flex-shrink:0;" />
@@ -1984,9 +2274,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('app').style.display = 'flex';
     document.getElementById('nav-avatar').textContent = username[0].toUpperCase();
     resetChat();
+    await loadSessions();
     await loadHistoricalMatches();
     renderPitch();
-    loadMatch('arg_fra');
+    await loadMatch('arg_fra');
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';

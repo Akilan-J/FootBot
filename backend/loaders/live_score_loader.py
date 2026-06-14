@@ -201,93 +201,113 @@ def get_live_scores_context() -> str:
 
 def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
     """
-    Crawls past football scorelines from https://www.bbc.com/sport/football/results
-    using BeautifulSoup, parsing home/away teams, final scores, dates, and leagues.
+    Crawls past football scorelines from multiple BBC scores-fixtures URLs
+    (today, yesterday, and two days ago) using BeautifulSoup,
+    parsing home/away teams, final scores, dates, and leagues.
     """
-    logger.info("Scraping historical football results from BBC Sport website...")
-    results = []
+    import datetime
     
-    url = "https://www.bbc.com/sport/football/scores-fixtures"
+    today = datetime.date.today()
+    urls_to_crawl = [
+        ("https://www.bbc.com/sport/football/scores-fixtures", "Today"),
+        (f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=1)}", (today - datetime.timedelta(days=1)).strftime("%d %b %Y")),
+        (f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=2)}", (today - datetime.timedelta(days=2)).strftime("%d %b %Y")),
+    ]
+    
+    logger.info(f"Scraping historical football results from BBC Sport website for {len(urls_to_crawl)} dates...")
+    results = []
+    seen_matches = set()
+    
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
     }
     
-    try:
-        from bs4 import BeautifulSoup
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Find all home team elements
-        home_teams = soup.find_all(class_=lambda x: x and 'StyledTeam-HomeTeam' in x)
-        logger.info(f"HTML Results Scraper: found {len(home_teams)} potential result elements on {url}.")
-        
-        for ht in home_teams:
-            # Traversal to find the smallest common ancestor containing both teams
-            ancestor = ht
-            while ancestor:
-                away_el = ancestor.find(class_=lambda x: x and 'StyledTeam-AwayTeam' in x)
-                if away_el:
-                    break
-                ancestor = ancestor.parent
+    for url, date_fallback in urls_to_crawl:
+        try:
+            from bs4 import BeautifulSoup
+            response = requests.get(url, headers=headers, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Find all home team elements
+            home_teams = soup.find_all(class_=lambda x: x and 'StyledTeam-HomeTeam' in x)
+            logger.info(f"HTML Results Scraper: found {len(home_teams)} potential result elements on {url}.")
+            
+            for ht in home_teams:
+                # Traversal to find the smallest common ancestor containing both teams
+                ancestor = ht
+                while ancestor:
+                    away_el = ancestor.find(class_=lambda x: x and 'StyledTeam-AwayTeam' in x)
+                    if away_el:
+                        break
+                    ancestor = ancestor.parent
+                    
+                if not ancestor:
+                    continue
+                    
+                # Extract the nearest preceding h2 as the League name
+                h2 = ht.find_previous('h2')
+                league = h2.get_text().strip() if h2 else "Unknown League"
                 
-            if not ancestor:
-                continue
+                # Find the nearest preceding h3 or date divider
+                h3 = ht.find_previous('h3')
+                date_str = h3.get_text().strip() if h3 else date_fallback
                 
-            # Extract the nearest preceding h2 as the League name
-            h2 = ht.find_previous('h2')
-            league = h2.get_text().strip() if h2 else "Unknown League"
-            
-            # Find the nearest preceding h3 or date divider
-            h3 = ht.find_previous('h3')
-            date_str = h3.get_text().strip() if h3 else "Recently Completed"
-            
-            # Extract clean Home Team name
-            home_team_el = ht.find(class_=lambda x: x and 'DesktopValue' in x)
-            if not home_team_el:
-                home_team_el = ht.find('span')
-            home_team = home_team_el.get_text().strip() if home_team_el else ht.get_text().strip()
-            
-            # Extract clean Away Team name
-            away_team_container = ancestor.find(class_=lambda x: x and 'StyledTeam-AwayTeam' in x)
-            away_team_el = away_team_container.find(class_=lambda x: x and 'DesktopValue' in x) if away_team_container else None
-            if away_team_container and not away_team_el:
-                away_team_el = away_team_container.find('span')
-            away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
+                # If date_str is a group or round instead of a calendar date, include date_fallback
+                date_str_lower = date_str.lower()
+                is_real_date = any(m in date_str_lower for m in ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'today', 'yesterday'])
+                if not is_real_date and date_fallback != "Today":
+                    date_str = f"{date_fallback} - {date_str}"
+                
+                # Extract clean Home Team name
+                home_team_el = ht.find(class_=lambda x: x and 'DesktopValue' in x)
+                if not home_team_el:
+                    home_team_el = ht.find('span')
+                home_team = home_team_el.get_text().strip() if home_team_el else ht.get_text().strip()
+                
+                # Extract clean Away Team name
+                away_team_container = ancestor.find(class_=lambda x: x and 'StyledTeam-AwayTeam' in x)
+                away_team_el = away_team_container.find(class_=lambda x: x and 'DesktopValue' in x) if away_team_container else None
+                if away_team_container and not away_team_el:
+                    away_team_el = away_team_container.find('span')
+                away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
 
-            # Filter to include only men's football matches
-            league_lower = league.lower()
-            home_lower = home_team.lower()
-            away_lower = away_team.lower()
-            if "women" in league_lower or "women" in home_lower or "women" in away_lower:
-                continue
-            
-            # Extract scores
-            home_score_el = ancestor.find(class_=lambda x: x and 'HomeScore' in x)
-            away_score_el = ancestor.find(class_=lambda x: x and 'AwayScore' in x)
-            
-            home_score = None
-            away_score = None
-            try:
-                if home_score_el:
-                    home_score = int(home_score_el.get_text().strip())
-                if away_score_el:
-                    away_score = int(away_score_el.get_text().strip())
-            except ValueError:
-                pass
+                # Filter to include only men's football matches
+                league_lower = league.lower()
+                home_lower = home_team.lower()
+                away_lower = away_team.lower()
+                if "women" in league_lower or "women" in home_lower or "women" in away_lower:
+                    continue
                 
-            results.append({
-                "home_team": home_team,
-                "away_team": away_team,
-                "home_score": home_score,
-                "away_score": away_score,
-                "match_date": date_str,
-                "league": league
-            })
-            
-    except Exception as e:
-        logger.error(f"Failed to scrape HTML historical results: {str(e)}")
+                # Extract scores
+                home_score_el = ancestor.find(class_=lambda x: x and 'HomeScore' in x)
+                away_score_el = ancestor.find(class_=lambda x: x and 'AwayScore' in x)
+                
+                home_score = None
+                away_score = None
+                try:
+                    if home_score_el:
+                        home_score = int(home_score_el.get_text().strip())
+                    if away_score_el:
+                        away_score = int(away_score_el.get_text().strip())
+                except ValueError:
+                    pass
+                    
+                match_key = (home_team.lower(), away_team.lower(), league.lower())
+                if match_key not in seen_matches:
+                    seen_matches.add(match_key)
+                    results.append({
+                        "home_team": home_team,
+                        "away_team": away_team,
+                        "home_score": home_score,
+                        "away_score": away_score,
+                        "match_date": date_str,
+                        "league": league
+                    })
+                    
+        except Exception as e:
+            logger.error(f"Failed to scrape HTML historical results for {url}: {str(e)}")
         
     return results
 

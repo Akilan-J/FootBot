@@ -828,8 +828,10 @@ async function doAuth() {
     document.getElementById('nav-avatar').textContent = data.username[0].toUpperCase();
     resetChat();
     await loadSessions();
+    await loadHistoricalMatches();
     renderPitch();
     loadMatch('arg_fra');
+    silentCrawlMatches();
   } catch(e) {
     showErr('Failed to connect to backend server: ' + e.message);
   }
@@ -1456,6 +1458,22 @@ async function crawlMatches() {
   }
   btn.disabled = false;
   setTimeout(() => { btn.textContent = '⚡ Crawl & Sync Past Results'; }, 3000);
+}
+
+async function silentCrawlMatches() {
+  const token = localStorage.getItem('fb_token');
+  if (!token) return;
+  try {
+    const crawlRes = await fetch(`${BACKEND_URL}/historical-matches/crawl`, {
+      method: 'POST',
+      headers: { 'X-User-Token': token }
+    });
+    if (crawlRes.ok) {
+      await loadHistoricalMatches();
+    }
+  } catch(e) {
+    console.error('Silent background sync error:', e);
+  }
 }
 
 function filterLeague(league, el) {
@@ -2372,6 +2390,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     await loadHistoricalMatches();
     renderPitch();
     await loadMatch('arg_fra');
+    silentCrawlMatches();
   } else {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';

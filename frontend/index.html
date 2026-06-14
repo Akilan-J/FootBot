@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FootBot — AI Football Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root {
+  --bg: #060908;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.07);
+  --glass-hover: rgba(255,255,255,0.08);
+  --emerald: #10b981;
+  --emerald-dim: rgba(16,185,129,0.15);
+  --emerald-glow: rgba(16,185,129,0.35);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.15);
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --pitch-green: #1a3d2b;
+  --pitch-line: rgba(255,255,255,0.18);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%, rgba(16,185,129,0.08) 0%, transparent 70%),
+             radial-gradient(ellipse 40% 40% at 80% 80%, rgba(59,130,246,0.04) 0%, transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ===== GLASSMORPHISM UTILS ===== */
+.glass{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+.glass-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(16px);
+  border-radius:16px;
+  transition:transform .2s,box-shadow .2s,background .2s;
+}
+.glass-card:hover{
+  background:var(--glass-hover);
+  transform:translateY(-2px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.4);
+}
+
+/* ===== LOGIN SCREEN ===== */
+#login-screen{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  background:#060908;
+}
+#login-screen::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect fill='%231a3d2b' width='800' height='600'/%3E%3Cellipse cx='400' cy='300' rx='250' ry='180' fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='2'/%3E%3Crect x='75' y='300' width='650' height='2' fill='rgba(255,255,255,0.12)'/%3E%3Cline x1='400' y1='120' x2='400' y2='480' stroke='rgba(255,255,255,0.12)' stroke-width='2'/%3E%3Ccircle cx='400' cy='300' r='45' fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='2'/%3E%3C/svg%3E") center/cover;
+  filter:blur(6px) brightness(0.3);
+  z-index:-1;
+}
+.login-card{
+  background:rgba(6,9,8,0.85);
+  border:1px solid rgba(16,185,129,0.2);
+  backdrop-filter:blur(24px);
+  border-radius:24px;
+  padding:48px;
+  width:420px;
+  box-shadow:0 0 80px rgba(16,185,129,0.08),0 32px 80px rgba(0,0,0,0.6);
+}
+.login-logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:32px;
+}
+.login-logo .logo-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--emerald),#059669);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+}
+.login-logo h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:26px;font-weight:700;
+  background:linear-gradient(135deg,#fff,var(--emerald));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.login-subtitle{font-size:13px;color:var(--text-muted);margin-bottom:32px;}
+.tab-toggle{
+  display:flex;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;margin-bottom:28px;
+}
+.tab-toggle button{
+  flex:1;padding:8px;border:none;background:transparent;color:var(--text-muted);
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border-radius:7px;transition:.2s;
+}
+.tab-toggle button.active{
+  background:rgba(16,185,129,0.15);color:var(--emerald);
+}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;}
+.form-group input{
+  width:100%;padding:12px 16px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;color:var(--text);font-size:14px;
+  font-family:'Inter',sans-serif;outline:none;transition:.2s;
+}
+.form-group input:focus{border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.05);}
+.btn-primary{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--emerald),#059669);
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:.2s;
+  box-shadow:0 4px 20px rgba(16,185,129,0.3);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(16,185,129,0.4);}
+.login-error{
+  color:#f87171;font-size:12px;margin-bottom:12px;
+  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);
+  padding:8px 12px;border-radius:8px;display:none;
+}
+
+/* ===== MAIN APP ===== */
+#app{display:none;height:100vh;flex-direction:column;position:relative;z-index:1;}
+
+/* NAV */
+.nav-bar{
+  padding:16px 24px;display:flex;align-items:center;gap:16px;flex-shrink:0;
+  border-bottom:1px solid var(--glass-border);
+  background:rgba(6,9,8,0.8);backdrop-filter:blur(20px);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;margin-right:8px;}
+.nav-logo .logo-icon{
+  width:34px;height:34px;background:linear-gradient(135deg,var(--emerald),#059669);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;
+}
+.nav-logo span{
+  font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;
+  background:linear-gradient(135deg,#fff,var(--emerald));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-tabs{
+  display:flex;gap:4px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--glass-border);
+  border-radius:50px;padding:4px;
+}
+.nav-tab{
+  padding:8px 16px;border:none;background:transparent;
+  color:var(--text-muted);font-family:'Inter',sans-serif;
+  font-size:12px;font-weight:500;cursor:pointer;border-radius:50px;
+  transition:.2s;white-space:nowrap;
+}
+.nav-tab.active{
+  background:rgba(16,185,129,0.15);color:var(--emerald);
+  box-shadow:0 0 16px rgba(16,185,129,0.2);
+}
+.nav-tab:hover:not(.active){background:rgba(255,255,255,0.05);color:var(--text-dim);}
+.nav-user{
+  margin-left:auto;display:flex;align-items:center;gap:10px;
+}
+.user-avatar{
+  width:32px;height:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--emerald),#059669);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:#fff;
+}
+.btn-logout{
+  padding:6px 14px;background:rgba(255,255,255,0.05);
+  border:1px solid var(--glass-border);border-radius:8px;
+  color:var(--text-muted);font-size:12px;cursor:pointer;
+  transition:.2s;font-family:'Inter',sans-serif;
+}
+.btn-logout:hover{background:rgba(239,68,68,0.1);color:#f87171;border-color:rgba(239,68,68,0.2);}
+
+/* CONTENT AREA */
+.content{flex:1;overflow:hidden;position:relative;}
+.tab-panel{display:none;height:100%;overflow-y:auto;padding:24px;}
+.tab-panel.active{display:block;}
+
+/* ===== AI CHAT ===== */
+.chat-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;height:calc(100vh - 140px);}
+.chat-main{display:flex;flex-direction:column;gap:16px;}
+.quick-prompts{display:flex;flex-wrap:wrap;gap:8px;}
+.quick-prompt-btn{
+  padding:8px 14px;
+  background:rgba(16,185,129,0.06);
+  border:1px solid rgba(16,185,129,0.15);
+  border-radius:20px;color:var(--text-dim);
+  font-size:12px;cursor:pointer;
+  font-family:'Inter',sans-serif;transition:.2s;
+}
+.quick-prompt-btn:hover{
+  background:rgba(16,185,129,0.12);color:var(--emerald);
+  border-color:rgba(16,185,129,0.3);
+}
+.chat-window{
+  flex:1;overflow-y:auto;
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:16px;padding:20px;
+  display:flex;flex-direction:column;gap:16px;
+  scrollbar-width:thin;scrollbar-color:rgba(16,185,129,0.3) transparent;
+}
+.chat-window::-webkit-scrollbar{width:4px;}
+.chat-window::-webkit-scrollbar-thumb{background:rgba(16,185,129,0.3);border-radius:4px;}
+.msg-bubble{display:flex;gap:10px;align-items:flex-start;}
+.msg-bubble.user{flex-direction:row-reverse;}
+.msg-avatar{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+}
+.msg-bubble.ai .msg-avatar{background:linear-gradient(135deg,var(--emerald),#059669);}
+.msg-bubble.user .msg-avatar{background:linear-gradient(135deg,var(--blue),#2563eb);}
+.msg-content{
+  max-width:75%;padding:12px 16px;border-radius:16px;
+  font-size:13px;line-height:1.6;
+}
+.msg-bubble.ai .msg-content{
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);border-top-left-radius:4px;
+}
+.msg-bubble.user .msg-content{
+  background:rgba(16,185,129,0.1);
+  border:1px solid rgba(16,185,129,0.2);border-top-right-radius:4px;
+}
+.chat-input-row{
+  display:flex;gap:10px;align-items:center;
+}
+.chat-input{
+  flex:1;padding:14px 18px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(16,185,129,0.2);
+  border-radius:14px;color:var(--text);font-size:14px;
+  font-family:'Inter',sans-serif;outline:none;transition:.2s;
+  box-shadow:0 0 20px rgba(16,185,129,0.05);
+}
+.chat-input:focus{border-color:rgba(16,185,129,0.4);box-shadow:0 0 24px rgba(16,185,129,0.12);}
+.btn-send{
+  padding:14px 20px;
+  background:linear-gradient(135deg,var(--emerald),#059669);
+  border:none;border-radius:14px;color:#fff;font-size:16px;
+  cursor:pointer;transition:.2s;
+  box-shadow:0 4px 16px rgba(16,185,129,0.3);
+}
+.btn-send:hover{transform:translateY(-1px);}
+.chat-sidebar{display:flex;flex-direction:column;gap:16px;}
+.sidebar-card{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:16px;padding:20px;
+}
+.sidebar-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;font-weight:600;color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;
+}
+.btn-export{
+  width:100%;padding:12px;
+  background:rgba(59,130,246,0.1);
+  border:1px solid rgba(59,130,246,0.25);
+  border-radius:10px;color:var(--blue);
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:.2s;
+}
+.btn-export:hover{background:rgba(59,130,246,0.18);}
+.typing-indicator{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--emerald);animation:bounce .8s infinite;}
+.typing-dot:nth-child(2){animation-delay:.2s;}
+.typing-dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* ===== FORMATION BOARD ===== */
+.formation-layout{display:grid;grid-template-columns:280px 1fr;gap:20px;height:calc(100vh - 140px);}
+.formation-controls{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:16px;padding:20px;overflow-y:auto;
+  display:flex;flex-direction:column;gap:20px;
+}
+.ctrl-section-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:11px;font-weight:600;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;
+}
+.ctrl-select{
+  width:100%;padding:10px 12px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--glass-border);
+  border-radius:10px;color:var(--text);
+  font-family:'Inter',sans-serif;font-size:13px;outline:none;cursor:pointer;
+}
+.ctrl-select option{background:#0d1117;color:var(--text);}
+.slider-wrap{margin-bottom:4px;}
+.slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px;}
+input[type=range]{
+  width:100%;-webkit-appearance:none;height:4px;
+  background:rgba(255,255,255,0.08);border-radius:4px;outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--emerald);cursor:pointer;
+  box-shadow:0 0 8px rgba(16,185,129,0.5);
+}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--glass-border);}
+.toggle-label{font-size:13px;color:var(--text-dim);}
+.toggle{position:relative;width:40px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{
+  position:absolute;inset:0;border-radius:22px;
+  background:rgba(255,255,255,0.1);cursor:pointer;transition:.3s;
+}
+.toggle-slider:before{
+  content:'';position:absolute;height:16px;width:16px;
+  left:3px;top:3px;border-radius:50%;
+  background:#fff;transition:.3s;
+}
+.toggle input:checked + .toggle-slider{background:var(--emerald);}
+.toggle input:checked + .toggle-slider:before{transform:translateX(18px);}
+.pitch-wrap{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:16px;overflow:hidden;position:relative;
+}
+#pitch-canvas{width:100%;height:100%;display:block;}
+.btn-submit-shape{
+  position:absolute;bottom:20px;right:20px;
+  padding:10px 18px;
+  background:linear-gradient(135deg,var(--emerald),#059669);
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:.2s;
+  box-shadow:0 4px 20px rgba(16,185,129,0.35);
+}
+.btn-submit-shape:hover{transform:translateY(-1px);}
+
+/* ===== SCORELINES ===== */
+.scores-layout{display:flex;flex-direction:column;gap:20px;}
+.scores-header{display:flex;align-items:center;gap:12px;}
+.btn-crawl{
+  padding:10px 18px;
+  background:rgba(245,158,11,0.1);
+  border:1px solid rgba(245,158,11,0.25);
+  border-radius:10px;color:var(--amber);
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:.2s;
+}
+.btn-crawl:hover{background:rgba(245,158,11,0.18);}
+.league-filter{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{
+  padding:6px 14px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);
+  border-radius:20px;color:var(--text-muted);
+  font-size:12px;cursor:pointer;transition:.2s;
+  font-family:'Inter',sans-serif;
+}
+.filter-btn.active{
+  background:rgba(16,185,129,0.12);color:var(--emerald);
+  border-color:rgba(16,185,129,0.3);
+}
+.matches-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.match-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--glass-border);
+  border-radius:14px;padding:20px;
+  transition:.2s;cursor:pointer;
+}
+.match-card:hover{background:rgba(255,255,255,0.06);transform:translateY(-2px);}
+.match-league{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+.match-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.team-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;}
+.match-score{
+  font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;
+  color:var(--emerald);padding:0 12px;
+}
+.match-date{font-size:11px;color:var(--text-muted);text-align:center;}
+.match-status{
+  display:inline-block;padding:3px 8px;border-radius:20px;
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+  background:rgba(16,185,129,0.1);color:var(--emerald);margin-bottom:8px;
+}
+
+/* ===== SOFASCORE MATCH CENTRE ===== */
+.match-centre-layout{display:grid;grid-template-columns:320px 1fr;gap:20px;height:calc(100vh - 140px);}
+.match-sidebar{display:flex;flex-direction:column;gap:16px;overflow-y:auto;}
+.match-selector select{
+  width:100%;padding:12px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--glass-border);
+  border-radius:12px;color:var(--text);
+  font-family:'Inter',sans-serif;font-size:13px;outline:none;
+}
+.match-selector select option{background:#0d1117;}
+.player-bio{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:16px;padding:20px;
+}
+.player-photo-area{
+  display:flex;align-items:center;gap:14px;margin-bottom:16px;
+}
+.player-photo{
+  width:64px;height:64px;border-radius:12px;overflow:hidden;
+  background:rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  border:1px solid var(--glass-border);flex-shrink:0;
+}
+.player-info h3{
+  font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;
+}
+.player-info .player-role{font-size:12px;color:var(--text-muted);}
+.player-rating-badge{
+  display:inline-flex;align-items:center;padding:3px 10px;
+  border-radius:20px;font-size:11px;font-weight:700;margin-top:4px;
+  background:rgba(16,185,129,0.15);color:var(--emerald);
+  border:1px solid rgba(16,185,129,0.25);
+}
+.stats-grid-sm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.stat-cell{
+  background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;
+  border:1px solid var(--glass-border);
+}
+.stat-cell-label{font-size:10px;color:var(--text-muted);margin-bottom:3px;}
+.stat-cell-val{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;}
+.hex-radar{margin:16px auto;display:block;}
+.metric-toggle{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.metric-btn{
+  padding:5px 10px;border-radius:20px;font-size:11px;
+  background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);
+  color:var(--text-muted);cursor:pointer;transition:.2s;
+  font-family:'Inter',sans-serif;
+}
+.metric-btn.active{
+  background:rgba(16,185,129,0.12);color:var(--emerald);
+  border-color:rgba(16,185,129,0.3);
+}
+.match-main{overflow-y:auto;display:flex;flex-direction:column;gap:20px;padding-right:4px;}
+.section-head{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;
+  color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.section-head::after{content:'';flex:1;height:1px;background:var(--glass-border);}
+.momentum-chart-wrap{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:14px;padding:20px;
+}
+.h2h-wrap{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:14px;padding:20px;
+}
+.h2h-stat{margin-bottom:12px;}
+.h2h-label{font-size:12px;color:var(--text-muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.h2h-bar-track{height:6px;background:rgba(255,255,255,0.06);border-radius:6px;display:flex;overflow:hidden;}
+.h2h-bar-home{height:100%;background:var(--emerald);border-radius:6px 0 0 6px;transition:.8s;}
+.h2h-bar-away{height:100%;background:var(--blue);border-radius:0 6px 6px 0;transition:.8s;}
+.lineup-pitch-wrap{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--glass-border);
+  border-radius:14px;overflow:hidden;
+}
+.btn-ai-scout{
+  padding:12px 20px;
+  background:linear-gradient(135deg,var(--emerald),#059669);
+  border:none;border-radius:12px;color:#fff;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:.2s;width:100%;
+  box-shadow:0 4px 20px rgba(16,185,129,0.3);
+}
+.btn-ai-scout:hover{transform:translateY(-1px);}
+.kickoff-pending{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 20px;gap:12px;
+}
+.kickoff-pending .icon{font-size:40px;}
+.kickoff-pending h3{
+  font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;
+}
+.kickoff-pending p{font-size:13px;color:var(--text-muted);}
+
+/* Scrollbar */
+.match-sidebar::-webkit-scrollbar,
+.match-main::-webkit-scrollbar{width:3px;}
+.match-sidebar::-webkit-scrollbar-thumb,
+.match-main::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+
+.scores-content{max-height:calc(100vh - 280px);overflow-y:auto;padding-bottom:20px;}
+.scores-content::-webkit-scrollbar{width:3px;}
+.scores-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px;}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .3s ease forwards;}
+
+/* Loading spinner */
+.spinner{
+  width:20px;height:20px;border:2px solid rgba(16,185,129,0.2);
+  border-top-color:var(--emerald);border-radius:50%;
+  animation:spin .7s linear infinite;display:inline-block;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Formation node tooltip */
+.pitch-tooltip{
+  position:absolute;
+  background:rgba(6,9,8,0.95);
+  border:1px solid var(--glass-border);
+  border-radius:8px;padding:8px 12px;
+  font-size:12px;pointer-events:none;
+  z-index:10;display:none;
+}
+</style>
+</head>
+<body>
+
+<!-- ========= LOGIN SCREEN ========= -->
+<div id="login-screen">
+  <div class="login-card fade-in">
+    <div class="login-logo">
+      <div class="logo-icon">⚽</div>
+      <h1>FootBot</h1>
+    </div>
+    <p class="login-subtitle">AI-powered football intelligence. Sign in to access your tactical workspace.</p>
+    <div class="tab-toggle">
+      <button class="active" onclick="switchAuthTab('login',this)">Sign In</button>
+      <button onclick="switchAuthTab('signup',this)">Create Account</button>
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <div id="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input id="login-user" type="text" placeholder="e.g. pep.guardiola" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input id="login-pass" type="password" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary" id="auth-btn" onclick="doAuth()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========= MAIN APP ========= -->
+<div id="app">
+  <div class="nav-bar">
+    <div class="nav-logo"><div class="logo-icon">⚽</div><span>FootBot</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('chat',this)">💬 Tactical AI Chat</button>
+      <button class="nav-tab" onclick="switchTab('formation',this)">📋 2D Formation Board</button>
+      <button class="nav-tab" onclick="switchTab('scores',this)">⚽ Live Scorelines</button>
+      <button class="nav-tab" onclick="switchTab('sofascore',this)">🏟️ Match Centre</button>
+    </div>
+    <div class="nav-user">
+      <div class="user-avatar" id="nav-avatar">P</div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== TAB 1: AI CHAT ===== -->
+    <div class="tab-panel active" id="tab-chat">
+      <div class="chat-layout">
+        <div class="chat-main">
+          <div class="quick-prompts">
+            <button class="quick-prompt-btn" onclick="sendQuick(this.textContent)">🔀 Overloading the half-spaces</button>
+            <button class="quick-prompt-btn" onclick="sendQuick(this.textContent)">🧠 Rodri vs Busquets role comparison</button>
+            <button class="quick-prompt-btn" onclick="sendQuick(this.textContent)">⬆️ High-press triggers & cues</button>
+            <button class="quick-prompt-btn" onclick="sendQuick(this.textContent)">📐 Inverted winger mechanics</button>
+            <button class="quick-prompt-btn" onclick="sendQuick(this.textContent)">🔒 Mid-block defensive shape</button>
+            <button class="quick-prompt-btn" onclick="sendQuick(this.textContent)">🎯 False 9 positional play</button>
+          </div>
+          <div class="chat-window" id="chat-window">
+            <div class="msg-bubble ai fade-in">
+              <div class="msg-avatar">🤖</div>
+              <div class="msg-content">
+                Welcome to <strong>FootBot AI</strong> — your personal football intelligence analyst.<br><br>
+                Ask me anything about tactics, player comparisons, pressing systems, formation analysis, or scouting reports. I can analyse shape, compare coaches, and break down match structure in detail.
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chat-input" placeholder="Ask about tactics, players, formations..." onkeydown="if(event.key==='Enter')sendChat()" />
+            <button class="btn-send" onclick="sendChat()">➤</button>
+          </div>
+        </div>
+        <div class="chat-sidebar">
+          <div class="sidebar-card">
+            <div class="sidebar-title">📊 Session Stats</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="stat-cell"><div class="stat-cell-label">Messages</div><div class="stat-cell-val" id="msg-count">1</div></div>
+              <div class="stat-cell"><div class="stat-cell-label">Topics</div><div class="stat-cell-val" id="topic-count">0</div></div>
+            </div>
+          </div>
+          <div class="sidebar-card">
+            <div class="sidebar-title">📤 Export Dossier</div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Compile your chat log, match telemetry, and tactical grids into a professional PDF dossier.</p>
+            <button class="btn-export" onclick="exportPDF()">📄 Export PDF Dossier</button>
+          </div>
+          <div class="sidebar-card">
+            <div class="sidebar-title">💡 Recent Topics</div>
+            <div id="recent-topics" style="display:flex;flex-direction:column;gap:6px;">
+              <p style="font-size:12px;color:var(--text-muted);">Topics from your session will appear here.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 2: FORMATION BOARD ===== -->
+    <div class="tab-panel" id="tab-formation">
+      <div class="formation-layout">
+        <div class="formation-controls">
+          <div>
+            <div class="ctrl-section-title">Formation</div>
+            <select class="ctrl-select" id="formation-select" onchange="renderPitch()">
+              <option value="4-3-3">4-3-3 (Arteta style)</option>
+              <option value="4-2-3-1">4-2-3-1 (Classic)</option>
+              <option value="3-2-4-1">3-2-4-1 (Pep style)</option>
+              <option value="4-4-2">4-4-2 (Flat)</option>
+              <option value="5-4-1">5-4-1 (Low Block)</option>
+              <option value="3-5-2">3-5-2 (Wing backs)</option>
+              <option value="4-1-4-1">4-1-4-1 (Press)</option>
+            </select>
+          </div>
+          <div>
+            <div class="ctrl-section-title">Midfield Geometry</div>
+            <select class="ctrl-select" id="mid-geometry" onchange="renderPitch()">
+              <option value="flat">Flat</option>
+              <option value="diamond">Diamond</option>
+              <option value="inverted">Inverted Triangle</option>
+            </select>
+          </div>
+          <div>
+            <div class="ctrl-section-title">Defensive Pressing Line</div>
+            <div class="slider-wrap">
+              <input type="range" id="press-slider" min="0" max="2" value="1" step="1" oninput="updatePressLabel(this.value)">
+              <div class="slider-labels"><span>Low Block</span><span id="press-label" style="color:var(--emerald)">Mid Block</span><span>High Press</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="ctrl-section-title">Attacking Line</div>
+            <div class="slider-wrap">
+              <input type="range" id="attack-depth" min="0" max="100" value="70" oninput="renderPitch()">
+              <div class="slider-labels"><span>Deep</span><span>Advanced</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="ctrl-section-title">Tactical Toggles</div>
+            <div class="toggle-row">
+              <span class="toggle-label">Inverted Fullbacks</span>
+              <label class="toggle"><input type="checkbox" id="toggle-ifb" onchange="renderPitch()"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Gegenpressing Triggers</span>
+              <label class="toggle"><input type="checkbox" id="toggle-gp"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Overload Right Channel</span>
+              <label class="toggle"><input type="checkbox" id="toggle-ol" onchange="renderPitch()"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div>
+            <div class="ctrl-section-title">Team Name</div>
+            <input class="ctrl-select" id="team-name-input" type="text" placeholder="My Team" value="My Team" style="border-radius:10px;padding:10px 12px;" oninput="renderPitch()">
+          </div>
+        </div>
+        <div class="pitch-wrap">
+          <canvas id="pitch-canvas"></canvas>
+          <button class="btn-submit-shape" onclick="submitShapeToAI()">🤖 Submit Shape to AI</button>
+          <div class="pitch-tooltip" id="pitch-tooltip"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 3: SCORELINES ===== -->
+    <div class="tab-panel" id="tab-scores">
+      <div class="scores-layout">
+        <div class="scores-header">
+          <div>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px;">Live & Historical Results</h2>
+            <p style="font-size:13px;color:var(--text-muted);">Top European competitions & World Cup</p>
+          </div>
+          <button class="btn-crawl" onclick="crawlMatches()">⚡ Crawl & Sync Past Results</button>
+        </div>
+        <div class="league-filter" id="league-filter">
+          <button class="filter-btn active" onclick="filterLeague('all',this)">All Leagues</button>
+          <button class="filter-btn" onclick="filterLeague('Premier League',this)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
+          <button class="filter-btn" onclick="filterLeague('La Liga',this)">🇪🇸 La Liga</button>
+          <button class="filter-btn" onclick="filterLeague('Bundesliga',this)">🇩🇪 Bundesliga</button>
+          <button class="filter-btn" onclick="filterLeague('Serie A',this)">🇮🇹 Serie A</button>
+          <button class="filter-btn" onclick="filterLeague('Ligue 1',this)">🇫🇷 Ligue 1</button>
+          <button class="filter-btn" onclick="filterLeague('World Cup',this)">🏆 World Cup</button>
+        </div>
+        <div class="scores-content">
+          <div class="matches-grid" id="matches-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+              <div style="font-size:40px;margin-bottom:12px;">⚡</div>
+              <p style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin-bottom:6px;">No results loaded</p>
+              <p style="font-size:13px;color:var(--text-muted);">Click "Crawl & Sync Past Results" to populate match data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TAB 4: SOFASCORE MATCH CENTRE ===== -->
+    <div class="tab-panel" id="tab-sofascore">
+      <div class="match-centre-layout">
+        <div class="match-sidebar">
+          <div class="match-selector">
+            <div class="sidebar-title" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Select Match</div>
+            <select id="match-select" onchange="loadMatch(this.value)" style="width:100%;padding:12px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;">
+              <option value="arg_fra">🏆 [COMPLETED] 🇦🇷 Argentina 3–3 🇫🇷 France (World Cup Final)</option>
+              <option value="bar_rma">🇪🇸 [COMPLETED] 🔵 Barcelona 3–2 🤍 Real Madrid (La Liga)</option>
+              <option value="mci_ars">🏴󠁧󠁢󠁥󠁮󠁧󠁿 [COMPLETED] 🔵 Man City 2–2 🔴 Arsenal (Premier League)</option>
+              <option value="bay_bvb">🇩🇪 [COMPLETED] 🔴 Bayern 3–1 🟡 Dortmund (Bundesliga)</option>
+              <option value="upcoming">🕐 [UPCOMING] Liverpool vs PSG (Champions League)</option>
+            </select>
+          </div>
+
+          <!-- Player Bio -->
+          <div class="player-bio" id="player-bio">
+            <div class="sidebar-title" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;">Player Intelligence</div>
+            <div id="player-bio-content">
+              <p style="font-size:12px;color:var(--text-muted);">Click a player on the lineup pitch to view their scouting profile.</p>
+            </div>
+          </div>
+
+          <button class="btn-ai-scout" onclick="generateScoutingReport()">🤖 Generate AI Scouting Analysis</button>
+        </div>
+
+        <div class="match-main" id="match-main">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentUser = null;
+let currentSessionId = null;
+let sessionsList = [];
+let loadedMatches = [];
+let currentActiveLeague = 'all';
+let currentMatch = null;
+let selectedPlayer = null;
+let currentMetric = 'rating';
+let pitchPlayers = [];
+let chatMessages = [];
+let draggingPlayer = null;
+let dragOffX = 0, dragOffY = 0;
+
+// ============================================================
+// AUTH
+// ============================================================
+let authMode = 'login';
+function switchAuthTab(mode, btn) {
+  authMode = mode;
+  document.querySelectorAll('.tab-toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('auth-btn').textContent = mode === 'login' ? 'Sign In' : 'Create Account';
+}
+
+function showErr(msg) {
+  const e = document.getElementById('login-error');
+  e.textContent = msg; e.style.display = 'block';
+}
+
+async function doAuth() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  if (!u || !p) { showErr('Please enter username and password.'); return; }
+
+  const url = authMode === 'signup' ? '/register' : '/login';
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showErr(data.detail || 'Authentication failed.');
+      return;
+    }
+    localStorage.setItem('fb_token', data.token);
+    localStorage.setItem('fb_username', data.username);
+    currentUser = data.username;
+    
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('nav-avatar').textContent = data.username[0].toUpperCase();
+    resetChat();
+    await loadSessions();
+    renderPitch();
+    loadMatch('arg_fra');
+  } catch(e) {
+    showErr('Failed to connect to backend server: ' + e.message);
+  }
+}
+
+function logout() {
+  localStorage.removeItem('fb_token');
+  localStorage.removeItem('fb_username');
+  currentUser = null;
+  currentSessionId = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ============================================================
+// TAB NAVIGATION
+// ============================================================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab === 'formation') setTimeout(renderPitch, 100);
+}
+
+// ============================================================
+// AI CHAT
+// ============================================================
+function resetChat() {
+  chatMessages = [{role:'system',content:`You are FootBot, an elite football tactical analyst and scouting AI. You provide deep, insightful analysis on tactics, formations, player roles, pressing systems, and match strategy. Use football terminology accurately. Be detailed, analytical, and use structured responses when helpful. Reference real coaches (Guardiola, Klopp, Arteta, etc.) and players when relevant.`}];
+}
+
+function sendQuick(text) {
+  document.getElementById('chat-input').value = text;
+  sendChat();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  appendMsg('user', msg);
+  chatMessages.push({role:'user', content: msg});
+
+  const topicEl = document.getElementById('recent-topics');
+  const topicTag = `<div style="font-size:12px;padding:5px 10px;background:rgba(255,255,255,0.04);border-radius:6px;color:var(--text-dim)">${msg.substring(0,40)}${msg.length > 40 ? '...' : ''}</div>`;
+  if (topicEl.querySelector('p')) topicEl.innerHTML = '';
+  topicEl.insertAdjacentHTML('afterbegin', topicTag);
+
+  const countEl = document.getElementById('msg-count');
+  countEl.textContent = parseInt(countEl.textContent) + 1;
+  document.getElementById('topic-count').textContent = document.querySelectorAll('#recent-topics div').length;
+
+  // Typing indicator
+  const typingId = 'typing-' + Date.now();
+  const chatWin = document.getElementById('chat-window');
+  chatWin.insertAdjacentHTML('beforeend', `<div class="msg-bubble ai" id="${typingId}"><div class="msg-avatar">🤖</div><div class="msg-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`);
+  chatWin.scrollTop = chatWin.scrollHeight;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system: chatMessages[0].content,
+        messages: chatMessages.slice(1)
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.map(b => b.text || '').join('') || 'Analysis complete.';
+    chatMessages.push({role:'assistant', content: reply});
+    document.getElementById(typingId)?.remove();
+    appendMsg('ai', formatAIReply(reply));
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    appendMsg('ai', '⚠️ Connection error. Please check your network and try again.');
+  }
+}
+
+function formatAIReply(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function appendMsg(role, content) {
+  const chatWin = document.getElementById('chat-window');
+  const avatar = role === 'ai' ? '🤖' : '👤';
+  chatWin.insertAdjacentHTML('beforeend', `
+    <div class="msg-bubble ${role} fade-in">
+      <div class="msg-avatar">${avatar}</div>
+      <div class="msg-content">${content}</div>
+    </div>`);
+  chatWin.scrollTop = chatWin.scrollHeight;
+  document.getElementById('msg-count').textContent = document.querySelectorAll('#chat-window .msg-bubble').length;
+}
+
+async function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = 210, margin = 20;
+  const emerald = [16,185,129];
+
+  // Header
+  doc.setFillColor(6,9,8);
+  doc.rect(0,0,W,297,'F');
+  doc.setFillColor(...emerald);
+  doc.rect(0,0,W,18,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(14);
+  doc.setFont('helvetica','bold');
+  doc.text('FootBot AI Tactical Dossier',margin,12);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text(new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}), W-margin, 12, {align:'right'});
+
+  doc.setTextColor(200,200,200);
+  doc.setFontSize(10);
+  doc.setFont('helvetica','bold');
+  doc.text(`User: ${currentUser}`, margin, 30);
+
+  let y = 42;
+  const bubbles = document.querySelectorAll('#chat-window .msg-bubble');
+  doc.setFontSize(9);
+
+  bubbles.forEach((b, i) => {
+    const isAI = b.classList.contains('ai');
+    const contentEl = b.querySelector('.msg-content');
+    if (!contentEl || contentEl.querySelector('.typing-indicator')) return;
+    const text = contentEl.innerText || '';
+    if (!text.trim()) return;
+
+    doc.setFillColor(isAI ? 20 : 59, isAI ? 40 : 130, isAI ? 30 : 246, 0.5);
+    doc.setTextColor(isAI ? 16 : 59, isAI ? 185 : 130, isAI ? 129 : 246);
+    doc.setFont('helvetica','bold');
+    doc.text(isAI ? '🤖 FootBot AI' : '👤 You', margin, y);
+    y += 5;
+
+    doc.setTextColor(220,220,220);
+    doc.setFont('helvetica','normal');
+    const lines = doc.splitTextToSize(text, W - margin*2);
+    lines.forEach(line => {
+      if (y > 275) { doc.addPage(); y = 20; }
+      doc.text(line, margin, y);
+      y += 5;
+    });
+    y += 4;
+
+    if (y > 275) { doc.addPage(); y = 20; }
+  });
+
+  // Footer
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFillColor(16,185,129);
+    doc.rect(0,289,W,8,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.text(`FootBot Intelligence Platform — Confidential`, margin, 294);
+    doc.text(`Page ${i} of ${pageCount}`, W-margin, 294, {align:'right'});
+  }
+
+  doc.save('FootBot_Tactical_Dossier.pdf');
+}
+
+// ============================================================
+// FORMATION PITCH
+// ============================================================
+const FORMATIONS = {
+  '4-3-3': { gk:[[50,90]], def:[[15,72],[35,72],[65,72],[85,72]], mid:[[30,52],[50,48],[70,52]], fwd:[[20,22],[50,18],[80,22]] },
+  '4-2-3-1': { gk:[[50,90]], def:[[15,72],[35,72],[65,72],[85,72]], mid:[[32,58],[68,58],[20,38],[50,34],[80,38]], fwd:[[50,16]] },
+  '3-2-4-1': { gk:[[50,90]], def:[[25,72],[50,70],[75,72]], mid:[[35,56],[65,56]], att:[[15,36],[38,32],[62,32],[85,36]], fwd:[[50,14]] },
+  '4-4-2': { gk:[[50,90]], def:[[15,72],[35,72],[65,72],[85,72]], mid:[[15,50],[38,50],[62,50],[85,50]], fwd:[[33,20],[67,20]] },
+  '5-4-1': { gk:[[50,90]], def:[[10,72],[27,72],[50,70],[73,72],[90,72]], mid:[[18,50],[38,50],[62,50],[82,50]], fwd:[[50,18]] },
+  '3-5-2': { gk:[[50,90]], def:[[25,72],[50,70],[75,72]], mid:[[10,48],[30,46],[50,44],[70,46],[90,48]], fwd:[[33,20],[67,20]] },
+  '4-1-4-1': { gk:[[50,90]], def:[[15,72],[35,72],[65,72],[85,72]], pivot:[[50,60]], mid:[[15,44],[38,44],[62,44],[85,44]], fwd:[[50,16]] }
+};
+
+const PLAYER_NAMES = {
+  gk:['Ederson','Alisson','De Gea','Courtois','Ter Stegen'],
+  def:['Alexander-Arnold','Virgil','Stones','Cancelo','Hakimi','Pavard','Dias'],
+  mid:['Rodri','De Bruyne','Pedri','Bellingham','Rice','Modric','Busquets'],
+  fwd:['Haaland','Salah','Vinicius','Mbappe','Saka','Rashford','Kane']
+};
+
+function getPlayerName(role, idx) {
+  const arr = PLAYER_NAMES[role] || PLAYER_NAMES.mid;
+  return arr[idx % arr.length];
+}
+
+function renderPitch() {
+  const canvas = document.getElementById('pitch-canvas');
+  const wrap = canvas.parentElement;
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Background
+  ctx.fillStyle = '#0d2818';
+  ctx.fillRect(0,0,W,H);
+
+  // Grass stripes
+  for (let i = 0; i < 8; i++) {
+    ctx.fillStyle = i%2===0 ? 'rgba(255,255,255,0.015)' : 'transparent';
+    ctx.fillRect(0, i*(H/8), W, H/8);
+  }
+
+  const pad = 24;
+  const pw = W - pad*2, ph = H - pad*2;
+
+  function px(xPct, yPct) { return [pad + (xPct/100)*pw, pad + (yPct/100)*ph]; }
+
+  // Pitch lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1.5;
+
+  // Outer
+  ctx.strokeRect(pad, pad, pw, ph);
+  // Centre
+  ctx.beginPath(); ctx.moveTo(pad, pad+ph/2); ctx.lineTo(pad+pw, pad+ph/2); ctx.stroke();
+  // Centre circle
+  ctx.beginPath(); ctx.arc(pad+pw/2, pad+ph/2, Math.min(pw,ph)*0.1, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(pad+pw/2, pad+ph/2, 3, 0, Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.fill();
+
+  // Penalty areas
+  const penW = pw*0.42, penH = ph*0.16;
+  ctx.strokeRect(pad+(pw-penW)/2, pad, penW, penH);
+  ctx.strokeRect(pad+(pw-penW)/2, pad+ph-penH, penW, penH);
+
+  // 6-yard boxes
+  const sixW = pw*0.2, sixH = ph*0.07;
+  ctx.strokeRect(pad+(pw-sixW)/2, pad, sixW, sixH);
+  ctx.strokeRect(pad+(pw-sixW)/2, pad+ph-sixH, sixW, sixH);
+
+  // Goals
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  const gW = pw*0.12, gD = ph*0.025;
+  ctx.strokeRect(pad+(pw-gW)/2, pad-gD, gW, gD);
+  ctx.strokeRect(pad+(pw-gW)/2, pad+ph, gW, gD);
+
+  // Pressing line
+  ctx.strokeStyle = 'rgba(255,255,255,0.0)';
+  const pressVal = parseInt(document.getElementById('press-slider').value);
+  const pressLines = [ph*0.78, ph*0.55, ph*0.35];
+  const pressColors = ['rgba(59,130,246,0.3)','rgba(245,158,11,0.3)','rgba(239,68,68,0.35)'];
+  ctx.strokeStyle = pressColors[pressVal];
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8,5]);
+  const pressY = pad + pressLines[pressVal];
+  ctx.beginPath(); ctx.moveTo(pad, pressY); ctx.lineTo(pad+pw, pressY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Players
+  const formation = document.getElementById('formation-select').value;
+  const invertedFB = document.getElementById('toggle-ifb').checked;
+  const overloadRight = document.getElementById('toggle-ol').checked;
+  const formData = FORMATIONS[formation];
+  if (!formData) return;
+
+  pitchPlayers = [];
+  let nodeIdx = 0;
+  const roles = Object.keys(formData);
+
+  roles.forEach((role, ri) => {
+    formData[role].forEach((pos, pi) => {
+      let [xp, yp] = pos;
+      if (invertedFB && (role==='def') && (pi===0 || pi===3)) {
+        xp += pi===0 ? 14 : -14;
+        yp -= 8;
+      }
+      if (overloadRight && xp > 60) xp = Math.min(92, xp + 6);
+
+      const [cx,cy] = px(xp, yp);
+      const name = getPlayerName(role==='gk'?'gk':role==='def'?'def':role==='fwd'?'fwd':'mid', pi+nodeIdx);
+      const rating = (6.5 + Math.random()*2.4).toFixed(1);
+      const ratingColor = rating >= 8 ? '#10b981' : rating >= 7 ? '#f59e0b' : '#ef4444';
+      const num = nodeIdx + 1;
+
+      pitchPlayers.push({ x:cx, y:cy, name, rating, role, num, xp, yp });
+
+      // Shadow
+      ctx.beginPath();
+      ctx.ellipse(cx, cy+2, 14, 5, 0, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fill();
+
+      // Node circle
+      const grad = ctx.createRadialGradient(cx,cy-2,0,cx,cy,14);
+      grad.addColorStop(0,'rgba(16,185,129,0.9)');
+      grad.addColorStop(1,'rgba(5,150,105,0.7)');
+      ctx.beginPath(); ctx.arc(cx, cy, 14, 0, Math.PI*2);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Jersey number
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(num, cx, cy);
+
+      // Name label
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = '9px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(name, cx, cy+17);
+
+      // Rating badge
+      ctx.fillStyle = ratingColor;
+      ctx.font = 'bold 8px Inter,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(rating, cx, cy+27);
+
+      nodeIdx++;
+    });
+  });
+
+  // Formation label
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = 'bold 11px Space Grotesk,sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(document.getElementById('team-name-input').value + ' — ' + formation, pad+6, pad+6);
+
+  setupPitchInteraction(canvas);
+}
+
+function setupPitchInteraction(canvas) {
+  canvas.onmousedown = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    pitchPlayers.forEach(p => {
+      const dx = mx - p.x, dy = my - p.y;
+      if (Math.sqrt(dx*dx+dy*dy) < 18) {
+        draggingPlayer = p;
+        dragOffX = dx; dragOffY = dy;
+      }
+    });
+  };
+  canvas.onmousemove = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    if (draggingPlayer) {
+      draggingPlayer.x = mx - dragOffX;
+      draggingPlayer.y = my - dragOffY;
+      redrawWithCurrentPlayers(canvas);
+    }
+  };
+  canvas.onmouseup = function() { draggingPlayer = null; };
+}
+
+function redrawWithCurrentPlayers(canvas) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const pad = 24, pw = W-pad*2, ph = H-pad*2;
+
+  ctx.fillStyle = '#0d2818';
+  ctx.fillRect(0,0,W,H);
+  for (let i=0;i<8;i++) {
+    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.015)':'transparent';
+    ctx.fillRect(0,i*(H/8),W,H/8);
+  }
+  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1.5;
+  ctx.strokeRect(pad,pad,pw,ph);
+  ctx.beginPath();ctx.moveTo(pad,pad+ph/2);ctx.lineTo(pad+pw,pad+ph/2);ctx.stroke();
+  ctx.beginPath();ctx.arc(pad+pw/2,pad+ph/2,Math.min(pw,ph)*0.1,0,Math.PI*2);ctx.stroke();
+  const penW=pw*0.42,penH=ph*0.16;
+  ctx.strokeRect(pad+(pw-penW)/2,pad,penW,penH);
+  ctx.strokeRect(pad+(pw-penW)/2,pad+ph-penH,penW,penH);
+
+  pitchPlayers.forEach(p => {
+    const {x:cx,y:cy,name,rating,num} = p;
+    const ratingColor = rating>=8?'#10b981':rating>=7?'#f59e0b':'#ef4444';
+    ctx.beginPath();ctx.ellipse(cx,cy+2,14,5,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
+    const grad=ctx.createRadialGradient(cx,cy-2,0,cx,cy,14);
+    grad.addColorStop(0,'rgba(16,185,129,0.9)');grad.addColorStop(1,'rgba(5,150,105,0.7)');
+    ctx.beginPath();ctx.arc(cx,cy,14,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 10px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(num,cx,cy);
+    ctx.fillStyle='rgba(255,255,255,0.9)';ctx.font='9px Inter,sans-serif';ctx.textBaseline='top';ctx.fillText(name,cx,cy+17);
+    ctx.fillStyle=ratingColor;ctx.font='bold 8px Inter,sans-serif';ctx.fillText(rating,cx,cy+27);
+  });
+}
+
+function updatePressLabel(val) {
+  const labels = ['Low Block','Mid Block','High Press'];
+  document.getElementById('press-label').textContent = labels[val];
+  renderPitch();
+}
+
+async function submitShapeToAI() {
+  const formation = document.getElementById('formation-select').value;
+  const midGeo = document.getElementById('mid-geometry').value;
+  const pressVal = ['Low Block','Mid Block','High Press'][document.getElementById('press-slider').value];
+  const ifb = document.getElementById('toggle-ifb').checked;
+  const prompt = `Analyse this tactical shape in detail:\n\nFormation: ${formation}\nMidfield Geometry: ${midGeo}\nDefensive Line: ${pressVal}\nInverted Fullbacks: ${ifb ? 'Active' : 'Inactive'}\n\nBreak down: (1) attacking movements (2) out-of-possession structure (3) strengths vs common threats (4) a real-world coaching comparison.`;
+  
+  document.querySelectorAll('.nav-tab')[0].click();
+  document.getElementById('chat-input').value = prompt;
+  await sendChat();
+}
+
+// ============================================================
+// SCORELINES
+// ============================================================
+const SAMPLE_MATCHES = [
+  { home:'🇦🇷 Argentina', away:'🇫🇷 France', hs:3, as:3, league:'World Cup', date:'18 Dec 2022', status:'FT' },
+  { home:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Man City', away:'🔴 Liverpool', hs:1, as:1, league:'Premier League', date:'25 Nov 2024', status:'FT' },
+  { home:'🔵 Barcelona', away:'🤍 Real Madrid', hs:3, as:2, league:'La Liga', date:'10 Nov 2024', status:'FT' },
+  { home:'🔵 Man City', away:'🔴 Arsenal', hs:2, as:2, league:'Premier League', date:'22 Sep 2024', status:'FT' },
+  { home:'🔴 Bayern', away:'🟡 Dortmund', hs:3, as:1, league:'Bundesliga', date:'30 Nov 2024', status:'FT' },
+  { home:'⚫ Juventus', away:'🔵🔵 Inter', hs:1, as:1, league:'Serie A', date:'26 Oct 2024', status:'FT' },
+  { home:'🔴 PSG', away:'🔵 Marseille', hs:3, as:0, league:'Ligue 1', date:'27 Oct 2024', status:'FT' },
+  { home:'🔴 Arsenal', away:'🔵⚪ Spurs', hs:2, as:0, league:'Premier League', date:'3 Nov 2024', status:'FT' },
+  { home:'🔴⚫ AC Milan', away:'🔵🔵 Inter', hs:1, as:2, league:'Serie A', date:'4 Nov 2024', status:'FT' },
+  { home:'🤍 Real Madrid', away:'🔵 Man City', hs:3, as:3, league:'World Cup', date:'9 Apr 2024', status:'FT' },
+  { home:'🟢 Celtic', away:'🔵 Rangers', hs:3, as:2, league:'Premier League', date:'30 Dec 2024', status:'FT' },
+  { home:'🟡🔵 Dortmund', away:'⚫🔴 Leverkusen', hs:0, as:1, league:'Bundesliga', date:'17 Nov 2024', status:'FT' },
+];
+
+async function crawlMatches() {
+  const btn = document.querySelector('.btn-crawl');
+  btn.innerHTML = '<span class="spinner"></span> Syncing...';
+  btn.disabled = true;
+  
+  const token = localStorage.getItem('fb_token');
+  try {
+    const crawlRes = await fetch('/historical-matches/crawl', {
+      method: 'POST',
+      headers: { 'X-User-Token': token }
+    });
+    if (crawlRes.ok) {
+      await loadHistoricalMatches();
+      btn.textContent = '✅ Matches Synced';
+    } else {
+      btn.textContent = '⚠️ Sync Failed';
+    }
+  } catch(e) {
+    console.error(e);
+    btn.textContent = '⚠️ Sync Error';
+  }
+  btn.disabled = false;
+  setTimeout(() => { btn.textContent = '⚡ Crawl & Sync Past Results'; }, 3000);
+}
+
+function filterLeague(league, el) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentActiveLeague = league;
+  const filtered = league === 'all' ? loadedMatches : loadedMatches.filter(m => m.league === league);
+  renderMatches(filtered);
+}
+
+function renderMatches(matches) {
+  const grid = document.getElementById('matches-grid');
+  if (!matches.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No matches for selected league.</div>';
+    return;
+  }
+  grid.innerHTML = matches.map(m => `
+    <div class="match-card fade-in">
+      <div class="match-league">\${m.league}</div>
+      <div class="match-status">\${m.status}</div>
+      <div class="match-teams">
+        <span class="team-name">\${m.home}</span>
+        <span class="match-score">\${m.hs}–\${m.as}</span>
+        <span class="team-name" style="text-align:right">\${m.away}</span>
+      </div>
+      <div class="match-date">\${m.date}</div>
+    </div>`).join('');
+}
+
+async function loadHistoricalMatches() {
+  const token = localStorage.getItem('fb_token');
+  try {
+    const res = await fetch('/historical-matches', {
+      headers: { 'X-User-Token': token }
+    });
+    if (res.ok) {
+      const rawMatches = await res.json();
+      loadedMatches = rawMatches.map(m => ({
+        home: m.home_team,
+        away: m.away_team,
+        hs: m.home_score !== null ? m.home_score : '?',
+        as: m.away_score !== null ? m.away_score : '?',
+        league: m.league,
+        date: m.match_date,
+        status: 'FT'
+      }));
+      
+      const filtered = currentActiveLeague === 'all' ? loadedMatches : loadedMatches.filter(m => m.league === currentActiveLeague);
+      renderMatches(filtered);
+      updateSelectorOptions();
+    }
+  } catch(e) {
+    console.error('Failed to load completed matches:', e);
+  }
+}
+
+function updateSelectorOptions() {
+  const selectEl = document.getElementById('match-select');
+  const staticOptions = `
+    <option value="arg_fra">🏆 [COMPLETED] 🇦🇷 Argentina 3–3 🇫🇷 France (World Cup Final)</option>
+    <option value="bar_rma">🇪🇸 [COMPLETED] 🔵 Barcelona 3–2 🤍 Real Madrid (La Liga)</option>
+    <option value="mci_ars">🏴󠁧󠁢󠁥󠁮󠁧󠁿 [COMPLETED] 🔵 Man City 2–2 🔴 Arsenal (Premier League)</option>
+    <option value="bay_bvb">🇩🇪 [COMPLETED] 🔴 Bayern 3–1 🟡 Dortmund (Bundesliga)</option>
+    <option value="upcoming">🕐 [UPCOMING] Liverpool vs PSG (Champions League)</option>
+  `;
+  
+  let dynamicOptions = '';
+  loadedMatches.forEach((m, idx) => {
+    // Avoid duplicating default options
+    const cleanHome = stripEmoji(m.home).toLowerCase();
+    const cleanAway = stripEmoji(m.away).toLowerCase();
+    if (
+      (cleanHome.includes('argentina') && cleanAway.includes('france')) ||
+      (cleanHome.includes('barcelona') && cleanAway.includes('real madrid')) ||
+      (cleanHome.includes('city') && cleanAway.includes('arsenal')) ||
+      (cleanHome.includes('bayern') && cleanAway.includes('dortmund'))
+    ) {
+      return;
+    }
+    const key = `db_\${idx}`;
+    dynamicOptions += `<option value="\${key}">🏆 [COMPLETED] \${m.home} \${m.hs}–\${m.as} \${m.away} (\${m.league})</option>`;
+  });
+  
+  selectEl.innerHTML = staticOptions + dynamicOptions;
+}
+
+// ============================================================
+// SOFASCORE MATCH CENTRE
+// ============================================================
+const MATCHES = {
+  arg_fra: {
+    home:'Argentina', away:'France',
+    homeFlag:'🇦🇷', awayFlag:'🇫🇷',
+    hs:3, as:3, league:'World Cup Final', status:'completed',
+    possession:[46,54], shots:[12,16], bigChances:[4,6], passes:[412,538],
+    momentum: generateMomentum(true),
+    homePlayers:[
+      {name:'E. Martínez',num:23,role:'GK',emoji:'🧤',rating:7.9,age:31,height:'195cm',weight:'88kg',value:'€50M',att:42,ctrl:65,crea:38,phys:72,scan:58,def:78},
+      {name:'N. Molina',num:26,role:'RB',emoji:'🛡️',rating:7.1,age:26,height:'173cm',weight:'72kg',value:'€35M',att:68,ctrl:64,crea:55,phys:65,scan:60,def:70},
+      {name:'C. Romero',num:13,role:'CB',emoji:'🛡️',rating:7.4,age:26,height:'189cm',weight:'85kg',value:'€55M',att:38,ctrl:68,crea:42,phys:82,scan:65,def:83},
+      {name:'L. Martínez',num:14,role:'CB',emoji:'🛡️',rating:7.2,age:25,height:'186cm',weight:'80kg',value:'€40M',att:35,ctrl:65,crea:40,phys:80,scan:62,def:80},
+      {name:'T. Acuña',num:8,role:'LB',emoji:'🛡️',rating:7.0,age:32,height:'172cm',weight:'71kg',value:'€20M',att:65,ctrl:61,crea:52,phys:68,scan:58,def:72},
+      {name:'R. De Paul',num:7,role:'CM',emoji:'🧠',rating:7.8,age:30,height:'184cm',weight:'75kg',value:'€45M',att:70,ctrl:78,crea:76,phys:72,scan:74,def:62},
+      {name:'E. Fernández',num:24,role:'CM',emoji:'🧠',rating:7.3,age:23,height:'180cm',weight:'74kg',value:'€50M',att:65,ctrl:75,crea:72,phys:68,scan:70,def:60},
+      {name:'A. Mac Allister',num:20,role:'CM',emoji:'🧠',rating:7.5,age:25,height:'177cm',weight:'73kg',value:'€70M',att:72,ctrl:78,crea:75,phys:65,scan:72,def:58},
+      {name:'L. Messi',num:10,role:'RW',emoji:'🔥',rating:9.1,age:36,height:'170cm',weight:'72kg',value:'€35M',att:96,ctrl:95,crea:98,phys:62,scan:90,def:45},
+      {name:'J. Álvarez',num:9,role:'ST',emoji:'🔥',rating:8.0,age:23,height:'171cm',weight:'70kg',value:'€90M',att:85,ctrl:78,crea:72,phys:75,scan:72,def:52},
+      {name:'A. Di María',num:11,role:'LW',emoji:'🔥',rating:8.5,age:35,height:'178cm',weight:'75kg',value:'€10M',att:88,ctrl:82,crea:86,phys:65,scan:78,def:48},
+    ],
+    awayPlayers:[
+      {name:'H. Lloris',num:1,role:'GK',emoji:'🧤',rating:6.8,age:36,height:'188cm',weight:'78kg',value:'€8M',att:40,ctrl:72,crea:35,phys:70,scan:62,def:80},
+      {name:'B. Pavard',num:2,role:'RB',emoji:'🛡️',rating:6.9,age:27,height:'186cm',weight:'87kg',value:'€35M',att:62,ctrl:68,crea:50,phys:78,scan:58,def:72},
+      {name:'R. Varane',num:4,role:'CB',emoji:'🛡️',rating:6.5,age:30,height:'191cm',weight:'91kg',value:'€15M',att:32,ctrl:70,crea:38,phys:84,scan:62,def:82},
+      {name:'D. Upamecano',num:5,role:'CB',emoji:'🛡️',rating:6.4,age:24,height:'186cm',weight:'84kg',value:'€60M',att:30,ctrl:68,crea:35,phys:86,scan:60,def:80},
+      {name:'T. Hernández',num:22,role:'LB',emoji:'🛡️',rating:7.2,age:26,height:'182cm',weight:'80kg',value:'€50M',att:72,ctrl:65,crea:55,phys:80,scan:60,def:70},
+      {name:'A. Tchouameni',num:8,role:'DM',emoji:'🧠',rating:7.0,age:23,height:'188cm',weight:'85kg',value:'€90M',att:60,ctrl:72,crea:62,phys:84,scan:72,def:75},
+      {name:'A. Rabiot',num:14,role:'CM',emoji:'🧠',rating:7.5,age:28,height:'188cm',weight:'78kg',value:'€25M',att:68,ctrl:74,crea:66,phys:78,scan:65,def:68},
+      {name:'O. Dembélé',num:11,role:'RW',emoji:'🔥',rating:7.0,age:26,height:'178cm',weight:'67kg',value:'€60M',att:80,ctrl:75,crea:78,phys:68,scan:62,def:42},
+      {name:'A. Griezmann',num:7,role:'SS',emoji:'🔥',rating:8.2,age:32,height:'176cm',weight:'73kg',value:'€25M',att:84,ctrl:82,crea:85,phys:72,scan:80,def:55},
+      {name:'M. Thuram',num:9,role:'ST',emoji:'🔥',rating:7.1,age:26,height:'186cm',weight:'83kg',value:'€65M',att:78,ctrl:68,crea:62,phys:82,scan:60,def:45},
+      {name:'K. Mbappé',num:10,role:'LW',emoji:'🔥',rating:8.6,age:24,height:'178cm',weight:'75kg',value:'€180M',att:95,ctrl:88,crea:85,phys:85,scan:78,def:48},
+    ]
+  },
+  bar_rma: {
+    home:'Barcelona', away:'Real Madrid',
+    homeFlag:'🔵', awayFlag:'🤍',
+    hs:3, as:2, league:'La Liga', status:'completed',
+    possession:[56,44], shots:[14,10], bigChances:[5,3], passes:[612,478],
+    momentum: generateMomentum(true),
+    homePlayers:[
+      {name:'Ter Stegen',num:1,role:'GK',emoji:'🧤',rating:7.5,age:32,height:'187cm',weight:'85kg',value:'€25M',att:55,ctrl:80,crea:48,phys:72,scan:68,def:84},
+      {name:'Cancelo',num:23,role:'RB',emoji:'🛡️',rating:7.8,age:30,height:'182cm',weight:'74kg',value:'€30M',att:80,ctrl:76,crea:72,phys:72,scan:70,def:72},
+      {name:'Araujo',num:4,role:'CB',emoji:'🛡️',rating:7.6,age:25,height:'187cm',weight:'82kg',value:'€75M',att:42,ctrl:70,crea:45,phys:88,scan:65,def:86},
+      {name:'Christensen',num:15,role:'CB',emoji:'🛡️',rating:7.2,age:27,height:'185cm',weight:'76kg',value:'€20M',att:38,ctrl:72,crea:48,phys:78,scan:68,def:80},
+      {name:'Balde',num:3,role:'LB',emoji:'🛡️',rating:7.4,age:20,height:'180cm',weight:'70kg',value:'€45M',att:72,ctrl:68,crea:62,phys:75,scan:62,def:72},
+      {name:'Pedri',num:8,role:'CM',emoji:'🧠',rating:8.4,age:21,height:'174cm',weight:'60kg',value:'€100M',att:75,ctrl:90,crea:88,phys:60,scan:84,def:62},
+      {name:'Gavi',num:6,role:'CM',emoji:'🧠',rating:8.0,age:19,height:'173cm',weight:'60kg',value:'€100M',att:72,ctrl:85,crea:84,phys:68,scan:80,def:70},
+      {name:'F. de Jong',num:21,role:'CM',emoji:'🧠',rating:7.8,age:27,height:'180cm',weight:'74kg',value:'€60M',att:68,ctrl:84,crea:80,phys:74,scan:78,def:65},
+      {name:'Yamal',num:17,role:'RW',emoji:'🔥',rating:8.8,age:17,height:'178cm',weight:'68kg',value:'€180M',att:90,ctrl:88,crea:92,phys:60,scan:78,def:42},
+      {name:'Lewandowski',num:9,role:'ST',emoji:'🔥',rating:8.2,age:36,height:'184cm',weight:'81kg',value:'€15M',att:92,ctrl:80,crea:78,phys:80,scan:75,def:45},
+      {name:'Raphinha',num:11,role:'LW',emoji:'🔥',rating:7.9,age:28,height:'176cm',weight:'68kg',value:'€50M',att:85,ctrl:78,crea:80,phys:72,scan:70,def:48},
+    ],
+    awayPlayers:[
+      {name:'Courtois',num:1,role:'GK',emoji:'🧤',rating:7.0,age:32,height:'199cm',weight:'96kg',value:'€30M',att:42,ctrl:78,crea:38,phys:75,scan:65,def:88},
+      {name:'Carvajal',num:2,role:'RB',emoji:'🛡️',rating:7.2,age:32,height:'173cm',weight:'73kg',value:'€12M',att:68,ctrl:66,crea:55,phys:68,scan:62,def:74},
+      {name:'Militão',num:3,role:'CB',emoji:'🛡️',rating:7.5,age:26,height:'186cm',weight:'78kg',value:'€80M',att:42,ctrl:72,crea:45,phys:84,scan:65,def:85},
+      {name:'Alaba',num:4,role:'CB',emoji:'🛡️',rating:7.0,age:32,height:'180cm',weight:'78kg',value:'€8M',att:50,ctrl:70,crea:58,phys:76,scan:68,def:80},
+      {name:'Ferland Mendy',num:23,role:'LB',emoji:'🛡️',rating:7.1,age:29,height:'180cm',weight:'75kg',value:'€35M',att:65,ctrl:64,crea:52,phys:78,scan:60,def:75},
+      {name:'Tchouameni',num:18,role:'DM',emoji:'🧠',rating:7.3,age:24,height:'188cm',weight:'85kg',value:'€90M',att:62,ctrl:72,crea:64,phys:85,scan:72,def:78},
+      {name:'Valverde',num:15,role:'CM',emoji:'🧠',rating:7.8,age:26,height:'182cm',weight:'78kg',value:'€120M',att:78,ctrl:78,crea:72,phys:84,scan:72,def:70},
+      {name:'Modric',num:10,role:'CM',emoji:'🧠',rating:7.6,age:39,height:'172cm',weight:'66kg',value:'€5M',att:70,ctrl:88,crea:90,phys:60,scan:85,def:62},
+      {name:'Rodrygo',num:11,role:'RW',emoji:'🔥',rating:7.4,age:23,height:'174cm',weight:'64kg',value:'€100M',att:82,ctrl:78,crea:80,phys:65,scan:70,def:45},
+      {name:'Joselu',num:14,role:'ST',emoji:'🔥',rating:6.9,age:34,height:'191cm',weight:'86kg',value:'€3M',att:72,ctrl:62,crea:55,phys:78,scan:60,def:40},
+      {name:'Vinicius Jr',num:7,role:'LW',emoji:'🔥',rating:8.5,age:24,height:'177cm',weight:'73kg',value:'€180M',att:92,ctrl:85,crea:88,phys:78,scan:75,def:45},
+    ]
+  },
+  mci_ars: {
+    home:'Man City', away:'Arsenal',
+    homeFlag:'🔵', awayFlag:'🔴',
+    hs:2, as:2, league:'Premier League', status:'completed',
+    possession:[55,45], shots:[13,11], bigChances:[4,4], passes:[580,490],
+    momentum: generateMomentum(true),
+    homePlayers:[
+      {name:'Ederson',num:31,role:'GK',emoji:'🧤',rating:7.8,age:31,height:'188cm',weight:'86kg',value:'€50M',att:62,ctrl:80,crea:50,phys:74,scan:72,def:82},
+      {name:'Walker',num:2,role:'RB',emoji:'🛡️',rating:7.2,age:34,height:'178cm',weight:'76kg',value:'€8M',att:72,ctrl:68,crea:58,phys:80,scan:62,def:74},
+      {name:'Akanji',num:25,role:'CB',emoji:'🛡️',rating:7.4,age:29,height:'187cm',weight:'83kg',value:'€40M',att:38,ctrl:70,crea:44,phys:82,scan:65,def:82},
+      {name:'Rúben Dias',num:3,role:'CB',emoji:'🛡️',rating:7.6,age:27,height:'187cm',weight:'76kg',value:'€80M',att:35,ctrl:72,crea:42,phys:84,scan:70,def:86},
+      {name:'Gvardiol',num:24,role:'LB',emoji:'🛡️',rating:7.5,age:22,height:'184cm',weight:'80kg',value:'€90M',att:70,ctrl:70,crea:58,phys:82,scan:65,def:78},
+      {name:'Rodri',num:16,role:'DM',emoji:'🧠',rating:8.6,age:28,height:'191cm',weight:'82kg',value:'€150M',att:68,ctrl:88,crea:82,phys:82,scan:90,def:85},
+      {name:'De Bruyne',num:17,role:'CM',emoji:'🧠',rating:8.8,age:33,height:'181cm',weight:'76kg',value:'€60M',att:88,ctrl:90,crea:96,phys:72,scan:92,def:52},
+      {name:'Bernardo Silva',num:20,role:'CM',emoji:'🧠',rating:8.0,age:30,height:'173cm',weight:'64kg',value:'€80M',att:80,ctrl:86,crea:84,phys:68,scan:82,def:60},
+      {name:'Doku',num:11,role:'RW',emoji:'🔥',rating:7.8,age:22,height:'171cm',weight:'69kg',value:'€60M',att:86,ctrl:78,crea:78,phys:72,scan:65,def:40},
+      {name:'Haaland',num:9,role:'ST',emoji:'🔥',rating:8.4,age:24,height:'194cm',weight:'88kg',value:'€200M',att:94,ctrl:75,crea:68,phys:92,scan:70,def:42},
+      {name:'Savinho',num:26,role:'LW',emoji:'🔥',rating:7.5,age:20,height:'174cm',weight:'68kg',value:'€40M',att:82,ctrl:75,crea:78,phys:68,scan:65,def:38},
+    ],
+    awayPlayers:[
+      {name:'Raya',num:22,role:'GK',emoji:'🧤',rating:7.6,age:29,height:'183cm',weight:'80kg',value:'€30M',att:52,ctrl:78,crea:45,phys:72,scan:65,def:82},
+      {name:'Ben White',num:4,role:'RB',emoji:'🛡️',rating:7.4,age:27,height:'183cm',weight:'78kg',value:'€55M',att:68,ctrl:74,crea:62,phys:74,scan:70,def:76},
+      {name:'Saliba',num:12,role:'CB',emoji:'🛡️',rating:8.0,age:23,height:'192cm',weight:'84kg',value:'€100M',att:40,ctrl:76,crea:48,phys:88,scan:72,def:88},
+      {name:'Gabriel',num:6,role:'CB',emoji:'🛡️',rating:7.8,age:27,height:'190cm',weight:'80kg',value:'€65M',att:38,ctrl:72,crea:42,phys:86,scan:68,def:86},
+      {name:'Zinchenko',num:35,role:'LB',emoji:'🛡️',rating:7.2,age:28,height:'175cm',weight:'72kg',value:'€30M',att:68,ctrl:72,crea:65,phys:65,scan:68,def:70},
+      {name:'Rice',num:41,role:'DM',emoji:'🧠',rating:8.2,age:25,height:'185cm',weight:'80kg',value:'€120M',att:70,ctrl:80,crea:72,phys:82,scan:80,def:80},
+      {name:'Ødegaard',num:8,role:'CM',emoji:'🧠',rating:8.4,age:25,height:'178cm',weight:'68kg',value:'€120M',att:80,ctrl:86,crea:92,phys:62,scan:86,def:56},
+      {name:'Havertz',num:29,role:'CM',emoji:'🧠',rating:7.6,age:25,height:'189cm',weight:'83kg',value:'€65M',att:75,ctrl:76,crea:78,phys:72,scan:74,def:60},
+      {name:'Saka',num:7,role:'RW',emoji:'🔥',rating:8.6,age:22,height:'178cm',weight:'76kg',value:'€150M',att:88,ctrl:84,crea:86,phys:72,scan:78,def:55},
+      {name:'Jesus',num:9,role:'ST',emoji:'🔥',rating:7.2,age:27,height:'175cm',weight:'73kg',value:'€40M',att:80,ctrl:72,crea:70,phys:74,scan:68,def:48},
+      {name:'Martinelli',num:11,role:'LW',emoji:'🔥',rating:7.8,age:23,height:'176cm',weight:'75kg',value:'€80M',att:86,ctrl:74,crea:76,phys:76,scan:68,def:48},
+    ]
+  },
+  bay_bvb: {
+    home:'Bayern', away:'Dortmund',
+    homeFlag:'🔴', awayFlag:'🟡',
+    hs:3, as:1, league:'Bundesliga', status:'completed',
+    possession:[60,40], shots:[16,8], bigChances:[5,2], passes:[642,428],
+    momentum: generateMomentum(true),
+    homePlayers:[
+      {name:'Neuer',num:1,role:'GK',emoji:'🧤',rating:7.5,age:38,height:'193cm',weight:'93kg',value:'€2M',att:62,ctrl:82,crea:48,phys:72,scan:70,def:86},
+      {name:'Laimer',num:27,role:'RB',emoji:'🛡️',rating:7.4,age:27,height:'180cm',weight:'76kg',value:'€35M',att:72,ctrl:70,crea:58,phys:80,scan:65,def:72},
+      {name:'Upamecano',num:2,role:'CB',emoji:'🛡️',rating:7.2,age:25,height:'186cm',weight:'84kg',value:'€50M',att:38,ctrl:70,crea:42,phys:86,scan:63,def:82},
+      {name:'Kim Min-jae',num:3,role:'CB',emoji:'🛡️',rating:7.6,age:28,height:'190cm',weight:'84kg',value:'€50M',att:35,ctrl:72,crea:40,phys:88,scan:65,def:85},
+      {name:'Davies',num:19,role:'LB',emoji:'🛡️',rating:7.5,age:23,height:'180cm',weight:'76kg',value:'€55M',att:78,ctrl:68,crea:60,phys:78,scan:62,def:72},
+      {name:'Kimmich',num:6,role:'DM',emoji:'🧠',rating:8.4,age:29,height:'177cm',weight:'73kg',value:'€60M',att:72,ctrl:86,crea:88,phys:72,scan:88,def:78},
+      {name:'Goretzka',num:8,role:'CM',emoji:'🧠',rating:7.8,age:29,height:'189cm',weight:'82kg',value:'€40M',att:74,ctrl:76,crea:72,phys:84,scan:72,def:72},
+      {name:'Musiala',num:42,role:'CM',emoji:'🧠',rating:8.6,age:21,height:'180cm',weight:'70kg',value:'€150M',att:84,ctrl:90,crea:92,phys:66,scan:82,def:52},
+      {name:'Gnabry',num:7,role:'RW',emoji:'🔥',rating:7.4,age:29,height:'176cm',weight:'76kg',value:'€25M',att:82,ctrl:76,crea:78,phys:72,scan:68,def:45},
+      {name:'Kane',num:9,role:'ST',emoji:'🔥',rating:8.8,age:31,height:'188cm',weight:'86kg',value:'€100M',att:92,ctrl:82,crea:80,phys:82,scan:84,def:48},
+      {name:'Sané',num:10,role:'LW',emoji:'🔥',rating:7.8,age:28,height:'183cm',weight:'75kg',value:'€30M',att:85,ctrl:80,crea:82,phys:72,scan:70,def:45},
+    ],
+    awayPlayers:[
+      {name:'Kobel',num:1,role:'GK',emoji:'🧤',rating:7.2,age:26,height:'194cm',weight:'90kg',value:'€30M',att:45,ctrl:76,crea:40,phys:74,scan:63,def:80},
+      {name:'Ryerson',num:26,role:'RB',emoji:'🛡️',rating:6.8,age:26,height:'177cm',weight:'73kg',value:'€12M',att:65,ctrl:64,crea:52,phys:68,scan:58,def:68},
+      {name:'Hummels',num:15,role:'CB',emoji:'🛡️',rating:7.0,age:36,height:'191cm',weight:'92kg',value:'€2M',att:40,ctrl:72,crea:55,phys:75,scan:72,def:80},
+      {name:'Schlotterbeck',num:4,role:'CB',emoji:'🛡️',rating:7.2,age:24,height:'192cm',weight:'86kg',value:'€40M',att:35,ctrl:68,crea:42,phys:82,scan:62,def:80},
+      {name:'Maatsen',num:28,role:'LB',emoji:'🛡️',rating:7.0,age:22,height:'175cm',weight:'68kg',value:'€20M',att:68,ctrl:65,crea:58,phys:72,scan:60,def:70},
+      {name:'Can',num:23,role:'DM',emoji:'🧠',rating:7.0,age:30,height:'186cm',weight:'85kg',value:'€8M',att:62,ctrl:70,crea:62,phys:82,scan:68,def:72},
+      {name:'Brandt',num:19,role:'CM',emoji:'🧠',rating:7.6,age:28,height:'183cm',weight:'76kg',value:'€25M',att:72,ctrl:78,crea:80,phys:68,scan:72,def:58},
+      {name:'Sabitzer',num:20,role:'CM',emoji:'🧠',rating:7.2,age:30,height:'177cm',weight:'73kg',value:'€12M',att:68,ctrl:72,crea:70,phys:74,scan:68,def:62},
+      {name:'Adeyemi',num:27,role:'RW',emoji:'🔥',rating:7.0,age:22,height:'180cm',weight:'75kg',value:'€25M',att:80,ctrl:70,crea:72,phys:75,scan:60,def:40},
+      {name:'Fullkrug',num:9,role:'ST',emoji:'🔥',rating:7.2,age:31,height:'189cm',weight:'91kg',value:'€15M',att:78,ctrl:65,crea:58,phys:84,scan:60,def:42},
+      {name:'Sancho',num:10,role:'LW',emoji:'🔥',rating:7.0,age:24,height:'180cm',weight:'76kg',value:'€35M',att:80,ctrl:75,crea:78,phys:65,scan:65,def:42},
+    ]
+  },
+  upcoming: {
+    home:'Liverpool', away:'PSG',
+    homeFlag:'🔴', awayFlag:'🔵',
+    hs:0, as:0, league:'Champions League', status:'upcoming',
+    possession:[0,0], shots:[0,0], bigChances:[0,0], passes:[0,0],
+    momentum: [],
+    homePlayers:[], awayPlayers:[]
+  }
+};
+
+function generateMomentum(isCompleted) {
+  if (!isCompleted) return [];
+  const data = [];
+  for (let m=1; m<=90; m++) {
+    const base = Math.sin(m*0.15)*20 + Math.sin(m*0.08)*15;
+    const noise = (Math.random()-0.5)*25;
+    data.push(Math.max(-100, Math.min(100, Math.round(base + noise))));
+  }
+  return data;
+}
+
+function loadMatch(id) {
+  currentMatch = MATCHES[id] || MATCHES['arg_fra'];
+  selectedPlayer = null;
+  renderMatchCentre();
+}
+
+function renderMatchCentre() {
+  const main = document.getElementById('match-main');
+  const m = currentMatch;
+  if (!m) return;
+
+  if (m.status === 'upcoming') {
+    main.innerHTML = `
+      <div class="glass-card" style="border-radius:16px;">
+        <div class="kickoff-pending">
+          <div class="icon">⏱️</div>
+          <h3>${m.homeFlag} ${m.home} vs ${m.away} ${m.awayFlag}</h3>
+          <p>${m.league}</p>
+          <div style="margin-top:16px;padding:16px 24px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;color:var(--amber);font-size:13px;font-weight:500;">
+            ⏳ Kickoff Pending — Match data will populate once the game begins
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const homePct = m.possession[0];
+  const awayPct = m.possession[1];
+
+  main.innerHTML = `
+    <!-- Score Header -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);border-radius:16px;padding:24px;text-align:center;">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;">${m.league}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px;">
+        <div style="text-align:right;flex:1;">
+          <div style="font-size:28px;margin-bottom:4px;">${m.homeFlag}</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;">${m.home}</div>
+        </div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:800;color:var(--emerald);min-width:80px;">${m.hs}–${m.as}</div>
+        <div style="text-align:left;flex:1;">
+          <div style="font-size:28px;margin-bottom:4px;">${m.awayFlag}</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;">${m.away}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:inline-block;padding:4px 12px;border-radius:20px;background:rgba(16,185,129,0.1);color:var(--emerald);font-size:11px;font-weight:600;">FULL TIME</div>
+    </div>
+
+    <!-- Momentum -->
+    <div class="momentum-chart-wrap">
+      <div class="section-head">📈 Attacking Momentum</div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:8px;">
+        <span style="color:var(--emerald)">▲ ${m.home}</span>
+        <span>Minute</span>
+        <span style="color:var(--blue)">▼ ${m.away}</span>
+      </div>
+      <canvas id="momentum-canvas" height="120" style="width:100%;display:block;touch-action:none;"></canvas>
+    </div>
+
+    <!-- H2H Stats -->
+    <div class="h2h-wrap">
+      <div class="section-head">📊 Match Statistics</div>
+      ${renderH2H('Possession %', homePct, awayPct, true)}
+      ${renderH2H('Total Shots', m.shots[0], m.shots[1])}
+      ${renderH2H('Big Chances', m.bigChances[0], m.bigChances[1])}
+      ${renderH2H('Passes', m.passes[0], m.passes[1])}
+    </div>
+
+    <!-- Metric overlay -->
+    <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+      <div class="section-head">🎽 Starting XI Overlay</div>
+      <div class="metric-toggle" id="metric-toggle">
+        <button class="metric-btn active" onclick="setMetric('rating',this)">⭐ Rating</button>
+        <button class="metric-btn" onclick="setMetric('age',this)">🎂 Age</button>
+        <button class="metric-btn" onclick="setMetric('value',this)">💰 Value</button>
+        <button class="metric-btn" onclick="setMetric('flag',this)">🌍 Nationality</button>
+      </div>
+      <canvas id="lineup-canvas" height="480" style="width:100%;display:block;cursor:pointer;"></canvas>
+    </div>
+  `;
+
+  setTimeout(() => {
+    drawMomentum();
+    drawLineup();
+  }, 50);
+}
+
+function renderH2H(label, hv, av, isPct=false) {
+  const total = hv + av || 1;
+  const hPct = Math.round((hv/total)*100);
+  const aPct = 100 - hPct;
+  const isZero = hv === 0 && av === 0;
+  return `
+    <div class="h2h-stat">
+      <div class="h2h-label">
+        <span style="color:var(--emerald)">${hv}${isPct?'%':''}</span>
+        <span>${label}</span>
+        <span style="color:var(--blue)">${av}${isPct?'%':''}</span>
+      </div>
+      <div class="h2h-bar-track">
+        <div class="h2h-bar-home" style="width:${isZero?50:hPct}%;${isZero?'background:rgba(255,255,255,0.1)':''}"></div>
+        <div class="h2h-bar-away" style="width:${isZero?50:aPct}%;${isZero?'background:rgba(255,255,255,0.08)':''}"></div>
+      </div>
+    </div>`;
+}
+
+function drawMomentum() {
+  const canvas = document.getElementById('momentum-canvas');
+  if (!canvas) return;
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = 120 * window.devicePixelRatio;
+  canvas.style.width = canvas.offsetWidth + 'px';
+  canvas.style.height = '120px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W = canvas.offsetWidth, H = 120;
+  const data = currentMatch.momentum;
+  if (!data.length) return;
+
+  const midY = H/2;
+  const xStep = W / (data.length-1);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  [0.25,0.5,0.75].forEach(f => {
+    ctx.beginPath(); ctx.moveTo(0,H*f); ctx.lineTo(W,H*f); ctx.stroke();
+  });
+
+  // Home fill (positive)
+  const homeGrad = ctx.createLinearGradient(0,0,0,midY);
+  homeGrad.addColorStop(0,'rgba(16,185,129,0.4)');
+  homeGrad.addColorStop(1,'rgba(16,185,129,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(0, midY);
+  data.forEach((v,i) => {
+    const x = i*xStep;
+    const y = midY - (Math.max(0,v)/100)*midY;
+    ctx.lineTo(x,y);
+  });
+  ctx.lineTo((data.length-1)*xStep, midY);
+  ctx.closePath();
+  ctx.fillStyle = homeGrad; ctx.fill();
+
+  // Away fill (negative)
+  const awayGrad = ctx.createLinearGradient(0,midY,0,H);
+  awayGrad.addColorStop(0,'rgba(59,130,246,0.02)');
+  awayGrad.addColorStop(1,'rgba(59,130,246,0.4)');
+  ctx.beginPath();
+  ctx.moveTo(0,midY);
+  data.forEach((v,i) => {
+    const x = i*xStep;
+    const y = midY - (Math.min(0,v)/100)*midY;
+    ctx.lineTo(x,y);
+  });
+  ctx.lineTo((data.length-1)*xStep, midY);
+  ctx.closePath();
+  ctx.fillStyle = awayGrad; ctx.fill();
+
+  // Centre line
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,midY); ctx.lineTo(W,midY); ctx.stroke();
+
+  // Line
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  data.forEach((v,i) => {
+    const x = i*xStep;
+    const y = midY - (v/100)*midY;
+    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Minute labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '9px Inter,sans-serif'; ctx.textAlign = 'center';
+  [15,30,45,60,75,90].forEach(m => {
+    const x = ((m-1)/(data.length-1))*W;
+    ctx.fillText(m+"'", x, H-4);
+  });
+}
+
+const NATIONALITY_FLAGS = {
+  GK:['🇩🇪','🇧🇷','🏴󠁧󠁢󠁥󠁮󠁧󠁿','🇪🇸','🇦🇷'],
+  def:['🏴󠁧󠁢󠁥󠁮󠁧󠁿','🇩🇪','🇧🇷','🇫🇷','🇵🇹','🇦🇷','🇳🇱'],
+  mid:['🇪🇸','🏴󠁧󠁢󠁥󠁮󠁧󠁿','🇩🇪','🇧🇷','🇫🇷','🇵🇹','🇦🇷'],
+  fwd:['🇧🇷','🇫🇷','🇦🇷','🏴󠁧󠁢󠁥󠁮󠁧󠁿','🇵🇹','🇩🇪','🇳🇱']
+};
+
+function getMetricLabel(p, metric) {
+  switch(metric) {
+    case 'rating': return p.rating;
+    case 'age': return p.age ? p.age+'y' : '?';
+    case 'value': return p.value || '?';
+    case 'flag': {
+      const role = p.role==='GK'?'GK':['CB','RB','LB'].includes(p.role)?'def':['CM','DM','SS','AM'].includes(p.role)?'mid':'fwd';
+      const arr = NATIONALITY_FLAGS[role];
+      return arr[Math.floor(Math.random()*arr.length)];
+    }
+    default: return p.rating;
+  }
+}
+
+function drawLineup() {
+  const canvas = document.getElementById('lineup-canvas');
+  if (!canvas || !currentMatch) return;
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = 480 * window.devicePixelRatio;
+  canvas.style.width = canvas.offsetWidth + 'px';
+  canvas.style.height = '480px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W = canvas.offsetWidth, H = 480;
+  const m = currentMatch;
+
+  // Pitch bg
+  ctx.fillStyle = '#0c2118'; ctx.fillRect(0,0,W,H);
+  for (let i=0;i<6;i++) {
+    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.015)':'transparent';
+    ctx.fillRect(0,i*(H/6),W,H/6);
+  }
+
+  // Lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.strokeRect(20,10,W-40,H-20);
+  ctx.beginPath(); ctx.moveTo(20,H/2); ctx.lineTo(W-20,H/2); ctx.stroke();
+  const cw=W*0.35, ch=H*0.14;
+  ctx.strokeRect((W-cw)/2,10,cw,ch);
+  ctx.strokeRect((W-cw)/2,H-10-ch,cw,ch);
+
+  function drawTeam(players, isHome) {
+    if (!players || !players.length) return;
+    const rowCount = 4;
+    const startY = isHome ? H*0.1 : H*0.55;
+    const teamH = H*0.38;
+
+    // Force-directed layout
+    const positions = forceLayout(players, W, startY, teamH, isHome);
+
+    positions.forEach((pos, i) => {
+      const p = players[i];
+      if (!p) return;
+      const {x:cx, y:cy} = pos;
+      const isSelected = selectedPlayer && selectedPlayer.name === p.name;
+
+      // Glow for selected
+      if (isSelected) {
+        ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2);
+        ctx.fillStyle = 'rgba(245,158,11,0.2)'; ctx.fill();
+      }
+
+      // Circle
+      ctx.beginPath(); ctx.arc(cx,cy,14,0,Math.PI*2);
+      ctx.fillStyle = isHome ? 'rgba(16,185,129,0.85)' : 'rgba(59,130,246,0.85)';
+      ctx.fill();
+      ctx.strokeStyle = isSelected ? '#f59e0b' : 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = isSelected ? 2.5 : 1.5; ctx.stroke();
+
+      // Number
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Inter,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(p.num, cx, cy);
+
+      // Name
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = '8px Inter,sans-serif';
+      ctx.textBaseline = 'top';
+      const shortName = p.name.split(' ').pop();
+      ctx.fillText(shortName, cx, cy+17);
+
+      // Metric badge
+      const label = getMetricLabel(p, currentMetric);
+      const rColor = currentMetric==='rating' ? (p.rating>=8?'#10b981':p.rating>=7?'#f59e0b':'#ef4444') : '#60a5fa';
+      ctx.fillStyle = rColor; ctx.font = 'bold 8px Inter,sans-serif';
+      ctx.textBaseline = 'top';
+      ctx.fillText(label, cx, cy+27);
+    });
+
+    // Attach click handler
+    canvas._positions = canvas._positions || {};
+    if (isHome) canvas._positions.home = positions.map((p,i) => ({...p, player:players[i]}));
+    else canvas._positions.away = positions.map((p,i) => ({...p, player:players[i]}));
+  }
+
+  drawTeam(m.homePlayers, true);
+  drawTeam(m.awayPlayers, false);
+
+  // Home/Away labels
+  ctx.fillStyle = 'rgba(16,185,129,0.7)'; ctx.font = 'bold 11px Space Grotesk,sans-serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(m.homeFlag + ' ' + m.home, 26, 15);
+  ctx.fillStyle = 'rgba(59,130,246,0.7)';
+  ctx.fillText(m.awayFlag + ' ' + m.away, 26, H/2 + 8);
+
+  canvas.onclick = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left);
+    const my = (e.clientY - rect.top);
+    let found = null;
+    const all = [...(canvas._positions?.home||[]), ...(canvas._positions?.away||[])];
+    all.forEach(pos => {
+      const dx = mx - pos.x, dy = my - pos.y;
+      if (Math.sqrt(dx*dx+dy*dy) < 18) found = pos.player;
+    });
+    if (found) { selectedPlayer = found; drawLineup(); renderPlayerBio(found); }
+  };
+}
+
+function forceLayout(players, W, startY, teamH, isHome) {
+  const n = players.length;
+  const positions = players.map((_, i) => {
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+    const cols = Math.min(n - row*3, 3);
+    const spacing = (W-80) / Math.max(cols, 1);
+    return {
+      x: 40 + spacing*(col + (3-cols)*0.5) + spacing/2,
+      y: startY + (row * teamH/(Math.ceil(n/3)-0.5))
+    };
+  });
+
+  // Simple repulsion
+  for (let iter=0; iter<30; iter++) {
+    for (let i=0; i<positions.length; i++) {
+      for (let j=i+1; j<positions.length; j++) {
+        const dx = positions[i].x - positions[j].x;
+        const dy = positions[i].y - positions[j].y;
+        const dist = Math.sqrt(dx*dx+dy*dy) || 1;
+        if (dist < 36) {
+          const force = (36-dist)/dist*0.3;
+          positions[i].x += dx*force; positions[i].y += dy*force;
+          positions[j].x -= dx*force; positions[j].y -= dy*force;
+        }
+      }
+      // Clamp
+      positions[i].x = Math.max(30, Math.min(W-30, positions[i].x));
+      positions[i].y = Math.max(startY+10, Math.min(startY+teamH-20, positions[i].y));
+    }
+  }
+  return positions;
+}
+
+function setMetric(metric, btn) {
+  currentMetric = metric;
+  document.querySelectorAll('.metric-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  drawLineup();
+}
+
+function renderPlayerBio(p) {
+  const bio = document.getElementById('player-bio-content');
+  const attrs = [p.att||70, p.ctrl||70, p.crea||70, p.phys||70, p.scan||70, p.def||70];
+  const labels = ['ATT','CTRL','CREA','PHYS','SCAN','DEF'];
+  const rColor = p.rating >= 8 ? '#10b981' : p.rating >= 7 ? '#f59e0b' : '#ef4444';
+
+  const imgUrl = `/player/image?name=${encodeURIComponent(p.name)}&sofa_id=${p.sofa_id || ''}&pos=${p.role || ''}`;
+  bio.innerHTML = `
+    <div class="player-photo-area">
+      <img src="${imgUrl}" style="width:64px;height:64px;border-radius:12px;object-fit:cover;border:1px solid var(--glass-border);flex-shrink:0;" />
+      <div class="player-info">
+        <h3>${p.name}</h3>
+        <div class="player-role">${p.role} · #${p.num}</div>
+        <div class="player-rating-badge">⭐ ${p.rating}</div>
+      </div>
+    </div>
+    <div class="stats-grid-sm">
+      <div class="stat-cell"><div class="stat-cell-label">Age</div><div class="stat-cell-val">${p.age||'?'}</div></div>
+      <div class="stat-cell"><div class="stat-cell-label">Height</div><div class="stat-cell-val">${p.height||'?'}</div></div>
+      <div class="stat-cell"><div class="stat-cell-label">Weight</div><div class="stat-cell-val">${p.weight||'?'}</div></div>
+      <div class="stat-cell"><div class="stat-cell-label">Value</div><div class="stat-cell-val" style="font-size:12px;">${p.value||'?'}</div></div>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Attribute Radar</div>
+    ${drawRadar(attrs, labels, rColor)}
+    <div style="margin-top:12px;">
+      <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Heatmap</div>
+      ${drawHeatmap()}
+    </div>`;
+}
+
+function drawRadar(attrs, labels, color) {
+  const cx=100, cy=85, r=60, n=6;
+  const pts = attrs.map((v,i) => {
+    const angle = (i/n)*Math.PI*2 - Math.PI/2;
+    const scale = v/100;
+    return {x: cx + Math.cos(angle)*r*scale, y: cy + Math.sin(angle)*r*scale};
+  });
+  const gridPts = (scale) => attrs.map((_,i) => {
+    const angle = (i/n)*Math.PI*2 - Math.PI/2;
+    return `${cx+Math.cos(angle)*r*scale},${cy+Math.sin(angle)*r*scale}`;
+  }).join(' ');
+
+  const labelPts = labels.map((l,i) => {
+    const angle = (i/n)*Math.PI*2 - Math.PI/2;
+    return `<text x="${cx+Math.cos(angle)*(r+14)}" y="${cy+Math.sin(angle)*(r+14)+4}" fill="rgba(255,255,255,0.5)" font-size="9" text-anchor="middle" font-family="Inter,sans-serif">${l}\n${attrs[i]}</text>`;
+  }).join('');
+
+  const fillPoly = pts.map(p => `${p.x},${p.y}`).join(' ');
+  return `<svg viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:200px;display:block;margin:0 auto;">
+    ${[0.25,0.5,0.75,1].map(s => `<polygon points="${gridPts(s)}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`).join('')}
+    ${labels.map((_,i) => { const a=(i/n)*Math.PI*2-Math.PI/2; return `<line x1="${cx}" y1="${cy}" x2="${cx+Math.cos(a)*r}" y2="${cy+Math.sin(a)*r}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`; }).join('')}
+    <polygon points="${fillPoly}" fill="${color.replace('#','').match(/.{2}/g).map(h=>parseInt(h,16)).join(',') ? `rgba(${color.replace('#','').match(/.{2}/g).map(h=>parseInt(h,16)).join(',')},0.25)` : 'rgba(16,185,129,0.25)'}" stroke="${color}" stroke-width="2"/>
+    ${labelPts}
+  </svg>`;
+}
+
+function drawHeatmap() {
+  const zones = [
+    {x:50,y:10,r:22,intensity:0.2},{x:50,y:35,r:30,intensity:0.5},
+    {x:50,y:58,r:25,intensity:0.9},{x:30,y:52,r:18,intensity:0.6},
+    {x:70,y:52,r:18,intensity:0.5},{x:50,y:75,r:15,intensity:0.3}
+  ];
+  const stops = (i) => {
+    const colors = i>0.7 ? ['rgba(239,68,68,0.9)','rgba(245,158,11,0.5)','transparent'] :
+                   i>0.4 ? ['rgba(245,158,11,0.8)','rgba(234,179,8,0.4)','transparent'] :
+                            ['rgba(59,130,246,0.6)','rgba(16,185,129,0.3)','transparent'];
+    return colors;
+  };
+
+  let defs = '<defs>';
+  zones.forEach((z,i) => {
+    const c = stops(z.intensity);
+    defs += `<radialGradient id="hm${i}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${c[0]}"/><stop offset="50%" stop-color="${c[1]}"/><stop offset="100%" stop-color="${c[2]}"/></radialGradient>`;
+  });
+  defs += '</defs>';
+
+  const circles = zones.map((z,i) => `<ellipse cx="${z.x}" cy="${z.y}" rx="${z.r*1.3}" ry="${z.r}" fill="url(#hm${i})"/>`).join('');
+
+  return `<svg viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;background:rgba(13,40,24,0.8);">
+    ${defs}
+    <rect width="100" height="90" fill="rgba(13,40,24,0.5)" rx="4"/>
+    <rect x="5" y="3" width="90" height="84" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5" rx="1"/>
+    <line x1="5" y1="45" x2="95" y2="45" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+    ${circles}
+  </svg>`;
+}
+
+async function generateScoutingReport() {
+  const m = currentMatch;
+  if (!m) return;
+  const playerSection = selectedPlayer ? `\nSelected Player: ${selectedPlayer.name} (${selectedPlayer.role}) — Rating: ${selectedPlayer.rating}, Age: ${selectedPlayer.age}, Value: ${selectedPlayer.value}. Attributes — ATT:${selectedPlayer.att} CTRL:${selectedPlayer.ctrl} CREA:${selectedPlayer.crea} PHYS:${selectedPlayer.phys} SCAN:${selectedPlayer.scan} DEF:${selectedPlayer.def}` : '';
+  
+  const prompt = `Generate a comprehensive AI scouting report for this match:\n\n**${m.homeFlag} ${m.home} ${m.hs}–${m.as} ${m.away} ${m.awayFlag}** (${m.league})\n\nMatch Stats:\n- Possession: ${m.home} ${m.possession[0]}% vs ${m.away} ${m.possession[1]}%\n- Shots: ${m.shots[0]} vs ${m.shots[1]}\n- Big Chances: ${m.bigChances[0]} vs ${m.bigChances[1]}\n- Passes: ${m.passes[0]} vs ${m.passes[1]}${playerSection}\n\nProvide: (1) tactical narrative of both teams (2) key battles/matchups (3) decisive moments (4) areas to improve (5) scouting verdict.`;
+
+  document.querySelectorAll('.nav-tab')[0].click();
+  document.getElementById('chat-input').value = prompt;
+  await sendChat();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('resize', () => {
+  const activeTab = document.querySelector('.tab-panel.active')?.id;
+  if (activeTab === 'tab-formation') renderPitch();
+  if (activeTab === 'tab-sofascore') { drawMomentum(); drawLineup(); }
+});
+
+// Init pitch on tab click
+document.querySelectorAll('.nav-tab')[1]?.addEventListener('click', () => { setTimeout(renderPitch, 100); });
+document.querySelectorAll('.nav-tab')[3]?.addEventListener('click', () => { setTimeout(() => { drawMomentum(); drawLineup(); }, 100); });
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const token = localStorage.getItem('fb_token');
+  const username = localStorage.getItem('fb_username');
+  if (token && username) {
+    currentUser = username;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('nav-avatar').textContent = username[0].toUpperCase();
+    resetChat();
+    await loadHistoricalMatches();
+    renderPitch();
+    loadMatch('arg_fra');
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>

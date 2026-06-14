@@ -146,13 +146,14 @@ def resolve_rosters_and_headshots(teams: List[str]):
 
 # --- Endpoints ---
 
-@app.get("/", status_code=status.HTTP_200_OK)
+@app.get("/")
 def root():
-    return {
-        "app": "FootBot Backend Server",
-        "status": "online",
-        "docs_url": "/docs"
-    }
+    from fastapi.responses import HTMLResponse
+    try:
+        with open("frontend/index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+    except Exception as e:
+        return HTMLResponse(content=f"<h3>FootBot Backend Online</h3><p>Frontend file not found: {str(e)}</p>", status_code=200)
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():

@@ -4613,123 +4613,123 @@
         {
             "name": "Alisson",
             "jersey": "1",
-            "rating": 8.5,
+            "rating": 7.8,
             "pos": "GK",
-            "photo": "frontend/assets/alisson.png",
-            "age": "32",
-            "val": "€15M",
-            "height": "188 cm",
-            "sofa_id": "11621"
+            "age": "33",
+            "val": "€25M",
+            "height": "193 cm",
+            "sofa_id": "329228",
+            "photo": "frontend/assets/alisson.png"
         },
         {
             "name": "Danilo",
-            "jersey": "12",
-            "rating": 7.0,
+            "jersey": "2",
+            "rating": 6.9,
             "pos": "RB",
-            "photo": "frontend/assets/danilo.png",
-            "age": "32",
-            "val": "€5M",
-            "height": "178 cm",
-            "sofa_id": "11622"
+            "age": "34",
+            "val": "€8M",
+            "height": "183 cm",
+            "sofa_id": "148822",
+            "photo": "frontend/assets/danilo.png"
         },
         {
             "name": "Marquinhos",
             "jersey": "3",
-            "rating": 8.0,
+            "rating": 7.5,
             "pos": "RCB",
-            "photo": "frontend/assets/marquinhos.png",
-            "age": "29",
+            "age": "31",
             "val": "€40M",
             "height": "183 cm",
-            "sofa_id": "11623"
+            "sofa_id": "215369",
+            "photo": "frontend/assets/marquinhos.png"
         },
         {
-            "name": "Thiago Silva",
+            "name": "Gabriel Magalhaes",
             "jersey": "4",
-            "rating": 7.5,
+            "rating": 7.3,
             "pos": "LCB",
-            "photo": "frontend/assets/thiago_silva.png",
-            "age": "38",
-            "val": "€3M",
-            "height": "186 cm",
-            "sofa_id": "11624"
+            "age": "27",
+            "val": "€65M",
+            "height": "191 cm",
+            "sofa_id": "866460",
+            "photo": "frontend/assets/gabriel_magalhaes.jpg"
         },
         {
-            "name": "Alex Telles",
-            "jersey": "11",
+            "name": "Guilherme Arana",
+            "jersey": "6",
             "rating": 7.0,
             "pos": "LB",
-            "photo": "frontend/assets/alex_telles.png",
-            "age": "31",
-            "val": "€10M",
-            "height": "178 cm",
-            "sofa_id": "11625"
+            "age": "28",
+            "val": "€18M",
+            "height": "175 cm",
+            "sofa_id": "829955",
+            "photo": "frontend/assets/guilherme_arana.png"
         },
         {
             "name": "Casemiro",
             "jersey": "5",
-            "rating": 8.0,
+            "rating": 7.2,
             "pos": "LDM",
-            "photo": "frontend/assets/casemiro.png",
-            "age": "35",
-            "val": "€5M",
+            "age": "34",
+            "val": "€15M",
             "height": "185 cm",
-            "sofa_id": "11626"
+            "sofa_id": "24529",
+            "photo": "frontend/assets/casemiro.png"
         },
         {
-            "name": "Fred",
-            "jersey": "17",
-            "rating": 7.0,
+            "name": "Bruno Guimaraes",
+            "jersey": "14",
+            "rating": 7.8,
             "pos": "RDM",
-            "photo": "frontend/assets/fred.png",
-            "age": "33",
-            "val": "€5M",
-            "height": "178 cm",
-            "sofa_id": "11627"
+            "age": "27",
+            "val": "€80M",
+            "height": "182 cm",
+            "sofa_id": "828929",
+            "photo": "frontend/assets/bruno_guimaraes.png"
         },
         {
-            "name": "Lucas Paquetá",
-            "jersey": "18",
+            "name": "Raphinha",
+            "jersey": "11",
             "rating": 8.0,
-            "pos": "LCM",
-            "photo": "frontend/assets/lucas_paquet.png",
-            "age": "25",
-            "val": "€35M",
-            "height": "176 cm",
-            "sofa_id": "11628"
-        },
-        {
-            "name": "Matheus Cunha",
-            "jersey": "20",
-            "rating": 7.5,
-            "pos": "CM",
-            "photo": "frontend/assets/matheus_cunha.png",
-            "age": "24",
-            "val": "€25M",
-            "height": "178 cm",
-            "sofa_id": "11629"
-        },
-        {
-            "name": "Neymar",
-            "jersey": "10",
-            "rating": 8.5,
             "pos": "RAM",
-            "photo": "frontend/assets/neymar.png",
-            "age": "31",
-            "val": "€30M",
+            "age": "29",
+            "val": "€80M",
             "height": "176 cm",
-            "sofa_id": "11630"
+            "sofa_id": "843889",
+            "photo": "frontend/assets/raphinha.png"
+        },
+        {
+            "name": "Lucas Paqueta",
+            "jersey": "18",
+            "rating": 7.6,
+            "pos": "CAM",
+            "age": "28",
+            "val": "€60M",
+            "height": "180 cm",
+            "sofa_id": "836032",
+            "photo": "frontend/assets/lucas_paqueta.png"
+        },
+        {
+            "name": "Vinicius Jr",
+            "jersey": "7",
+            "rating": 8.5,
+            "pos": "LAM",
+            "age": "25",
+            "val": "€180M",
+            "height": "176 cm",
+            "sofa_id": "862217",
+            "photo": "none"
         },
         {
             "name": "Richarlison",
             "jersey": "9",
-            "rating": 8.0,
+            "rating": 7.0,
             "pos": "ST",
-            "photo": "frontend/assets/richarlison.png",
-            "age": "26",
-            "val": "€45M",
-            "height": "183 cm",
-            "sofa_id": "11631"
+            "age": "28",
+            "val": "€40M",
+            "height": "184 cm",
+            "sofa_id": "346028",
+            "photo": "frontend/assets/richarlison.png"
         }
     ],
     "united states": [
@@ -9281,6 +9281,129 @@
             "val": "€6.8M",
             "height": "179 cm",
             "sofa_id": "123457"
+        }
+    ],
+    "curaçao": [
+        {
+            "name": "Jérôme Onguene",
+            "jersey": "1",
+            "rating": 7.1,
+            "pos": "GK",
+            "photo": "frontend/assets/jrme_onguene.png",
+            "age": "31",
+            "val": "€250k",
+            "height": "188 cm",
+            "sofa_id": "123456"
+        },
+        {
+            "name": "Bobby van der Meer",
+            "jersey": "2",
+            "rating": 6.9,
+            "pos": "RB",
+            "photo": "none",
+            "age": "28",
+            "val": "€400k",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Johan de Jong",
+            "jersey": "4",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "30",
+            "val": "€500k",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ryan de Kock",
+            "jersey": "5",
+            "rating": 7.2,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "27",
+            "val": "€450k",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Darren van der Laan",
+            "jersey": "3",
+            "rating": 6.8,
+            "pos": "LB",
+            "photo": "none",
+            "age": "29",
+            "val": "€350k",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Sander van der Veen",
+            "jersey": "6",
+            "rating": 7.3,
+            "pos": "CM",
+            "photo": "none",
+            "age": "26",
+            "val": "€600k",
+            "height": "182 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Michaël van der Meer",
+            "jersey": "8",
+            "rating": 7.4,
+            "pos": "CAM",
+            "photo": "none",
+            "age": "24",
+            "val": "€800k",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Tobias van der Zanden",
+            "jersey": "10",
+            "rating": 7.5,
+            "pos": "LAM",
+            "photo": "none",
+            "age": "23",
+            "val": "€1M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Lars van der Meer",
+            "jersey": "11",
+            "rating": 7.2,
+            "pos": "RM",
+            "photo": "none",
+            "age": "25",
+            "val": "€700k",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Joris van der Veen",
+            "jersey": "9",
+            "rating": 7.6,
+            "pos": "ST",
+            "photo": "none",
+            "age": "22",
+            "val": "€1.2M",
+            "height": "179 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Karel van der Zanden",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "none",
+            "age": "27",
+            "val": "€650k",
+            "height": "177 cm",
+            "sofa_id": ""
         }
     ]
 }

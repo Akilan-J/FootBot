@@ -1164,6 +1164,9 @@ function convertUKTimeToIST(timeStr) {
     
     const pad = (n) => String(n).padStart(2, '0');
     return `${pad(istH)}:${pad(istM)} IST${dayOffset}`;
+  } catch (err) {
+    console.error('Error converting UK time to IST:', err);
+    return timeStr;
   }
 }
 

@@ -1665,7 +1665,7 @@ async function loadHistoricalMatches() {
         const isFixture = m.description.includes('Not started') || m.description.includes('Fixture') || m.title.includes(' vs ');
         if (isFixture) {
           const kickoff = m.description.replace('Fixture/Kickoff. Status:', '').trim();
-          status = (kickoff && kickoff !== 'Not started' && kickoff !== 'Fixture') ? kickoff : 'Fixture';
+          status = (kickoff && kickoff !== 'Not started' && kickoff !== 'Fixture') ? convertUKTimeToIST(kickoff) : 'Fixture';
         } else {
           const parts = m.title.split(' - ');
           if (parts.length === 2) {

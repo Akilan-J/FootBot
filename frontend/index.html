@@ -1531,7 +1531,7 @@ function renderMatches(matches) {
   }
   grid.innerHTML = matches.map((m, idx) => {
     let statusStyle = 'background:rgba(16,185,129,0.1);color:var(--emerald);';
-    if (m.status === 'LIVE') {
+    if (m.status !== 'FT' && m.status !== 'Fixture') {
       statusStyle = 'background:rgba(239,68,68,0.15);color:#ef4444;';
     } else if (m.status === 'Fixture') {
       statusStyle = 'background:rgba(59,130,246,0.15);color:#3b82f6;';
@@ -1631,7 +1631,8 @@ async function loadHistoricalMatches() {
           if (m.description.includes('Full time') || m.description.includes('FT')) {
             status = 'FT';
           } else {
-            status = 'LIVE';
+            const matchMinute = m.description.replace('Status:', '').trim();
+            status = matchMinute || 'LIVE';
           }
         }
         
@@ -1676,11 +1677,11 @@ async function loadHistoricalMatches() {
 function updateSelectorOptions() {
   const selectEl = document.getElementById('match-select');
   const staticOptions = `
-    <option value="arg_fra">🏆 [COMPLETED] 🇦🇷 Argentina 3–3 🇫🇷 France (World Cup Final)</option>
-    <option value="bar_rma">🇪🇸 [COMPLETED] 🔵 Barcelona 3–2 🤍 Real Madrid (La Liga)</option>
-    <option value="mci_ars">🏴󠁧󠁢󠁥󠁮󠁧󠁿 [COMPLETED] 🔵 Man City 2–2 🔴 Arsenal (Premier League)</option>
-    <option value="bay_bvb">🇩🇪 [COMPLETED] 🔴 Bayern 3–1 🟡 Dortmund (Bundesliga)</option>
-    <option value="upcoming">🕐 [UPCOMING] Liverpool vs PSG (Champions League)</option>
+    <option value="arg_fra">🏆 [COMPLETED] 🇦🇷 Argentina 3–3 🇫🇷 France (World Cup Final — 18 Dec 2022)</option>
+    <option value="bar_rma">🇪🇸 [COMPLETED] 🔵 Barcelona 3–2 🤍 Real Madrid (La Liga — 21 Apr 2024)</option>
+    <option value="mci_ars">🏴󠁧󠁢󠁥󠁮󠁧󠁿 [COMPLETED] 🔵 Man City 2–2 🔴 Arsenal (Premier League — 22 Sep 2024)</option>
+    <option value="bay_bvb">🇩🇪 [COMPLETED] 🔴 Bayern 3–1 🟡 Dortmund (Bundesliga — 30 Mar 2024)</option>
+    <option value="upcoming">🕐 [UPCOMING] Liverpool vs PSG (Champions League — Upcoming)</option>
   `;
   
   let dynamicOptions = '';
@@ -1699,7 +1700,16 @@ function updateSelectorOptions() {
     const key = `db_${idx}`;
     const homeWithFlag = `${getFlagEmoji(m.home)} ${stripEmoji(m.home)}`;
     const awayWithFlag = `${stripEmoji(m.away)} ${getFlagEmoji(m.away)}`;
-    dynamicOptions += `<option value="${key}">🏆 [COMPLETED] ${homeWithFlag} ${m.hs}–${m.as} ${awayWithFlag} (${m.league})</option>`;
+    
+    // Status text resolving live details
+    let statusText = 'COMPLETED';
+    if (m.status === 'Fixture') {
+      statusText = 'UPCOMING';
+    } else if (m.status !== 'FT') {
+      statusText = `LIVE - ${m.status}`;
+    }
+    
+    dynamicOptions += `<option value="${key}">🏆 [${statusText}] ${homeWithFlag} ${m.hs}–${m.as} ${awayWithFlag} (${m.league} — ${m.date})</option>`;
   });
   
   selectEl.innerHTML = staticOptions + dynamicOptions;
@@ -1868,7 +1878,20 @@ async function loadMatch(id) {
     const m = loadedMatches[idx];
     if (m) {
       const main = document.getElementById('match-main');
-      main.innerHTML = `<div style="text-align:center;padding:100px;color:var(--text-muted);"><div class="spinner" style="margin: 0 auto 12px; border:3px solid rgba(255,255,255,0.1); border-top-color:var(--emerald); border-radius:50%; width:24px; height:24px; animation:spin 1s linear infinite;"></div>Loading squad telemetry and rosters for ${m.home} vs ${m.away}...</div>`;
+      main.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;min-height:380px;width:100%;">
+          <div class="glass-card fade-in" style="display:flex;flex-direction:column;align-items:center;padding:40px;border-radius:20px;max-width:480px;width:90%;text-align:center;box-shadow:0 12px 40px 0 rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);backdrop-filter:blur(10px);">
+            <div style="position:relative;width:56px;height:56px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;">
+              <div style="position:absolute;width:100%;height:100%;border-radius:50%;border:4px solid rgba(16,185,129,0.04);box-shadow:0 0 15px rgba(16,185,129,0.04);"></div>
+              <div class="spinner" style="position:absolute;width:100%;height:100%;border-radius:50%;border:4px solid transparent;border-top-color:var(--emerald);filter:drop-shadow(0 0 6px var(--emerald));animation:spin 1s cubic-bezier(0.4, 0.1, 0.2, 1) infinite;"></div>
+            </div>
+            <h3 style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;letter-spacing:0.3px;font-family:'Inter',sans-serif;">Synchronizing Match Telemetry</h3>
+            <p style="font-size:13px;color:var(--text-muted);line-height:1.6;font-family:'Inter',sans-serif;margin:0;">
+              Fetching starting XI rosters, heatmap coordinates, and scouting reports for <strong style="color:var(--emerald);font-weight:600;">${m.home} vs ${m.away}</strong>...
+            </p>
+          </div>
+        </div>
+      `;
       
       try {
         const homeClean = stripEmoji(m.home);

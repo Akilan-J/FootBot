@@ -234,8 +234,10 @@ PREDEFINED_ROSTERS = {
 
 
 def normalize_name(name: str) -> str:
-    """Normalizes team names to lower case, stripping spaces and extra qualifiers like U20."""
-    n = name.lower().strip()
+    """Normalizes team names to lower case, stripping spaces, extra qualifiers like U20, and accents."""
+    import unicodedata
+    n = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
+    n = n.lower().strip()
     n = re.sub(r"\s+u\d+\b", "", n)
     n = re.sub(r"\s+u-\d+\b", "", n)
     return n

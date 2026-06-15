@@ -1531,10 +1531,10 @@ function renderMatches(matches) {
   }
   grid.innerHTML = matches.map((m, idx) => {
     let statusStyle = 'background:rgba(16,185,129,0.1);color:var(--emerald);';
-    if (m.status !== 'FT' && m.status !== 'Fixture') {
-      statusStyle = 'background:rgba(239,68,68,0.15);color:#ef4444;';
-    } else if (m.status === 'Fixture') {
+    if (m.status === 'Fixture' || m.status.includes(':')) {
       statusStyle = 'background:rgba(59,130,246,0.15);color:#3b82f6;';
+    } else if (m.status !== 'FT') {
+      statusStyle = 'background:rgba(239,68,68,0.15);color:#ef4444;';
     }
     const globalIdx = loadedMatches.indexOf(m);
     return `
@@ -1617,7 +1617,8 @@ async function loadHistoricalMatches() {
         
         const isFixture = m.description.includes('Not started') || m.description.includes('Fixture') || m.title.includes(' vs ');
         if (isFixture) {
-          status = 'Fixture';
+          const kickoff = m.description.replace('Fixture/Kickoff. Status:', '').trim();
+          status = (kickoff && kickoff !== 'Not started' && kickoff !== 'Fixture') ? kickoff : 'Fixture';
         } else {
           const parts = m.title.split(' - ');
           if (parts.length === 2) {

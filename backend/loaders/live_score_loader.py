@@ -77,7 +77,13 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
             
             # Extract match status/progress
             progress_el = ancestor.find(class_=lambda x: x and 'MatchProgress' in x)
-            progress = progress_el.get_text().strip() if progress_el else "Fixture"
+            progress = progress_el.get_text().strip() if progress_el else None
+            if not progress:
+                time_el = ancestor.find('time')
+                if time_el:
+                    progress = time_el.get_text().strip()
+            if not progress:
+                progress = "Fixture"
             
             # Build clean title and description
             if home_score is not None and away_score is not None:

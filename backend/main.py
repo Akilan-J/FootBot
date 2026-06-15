@@ -500,14 +500,84 @@ def get_session_pdf_endpoint(session_id: str, x_user_token: Optional[str] = Head
             detail=f"Failed to compile PDF brochure: {str(e)}"
         )
 
+@app.get("/featured-matches", response_model=Dict[str, Any], status_code=status.HTTP_200_OK)
+def get_featured_matches():
+    """Returns the pre-seeded featured matches dynamically from the backend."""
+    return {
+        "arg_fra": {
+            "home": "Argentina", "away": "France",
+            "hs": 3, "as": 3, "league": "World Cup Final", "status": "completed",
+            "date": "18 Dec 2022"
+        },
+        "bar_rma": {
+            "home": "Barcelona", "away": "Real Madrid",
+            "hs": 3, "as": 2, "league": "La Liga", "status": "completed",
+            "date": "21 Apr 2024"
+        },
+        "mci_ars": {
+            "home": "Man City", "away": "Arsenal",
+            "hs": 2, "as": 2, "league": "Premier League", "status": "completed",
+            "date": "22 Sep 2024"
+        },
+        "bay_bvb": {
+            "home": "Bayern", "away": "Dortmund",
+            "hs": 3, "as": 1, "league": "Bundesliga", "status": "completed",
+            "date": "30 Mar 2024"
+        },
+        "upcoming": {
+            "home": "Liverpool", "away": "PSG",
+            "hs": 0, "as": 0, "league": "Champions League", "status": "upcoming",
+            "date": "16 Jun 2026"
+        }
+    }
+
 @app.get("/roster", status_code=status.HTTP_200_OK)
-def get_roster_endpoint(team_name: str):
-    """Retrieves the real-world starting XI roster for a team, querying the LLM + cache if needed."""
+def get_roster_endpoint(
+    team_name: str,
+    opponent_name: Optional[str] = None,
+    match_date: Optional[str] = None,
+    home_score: Optional[int] = None,
+    away_score: Optional[int] = None
+):
+    """Retrieves the real-world starting XI roster for a team, querying the LLM + cache if needed.
+    Also fetches match stats (possession, shots, bigChances, passes) and goal events when
+    opponent_name and match_date are provided.
+    """
     try:
-        from backend.roster_store import get_real_world_roster
-        roster = get_real_world_roster(team_name)
+        from backend.roster_store import get_real_world_roster, get_match_stats, get_match_events
+
+        roster = get_real_world_roster(team_name, opponent_name, match_date)
+
+        stats = None
+        events = None
+        if opponent_name and match_date:
+            try:
+                stats = get_match_stats(
+                    home=team_name,
+                    away=opponent_name,
+                    date=match_date,
+                    home_score=home_score,
+                    away_score=away_score
+                )
+            except Exception as stats_err:
+                logger.error(f"Error fetching match stats for {team_name} vs {opponent_name}: {str(stats_err)}")
+
+            try:
+                events = get_match_events(
+                    home=team_name,
+                    away=opponent_name,
+                    date=match_date
+                )
+            except Exception as ev_err:
+                logger.error(f"Error fetching match events for {team_name} vs {opponent_name}: {str(ev_err)}")
+
         if roster:
-            return {"status": "success", "roster": roster}
+            response = {"status": "success", "roster": roster}
+            if stats is not None:
+                response["stats"] = stats
+            if events is not None:
+                response["events"] = events
+            return response
         else:
             return {"status": "fallback", "message": "Failed to get real roster, use fallback"}
     except Exception as e:

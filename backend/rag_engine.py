@@ -275,10 +275,10 @@ class RAGEngine:
         logger.info(f"Simplified query for Web Search: '{query}' ➔ '{cleaned}'")
         return cleaned
 
-    def web_search_fallback(self, query: str, max_results: int = 3) -> List[Dict[str, Any]]:
+    def web_search_fallback(self, query: str, max_results: int = 3, clean: bool = True) -> List[Dict[str, Any]]:
         """Queries DuckDuckGo search API to pull relevant real-time snippets."""
         # Simplify the query before sending to DDG HTML parser
-        clean_q = self._clean_search_query(query)
+        clean_q = self._clean_search_query(query) if clean else query
         logger.info(f"Triggering live web search fallback for query: '{clean_q}'")
         results = []
         try:

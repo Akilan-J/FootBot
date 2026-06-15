@@ -242,6 +242,22 @@ def normalize_name(name: str) -> str:
     n = re.sub(r"\s+u-\d+\b", "", n)
     return n
 
+def normalize_date_string(date_str: str) -> str:
+    """Extracts only the date portion from a match date string (e.g. '14 Jun 2026 - Group E' -> '14 jun 2026')"""
+    if not date_str:
+        return ""
+    # Try to find date patterns like DD MMM YYYY (e.g. 14 Jun 2026)
+    match = re.search(r"\b\d{1,2}\s+[a-zA-Z]{3}\s+\d{4}\b", date_str)
+    if match:
+        return match.group(0).lower().strip()
+    # Try to find date patterns like YYYY-MM-DD (e.g. 2026-06-10)
+    match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", date_str)
+    if match:
+        return match.group(0).lower().strip()
+    # Otherwise split by " - " or "@" and take the first part
+    parts = re.split(r"\s+[-@]\s+", date_str)
+    return parts[0].lower().strip()
+
 def load_cache() -> Dict[str, List[Dict[str, Any]]]:
     lock_path = CACHE_PATH.with_suffix(".lock")
     if not lock_path.exists():
@@ -715,12 +731,121 @@ def ensure_player_photos(roster: List[Dict[str, Any]], team_name: str = "") -> b
             
     return updated
 
-def get_real_world_roster(team_name: str) -> Optional[List[Dict[str, Any]]]:
+def get_real_world_roster(
+    team_name: str,
+    opponent_name: Optional[str] = None,
+    match_date: Optional[str] = None
+) -> Optional[List[Dict[str, Any]]]:
     """
     Returns the real-world starting XI squad for a team.
-    Checks predefined list first, then local cache, and finally queries LLM if key is available.
+    If opponent_name and match_date are provided, resolves the match-specific starting XI.
     """
     norm_name = normalize_name(team_name)
+
+    # 1. Match-specific cache lookup
+    match_key = None
+    if opponent_name and match_date:
+        norm_opp = normalize_name(opponent_name)
+        norm_date = normalize_date_string(match_date)
+        match_key = f"{norm_name}_vs_{norm_opp}_{norm_date}"
+        
+        cache = load_cache()
+        if match_key in cache:
+            logger.info(f"Roster for '{team_name}' vs '{opponent_name}' ({match_date}) found in cache.")
+            roster = cache[match_key]
+            updated_photos = ensure_player_photos(roster, team_name)
+            if updated_photos:
+                current_cache = load_cache()
+                current_cache[match_key] = roster
+                save_cache(current_cache)
+            return roster
+
+    # 2. Match-specific search-grounded LLM query
+    if match_key and rag_engine.openai_client is not None:
+        logger.info(f"Match-specific roster for '{team_name}' vs '{opponent_name}' ({match_date}) not in cache. Querying web search & LLM...")
+        search_query = f"{team_name} {opponent_name} {match_date} starting lineup"
+        search_results = []
+        try:
+            search_results = rag_engine.web_search_fallback(search_query, max_results=3, clean=False)
+        except Exception as e:
+            logger.error(f"Web search fallback failed: {e}")
+            
+        search_context = ""
+        if search_results:
+            search_context = "\n".join([f"- {r['title']}: {r['body']}" for r in search_results])
+            
+        prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world starting XI lineup/squad for the football team '{team_name}' in their match against '{opponent_name}' played on '{match_date}'.
+        
+        Here is the search context about the match:
+        {search_context}
+        
+        Using the search context above and your general football knowledge, return the exact starting XI players that started this match for '{team_name}'.
+        You must output exactly 11 players in JSON format.
+        Each player must have exactly the following keys:
+        - 'name': The real player's full name (e.g. 'Bukayo Saka' or 'A. Lunin')
+        - 'jersey': Their squad/jersey number as a string (e.g. '7')
+        - 'rating': A realistic SofaScore performance rating for this match as a float between 5.0 and 9.9 (e.g. 7.4)
+        - 'pos': One of the standard tactical positions: 'GK', 'RB', 'RCB', 'LCB', 'LB', 'LDM', 'RDM', 'LCM', 'CM', 'RCM', 'LAM', 'CAM', 'RAM', 'LW', 'ST', 'RW', 'LST', 'RST', 'LM', 'RM', 'AM'. There must be exactly one 'GK' (goalkeeper).
+        - 'photo': Always an empty string ""
+        - 'age': The player's age as a string (e.g. '24')
+        - 'val': The player's market value as a string (e.g. '€120M' or '€5M')
+        - 'height': The player's height as a string (e.g. '178 cm')
+        - 'sofa_id': The player's official numerical Sofascore player ID as a string if known. Guess a highly realistic numerical ID if you know it, otherwise return empty string "".
+        
+        Return ONLY a raw valid JSON array. Do not write any markdown code wrappers, notes, explanations, or extra characters. Simply return the raw JSON text."""
+        
+        for attempt in range(1, 4):
+            try:
+                completion = rag_engine.openai_client.chat.completions.create(
+                    model=rag_engine.model_name,
+                    messages=[
+                        {"role": "system", "content": "You are a database system returning raw JSON arrays only. Double check that you output exactly 11 players, one of which has position 'GK'."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3 + (attempt * 0.1)
+                )
+                response_text = completion.choices[0].message.content.strip()
+                if response_text.startswith("```json"):
+                    response_text = response_text[7:]
+                if response_text.endswith("```"):
+                    response_text = response_text[:-3]
+                response_text = response_text.strip()
+                
+                try:
+                    roster = json.loads(response_text)
+                except Exception as json_err:
+                    import ast
+                    cleaned_text = response_text
+                    cleaned_text = re.sub(r"^```json\s*", "", cleaned_text)
+                    cleaned_text = re.sub(r"\s*```$", "", cleaned_text)
+                    cleaned_text = cleaned_text.strip()
+                    cleaned_text = cleaned_text.replace("true", "True").replace("false", "False").replace("null", "None")
+                    try:
+                        roster = ast.literal_eval(cleaned_text)
+                    except Exception as ast_err:
+                        raise json_err
+                        
+                if isinstance(roster, list) and len(roster) == 11:
+                    valid = True
+                    required_keys = {"name", "jersey", "rating", "pos", "photo", "age", "val", "height", "sofa_id"}
+                    for p in roster:
+                        if not required_keys.issubset(p.keys()):
+                            valid = False
+                            break
+                    if valid:
+                        logger.info(f"Successfully retrieved and validated match roster for '{team_name}' on attempt {attempt}.")
+                        ensure_player_photos(roster, team_name)
+                        current_cache = load_cache()
+                        current_cache[match_key] = roster
+                        save_cache(current_cache)
+                        return roster
+            except Exception as e:
+                logger.error(f"Attempt {attempt} failed to query LLM for match roster of '{team_name}': {e}")
+            
+            import time
+            time.sleep(1.5)
+
+    # 3. Fallback to general roster lookup (predefined list, then cache, then LLM)
     logger.info(f"Resolving real-world roster for: '{team_name}' (normalized: '{norm_name}')")
 
     # 1. Predefined list match checks
@@ -855,5 +980,489 @@ Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (lik
     else:
         logger.warning("OpenAI client not initialized. Cannot fetch roster via LLM.")
 
+    logger.warning(f"Failed to fetch roster for '{team_name}' from LLM/cache. Generating dynamic backend fallback roster...")
+    return generate_backend_fallback_roster(team_name, opponent_name)
+
+
+def is_future_match(date_str: str) -> bool:
+    """Checks if a match date is in the future relative to the system time."""
+    if not date_str:
+        return True
+    norm = date_str.lower().strip()
+    if "upcoming" in norm or "fixture" in norm:
+        return True
+    if "today" in norm:
+        return True
+    import datetime
+    now = datetime.datetime.now()
+    for fmt in ("%d %b %Y", "%d %B %Y", "%Y-%m-%d"):
+        try:
+            dt = datetime.datetime.strptime(norm.title(), fmt)
+            if dt.date() > now.date():
+                return True
+            return False
+        except ValueError:
+            pass
+    return False
+
+
+def get_dynamic_match_stats_via_llm(
+    home: str,
+    away: str,
+    date: str,
+    home_score: Optional[int] = None,
+    away_score: Optional[int] = None,
+    is_future: bool = False
+) -> Dict[str, Any]:
+    """
+    Dynamically generates or predicts match stats using LLM + Web Search.
+    Never hardcodes a specific match's fallback values.
+    """
+    search_context = ""
+    if not is_future:
+        try:
+            search_query = f"{home} vs {away} {date} match stats possession shots passes"
+            results = rag_engine.web_search_fallback(search_query, max_results=3, clean=False)
+            if results:
+                search_context = "\n".join([f"- {r['title']}: {r['body']}" for r in results])
+        except Exception as e:
+            logger.error(f"Search failed for dynamic stats: {e}")
+
+    prompt = f"""You are a professional football match statistics model.
+    Generate a JSON object containing realistic match statistics for:
+    Home Team: {home}
+    Away Team: {away}
+    Date: {date}
+    Is Future/Upcoming Match: {is_future}
+    Home Team Score (if played): {home_score}
+    Away Team Score (if played): {away_score}
+    
+    """
+    if search_context:
+        prompt += f"""Here is some search context about the match:\n{search_context}\n
+        If the search context contains the actual match statistics, extract and use them. Otherwise, estimate highly realistic statistics that are consistent with the final score of {home_score}-{away_score} and the teams' general tactics and style of play.
+        """
+    else:
+        if is_future:
+            prompt += f"""Since this is a future match, predict the match flow and simulate realistic match stats based on the general playing styles and team strength of {home} and {away}.
+            """
+        else:
+            prompt += f"""Estimate highly realistic statistics for this past match that are consistent with the final score of {home_score}-{away_score} and the teams' general tactics and style of play.
+            """
+
+    prompt += """
+    Your response must be a valid JSON object with the following keys and values:
+    - 'possession': An array of two integers representing possession percentage for Home and Away (e.g. [55, 45]). The sum must be exactly 100.
+    - 'shots': An array of two integers representing total shots for Home and Away (e.g. [14, 9]).
+    - 'bigChances': An array of two integers representing big chances for Home and Away (e.g. [3, 1]).
+    - 'passes': An array of two integers representing accurate or total passes for Home and Away (e.g. [510, 420]).
+    - 'predicted_score': An array of two integers representing the predicted/actual score (e.g. [2, 1]).
+    
+    Return ONLY a raw valid JSON object. Do not write any markdown code wrappers, explanations, or notes."""
+
+    if rag_engine.openai_client is not None:
+        for attempt in range(1, 4):
+            try:
+                completion = rag_engine.openai_client.chat.completions.create(
+                    model=rag_engine.model_name,
+                    messages=[
+                        {"role": "system", "content": "You are a database system returning raw JSON objects only."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.3 + (attempt * 0.1)
+                )
+                res_text = completion.choices[0].message.content.strip()
+                if res_text.startswith("```json"):
+                    res_text = res_text[7:]
+                if res_text.endswith("```"):
+                    res_text = res_text[:-3]
+                res_text = res_text.strip()
+                
+                stats = json.loads(res_text)
+                required_keys = {"possession", "shots", "bigChances", "passes"}
+                if required_keys.issubset(stats.keys()):
+                    # Validate values
+                    if isinstance(stats["possession"], list) and len(stats["possession"]) == 2:
+                        if sum(stats["possession"]) != 100:
+                            stats["possession"] = [50, 50]
+                    else:
+                        stats["possession"] = [50, 50]
+                    
+                    for k in ["shots", "bigChances", "passes"]:
+                        if not isinstance(stats[k], list) or len(stats[k]) != 2:
+                            stats[k] = [0, 0]
+                        else:
+                            stats[k] = [int(x) for x in stats[k]]
+                    
+                    if "predicted_score" not in stats or not isinstance(stats["predicted_score"], list) or len(stats["predicted_score"]) != 2:
+                        stats["predicted_score"] = [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
+                    else:
+                        stats["predicted_score"] = [int(x) for x in stats["predicted_score"]]
+
+                    logger.info(f"Successfully generated dynamic stats via LLM: {stats}")
+                    return stats
+            except Exception as e:
+                logger.error(f"Attempt {attempt} failed to generate stats via LLM: {e}")
+                import time
+                time.sleep(1.0)
+
+    # Procedural fallback
+    import random
+    seed_val = sum(ord(c) for c in home + away)
+    random.seed(seed_val)
+    h_poss = random.randint(40, 60)
+    a_poss = 100 - h_poss
+    h_shots = random.randint(8, 20)
+    a_shots = random.randint(6, 18)
+    h_bc = max(0, int(h_shots * 0.15))
+    a_bc = max(0, int(a_shots * 0.15))
+    h_passes = random.randint(350, 600)
+    a_passes = random.randint(350, 600)
+    return {
+        "possession": [h_poss, a_poss],
+        "shots": [h_shots, a_shots],
+        "bigChances": [h_bc, a_bc],
+        "passes": [h_passes, a_passes],
+        "predicted_score": [home_score if home_score is not None else 1, away_score if away_score is not None else 1]
+    }
+
+
+def generate_backend_fallback_roster(team_name: str, opponent_name: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Generates a dynamic fallback squad starting XI roster procedurally on the backend."""
+    positions = ['GK', 'RB', 'CB', 'CB', 'LB', 'DM', 'CM', 'CM', 'RW', 'ST', 'LW']
+    names = {
+        'GK': ['Keeper'],
+        'RB': ['Right Back'],
+        'CB': ['Defender A', 'Defender B'],
+        'LB': ['Left Back'],
+        'DM': ['Midfielder D'],
+        'CM': ['Midfielder A', 'Midfielder B'],
+        'RW': ['Winger R'],
+        'ST': ['Striker'],
+        'LW': ['Winger L']
+    }
+    
+    roster = []
+    counts = {}
+    for i, pos in enumerate(positions):
+        counts[pos] = counts.get(pos, 0) + 1
+        name_list = names[pos]
+        name = name_list[(counts[pos] - 1) % len(name_list)]
+        
+        rating = 6.5 + (i % 3) * 0.5
+        
+        roster.append({
+            "name": f"{team_name} {name}",
+            "jersey": str(1 if pos == 'GK' else 2 + i),
+            "rating": rating,
+            "pos": pos,
+            "photo": "",
+            "age": str(22 + (i % 8)),
+            "val": "€15M",
+            "height": "182 cm",
+            "sofa_id": ""
+        })
+    return roster
+
+
+def get_match_stats(
+    home: str,
+    away: str,
+    date: str,
+    home_score: Optional[int] = None,
+    away_score: Optional[int] = None
+) -> Optional[Dict[str, Any]]:
+    """
+    Returns possession, shots, bigChances, and passes for a specific match.
+    Checks cache first, then fetches REAL stats from the ESPN public API.
+    Falls back to dynamic LLM predicted/estimated stats if ESPN doesn't have it or it's a future match.
+    """
+    import datetime
+
+    norm_home = normalize_name(home)
+    norm_away = normalize_name(away)
+    norm_date = normalize_date_string(date)
+
+    # Deterministic cache key — sort team names alphabetically so direction doesn't matter
+    sorted_teams = sorted([norm_home, norm_away])
+    cache_key = f"matchstats_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}"
+
+    # 1. Cache hit
+    cache = load_cache()
+    if cache_key in cache:
+        logger.info(f"Match stats for '{home}' vs '{away}' found in cache (key: {cache_key})")
+        stats_val = cache[cache_key]
+        if stats_val and "predicted_score" not in stats_val:
+            stats_val["predicted_score"] = [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
+        return stats_val
+
+    is_future = is_future_match(norm_date)
+
+    # 2. Try ESPN soccer scoreboard for past matches
+    if not is_future:
+        espn_date = None
+        for fmt in ("%d %b %Y", "%d %B %Y", "%Y-%m-%d"):
+            try:
+                espn_date = datetime.datetime.strptime(norm_date.title(), fmt).strftime("%Y%m%d")
+                break
+            except ValueError:
+                pass
+
+        if espn_date:
+            req_headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                "Accept": "application/json",
+            }
+
+            # ESPN soccer league slugs — try most likely first
+            espn_leagues = [
+                "fifa.world", "uefa.champions", "uefa.europa", "eng.1", "esp.1",
+                "ger.1", "ita.1", "fra.1", "usa.1", "concacaf.nations.league",
+                "conmebol.copa", "afc.asian.cup",
+            ]
+
+            def _team_matches(espn_name: str, our_name: str) -> bool:
+                a = clean_text(espn_name)
+                b = clean_text(our_name)
+                return a == b or a in b or b in a or any(w in a for w in b.split() if len(w) > 3)
+
+            event_id = None
+            matched_league = None
+            home_team_idx = 0  # index of our home team in ESPN's competitors list
+
+            for slug in espn_leagues:
+                try:
+                    sb_r = requests.get(
+                        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={espn_date}",
+                        headers=req_headers, timeout=6
+                    )
+                    if sb_r.status_code != 200:
+                        continue
+                    for ev in sb_r.json().get("events", []):
+                        for comp in ev.get("competitions", []):
+                            names = [c.get("team", {}).get("displayName", "") for c in comp.get("competitors", [])]
+                            if len(names) < 2:
+                                continue
+                            if any(_team_matches(n, home) for n in names) and any(_team_matches(n, away) for n in names):
+                                event_id = comp.get("id")
+                                matched_league = slug
+                                home_team_idx = next((i for i, n in enumerate(names) if _team_matches(n, home)), 0)
+                                logger.info(f"ESPN event {event_id} found for {home} vs {away} [{slug}]")
+                                break
+                        if event_id:
+                            break
+                except Exception as e:
+                    logger.debug(f"ESPN scoreboard error [{slug}]: {e}")
+                if event_id:
+                    break
+
+            if event_id:
+                # Fetch real match stats from ESPN summary
+                try:
+                    sum_r = requests.get(
+                        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{matched_league}/summary?event={event_id}",
+                        headers=req_headers, timeout=8
+                    )
+                    if sum_r.status_code == 200:
+                        teams_data = sum_r.json().get("boxscore", {}).get("teams", [])
+                        if teams_data:
+                            def _stat(stat_list, *labels) -> Optional[float]:
+                                for s in stat_list:
+                                    lbl = s.get("label", "").upper()
+                                    for want in labels:
+                                        if want.upper() in lbl:
+                                            try:
+                                                return float(s.get("displayValue", "").replace("%", "").strip())
+                                            except ValueError:
+                                                pass
+                                return None
+
+                            h_stats = teams_data[home_team_idx].get("statistics", []) if len(teams_data) > home_team_idx else []
+                            a_stats = teams_data[1 - home_team_idx].get("statistics", []) if len(teams_data) > 1 - home_team_idx else []
+
+                            h_poss   = _stat(h_stats, "Possession")
+                            a_poss   = _stat(a_stats, "Possession")
+                            h_shots  = _stat(h_stats, "SHOTS", "Shots")
+                            a_shots  = _stat(a_stats, "SHOTS", "Shots")
+                            h_passes = _stat(h_stats, "Accurate Passes", "Passes")
+                            a_passes = _stat(a_stats, "Accurate Passes", "Passes")
+                            h_bc     = _stat(h_stats, "ON GOAL")
+                            a_bc     = _stat(a_stats, "ON GOAL")
+
+                            if h_poss is not None and h_shots is not None:
+                                total_p = (h_poss or 0) + (a_poss or 0)
+                                if total_p > 0 and abs(total_p - 100) > 2:
+                                    h_poss = round(h_poss / total_p * 100)
+                                else:
+                                    h_poss = round(h_poss or 50)
+                                a_poss = 100 - h_poss
+
+                                stats = {
+                                    "possession": [h_poss, a_poss],
+                                    "shots":      [int(h_shots or 0),  int(a_shots or 0)],
+                                    "bigChances": [int(h_bc or 0),     int(a_bc or 0)],
+                                    "passes":     [int(h_passes or 0), int(a_passes or 0)],
+                                    "predicted_score": [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
+                                }
+
+                                current_cache = load_cache()
+                                current_cache[cache_key] = stats
+                                save_cache(current_cache)
+                                logger.info(f"Cached real ESPN stats for '{home}' vs '{away}': {stats}")
+                                return stats
+                except Exception as e:
+                    logger.error(f"ESPN summary error for event {event_id}: {e}")
+
+    # 3. Dynamic Fallback to LLM / prediction model
+    logger.info(f"ESPN lookup missed or match is future ({is_future=}). Generating dynamic stats via LLM...")
+    stats = get_dynamic_match_stats_via_llm(home, away, date, home_score, away_score, is_future)
+    if stats:
+        current_cache = load_cache()
+        current_cache[cache_key] = stats
+        save_cache(current_cache)
+        return stats
+
     return None
 
+
+# ── Shared ESPN helpers ──────────────────────────────────────────────────────
+
+ESPN_LEAGUES = [
+    "fifa.world", "uefa.champions", "uefa.europa",
+    "eng.1", "esp.1", "ger.1", "ita.1", "fra.1",
+    "usa.1", "concacaf.nations.league", "conmebol.copa", "afc.asian.cup",
+]
+
+ESPN_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "application/json",
+}
+
+
+def _team_name_matches(espn_name: str, our_name: str) -> bool:
+    a = clean_text(espn_name)
+    b = clean_text(our_name)
+    return a == b or a in b or b in a or any(w in a for w in b.split() if len(w) > 3)
+
+
+def _resolve_espn_event(home: str, away: str, espn_date: str):
+    """
+    Searches ESPN scoreboard pages to find the competition event ID for a match.
+    Returns (event_id, league_slug, home_team_idx) or (None, None, 0).
+    """
+    for slug in ESPN_LEAGUES:
+        try:
+            r = requests.get(
+                f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={espn_date}",
+                headers=ESPN_HEADERS, timeout=6
+            )
+            if r.status_code != 200:
+                continue
+            for ev in r.json().get("events", []):
+                for comp in ev.get("competitions", []):
+                    names = [c.get("team", {}).get("displayName", "") for c in comp.get("competitors", [])]
+                    if len(names) < 2:
+                        continue
+                    if any(_team_name_matches(n, home) for n in names) and any(_team_name_matches(n, away) for n in names):
+                        event_id = comp.get("id")
+                        home_idx = next((i for i, n in enumerate(names) if _team_name_matches(n, home)), 0)
+                        logger.info(f"ESPN event {event_id} found for {home} vs {away} [{slug}]")
+                        return event_id, slug, home_idx
+        except Exception as e:
+            logger.debug(f"ESPN scoreboard error [{slug}]: {e}")
+    return None, None, 0
+
+
+def _espn_date_from_norm(norm_date: str) -> Optional[str]:
+    import datetime
+    for fmt in ("%d %b %Y", "%d %B %Y", "%Y-%m-%d"):
+        try:
+            return datetime.datetime.strptime(norm_date.title(), fmt).strftime("%Y%m%d")
+        except ValueError:
+            pass
+    return None
+
+
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def get_match_events(
+    home: str,
+    away: str,
+    date: str,
+) -> Optional[List[Dict[str, Any]]]:
+    """
+    Returns goal events for a match: scorer name, assister name, minute, team, and description.
+    Fetches from ESPN keyEvents (scoringPlay=True only). Caches results.
+    Returns None if the match is not on ESPN or not yet played.
+    """
+    norm_home = normalize_name(home)
+    norm_away = normalize_name(away)
+    norm_date = normalize_date_string(date)
+
+    sorted_teams = sorted([norm_home, norm_away])
+    cache_key = f"matchevents_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}"
+
+    # Cache hit
+    cache = load_cache()
+    if cache_key in cache:
+        logger.info(f"Match events for '{home}' vs '{away}' found in cache")
+        return cache[cache_key]
+
+    espn_date = _espn_date_from_norm(norm_date)
+    if not espn_date:
+        return None
+
+    event_id, matched_league, _ = _resolve_espn_event(home, away, espn_date)
+    if not event_id:
+        return None
+
+    try:
+        sum_r = requests.get(
+            f"https://site.api.espn.com/apis/site/v2/sports/soccer/{matched_league}/summary?event={event_id}",
+            headers=ESPN_HEADERS, timeout=8
+        )
+        if sum_r.status_code != 200:
+            return None
+
+        raw_events = sum_r.json().get("keyEvents", [])
+        goals = []
+        for ev in raw_events:
+            if not ev.get("scoringPlay"):
+                continue
+
+            ev_type = ev.get("type", {}).get("type", "")
+            # Include goal, header, penalty-scored, own-goal types
+            if "goal" not in ev_type and "penalty" not in ev_type:
+                continue
+
+            minute = ev.get("clock", {}).get("displayValue", "?")
+            team_name = ev.get("team", {}).get("displayName", "")
+            participants = ev.get("participants", [])
+
+            scorer = participants[0]["athlete"]["displayName"] if participants else "Unknown"
+            assister = participants[1]["athlete"]["displayName"] if len(participants) > 1 else None
+
+            is_own_goal = "own-goal" in ev_type or "own goal" in ev.get("text", "").lower()
+            is_penalty = "penalty" in ev_type
+
+            goals.append({
+                "minute": minute,
+                "scorer": scorer,
+                "assist": assister,
+                "team": team_name,
+                "ownGoal": is_own_goal,
+                "penalty": is_penalty,
+                "text": ev.get("shortText", ""),
+            })
+
+        # Cache and return
+        current_cache = load_cache()
+        current_cache[cache_key] = goals
+        save_cache(current_cache)
+        logger.info(f"Cached {len(goals)} goal events for '{home}' vs '{away}'")
+        return goals
+
+    except Exception as e:
+        logger.error(f"ESPN events error for event {event_id}: {e}")
+        return None

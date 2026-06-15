@@ -1122,6 +1122,53 @@ function stripEmoji(text) {
   return text.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
 }
 
+function convertUKTimeToIST(timeStr) {
+  if (!timeStr || !timeStr.includes(':')) return timeStr;
+  try {
+    const [h, m] = timeStr.split(':').map(Number);
+    if (isNaN(h) || isNaN(m)) return timeStr;
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    
+    // BST starts last Sunday of March and ends last Sunday of October
+    const getLastSunday = (yr, month) => {
+      const d = new Date(yr, month + 1, 0);
+      d.setDate(d.getDate() - d.getDay());
+      return d;
+    };
+    
+    const dstStart = getLastSunday(year, 2);
+    const dstEnd = getLastSunday(year, 9);
+    const isBST = today >= dstStart && today <= dstEnd;
+    
+    // BST is UTC+1, IST is UTC+5:30 (Diff is +4:30)
+    // GMT is UTC+0, IST is UTC+5:30 (Diff is +5:30)
+    const offsetHours = isBST ? 4 : 5;
+    const offsetMins = 30;
+    
+    let istH = h + offsetHours;
+    let istM = m + offsetMins;
+    
+    if (istM >= 60) {
+      istM -= 60;
+      istH += 1;
+    }
+    
+    let dayOffset = '';
+    if (istH >= 24) {
+      istH -= 24;
+      dayOffset = ' (Next Day)';
+    }
+    
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(istH)}:${pad(istM)} IST${dayOffset}`;
+  } catch (e) {
+    console.error("Time conversion error:", e);
+    return timeStr;
+  }
+}
+
 function getFlagEmoji(text) {
   if (!text) return '⚽';
   const flagMatch = text.match(/[\uD83C\uDDE6-\uD83C\uDDFF]{2}/u);

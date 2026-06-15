@@ -1649,7 +1649,7 @@ async function loadHistoricalMatches() {
             exist.hs = hs;
             exist.as = as;
             exist.status = status;
-            exist.date = 'Today';
+            exist.date = (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today';
           }
         } else {
           filteredAndMapped.push({
@@ -1658,7 +1658,7 @@ async function loadHistoricalMatches() {
             hs: hs,
             as: as,
             league: normalizedLeague,
-            date: 'Today',
+            date: (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today',
             status: status
           });
         }

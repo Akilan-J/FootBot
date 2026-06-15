@@ -267,26 +267,104 @@ def get_messages(session_id: str) -> List[Dict[str, Any]]:
     return results
 
 def save_historical_match(home: str, away: str, home_score: Optional[int], away_score: Optional[int], date_str: str, league: str) -> None:
-    """Saves a historical match scoreline to the database."""
+    """Saves a historical match scoreline to the database, updating scores if they changed, and preventing duplicates."""
+    import re
+    import datetime
+
+    def parse_date_from_str(s: str) -> Optional[datetime.date]:
+        months = {
+            'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+            'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12
+        }
+        m = re.search(r'(\d{1,2})\s+([a-zA-Z]{3,})\s+(\d{4})', s)
+        if m:
+            day = int(m.group(1))
+            month_name = m.group(2).lower()[:3]
+            year = int(m.group(3))
+            if month_name in months:
+                try:
+                    return datetime.date(year, months[month_name], day)
+                except ValueError:
+                    pass
+        return None
+
     conn = get_db_connection()
     cursor = conn.cursor()
     
     try:
-        # Prevent duplicates by checking if the exact match on this date already exists
+        # Fetch existing matches for these two teams
         cursor.execute("""
-            SELECT id FROM historical_matches 
-            WHERE home_team = ? AND away_team = ? AND match_date = ?
-        """, (home, away, date_str))
-        if cursor.fetchone():
-            return
+            SELECT id, home_score, away_score, match_date, league FROM historical_matches 
+            WHERE LOWER(home_team) = LOWER(?) AND LOWER(away_team) = LOWER(?)
+        """, (home.strip(), away.strip()))
+        
+        rows = cursor.fetchall()
+        matched_id = None
+        existing_row = None
+        
+        new_date_obj = parse_date_from_str(date_str)
+        
+        for r in rows:
+            exist_id = r["id"]
+            exist_date_str = r["match_date"]
+            exist_date_obj = parse_date_from_str(exist_date_str)
             
-        cursor.execute("""
-            INSERT INTO historical_matches (home_team, away_team, home_score, away_score, match_date, league)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (home, away, home_score, away_score, date_str, league))
-        conn.commit()
+            # Check if they are the same match
+            is_same = False
+            if new_date_obj and exist_date_obj:
+                if abs((new_date_obj - exist_date_obj).days) <= 2:
+                    is_same = True
+            else:
+                # If one or both don't have a calendar date, check substring match or text match
+                s1 = date_str.lower().strip()
+                s2 = exist_date_str.lower().strip()
+                if s1 in s2 or s2 in s1:
+                    is_same = True
+                elif not new_date_obj and not exist_date_obj:
+                    # Both are just group names/etc.
+                    is_same = True
+            
+            if is_same:
+                matched_id = exist_id
+                existing_row = r
+                break
+                
+        if matched_id is not None:
+            # We found a match! Check if we need to update the scores or the date/league
+            exist_hs = existing_row["home_score"]
+            exist_as = existing_row["away_score"]
+            exist_date_str = existing_row["match_date"]
+            
+            # Determine if new date has more details (e.g. contains calendar date while existing one doesn't)
+            exist_has_cal = parse_date_from_str(exist_date_str) is not None
+            new_has_cal = new_date_obj is not None
+            
+            updated_date = exist_date_str
+            if new_has_cal and not exist_has_cal:
+                updated_date = date_str
+            elif len(date_str) > len(exist_date_str) and (new_has_cal == exist_has_cal):
+                updated_date = date_str
+                
+            # Update if scores changed or if we got more detailed date
+            if home_score != exist_hs or away_score != exist_as or updated_date != exist_date_str:
+                cursor.execute("""
+                    UPDATE historical_matches 
+                    SET home_score = ?, away_score = ?, match_date = ?, league = ?
+                    WHERE id = ?
+                """, (home_score, away_score, updated_date, league, matched_id))
+                conn.commit()
+                logger.info(f"Updated match {home} vs {away} to {home_score}-{away_score} (Date: {updated_date})")
+        else:
+            # No match found, insert new record
+            cursor.execute("""
+                INSERT INTO historical_matches (home_team, away_team, home_score, away_score, match_date, league)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (home, away, home_score, away_score, date_str, league))
+            conn.commit()
+            logger.info(f"Inserted new match {home} vs {away} ({home_score}-{away_score})")
+            
     except Exception as e:
-        logger.error(f"Failed to save historical match: {str(e)}")
+        logger.error(f"Failed to save/update historical match: {str(e)}")
     finally:
         conn.close()
 

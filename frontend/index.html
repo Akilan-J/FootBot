@@ -1635,13 +1635,21 @@ async function loadHistoricalMatches() {
           }
         }
         
-        // Prevent duplication
-        const isDuplicate = filteredAndMapped.some(x => 
-          stripEmoji(x.home).toLowerCase() === stripEmoji(m.home_team).toLowerCase() && 
-          stripEmoji(x.away).toLowerCase() === stripEmoji(m.away_team).toLowerCase()
+        // Prevent duplication / merge live updates
+        const existingIdx = filteredAndMapped.findIndex(x => 
+          stripEmoji(x.home).toLowerCase().trim() === stripEmoji(m.home_team).toLowerCase().trim() && 
+          stripEmoji(x.away).toLowerCase().trim() === stripEmoji(m.away_team).toLowerCase().trim()
         );
         
-        if (!isDuplicate) {
+        if (existingIdx !== -1) {
+          const exist = filteredAndMapped[existingIdx];
+          if (status === 'LIVE' || exist.hs === '?' || (hs !== '?' && hs !== exist.hs) || (as !== '?' && as !== exist.as)) {
+            exist.hs = hs;
+            exist.as = as;
+            exist.status = status;
+            exist.date = 'Today';
+          }
+        } else {
           filteredAndMapped.push({
             home: m.home_team,
             away: m.away_team,
@@ -2867,6 +2875,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
   }
+  // Setup interval to fetch/update scores every 60 seconds
+  setInterval(silentCrawlMatches, 60000);
 });
 </script>
 </body>

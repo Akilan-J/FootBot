@@ -210,7 +210,7 @@ def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
     
     today = datetime.date.today()
     urls_to_crawl = [
-        ("https://www.bbc.com/sport/football/scores-fixtures", "Today"),
+        ("https://www.bbc.com/sport/football/scores-fixtures", today.strftime("%d %b %Y")),
         (f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=1)}", (today - datetime.timedelta(days=1)).strftime("%d %b %Y")),
         (f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=2)}", (today - datetime.timedelta(days=2)).strftime("%d %b %Y")),
     ]

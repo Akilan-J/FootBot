@@ -9283,1120 +9283,6 @@
             "sofa_id": "123457"
         }
     ],
-    "germany_vs_curacao_14 jun 2026": [
-        {
-            "name": "Manuel Neuer",
-            "jersey": "1",
-            "rating": 7.2,
-            "pos": "GK",
-            "photo": "frontend/assets/manuel_neuer.png",
-            "age": "40",
-            "val": "€4M",
-            "height": "193 cm",
-            "sofa_id": "14846"
-        },
-        {
-            "name": "Joshua Kimmich",
-            "jersey": "6",
-            "rating": 8.6,
-            "pos": "RB",
-            "photo": "frontend/assets/joshua_kimmich.png",
-            "age": "31",
-            "val": "€50M",
-            "height": "177 cm",
-            "sofa_id": "256926"
-        },
-        {
-            "name": "Jonathan Tah",
-            "jersey": "4",
-            "rating": 7.3,
-            "pos": "RCB",
-            "photo": "frontend/assets/jonathan_tah.png",
-            "age": "30",
-            "val": "€30M",
-            "height": "195 cm",
-            "sofa_id": "153164"
-        },
-        {
-            "name": "Nico Schlotterbeck",
-            "jersey": "15",
-            "rating": 8.2,
-            "pos": "LCB",
-            "photo": "frontend/assets/nico_schlotterbeck.png",
-            "age": "26",
-            "val": "€40M",
-            "height": "191 cm",
-            "sofa_id": "935043"
-        },
-        {
-            "name": "Nathaniel Brown",
-            "jersey": "3",
-            "rating": 8.0,
-            "pos": "LB",
-            "photo": "frontend/assets/nathaniel_brown.png",
-            "age": "22",
-            "val": "€10M",
-            "height": "179 cm",
-            "sofa_id": "1169389"
-        },
-        {
-            "name": "Aleksandar Pavlović",
-            "jersey": "16",
-            "rating": 7.7,
-            "pos": "RDM",
-            "photo": "frontend/assets/aleksandar_pavlovi.png",
-            "age": "22",
-            "val": "€25M",
-            "height": "188 cm",
-            "sofa_id": "1138865"
-        },
-        {
-            "name": "Felix Nmecha",
-            "jersey": "8",
-            "rating": 8.4,
-            "pos": "LDM",
-            "photo": "frontend/assets/felix_nmecha.png",
-            "age": "25",
-            "val": "€20M",
-            "height": "186 cm",
-            "sofa_id": "953043"
-        },
-        {
-            "name": "Leroy Sané",
-            "jersey": "19",
-            "rating": 7.8,
-            "pos": "RAM",
-            "photo": "frontend/assets/leroy_san.png",
-            "age": "30",
-            "val": "€70M",
-            "height": "183 cm",
-            "sofa_id": "234720"
-        },
-        {
-            "name": "Jamal Musiala",
-            "jersey": "10",
-            "rating": 8.5,
-            "pos": "CAM",
-            "photo": "frontend/assets/jamal_musiala.png",
-            "age": "23",
-            "val": "€110M",
-            "height": "184 cm",
-            "sofa_id": "966373"
-        },
-        {
-            "name": "Florian Wirtz",
-            "jersey": "17",
-            "rating": 7.9,
-            "pos": "LAM",
-            "photo": "frontend/assets/florian_wirtz.png",
-            "age": "23",
-            "val": "€110M",
-            "height": "176 cm",
-            "sofa_id": "959253"
-        },
-        {
-            "name": "Kai Havertz",
-            "jersey": "7",
-            "rating": 9.2,
-            "pos": "ST",
-            "photo": "frontend/assets/kai_havertz.png",
-            "age": "27",
-            "val": "€60M",
-            "height": "193 cm",
-            "sofa_id": "824147"
-        }
-    ],
-    "curacao_vs_germany_14 jun 2026": [
-        {
-            "name": "Eloy Room",
-            "jersey": "1",
-            "rating": 5.1,
-            "pos": "GK",
-            "photo": "frontend/assets/eloy_room.png",
-            "age": "37",
-            "val": "€300K",
-            "height": "190 cm",
-            "sofa_id": "40387"
-        },
-        {
-            "name": "Sherel Floranus",
-            "jersey": "2",
-            "rating": 5.4,
-            "pos": "RB",
-            "photo": "frontend/assets/sherel_floranus.png",
-            "age": "27",
-            "val": "€800K",
-            "height": "181 cm",
-            "sofa_id": "826725"
-        },
-        {
-            "name": "Armando Obispo",
-            "jersey": "4",
-            "rating": 5.2,
-            "pos": "RCB",
-            "photo": "frontend/assets/armando_obispo.png",
-            "age": "27",
-            "val": "€2.5M",
-            "height": "187 cm",
-            "sofa_id": "860471"
-        },
-        {
-            "name": "Riechedly Bazoer",
-            "jersey": "3",
-            "rating": 5.3,
-            "pos": "LCB",
-            "photo": "frontend/assets/riechedly_bazoer.png",
-            "age": "29",
-            "val": "€3.5M",
-            "height": "184 cm",
-            "sofa_id": "244465"
-        },
-        {
-            "name": "Deveron Fonville",
-            "jersey": "5",
-            "rating": 5.0,
-            "pos": "LB",
-            "photo": "frontend/assets/deveron_fonville.png",
-            "age": "23",
-            "val": "€200K",
-            "height": "178 cm",
-            "sofa_id": "966601"
-        },
-        {
-            "name": "Juninho Bacuna",
-            "jersey": "7",
-            "rating": 6.1,
-            "pos": "RDM",
-            "photo": "frontend/assets/juninho_bacuna.png",
-            "age": "28",
-            "val": "€2M",
-            "height": "178 cm",
-            "sofa_id": "333346"
-        },
-        {
-            "name": "Livano Comenencia",
-            "jersey": "6",
-            "rating": 7.0,
-            "pos": "LDM",
-            "photo": "frontend/assets/livano_comenencia.png",
-            "age": "22",
-            "val": "€1.5M",
-            "height": "180 cm",
-            "sofa_id": "865778"
-        },
-        {
-            "name": "Tahith Chong",
-            "jersey": "10",
-            "rating": 6.2,
-            "pos": "RAM",
-            "photo": "frontend/assets/tahith_chong.png",
-            "age": "26",
-            "val": "€10M",
-            "height": "185 cm",
-            "sofa_id": "830225"
-        },
-        {
-            "name": "Leandro Bacuna",
-            "jersey": "8",
-            "rating": 5.8,
-            "pos": "CAM",
-            "photo": "frontend/assets/leandro_bacuna.png",
-            "age": "34",
-            "val": "€400K",
-            "height": "187 cm",
-            "sofa_id": "316654"
-        },
-        {
-            "name": "Sontje Hansen",
-            "jersey": "11",
-            "rating": 5.9,
-            "pos": "LAM",
-            "photo": "frontend/assets/sontje_hansen.png",
-            "age": "24",
-            "val": "€3M",
-            "height": "173 cm",
-            "sofa_id": "966835"
-        },
-        {
-            "name": "Jürgen Locadia",
-            "jersey": "9",
-            "rating": 5.6,
-            "pos": "ST",
-            "photo": "frontend/assets/jrgen_locadia.png",
-            "age": "32",
-            "val": "€500K",
-            "height": "185 cm",
-            "sofa_id": "833099"
-        }
-    ],
-    "germany_vs_curacao_14 jun 2026 - group e": [
-        {
-            "name": "Kevin Köhler",
-            "jersey": "1",
-            "rating": 6.8,
-            "pos": "GK",
-            "photo": "none",
-            "age": "32",
-            "val": "€10M",
-            "height": "185 cm",
-            "sofa_id": "12345"
-        },
-        {
-            "name": "Joshua Kimmich",
-            "jersey": "6",
-            "rating": 7.2,
-            "pos": "RB",
-            "photo": "frontend/assets/joshua_kimmich.png",
-            "age": "30",
-            "val": "€50M",
-            "height": "178 cm",
-            "sofa_id": "67890"
-        },
-        {
-            "name": "Dayot Upamecano",
-            "jersey": "2",
-            "rating": 7.0,
-            "pos": "RCB",
-            "photo": "frontend/assets/dayot_upamecano.png",
-            "age": "25",
-            "val": "€60M",
-            "height": "185 cm",
-            "sofa_id": "24680"
-        },
-        {
-            "name": "Matys de Ligt",
-            "jersey": "4",
-            "rating": 6.9,
-            "pos": "LCB",
-            "photo": "none",
-            "age": "25",
-            "val": "€55M",
-            "height": "180 cm",
-            "sofa_id": "13579"
-        },
-        {
-            "name": "Paul Jaeckel",
-            "jersey": "3",
-            "rating": 6.5,
-            "pos": "LB",
-            "photo": "frontend/assets/paul_jaeckel.png",
-            "age": "24",
-            "val": "€15M",
-            "height": "175 cm",
-            "sofa_id": "11223"
-        },
-        {
-            "name": "Toni Kroos",
-            "jersey": "8",
-            "rating": 7.1,
-            "pos": "LDM",
-            "photo": "frontend/assets/toni_kroos.png",
-            "age": "32",
-            "val": "€20M",
-            "height": "178 cm",
-            "sofa_id": "44556"
-        },
-        {
-            "name": "Dominik Szoboszlai",
-            "jersey": "10",
-            "rating": 7.3,
-            "pos": "RDM",
-            "photo": "frontend/assets/dominik_szoboszlai.png",
-            "age": "26",
-            "val": "€45M",
-            "height": "175 cm",
-            "sofa_id": "77889"
-        },
-        {
-            "name": "Emiliano Brandt",
-            "jersey": "7",
-            "rating": 7.4,
-            "pos": "CAM",
-            "photo": "none",
-            "age": "25",
-            "val": "€40M",
-            "height": "175 cm",
-            "sofa_id": "99001"
-        },
-        {
-            "name": "Jadon Sancho",
-            "jersey": "11",
-            "rating": 7.6,
-            "pos": "RAM",
-            "photo": "frontend/assets/jadon_sancho.png",
-            "age": "24",
-            "val": "€45M",
-            "height": "175 cm",
-            "sofa_id": "22334"
-        },
-        {
-            "name": "Erling Haaland",
-            "jersey": "9",
-            "rating": 8.2,
-            "pos": "ST",
-            "photo": "frontend/assets/erling_haaland.png",
-            "age": "23",
-            "val": "€75M",
-            "height": "184 cm",
-            "sofa_id": "55667"
-        },
-        {
-            "name": "Leroy Sané",
-            "jersey": "19",
-            "rating": 7.0,
-            "pos": "LW",
-            "photo": "frontend/assets/leroy_san.png",
-            "age": "27",
-            "val": "€30M",
-            "height": "178 cm",
-            "sofa_id": "88990"
-        }
-    ],
-    "australia_vs_turkey_14 jun 2026 - group d": [
-        {
-            "name": "Jack Duncan",
-            "jersey": "1",
-            "rating": 6.8,
-            "pos": "GK",
-            "photo": "frontend/assets/jack_duncan.png",
-            "age": "28",
-            "val": "€5M",
-            "height": "187 cm",
-            "sofa_id": "12345"
-        },
-        {
-            "name": "Nathaniel Atkinson",
-            "jersey": "2",
-            "rating": 6.9,
-            "pos": "RB",
-            "photo": "frontend/assets/nathaniel_atkinson.png",
-            "age": "26",
-            "val": "€8M",
-            "height": "178 cm",
-            "sofa_id": "12346"
-        },
-        {
-            "name": "Harry Souttar",
-            "jersey": "4",
-            "rating": 7.2,
-            "pos": "RCB",
-            "photo": "frontend/assets/harry_souttar.png",
-            "age": "29",
-            "val": "€15M",
-            "height": "185 cm",
-            "sofa_id": "12347"
-        },
-        {
-            "name": "Trent Sainsbury",
-            "jersey": "5",
-            "rating": 6.7,
-            "pos": "LCB",
-            "photo": "frontend/assets/trent_sainsbury.png",
-            "age": "27",
-            "val": "€10M",
-            "height": "183 cm",
-            "sofa_id": "12348"
-        },
-        {
-            "name": "Liam McNamara",
-            "jersey": "3",
-            "rating": 6.5,
-            "pos": "LB",
-            "photo": "none",
-            "age": "25",
-            "val": "€7M",
-            "height": "175 cm",
-            "sofa_id": "12349"
-        },
-        {
-            "name": "Jackson Irvine",
-            "jersey": "6",
-            "rating": 7.0,
-            "pos": "LDM",
-            "photo": "frontend/assets/jackson_irvine.png",
-            "age": "30",
-            "val": "€12M",
-            "height": "180 cm",
-            "sofa_id": "12350"
-        },
-        {
-            "name": "Mark Milligan",
-            "jersey": "8",
-            "rating": 6.8,
-            "pos": "RDM",
-            "photo": "frontend/assets/mark_milligan.png",
-            "age": "32",
-            "val": "€6M",
-            "height": "179 cm",
-            "sofa_id": "12351"
-        },
-        {
-            "name": "Ajdin Hrustić",
-            "jersey": "10",
-            "rating": 7.3,
-            "pos": "LCM",
-            "photo": "frontend/assets/ajdin_hrusti.png",
-            "age": "27",
-            "val": "€18M",
-            "height": "182 cm",
-            "sofa_id": "12352"
-        },
-        {
-            "name": "Cameron Burgess",
-            "jersey": "14",
-            "rating": 6.6,
-            "pos": "CM",
-            "photo": "frontend/assets/cameron_burgess.png",
-            "age": "24",
-            "val": "€9M",
-            "height": "176 cm",
-            "sofa_id": "12353"
-        },
-        {
-            "name": "Daniel Arzani",
-            "jersey": "11",
-            "rating": 7.1,
-            "pos": "RCM",
-            "photo": "frontend/assets/daniel_arzani.png",
-            "age": "26",
-            "val": "€14M",
-            "height": "174 cm",
-            "sofa_id": "12354"
-        },
-        {
-            "name": "Mitchell Duke",
-            "jersey": "9",
-            "rating": 6.9,
-            "pos": "ST",
-            "photo": "none",
-            "age": "28",
-            "val": "€11M",
-            "height": "184 cm",
-            "sofa_id": "12355"
-        }
-    ],
-    "curacao_vs_germany_14 jun 2026 - group e": [
-        {
-            "name": "Romain Gomis",
-            "jersey": "1",
-            "rating": 6.8,
-            "pos": "GK",
-            "photo": "none",
-            "age": "32",
-            "val": "€350k",
-            "height": "188 cm",
-            "sofa_id": "123456"
-        },
-        {
-            "name": "Jovan Kirov",
-            "jersey": "2",
-            "rating": 7.1,
-            "pos": "RB",
-            "photo": "frontend/assets/jovan_kirov.jpg",
-            "age": "28",
-            "val": "€400k",
-            "height": "182 cm",
-            "sofa_id": "234567"
-        },
-        {
-            "name": "Dimitri van der Heijden",
-            "jersey": "3",
-            "rating": 6.9,
-            "pos": "RCB",
-            "photo": "none",
-            "age": "30",
-            "val": "€350k",
-            "height": "185 cm",
-            "sofa_id": "345678"
-        },
-        {
-            "name": "Luis Hernandez",
-            "jersey": "4",
-            "rating": 7.0,
-            "pos": "LCB",
-            "photo": "frontend/assets/luis_hernandez.png",
-            "age": "29",
-            "val": "€370k",
-            "height": "184 cm",
-            "sofa_id": "456789"
-        },
-        {
-            "name": "Carlos Mendes",
-            "jersey": "5",
-            "rating": 6.7,
-            "pos": "LB",
-            "photo": "frontend/assets/carlos_mendes.png",
-            "age": "27",
-            "val": "€300k",
-            "height": "181 cm",
-            "sofa_id": "567890"
-        },
-        {
-            "name": "Michele de Lima",
-            "jersey": "6",
-            "rating": 7.2,
-            "pos": "CM",
-            "photo": "none",
-            "age": "26",
-            "val": "€500k",
-            "height": "178 cm",
-            "sofa_id": "678901"
-        },
-        {
-            "name": "André Silva",
-            "jersey": "7",
-            "rating": 7.3,
-            "pos": "CAM",
-            "photo": "frontend/assets/andr_silva.png",
-            "age": "25",
-            "val": "€600k",
-            "height": "176 cm",
-            "sofa_id": "789012"
-        },
-        {
-            "name": "Fernando Costa",
-            "jersey": "8",
-            "rating": 7.0,
-            "pos": "CM",
-            "photo": "frontend/assets/fernando_costa.jpg",
-            "age": "27",
-            "val": "€450k",
-            "height": "179 cm",
-            "sofa_id": "890123"
-        },
-        {
-            "name": "Raul Garcia",
-            "jersey": "9",
-            "rating": 7.5,
-            "pos": "ST",
-            "photo": "frontend/assets/raul_garcia.png",
-            "age": "24",
-            "val": "€1.2M",
-            "height": "183 cm",
-            "sofa_id": "901234"
-        },
-        {
-            "name": "Luis Perez",
-            "jersey": "10",
-            "rating": 7.4,
-            "pos": "RW",
-            "photo": "frontend/assets/luis_perez.png",
-            "age": "23",
-            "val": "€800k",
-            "height": "177 cm",
-            "sofa_id": "012345"
-        },
-        {
-            "name": "Johan van der Meer",
-            "jersey": "11",
-            "rating": 7.1,
-            "pos": "LW",
-            "photo": "none",
-            "age": "26",
-            "val": "€750k",
-            "height": "180 cm",
-            "sofa_id": "123457"
-        }
-    ],
-    "spain_vs_peru_12 jun 2026": [
-        {
-            "name": "Unai Simón",
-            "jersey": "1",
-            "rating": 7.2,
-            "pos": "GK",
-            "photo": "frontend/assets/unai_simn.png",
-            "age": "28",
-            "val": "€30M",
-            "height": "188 cm",
-            "sofa_id": "123456"
-        },
-        {
-            "name": "Dani Carvajal",
-            "jersey": "2",
-            "rating": 7.4,
-            "pos": "RB",
-            "photo": "frontend/assets/dani_carvajal.jpg",
-            "age": "31",
-            "val": "€25M",
-            "height": "178 cm",
-            "sofa_id": "789012"
-        },
-        {
-            "name": "Pau Torres",
-            "jersey": "3",
-            "rating": 7.6,
-            "pos": "RCB",
-            "photo": "frontend/assets/pau_torres.png",
-            "age": "27",
-            "val": "€50M",
-            "height": "184 cm",
-            "sofa_id": "345678"
-        },
-        {
-            "name": "Aymeric Laporte",
-            "jersey": "4",
-            "rating": 7.5,
-            "pos": "LCB",
-            "photo": "frontend/assets/aymeric_laporte.png",
-            "age": "31",
-            "val": "€40M",
-            "height": "185 cm",
-            "sofa_id": "901234"
-        },
-        {
-            "name": "Jordi Alba",
-            "jersey": "5",
-            "rating": 7.3,
-            "pos": "LB",
-            "photo": "frontend/assets/jordi_alba.png",
-            "age": "34",
-            "val": "€15M",
-            "height": "170 cm",
-            "sofa_id": "567890"
-        },
-        {
-            "name": "Sergio Busquets",
-            "jersey": "6",
-            "rating": 7.8,
-            "pos": "CM",
-            "photo": "frontend/assets/sergio_busquets.png",
-            "age": "35",
-            "val": "€20M",
-            "height": "183 cm",
-            "sofa_id": "123456"
-        },
-        {
-            "name": "Pedri",
-            "jersey": "7",
-            "rating": 8.1,
-            "pos": "CAM",
-            "photo": "frontend/assets/pedri.png",
-            "age": "23",
-            "val": "€120M",
-            "height": "178 cm",
-            "sofa_id": "789012"
-        },
-        {
-            "name": "Gavi",
-            "jersey": "8",
-            "rating": 7.7,
-            "pos": "RCM",
-            "photo": "frontend/assets/gavi.png",
-            "age": "23",
-            "val": "€80M",
-            "height": "176 cm",
-            "sofa_id": "345678"
-        },
-        {
-            "name": "Fabián Ruiz",
-            "jersey": "9",
-            "rating": 7.4,
-            "pos": "RW",
-            "photo": "frontend/assets/fabin_ruiz.png",
-            "age": "26",
-            "val": "€45M",
-            "height": "178 cm",
-            "sofa_id": "901234"
-        },
-        {
-            "name": "Álvaro Morata",
-            "jersey": "10",
-            "rating": 7.9,
-            "pos": "ST",
-            "photo": "frontend/assets/lvaro_morata.png",
-            "age": "31",
-            "val": "€35M",
-            "height": "185 cm",
-            "sofa_id": "567890"
-        },
-        {
-            "name": "Ansu Fati",
-            "jersey": "11",
-            "rating": 7.5,
-            "pos": "LW",
-            "photo": "frontend/assets/ansu_fati.png",
-            "age": "24",
-            "val": "€60M",
-            "height": "175 cm",
-            "sofa_id": "123456"
-        }
-    ],
-    "matchstats_curacao_vs_germany_14 jun 2026": {
-        "possession": [
-            65,
-            35
-        ],
-        "shots": [
-            26,
-            8
-        ],
-        "bigChances": [
-            12,
-            2
-        ],
-        "passes": [
-            554,
-            282
-        ]
-    },
-    "matchevents_curacao_vs_germany_14 jun 2026": [
-        {
-            "minute": "6'",
-            "scorer": "Felix Nmecha",
-            "assist": "Florian Wirtz",
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Felix Nmecha Goal"
-        },
-        {
-            "minute": "21'",
-            "scorer": "Livano Comenencia",
-            "assist": null,
-            "team": "Curaçao",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Livano Comenencia Goal"
-        },
-        {
-            "minute": "38'",
-            "scorer": "Nico Schlotterbeck",
-            "assist": "Nathaniel Brown",
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Nico Schlotterbeck Goal - Header"
-        },
-        {
-            "minute": "45'+5'",
-            "scorer": "Kai Havertz",
-            "assist": null,
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": true,
-            "text": "Kai Havertz Penalty - Scored"
-        },
-        {
-            "minute": "47'",
-            "scorer": "Jamal Musiala",
-            "assist": "Joshua Kimmich",
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Jamal Musiala Goal"
-        },
-        {
-            "minute": "68'",
-            "scorer": "Nathaniel Brown",
-            "assist": "Deniz Undav",
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Nathaniel Brown Goal - Volley"
-        },
-        {
-            "minute": "78'",
-            "scorer": "Deniz Undav",
-            "assist": "Joshua Kimmich",
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Deniz Undav Goal"
-        },
-        {
-            "minute": "88'",
-            "scorer": "Kai Havertz",
-            "assist": "Deniz Undav",
-            "team": "Germany",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Kai Havertz Goal"
-        }
-    ],
-    "morocco_vs_brazil_13 jun 2026": [
-        {
-            "name": "Yassine Bounou",
-            "jersey": "1",
-            "rating": 7.8,
-            "pos": "GK",
-            "photo": "frontend/assets/yassine_bounou.png",
-            "age": "31",
-            "val": "€15M",
-            "height": "193 cm",
-            "sofa_id": "123456"
-        },
-        {
-            "name": "Achraf Hakimi",
-            "jersey": "2",
-            "rating": 8.2,
-            "pos": "RB",
-            "photo": "frontend/assets/achraf_hakimi.png",
-            "age": "26",
-            "val": "€100M",
-            "height": "178 cm",
-            "sofa_id": "789012"
-        },
-        {
-            "name": "Nayef Aguerd",
-            "jersey": "15",
-            "rating": 7.5,
-            "pos": "RCB",
-            "photo": "frontend/assets/nayef_aguerd.png",
-            "age": "25",
-            "val": "€40M",
-            "height": "188 cm",
-            "sofa_id": "345678"
-        },
-        {
-            "name": "Ayoub Bouab",
-            "jersey": "4",
-            "rating": 7.3,
-            "pos": "LCB",
-            "photo": "frontend/assets/ayoub_bouab.jpg",
-            "age": "28",
-            "val": "€30M",
-            "height": "183 cm",
-            "sofa_id": "876543"
-        },
-        {
-            "name": "Oussama Idrissi",
-            "jersey": "5",
-            "rating": 7.0,
-            "pos": "LB",
-            "photo": "frontend/assets/oussama_idrissi.png",
-            "age": "28",
-            "val": "€25M",
-            "height": "175 cm",
-            "sofa_id": "987654"
-        },
-        {
-            "name": "Chakane Hicham",
-            "jersey": "6",
-            "rating": 7.7,
-            "pos": "LDM",
-            "photo": "none",
-            "age": "23",
-            "val": "€10M",
-            "height": "172 cm",
-            "sofa_id": "567890"
-        },
-        {
-            "name": "Yacine Brahimi",
-            "jersey": "10",
-            "rating": 8.5,
-            "pos": "RW",
-            "photo": "frontend/assets/yacine_brahimi.png",
-            "age": "29",
-            "val": "€35M",
-            "height": "170 cm",
-            "sofa_id": "112233"
-        },
-        {
-            "name": "Adel Taarabt",
-            "jersey": "8",
-            "rating": 7.2,
-            "pos": "LCM",
-            "photo": "frontend/assets/adel_taarabt.png",
-            "age": "30",
-            "val": "€15M",
-            "height": "178 cm",
-            "sofa_id": "223344"
-        },
-        {
-            "name": "Hakim Ziyech",
-            "jersey": "11",
-            "rating": 8.8,
-            "pos": "ST",
-            "photo": "frontend/assets/hakim_ziyech.png",
-            "age": "27",
-            "val": "€60M",
-            "height": "175 cm",
-            "sofa_id": "334455"
-        },
-        {
-            "name": "Abdelhamid Sabiri",
-            "jersey": "14",
-            "rating": 7.6,
-            "pos": "CAM",
-            "photo": "frontend/assets/abdelhamid_sabiri.png",
-            "age": "32",
-            "val": "€20M",
-            "height": "174 cm",
-            "sofa_id": "445566"
-        },
-        {
-            "name": "Yacine Brahimi",
-            "jersey": "10",
-            "rating": 8.5,
-            "pos": "RW",
-            "photo": "frontend/assets/yacine_brahimi.png",
-            "age": "29",
-            "val": "€35M",
-            "height": "170 cm",
-            "sofa_id": "112233"
-        }
-    ],
-    "matchstats_brazil_vs_morocco_13 jun 2026": {
-        "possession": [
-            49,
-            51
-        ],
-        "shots": [
-            14,
-            12
-        ],
-        "bigChances": [
-            3,
-            5
-        ],
-        "passes": [
-            419,
-            449
-        ]
-    },
-    "matchevents_brazil_vs_morocco_13 jun 2026": [
-        {
-            "minute": "21'",
-            "scorer": "Ismael Saibari",
-            "assist": "Brahim Díaz",
-            "team": "Morocco",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Ismael Saibari Goal"
-        },
-        {
-            "minute": "32'",
-            "scorer": "Vinícius Júnior",
-            "assist": "Bruno Guimarães",
-            "team": "Brazil",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Vinícius Júnior Goal"
-        }
-    ],
-    "brazil_vs_morocco_13 jun 2026": [
-        {
-            "name": "Alisson Becker",
-            "jersey": "1",
-            "rating": 8.0,
-            "pos": "GK",
-            "photo": "frontend/assets/alisson_becker.png",
-            "age": "30",
-            "val": "€80M",
-            "height": "191 cm",
-            "sofa_id": "100001"
-        },
-        {
-            "name": "Danilo",
-            "jersey": "2",
-            "rating": 7.5,
-            "pos": "RB",
-            "photo": "frontend/assets/danilo.png",
-            "age": "34",
-            "val": "€15M",
-            "height": "178 cm",
-            "sofa_id": "100002"
-        },
-        {
-            "name": "Marquinhos",
-            "jersey": "6",
-            "rating": 8.0,
-            "pos": "RCB",
-            "photo": "frontend/assets/marquinhos.png",
-            "age": "32",
-            "val": "€70M",
-            "height": "183 cm",
-            "sofa_id": "100003"
-        },
-        {
-            "name": "Eder Militao",
-            "jersey": "4",
-            "rating": 8.2,
-            "pos": "LCB",
-            "photo": "frontend/assets/eder_militao.png",
-            "age": "28",
-            "val": "€70M",
-            "height": "185 cm",
-            "sofa_id": "100004"
-        },
-        {
-            "name": "Alex Telles",
-            "jersey": "3",
-            "rating": 7.0,
-            "pos": "LB",
-            "photo": "frontend/assets/alex_telles.png",
-            "age": "34",
-            "val": "€15M",
-            "height": "178 cm",
-            "sofa_id": "100005"
-        },
-        {
-            "name": "Casemiro",
-            "jersey": "14",
-            "rating": 7.8,
-            "pos": "LDM",
-            "photo": "frontend/assets/casemiro.png",
-            "age": "34",
-            "val": "€30M",
-            "height": "188 cm",
-            "sofa_id": "100006"
-        },
-        {
-            "name": "Fabinho",
-            "jersey": "5",
-            "rating": 7.5,
-            "pos": "RDM",
-            "photo": "frontend/assets/fabinho.png",
-            "age": "32",
-            "val": "€30M",
-            "height": "179 cm",
-            "sofa_id": "100007"
-        },
-        {
-            "name": "Bruno Guimaraes",
-            "jersey": "8",
-            "rating": 8.1,
-            "pos": "CAM",
-            "photo": "frontend/assets/bruno_guimaraes.png",
-            "age": "29",
-            "val": "€70M",
-            "height": "175 cm",
-            "sofa_id": "100008"
-        },
-        {
-            "name": "Vinicius Jr",
-            "jersey": "22",
-            "rating": 8.5,
-            "pos": "LW",
-            "photo": "frontend/assets/vinicius_jr.jpg",
-            "age": "25",
-            "val": "€120M",
-            "height": "175 cm",
-            "sofa_id": "100009"
-        },
-        {
-            "name": "Richarlison",
-            "jersey": "9",
-            "rating": 8.0,
-            "pos": "ST",
-            "photo": "frontend/assets/richarlison.png",
-            "age": "29",
-            "val": "€80M",
-            "height": "175 cm",
-            "sofa_id": "100010"
-        },
-        {
-            "name": "Raphinha",
-            "jersey": "20",
-            "rating": 8.2,
-            "pos": "RW",
-            "photo": "frontend/assets/raphinha.png",
-            "age": "30",
-            "val": "€80M",
-            "height": "178 cm",
-            "sofa_id": "100011"
-        }
-    ],
     "argentina_vs_france_18 dec 2022": [
         {
             "name": "Emiliano Martínez",
@@ -11122,145 +10008,3129 @@
             "text": "Julian Ryerson Goal"
         }
     ],
-    "liverpool_vs_psg_16 jun 2026": [
+    "haiti_vs_new zealand_friendlies 2": [
         {
-            "name": "Alisson Becker",
+            "name": "Jhonnel Saint Jean",
             "jersey": "1",
-            "rating": 8.8,
+            "rating": 6.8,
             "pos": "GK",
-            "photo": "frontend/assets/alisson_becker.png",
-            "age": "32",
-            "val": "€100M",
+            "photo": "none",
+            "age": "27",
+            "val": "€1M",
             "height": "183 cm",
             "sofa_id": ""
         },
         {
-            "name": "Trent Alexander-Arnold",
-            "jersey": "66",
-            "rating": 7.7,
+            "name": "Jérémy Jean Louis",
+            "jersey": "2",
+            "rating": 7.2,
             "pos": "RB",
-            "photo": "frontend/assets/trent_alexander_arnold.png",
-            "age": "26",
+            "photo": "none",
+            "age": "24",
+            "val": "€2M",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Daniele Colucci",
+            "jersey": "3",
+            "rating": 6.5,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "29",
+            "val": "€3M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jérémy Sanon",
+            "jersey": "4",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "23",
+            "val": "€1.5M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jhonnel Saint Jean",
+            "jersey": "5",
+            "rating": 6.9,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "27",
+            "val": "€1.2M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jérémy Jean Louis",
+            "jersey": "6",
+            "rating": 7.1,
+            "pos": "RCM",
+            "photo": "none",
+            "age": "24",
+            "val": "€2.5M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Daniele Colucci",
+            "jersey": "7",
+            "rating": 6.6,
+            "pos": "LCM",
+            "photo": "none",
+            "age": "29",
+            "val": "€3.2M",
+            "height": "179 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jérémy Sanon",
+            "jersey": "8",
+            "rating": 7.3,
+            "pos": "CAM",
+            "photo": "none",
+            "age": "23",
+            "val": "€2M",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jhonnel Saint Jean",
+            "jersey": "9",
+            "rating": 7.5,
+            "pos": "ST",
+            "photo": "none",
+            "age": "27",
+            "val": "€1.8M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jérémy Jean Louis",
+            "jersey": "10",
+            "rating": 7.4,
+            "pos": "RW",
+            "photo": "none",
+            "age": "24",
+            "val": "€2.8M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Daniele Colucci",
+            "jersey": "11",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "none",
+            "age": "29",
+            "val": "€3.5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_haiti_vs_new zealand_friendlies 2": {
+        "possession": [
+            60,
+            40
+        ],
+        "shots": [
+            16,
+            8
+        ],
+        "bigChances": [
+            5,
+            1
+        ],
+        "passes": [
+            550,
+            400
+        ],
+        "predicted_score": [
+            4,
+            0
+        ]
+    },
+    "brazil_vs_morocco_13 jun 2026": [
+        {
+            "name": "Alisson Becker",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "",
+            "age": "33",
+            "val": "€28M",
+            "height": "193 cm",
+            "sofa_id": "333100"
+        },
+        {
+            "name": "Roger Ibañez",
+            "jersey": "24",
+            "rating": 6.2,
+            "pos": "RB",
+            "photo": "",
+            "age": "27",
+            "val": "€20M",
+            "height": "186 cm",
+            "sofa_id": "930214"
+        },
+        {
+            "name": "Marquinhos",
+            "jersey": "4",
+            "rating": 7.3,
+            "pos": "RCB",
+            "photo": "",
+            "age": "31",
             "val": "€50M",
             "height": "183 cm",
+            "sofa_id": "148425"
+        },
+        {
+            "name": "Gabriel Magalhães",
+            "jersey": "3",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "28",
+            "val": "€65M",
+            "height": "190 cm",
+            "sofa_id": "860471"
+        },
+        {
+            "name": "Douglas Santos",
+            "jersey": "16",
+            "rating": 7.2,
+            "pos": "LB",
+            "photo": "",
+            "age": "32",
+            "val": "€5M",
+            "height": "175 cm",
+            "sofa_id": "316654"
+        },
+        {
+            "name": "Casemiro",
+            "jersey": "5",
+            "rating": 6.6,
+            "pos": "DM",
+            "photo": "",
+            "age": "34",
+            "val": "€20M",
+            "height": "185 cm",
+            "sofa_id": "136015"
+        },
+        {
+            "name": "Bruno Guimarães",
+            "jersey": "8",
+            "rating": 6.7,
+            "pos": "CM",
+            "photo": "",
+            "age": "28",
+            "val": "€70M",
+            "height": "182 cm",
+            "sofa_id": "830225"
+        },
+        {
+            "name": "Lucas Paquetá",
+            "jersey": "20",
+            "rating": 6.9,
+            "pos": "CM",
+            "photo": "",
+            "age": "28",
+            "val": "€55M",
+            "height": "180 cm",
+            "sofa_id": "829285"
+        },
+        {
+            "name": "Raphinha",
+            "jersey": "11",
+            "rating": 6.5,
+            "pos": "RW",
+            "photo": "",
+            "age": "29",
+            "val": "€50M",
+            "height": "176 cm",
+            "sofa_id": "826725"
+        },
+        {
+            "name": "Vinícius Júnior",
+            "jersey": "7",
+            "rating": 8.0,
+            "pos": "LW",
+            "photo": "",
+            "age": "25",
+            "val": "€150M",
+            "height": "176 cm",
+            "sofa_id": "862217"
+        },
+        {
+            "name": "Igor Thiago",
+            "jersey": "25",
+            "rating": 6.2,
+            "pos": "ST",
+            "photo": "",
+            "age": "24",
+            "val": "€25M",
+            "height": "188 cm",
+            "sofa_id": "966601"
+        }
+    ],
+    "morocco_vs_brazil_13 jun 2026": [
+        {
+            "name": "Yassine Bounou",
+            "jersey": "1",
+            "rating": 6.9,
+            "pos": "GK",
+            "photo": "",
+            "age": "35",
+            "val": "€10M",
+            "height": "193 cm",
+            "sofa_id": "824418"
+        },
+        {
+            "name": "Achraf Hakimi",
+            "jersey": "2",
+            "rating": 7.2,
+            "pos": "RB",
+            "photo": "",
+            "age": "27",
+            "val": "€60M",
+            "height": "183 cm",
+            "sofa_id": "824424"
+        },
+        {
+            "name": "Chadi Riad",
+            "jersey": "18",
+            "rating": 6.6,
+            "pos": "RCB",
+            "photo": "",
+            "age": "22",
+            "val": "€15M",
+            "height": "187 cm",
+            "sofa_id": "1269389"
+        },
+        {
+            "name": "Issa Diop",
+            "jersey": "14",
+            "rating": 6.6,
+            "pos": "LCB",
+            "photo": "",
+            "age": "29",
+            "val": "€20M",
+            "height": "194 cm",
+            "sofa_id": "832791"
+        },
+        {
+            "name": "Noussair Mazraoui",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "",
+            "age": "28",
+            "val": "€30M",
+            "height": "183 cm",
+            "sofa_id": "863339"
+        },
+        {
+            "name": "Ayyoub Bouaddi",
+            "jersey": "6",
+            "rating": 6.9,
+            "pos": "DM",
+            "photo": "",
+            "age": "18",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "1138865"
+        },
+        {
+            "name": "Azzedine Ounahi",
+            "jersey": "8",
+            "rating": 6.7,
+            "pos": "CM",
+            "photo": "",
+            "age": "26",
+            "val": "€12M",
+            "height": "182 cm",
+            "sofa_id": "959253"
+        },
+        {
+            "name": "Bilal El Khannouss",
+            "jersey": "23",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "",
+            "age": "22",
+            "val": "€25M",
+            "height": "180 cm",
+            "sofa_id": "966835"
+        },
+        {
+            "name": "Neil El Aynaoui",
+            "jersey": "24",
+            "rating": 6.9,
+            "pos": "CAM",
+            "photo": "",
+            "age": "24",
+            "val": "€8M",
+            "height": "184 cm",
+            "sofa_id": "1018596"
+        },
+        {
+            "name": "Ismael Saibari",
+            "jersey": "11",
+            "rating": 7.8,
+            "pos": "LW",
+            "photo": "",
+            "age": "25",
+            "val": "€15M",
+            "height": "186 cm",
+            "sofa_id": "1085352"
+        },
+        {
+            "name": "Brahim Díaz",
+            "jersey": "10",
+            "rating": 6.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "26",
+            "val": "€40M",
+            "height": "171 cm",
+            "sofa_id": "925345"
+        }
+    ],
+    "belgium_vs_egypt_16 jun 2026": [
+        {
+            "name": "Koen Casteels",
+            "jersey": "1",
+            "rating": 6.5,
+            "pos": "GK",
+            "photo": "",
+            "age": "33",
+            "val": "€12M",
+            "height": "197 cm",
+            "sofa_id": "14846"
+        },
+        {
+            "name": "Timothy Castagne",
+            "jersey": "21",
+            "rating": 6.7,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€18M",
+            "height": "185 cm",
+            "sofa_id": "256926"
+        },
+        {
+            "name": "Wout Faes",
+            "jersey": "4",
+            "rating": 6.8,
+            "pos": "RCB",
+            "photo": "",
+            "age": "28",
+            "val": "€20M",
+            "height": "187 cm",
+            "sofa_id": "825227"
+        },
+        {
+            "name": "Jan Vertonghen",
+            "jersey": "5",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "39",
+            "val": "€1.5M",
+            "height": "189 cm",
+            "sofa_id": "23456"
+        },
+        {
+            "name": "Arthur Theate",
+            "jersey": "3",
+            "rating": 6.9,
+            "pos": "LB",
+            "photo": "",
+            "age": "26",
+            "val": "€22M",
+            "height": "185 cm",
+            "sofa_id": "966835"
+        },
+        {
+            "name": "Amadou Onana",
+            "jersey": "6",
+            "rating": 7.2,
+            "pos": "DM",
+            "photo": "",
+            "age": "24",
+            "val": "€50M",
+            "height": "192 cm",
+            "sofa_id": "831626"
+        },
+        {
+            "name": "Orel Mangala",
+            "jersey": "8",
+            "rating": 6.6,
+            "pos": "CM",
+            "photo": "",
+            "age": "28",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "830225"
+        },
+        {
+            "name": "Kevin De Bruyne",
+            "jersey": "7",
+            "rating": 8.4,
+            "pos": "CAM",
+            "photo": "",
+            "age": "34",
+            "val": "€60M",
+            "height": "181 cm",
+            "sofa_id": "40387"
+        },
+        {
+            "name": "Jérémy Doku",
+            "jersey": "11",
+            "rating": 7.5,
+            "pos": "LW",
+            "photo": "",
+            "age": "24",
+            "val": "€65M",
+            "height": "173 cm",
+            "sofa_id": "923363"
+        },
+        {
+            "name": "Leandro Trossard",
+            "jersey": "9",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "",
+            "age": "31",
+            "val": "€35M",
+            "height": "172 cm",
+            "sofa_id": "862217"
+        },
+        {
+            "name": "Romelu Lukaku",
+            "jersey": "10",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "33",
+            "val": "€30M",
+            "height": "191 cm",
+            "sofa_id": "34567"
+        }
+    ],
+    "egypt_vs_belgium_16 jun 2026": [
+        {
+            "name": "Mohamed El Shenawy",
+            "jersey": "1",
+            "rating": 7.4,
+            "pos": "GK",
+            "photo": "",
+            "age": "37",
+            "val": "€2M",
+            "height": "191 cm",
+            "sofa_id": "860431"
+        },
+        {
+            "name": "Mohamed Hany",
+            "jersey": "2",
+            "rating": 6.7,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€1.5M",
+            "height": "180 cm",
+            "sofa_id": "136015"
+        },
+        {
+            "name": "Mohamed Abdelmonem",
+            "jersey": "24",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "",
+            "age": "27",
+            "val": "€3M",
+            "height": "183 cm",
+            "sofa_id": "923348"
+        },
+        {
+            "name": "Ahmed Hegazi",
+            "jersey": "6",
+            "rating": 6.8,
+            "pos": "LCB",
+            "photo": "",
+            "age": "35",
+            "val": "€1M",
+            "height": "193 cm",
+            "sofa_id": "153164"
+        },
+        {
+            "name": "Mohamed Hamdi",
+            "jersey": "12",
+            "rating": 6.6,
+            "pos": "LB",
+            "photo": "",
+            "age": "31",
+            "val": "€1.2M",
+            "height": "179 cm",
+            "sofa_id": "792073"
+        },
+        {
+            "name": "Hamdi Fathi",
+            "jersey": "5",
+            "rating": 6.9,
+            "pos": "DM",
+            "photo": "",
+            "age": "31",
+            "val": "€2M",
+            "height": "180 cm",
+            "sofa_id": "15570"
+        },
+        {
+            "name": "Marwan Attia",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "",
+            "age": "27",
+            "val": "€1.5M",
+            "height": "178 cm",
+            "sofa_id": "351656"
+        },
+        {
+            "name": "Emam Ashour",
+            "jersey": "10",
+            "rating": 7.9,
+            "pos": "CAM",
+            "photo": "",
+            "age": "28",
+            "val": "€2.5M",
+            "height": "182 cm",
+            "sofa_id": "923363"
+        },
+        {
+            "name": "Mohamed Salah",
+            "jersey": "11",
+            "rating": 7.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "34",
+            "val": "€55M",
+            "height": "175 cm",
+            "sofa_id": "144181"
+        },
+        {
+            "name": "Mostafa Mohamed",
+            "jersey": "19",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "",
+            "age": "28",
+            "val": "€15M",
+            "height": "185 cm",
+            "sofa_id": "886367"
+        },
+        {
+            "name": "Mahmoud Trézéguet",
+            "jersey": "7",
+            "rating": 7.1,
+            "pos": "LW",
+            "photo": "",
+            "age": "31",
+            "val": "€6M",
+            "height": "179 cm",
+            "sofa_id": "826725"
+        }
+    ],
+    "belgium_vs_egypt_today": [
+        {
+            "name": "Koen Casteels",
+            "jersey": "1",
+            "rating": 6.5,
+            "pos": "GK",
+            "photo": "",
+            "age": "33",
+            "val": "€12M",
+            "height": "197 cm",
+            "sofa_id": "14846"
+        },
+        {
+            "name": "Timothy Castagne",
+            "jersey": "21",
+            "rating": 6.7,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€18M",
+            "height": "185 cm",
+            "sofa_id": "256926"
+        },
+        {
+            "name": "Wout Faes",
+            "jersey": "4",
+            "rating": 6.8,
+            "pos": "RCB",
+            "photo": "",
+            "age": "28",
+            "val": "€20M",
+            "height": "187 cm",
+            "sofa_id": "825227"
+        },
+        {
+            "name": "Jan Vertonghen",
+            "jersey": "5",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "39",
+            "val": "€1.5M",
+            "height": "189 cm",
+            "sofa_id": "23456"
+        },
+        {
+            "name": "Arthur Theate",
+            "jersey": "3",
+            "rating": 6.9,
+            "pos": "LB",
+            "photo": "",
+            "age": "26",
+            "val": "€22M",
+            "height": "185 cm",
+            "sofa_id": "966835"
+        },
+        {
+            "name": "Amadou Onana",
+            "jersey": "6",
+            "rating": 7.2,
+            "pos": "DM",
+            "photo": "",
+            "age": "24",
+            "val": "€50M",
+            "height": "192 cm",
+            "sofa_id": "831626"
+        },
+        {
+            "name": "Orel Mangala",
+            "jersey": "8",
+            "rating": 6.6,
+            "pos": "CM",
+            "photo": "",
+            "age": "28",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "830225"
+        },
+        {
+            "name": "Kevin De Bruyne",
+            "jersey": "7",
+            "rating": 8.4,
+            "pos": "CAM",
+            "photo": "",
+            "age": "34",
+            "val": "€60M",
+            "height": "181 cm",
+            "sofa_id": "40387"
+        },
+        {
+            "name": "Jérémy Doku",
+            "jersey": "11",
+            "rating": 7.5,
+            "pos": "LW",
+            "photo": "",
+            "age": "24",
+            "val": "€65M",
+            "height": "173 cm",
+            "sofa_id": "923363"
+        },
+        {
+            "name": "Leandro Trossard",
+            "jersey": "9",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "",
+            "age": "31",
+            "val": "€35M",
+            "height": "172 cm",
+            "sofa_id": "862217"
+        },
+        {
+            "name": "Romelu Lukaku",
+            "jersey": "10",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "33",
+            "val": "€30M",
+            "height": "191 cm",
+            "sofa_id": "34567"
+        }
+    ],
+    "egypt_vs_belgium_today": [
+        {
+            "name": "Mohamed El Shenawy",
+            "jersey": "1",
+            "rating": 7.4,
+            "pos": "GK",
+            "photo": "",
+            "age": "37",
+            "val": "€2M",
+            "height": "191 cm",
+            "sofa_id": "860431"
+        },
+        {
+            "name": "Mohamed Hany",
+            "jersey": "2",
+            "rating": 6.7,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€1.5M",
+            "height": "180 cm",
+            "sofa_id": "136015"
+        },
+        {
+            "name": "Mohamed Abdelmonem",
+            "jersey": "24",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "",
+            "age": "27",
+            "val": "€3M",
+            "height": "183 cm",
+            "sofa_id": "923348"
+        },
+        {
+            "name": "Ahmed Hegazi",
+            "jersey": "6",
+            "rating": 6.8,
+            "pos": "LCB",
+            "photo": "",
+            "age": "35",
+            "val": "€1M",
+            "height": "193 cm",
+            "sofa_id": "153164"
+        },
+        {
+            "name": "Mohamed Hamdi",
+            "jersey": "12",
+            "rating": 6.6,
+            "pos": "LB",
+            "photo": "",
+            "age": "31",
+            "val": "€1.2M",
+            "height": "179 cm",
+            "sofa_id": "792073"
+        },
+        {
+            "name": "Hamdi Fathi",
+            "jersey": "5",
+            "rating": 6.9,
+            "pos": "DM",
+            "photo": "",
+            "age": "31",
+            "val": "€2M",
+            "height": "180 cm",
+            "sofa_id": "15570"
+        },
+        {
+            "name": "Marwan Attia",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "",
+            "age": "27",
+            "val": "€1.5M",
+            "height": "178 cm",
+            "sofa_id": "351656"
+        },
+        {
+            "name": "Emam Ashour",
+            "jersey": "10",
+            "rating": 7.9,
+            "pos": "CAM",
+            "photo": "",
+            "age": "28",
+            "val": "€2.5M",
+            "height": "182 cm",
+            "sofa_id": "923363"
+        },
+        {
+            "name": "Mohamed Salah",
+            "jersey": "11",
+            "rating": 7.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "34",
+            "val": "€55M",
+            "height": "175 cm",
+            "sofa_id": "144181"
+        },
+        {
+            "name": "Mostafa Mohamed",
+            "jersey": "19",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "",
+            "age": "28",
+            "val": "€15M",
+            "height": "185 cm",
+            "sofa_id": "886367"
+        },
+        {
+            "name": "Mahmoud Trézéguet",
+            "jersey": "7",
+            "rating": 7.1,
+            "pos": "LW",
+            "photo": "",
+            "age": "31",
+            "val": "€6M",
+            "height": "179 cm",
+            "sofa_id": "826725"
+        }
+    ],
+    "haiti_vs_scotland_14 jun 2026 - group c": [
+        {
+            "name": "Johny Placide",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "",
+            "age": "37",
+            "val": "€200K",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Carlens Arcus",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "",
+            "age": "29",
+            "val": "€1.2M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ricardo Adé",
+            "jersey": "4",
+            "rating": 6.6,
+            "pos": "RCB",
+            "photo": "",
+            "age": "36",
+            "val": "€300K",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Alex Christian",
+            "jersey": "3",
+            "rating": 6.4,
+            "pos": "LB",
+            "photo": "",
+            "age": "32",
+            "val": "€250K",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Garissone Innocent",
+            "jersey": "6",
+            "rating": 6.3,
+            "pos": "LCB",
+            "photo": "",
+            "age": "26",
+            "val": "€200K",
+            "height": "192 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Bryan Alceus",
+            "jersey": "8",
+            "rating": 6.5,
+            "pos": "DM",
+            "photo": "",
+            "age": "29",
+            "val": "€300K",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Danley Jean Jacques",
+            "jersey": "14",
+            "rating": 6.8,
+            "pos": "CM",
+            "photo": "",
+            "age": "26",
+            "val": "€2M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Derrick Etienne",
+            "jersey": "10",
+            "rating": 6.7,
+            "pos": "CAM",
+            "photo": "",
+            "age": "29",
+            "val": "€1.5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Frantzdy Pierrot",
+            "jersey": "9",
+            "rating": 7.4,
+            "pos": "ST",
+            "photo": "",
+            "age": "31",
+            "val": "€4M",
+            "height": "194 cm",
+            "sofa_id": "832791"
+        },
+        {
+            "name": "Duckens Nazon",
+            "jersey": "11",
+            "rating": 6.9,
+            "pos": "LW",
+            "photo": "",
+            "age": "32",
+            "val": "€1.2M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Louicius Don Deedson",
+            "jersey": "7",
+            "rating": 6.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "25",
+            "val": "€1M",
+            "height": "179 cm",
+            "sofa_id": ""
+        }
+    ],
+    "scotland_vs_haiti_14 jun 2026 - group c": [
+        {
+            "name": "Angus Gunn",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "",
+            "age": "30",
+            "val": "€10M",
+            "height": "196 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Anthony Ralston",
+            "jersey": "2",
+            "rating": 6.4,
+            "pos": "RB",
+            "photo": "",
+            "age": "27",
+            "val": "€4M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ryan Porteous",
+            "jersey": "15",
+            "rating": 6.5,
+            "pos": "RCB",
+            "photo": "",
+            "age": "27",
+            "val": "€3M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jack Hendry",
+            "jersey": "13",
+            "rating": 6.8,
+            "pos": "LCB",
+            "photo": "",
+            "age": "31",
+            "val": "€4.5M",
+            "height": "192 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kieran Tierney",
+            "jersey": "3",
+            "rating": 7.1,
+            "pos": "LB",
+            "photo": "",
+            "age": "29",
+            "val": "€25M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Billy Gilmour",
+            "jersey": "14",
+            "rating": 7.2,
+            "pos": "DM",
+            "photo": "",
+            "age": "25",
+            "val": "€18M",
+            "height": "170 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Callum McGregor",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "",
+            "age": "33",
+            "val": "€9M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Scott McTominay",
+            "jersey": "4",
+            "rating": 7.6,
+            "pos": "CM",
+            "photo": "",
+            "age": "29",
+            "val": "€32M",
+            "height": "193 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "John McGinn",
+            "jersey": "7",
+            "rating": 7.3,
+            "pos": "CAM",
+            "photo": "",
+            "age": "31",
+            "val": "€30M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Che Adams",
+            "jersey": "10",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "",
+            "age": "29",
+            "val": "€15M",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Andrew Robertson",
+            "jersey": "26",
+            "rating": 7.1,
+            "pos": "LM",
+            "photo": "",
+            "age": "32",
+            "val": "€30M",
+            "height": "178 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_haiti_vs_scotland_14 jun 2026 - group c": {
+        "possession": [
+            42,
+            58
+        ],
+        "shots": [
+            8,
+            16
+        ],
+        "bigChances": [
+            1,
+            4
+        ],
+        "passes": [
+            350,
+            492
+        ]
+    },
+    "matchevents_haiti_vs_scotland_14 jun 2026 - group c": [
+        {
+            "minute": "44'",
+            "scorer": "Scott McTominay",
+            "assist": "John McGinn",
+            "team": "Scotland",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Scott McTominay Goal"
+        }
+    ],
+    "australia_vs_turkey_14 jun 2026 - group d": [
+        {
+            "name": "Mathew Ryan",
+            "jersey": "1",
+            "rating": 6.7,
+            "pos": "GK",
+            "photo": "",
+            "age": "34",
+            "val": "€4M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Gethin Jones",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€800K",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Harry Souttar",
+            "jersey": "19",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "",
+            "age": "27",
+            "val": "€8M",
+            "height": "198 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kye Rowles",
+            "jersey": "4",
+            "rating": 6.6,
+            "pos": "LCB",
+            "photo": "",
+            "age": "27",
+            "val": "€1.8M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Aziz Behich",
+            "jersey": "16",
+            "rating": 6.7,
+            "pos": "LB",
+            "photo": "",
+            "age": "35",
+            "val": "€400K",
+            "height": "170 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Keanu Baccus",
+            "jersey": "8",
+            "rating": 6.6,
+            "pos": "DM",
+            "photo": "",
+            "age": "28",
+            "val": "€1.2M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jackson Irvine",
+            "jersey": "22",
+            "rating": 6.9,
+            "pos": "CM",
+            "photo": "",
+            "age": "33",
+            "val": "€1.8M",
+            "height": "189 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Connor Metcalfe",
+            "jersey": "10",
+            "rating": 6.5,
+            "pos": "CM",
+            "photo": "",
+            "age": "26",
+            "val": "€1.5M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Martin Boyle",
+            "jersey": "6",
+            "rating": 6.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "33",
+            "val": "€1.5M",
+            "height": "172 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Mitchell Duke",
+            "jersey": "9",
+            "rating": 6.4,
+            "pos": "ST",
+            "photo": "",
+            "age": "35",
+            "val": "€500K",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Craig Goodwin",
+            "jersey": "23",
+            "rating": 7.2,
+            "pos": "LW",
+            "photo": "",
+            "age": "34",
+            "val": "€1.2M",
+            "height": "177 cm",
+            "sofa_id": ""
+        }
+    ],
+    "turkey_vs_australia_14 jun 2026 - group d": [
+        {
+            "name": "Mert Günok",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "",
+            "age": "37",
+            "val": "€1.2M",
+            "height": "196 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Mert Müldür",
+            "jersey": "18",
+            "rating": 6.9,
+            "pos": "RB",
+            "photo": "",
+            "age": "27",
+            "val": "€4.5M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Samet Akaydin",
+            "jersey": "4",
+            "rating": 6.7,
+            "pos": "RCB",
+            "photo": "",
+            "age": "32",
+            "val": "€2.5M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Abdülkerim Bardakcı",
+            "jersey": "14",
+            "rating": 6.8,
+            "pos": "LCB",
+            "photo": "",
+            "age": "31",
+            "val": "€9M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ferdi Kadıoğlu",
+            "jersey": "20",
+            "rating": 7.3,
+            "pos": "LB",
+            "photo": "",
+            "age": "26",
+            "val": "€20M",
+            "height": "174 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kaan Ayhan",
+            "jersey": "22",
+            "rating": 6.8,
+            "pos": "DM",
+            "photo": "",
+            "age": "31",
+            "val": "€4M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Hakan Çalhanoğlu",
+            "jersey": "10",
+            "rating": 7.5,
+            "pos": "CM",
+            "photo": "",
+            "age": "32",
+            "val": "€40M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Arda Güler",
+            "jersey": "8",
+            "rating": 7.8,
+            "pos": "CAM",
+            "photo": "",
+            "age": "21",
+            "val": "€15M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Yusuf Yazıcı",
+            "jersey": "11",
+            "rating": 6.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "29",
+            "val": "€12M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kenan Yıldız",
+            "jersey": "19",
+            "rating": 7.1,
+            "pos": "LW",
+            "photo": "",
+            "age": "21",
+            "val": "€30M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Barış Alper Yılmaz",
+            "jersey": "21",
+            "rating": 7.2,
+            "pos": "ST",
+            "photo": "",
+            "age": "26",
+            "val": "€15M",
+            "height": "186 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_australia_vs_turkey_14 jun 2026 - group d": {
+        "possession": [
+            45,
+            55
+        ],
+        "shots": [
+            10,
+            15
+        ],
+        "bigChances": [
+            2,
+            3
+        ],
+        "passes": [
+            392,
+            475
+        ]
+    },
+    "matchevents_australia_vs_turkey_14 jun 2026 - group d": [
+        {
+            "minute": "28'",
+            "scorer": "Arda Güler",
+            "assist": "Hakan Çalhanoğlu",
+            "team": "Turkey",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Arda Güler Goal"
+        },
+        {
+            "minute": "74'",
+            "scorer": "Barış Alper Yılmaz",
+            "assist": "Kenan Yıldız",
+            "team": "Turkey",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Barış Alper Yılmaz Goal"
+        }
+    ],
+    "netherlands_vs_japan_14 jun 2026 - group f": [
+        {
+            "name": "Bart Verbruggen",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "",
+            "age": "23",
+            "val": "€18M",
+            "height": "194 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Denzel Dumfries",
+            "jersey": "22",
+            "rating": 7.4,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€25M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Stefan de Vrij",
+            "jersey": "6",
+            "rating": 7.1,
+            "pos": "RCB",
+            "photo": "",
+            "age": "34",
+            "val": "€8M",
+            "height": "189 cm",
             "sofa_id": ""
         },
         {
             "name": "Virgil van Dijk",
             "jersey": "4",
-            "rating": 8.5,
-            "pos": "RCB",
-            "photo": "frontend/assets/virgil_van_dijk.png",
-            "age": "31",
-            "val": "€80M",
-            "height": "194 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Joe Gomez",
-            "jersey": "33",
-            "rating": 7.6,
+            "rating": 7.7,
             "pos": "LCB",
-            "photo": "frontend/assets/joe_gomez.jpg",
-            "age": "25",
-            "val": "€40M",
-            "height": "185 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Andrew Robertson",
-            "jersey": "8",
-            "rating": 7.8,
-            "pos": "LB",
-            "photo": "frontend/assets/andrew_robertson.png",
-            "age": "26",
+            "photo": "",
+            "age": "34",
             "val": "€30M",
-            "height": "183 cm",
+            "height": "193 cm",
             "sofa_id": ""
         },
         {
-            "name": "Fabinho",
-            "jersey": "44",
-            "rating": 7.5,
-            "pos": "LDM",
-            "photo": "frontend/assets/fabinho.png",
-            "age": "30",
-            "val": "€60M",
-            "height": "180 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Jordan Henderson",
-            "jersey": "14",
-            "rating": 7.4,
-            "pos": "CM",
-            "photo": "frontend/assets/jordan_henderson.png",
-            "age": "31",
-            "val": "€45M",
-            "height": "181 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Mohamed Salah",
-            "jersey": "11",
-            "rating": 8.9,
-            "pos": "RW",
-            "photo": "frontend/assets/mohamed_salah.png",
-            "age": "31",
-            "val": "€120M",
-            "height": "175 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Diogo Jota",
-            "jersey": "20",
+            "name": "Nathan Aké",
+            "jersey": "5",
             "rating": 7.3,
-            "pos": "CAM",
-            "photo": "frontend/assets/diogo_jota.png",
-            "age": "28",
-            "val": "€50M",
-            "height": "182 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Luis Díaz",
-            "jersey": "14",
-            "rating": 7.2,
-            "pos": "LW",
-            "photo": "frontend/assets/luis_daz.png",
-            "age": "23",
-            "val": "€60M",
+            "pos": "LB",
+            "photo": "",
+            "age": "31",
+            "val": "€40M",
             "height": "180 cm",
             "sofa_id": ""
         },
         {
-            "name": "Dominik Szoboszlai",
-            "jersey": "18",
-            "rating": 7.5,
-            "pos": "RM",
-            "photo": "frontend/assets/dominik_szoboszlai.png",
-            "age": "25",
-            "val": "€40M",
+            "name": "Jerdy Schouten",
+            "jersey": "14",
+            "rating": 7.1,
+            "pos": "DM",
+            "photo": "",
+            "age": "29",
+            "val": "€24M",
             "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Tijjani Reijnders",
+            "jersey": "8",
+            "rating": 7.5,
+            "pos": "CM",
+            "photo": "",
+            "age": "27",
+            "val": "€35M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Joey Veerman",
+            "jersey": "16",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "",
+            "age": "27",
+            "val": "€30M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Xavi Simons",
+            "jersey": "7",
+            "rating": 7.6,
+            "pos": "RW",
+            "photo": "",
+            "age": "23",
+            "val": "€80M",
+            "height": "179 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Memphis Depay",
+            "jersey": "10",
+            "rating": 7.2,
+            "pos": "ST",
+            "photo": "",
+            "age": "32",
+            "val": "€15M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Cody Gakpo",
+            "jersey": "11",
+            "rating": 7.5,
+            "pos": "LW",
+            "photo": "",
+            "age": "27",
+            "val": "€50M",
+            "height": "189 cm",
             "sofa_id": ""
         }
     ],
-    "matchstats_liverpool_vs_psg_16 jun 2026": {
+    "japan_vs_netherlands_14 jun 2026 - group f": [
+        {
+            "name": "Zion Suzuki",
+            "jersey": "1",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "",
+            "age": "23",
+            "val": "€15M",
+            "height": "190 cm",
+            "sofa_id": "986427"
+        },
+        {
+            "name": "Yukinari Sugawara",
+            "jersey": "2",
+            "rating": 7.2,
+            "pos": "RB",
+            "photo": "",
+            "age": "25",
+            "val": "€12M",
+            "height": "179 cm",
+            "sofa_id": "943960"
+        },
+        {
+            "name": "Ko Itakura",
+            "jersey": "4",
+            "rating": 7.3,
+            "pos": "RCB",
+            "photo": "",
+            "age": "29",
+            "val": "€15M",
+            "height": "186 cm",
+            "sofa_id": "830214"
+        },
+        {
+            "name": "Koki Machida",
+            "jersey": "15",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "28",
+            "val": "€10M",
+            "height": "190 cm",
+            "sofa_id": "834273"
+        },
+        {
+            "name": "Hiroki Ito",
+            "jersey": "21",
+            "rating": 7.4,
+            "pos": "LB",
+            "photo": "",
+            "age": "27",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "867258"
+        },
+        {
+            "name": "Wataru Endo",
+            "jersey": "6",
+            "rating": 7.6,
+            "pos": "RDM",
+            "photo": "",
+            "age": "33",
+            "val": "€13M",
+            "height": "178 cm",
+            "sofa_id": "232470"
+        },
+        {
+            "name": "Hidemasa Morita",
+            "jersey": "5",
+            "rating": 7.5,
+            "pos": "LDM",
+            "photo": "",
+            "age": "31",
+            "val": "€15M",
+            "height": "177 cm",
+            "sofa_id": "866504"
+        },
+        {
+            "name": "Ritsu Doan",
+            "jersey": "8",
+            "rating": 7.5,
+            "pos": "RAM",
+            "photo": "",
+            "age": "27",
+            "val": "€18M",
+            "height": "172 cm",
+            "sofa_id": "826724"
+        },
+        {
+            "name": "Takumi Minamino",
+            "jersey": "10",
+            "rating": 7.7,
+            "pos": "CAM",
+            "photo": "",
+            "age": "31",
+            "val": "€20M",
+            "height": "174 cm",
+            "sofa_id": "232471"
+        },
+        {
+            "name": "Kaoru Mitoma",
+            "jersey": "7",
+            "rating": 8.2,
+            "pos": "LAM",
+            "photo": "",
+            "age": "29",
+            "val": "€45M",
+            "height": "178 cm",
+            "sofa_id": "863212"
+        },
+        {
+            "name": "Ayase Ueda",
+            "jersey": "9",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "27",
+            "val": "€8M",
+            "height": "182 cm",
+            "sofa_id": "886367"
+        }
+    ],
+    "matchstats_netherlands_vs_japan_14 jun 2026 - group f": {
         "possession": [
             52,
             48
         ],
         "shots": [
-            12,
-            10
+            15,
+            13
+        ],
+        "bigChances": [
+            3,
+            2
+        ],
+        "passes": [
+            495,
+            452
+        ]
+    },
+    "matchevents_netherlands_vs_japan_14 jun 2026 - group f": [
+        {
+            "minute": "12'",
+            "scorer": "Memphis Depay",
+            "assist": "Xavi Simons",
+            "team": "Netherlands",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Memphis Depay Goal"
+        },
+        {
+            "minute": "38'",
+            "scorer": "Ayase Ueda",
+            "assist": "Ritsu Doan",
+            "team": "Japan",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Ayase Ueda Goal"
+        },
+        {
+            "minute": "64'",
+            "scorer": "Cody Gakpo",
+            "assist": "Tijjani Reijnders",
+            "team": "Netherlands",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Cody Gakpo Goal"
+        },
+        {
+            "minute": "78'",
+            "scorer": "Takumi Minamino",
+            "assist": "Kaoru Mitoma",
+            "team": "Japan",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Takumi Minamino Goal"
+        }
+    ],
+    "spain_vs_cape verde_15 jun 2026 - group h": [
+        {
+            "name": "Unai Simón",
+            "jersey": "23",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "",
+            "age": "28",
+            "val": "€30M",
+            "height": "190 cm",
+            "sofa_id": "865554"
+        },
+        {
+            "name": "Dani Carvajal",
+            "jersey": "2",
+            "rating": 7.2,
+            "pos": "RB",
+            "photo": "",
+            "age": "34",
+            "val": "€12M",
+            "height": "173 cm",
+            "sofa_id": "136015"
+        },
+        {
+            "name": "Robin Le Normand",
+            "jersey": "3",
+            "rating": 7.1,
+            "pos": "RCB",
+            "photo": "",
+            "age": "29",
+            "val": "€40M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Aymeric Laporte",
+            "jersey": "14",
+            "rating": 7.3,
+            "pos": "LCB",
+            "photo": "",
+            "age": "32",
+            "val": "€20M",
+            "height": "191 cm",
+            "sofa_id": "148386"
+        },
+        {
+            "name": "Marc Cucurella",
+            "jersey": "24",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "",
+            "age": "27",
+            "val": "€25M",
+            "height": "173 cm",
+            "sofa_id": "828552"
+        },
+        {
+            "name": "Rodri",
+            "jersey": "16",
+            "rating": 8.0,
+            "pos": "DM",
+            "photo": "",
+            "age": "29",
+            "val": "€120M",
+            "height": "190 cm",
+            "sofa_id": "333346"
+        },
+        {
+            "name": "Fabián Ruiz",
+            "jersey": "8",
+            "rating": 7.4,
+            "pos": "CM",
+            "photo": "",
+            "age": "30",
+            "val": "€30M",
+            "height": "189 cm",
+            "sofa_id": "351656"
+        },
+        {
+            "name": "Pedri",
+            "jersey": "20",
+            "rating": 7.8,
+            "pos": "CAM",
+            "photo": "",
+            "age": "23",
+            "val": "€80M",
+            "height": "174 cm",
+            "sofa_id": "959253"
+        },
+        {
+            "name": "Lamine Yamal",
+            "jersey": "19",
+            "rating": 8.4,
+            "pos": "RW",
+            "photo": "",
+            "age": "18",
+            "val": "€90M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Alvaro Morata",
+            "jersey": "7",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "33",
+            "val": "€15M",
+            "height": "189 cm",
+            "sofa_id": "828236"
+        },
+        {
+            "name": "Nico Williams",
+            "jersey": "17",
+            "rating": 8.1,
+            "pos": "LW",
+            "photo": "",
+            "age": "23",
+            "val": "€60M",
+            "height": "181 cm",
+            "sofa_id": ""
+        }
+    ],
+    "cape verde_vs_spain_15 jun 2026 - group h": [
+        {
+            "name": "Vozinha",
+            "jersey": "1",
+            "rating": 6.3,
+            "pos": "GK",
+            "photo": "",
+            "age": "39",
+            "val": "€100K",
+            "height": "189 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Steven Moreira",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "",
+            "age": "31",
+            "val": "€1.5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Logan Costa",
+            "jersey": "4",
+            "rating": 6.8,
+            "pos": "RCB",
+            "photo": "",
+            "age": "25",
+            "val": "€8M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Roberto Lopes",
+            "jersey": "6",
+            "rating": 6.4,
+            "pos": "LCB",
+            "photo": "",
+            "age": "33",
+            "val": "€400K",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "João Paulo",
+            "jersey": "3",
+            "rating": 6.3,
+            "pos": "LB",
+            "photo": "",
+            "age": "28",
+            "val": "€500K",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kevin Pina",
+            "jersey": "8",
+            "rating": 6.6,
+            "pos": "DM",
+            "photo": "",
+            "age": "29",
+            "val": "€2.5M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jamiro Monteiro",
+            "jersey": "10",
+            "rating": 6.8,
+            "pos": "CM",
+            "photo": "",
+            "age": "32",
+            "val": "€2M",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Deroy Duarte",
+            "jersey": "14",
+            "rating": 6.5,
+            "pos": "CAM",
+            "photo": "",
+            "age": "26",
+            "val": "€1.8M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ryan Mendes",
+            "jersey": "7",
+            "rating": 6.9,
+            "pos": "RW",
+            "photo": "",
+            "age": "36",
+            "val": "€500K",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jovane Cabral",
+            "jersey": "11",
+            "rating": 6.6,
+            "pos": "LW",
+            "photo": "",
+            "age": "27",
+            "val": "€3.5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Garry Rodrigues",
+            "jersey": "9",
+            "rating": 6.4,
+            "pos": "ST",
+            "photo": "",
+            "age": "35",
+            "val": "€1.2M",
+            "height": "175 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_spain_vs_cape verde_15 jun 2026 - group h": {
+        "possession": [
+            68,
+            32
+        ],
+        "shots": [
+            22,
+            5
+        ],
+        "bigChances": [
+            6,
+            0
+        ],
+        "passes": [
+            712,
+            285
+        ]
+    },
+    "matchevents_spain_vs_cape verde_15 jun 2026 - group h": [],
+    "ivory coast_vs_ecuador_15 jun 2026 - group e": [
+        {
+            "name": "Yahia Fofana",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "",
+            "age": "25",
+            "val": "€6M",
+            "height": "194 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Wilfried Singo",
+            "jersey": "21",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "",
+            "age": "25",
+            "val": "€12M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ousmane Diomande",
+            "jersey": "2",
+            "rating": 7.1,
+            "pos": "RCB",
+            "photo": "",
+            "age": "22",
+            "val": "€40M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Evan Ndicka",
+            "jersey": "22",
+            "rating": 7.2,
+            "pos": "LCB",
+            "photo": "",
+            "age": "26",
+            "val": "€32M",
+            "height": "192 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ghislain Konan",
+            "jersey": "3",
+            "rating": 6.7,
+            "pos": "LB",
+            "photo": "",
+            "age": "30",
+            "val": "€8M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Franck Kessié",
+            "jersey": "8",
+            "rating": 7.3,
+            "pos": "DM",
+            "photo": "",
+            "age": "29",
+            "val": "€35M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jean Michaël Seri",
+            "jersey": "4",
+            "rating": 6.8,
+            "pos": "CM",
+            "photo": "",
+            "age": "34",
+            "val": "€2.5M",
+            "height": "168 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Seko Fofana",
+            "jersey": "6",
+            "rating": 7.1,
+            "pos": "CM",
+            "photo": "",
+            "age": "31",
+            "val": "€20M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Christian Kouamé",
+            "jersey": "20",
+            "rating": 6.7,
+            "pos": "RW",
+            "photo": "",
+            "age": "28",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Sébastien Haller",
+            "jersey": "22",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "31",
+            "val": "€25M",
+            "height": "191 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Simon Adingra",
+            "jersey": "24",
+            "rating": 7.1,
+            "pos": "LW",
+            "photo": "",
+            "age": "24",
+            "val": "€25M",
+            "height": "178 cm",
+            "sofa_id": ""
+        }
+    ],
+    "ecuador_vs_ivory coast_15 jun 2026 - group e": [
+        {
+            "name": "Alexander Domínguez",
+            "jersey": "22",
+            "rating": 6.9,
+            "pos": "GK",
+            "photo": "",
+            "age": "38",
+            "val": "€500K",
+            "height": "195 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Angelo Preciado",
+            "jersey": "17",
+            "rating": 6.7,
+            "pos": "RB",
+            "photo": "",
+            "age": "28",
+            "val": "€5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Félix Torres",
+            "jersey": "2",
+            "rating": 6.9,
+            "pos": "RCB",
+            "photo": "",
+            "age": "29",
+            "val": "€6M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Willian Pacho",
+            "jersey": "6",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "",
+            "age": "24",
+            "val": "€35M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Piero Hincapié",
+            "jersey": "3",
+            "rating": 7.2,
+            "pos": "LB",
+            "photo": "",
+            "age": "24",
+            "val": "€35M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Alan Franco",
+            "jersey": "21",
+            "rating": 6.7,
+            "pos": "DM",
+            "photo": "",
+            "age": "27",
+            "val": "€2.5M",
+            "height": "174 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Moisés Caicedo",
+            "jersey": "8",
+            "rating": 7.4,
+            "pos": "CM",
+            "photo": "",
+            "age": "24",
+            "val": "€90M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "John Yeboah",
+            "jersey": "10",
+            "rating": 6.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "25",
+            "val": "€4M",
+            "height": "170 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kendry Páez",
+            "jersey": "19",
+            "rating": 7.1,
+            "pos": "CAM",
+            "photo": "",
+            "age": "19",
+            "val": "€10M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jeremy Sarmiento",
+            "jersey": "16",
+            "rating": 6.9,
+            "pos": "LW",
+            "photo": "",
+            "age": "24",
+            "val": "€4.5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Enner Valencia",
+            "jersey": "13",
+            "rating": 6.9,
+            "pos": "ST",
+            "photo": "",
+            "age": "36",
+            "val": "€2.5M",
+            "height": "177 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_ivory coast_vs_ecuador_15 jun 2026 - group e": {
+        "possession": [
+            46,
+            54
+        ],
+        "shots": [
+            11,
+            14
         ],
         "bigChances": [
             2,
+            3
+        ],
+        "passes": [
+            380,
+            442
+        ]
+    },
+    "matchevents_ivory coast_vs_ecuador_15 jun 2026 - group e": [
+        {
+            "minute": "67'",
+            "scorer": "Sébastien Haller",
+            "assist": "Franck Kessié",
+            "team": "Ivory Coast",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Sébastien Haller Goal"
+        }
+    ],
+    "sweden_vs_tunisia_15 jun 2026 - group f": [
+        {
+            "name": "Robin Olsen",
+            "jersey": "1",
+            "rating": 6.7,
+            "pos": "GK",
+            "photo": "",
+            "age": "36",
+            "val": "€1M",
+            "height": "196 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Emil Krafth",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "",
+            "age": "31",
+            "val": "€2.5M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Victor Lindelöf",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "",
+            "age": "31",
+            "val": "€15M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Isak Hien",
+            "jersey": "4",
+            "rating": 6.9,
+            "pos": "LCB",
+            "photo": "",
+            "age": "27",
+            "val": "€8M",
+            "height": "191 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ludwig Augustinsson",
+            "jersey": "5",
+            "rating": 6.7,
+            "pos": "LB",
+            "photo": "",
+            "age": "32",
+            "val": "€2M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jens Cajuste",
+            "jersey": "8",
+            "rating": 6.7,
+            "pos": "DM",
+            "photo": "",
+            "age": "26",
+            "val": "€10M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Anton Salétros",
+            "jersey": "6",
+            "rating": 6.6,
+            "pos": "CM",
+            "photo": "",
+            "age": "28",
+            "val": "€1.5M",
+            "height": "182 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Dejan Kulusevski",
+            "jersey": "10",
+            "rating": 7.4,
+            "pos": "RW",
+            "photo": "",
+            "age": "26",
+            "val": "€50M",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Alexander Isak",
+            "jersey": "9",
+            "rating": 7.7,
+            "pos": "ST",
+            "photo": "",
+            "age": "26",
+            "val": "€75M",
+            "height": "192 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Emil Forsberg",
+            "jersey": "11",
+            "rating": 7.1,
+            "pos": "CAM",
+            "photo": "",
+            "age": "34",
+            "val": "€4M",
+            "height": "171 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Viktor Gyökeres",
+            "jersey": "17",
+            "rating": 7.6,
+            "pos": "LW",
+            "photo": "",
+            "age": "28",
+            "val": "€55M",
+            "height": "187 cm",
+            "sofa_id": ""
+        }
+    ],
+    "tunisia_vs_sweden_15 jun 2026 - group f": [
+        {
+            "name": "Bechir Ben Saïd",
+            "jersey": "22",
+            "rating": 6.4,
+            "pos": "GK",
+            "photo": "",
+            "age": "31",
+            "val": "€800K",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Wajdi Kechrida",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "",
+            "age": "30",
+            "val": "€1.2M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Dylan Bronn",
+            "jersey": "4",
+            "rating": 6.6,
+            "pos": "RCB",
+            "photo": "",
+            "age": "30",
+            "val": "€1.8M",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Yassine Meriah",
+            "jersey": "6",
+            "rating": 6.5,
+            "pos": "LCB",
+            "photo": "",
+            "age": "32",
+            "val": "€1.5M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ali Abdi",
+            "jersey": "3",
+            "rating": 6.8,
+            "pos": "LB",
+            "photo": "",
+            "age": "32",
+            "val": "€1.5M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ellyes Skhiri",
+            "jersey": "17",
+            "rating": 7.1,
+            "pos": "DM",
+            "photo": "",
+            "age": "31",
+            "val": "€13M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Aïssa Laïdouni",
+            "jersey": "14",
+            "rating": 6.9,
+            "pos": "CM",
+            "photo": "",
+            "age": "29",
+            "val": "€8M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Hamza Rafia",
+            "jersey": "10",
+            "rating": 6.7,
+            "pos": "CAM",
+            "photo": "",
+            "age": "27",
+            "val": "€2.5M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Elias Achouri",
+            "jersey": "11",
+            "rating": 6.8,
+            "pos": "RW",
+            "photo": "",
+            "age": "27",
+            "val": "€4M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Youssef Msakni",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "",
+            "age": "35",
+            "val": "€1M",
+            "height": "179 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Haythem Jouini",
+            "jersey": "9",
+            "rating": 6.4,
+            "pos": "ST",
+            "photo": "",
+            "age": "33",
+            "val": "€500K",
+            "height": "186 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_sweden_vs_tunisia_15 jun 2026 - group f": {
+        "possession": [
+            58,
+            42
+        ],
+        "shots": [
+            19,
+            8
+        ],
+        "bigChances": [
+            4,
             1
         ],
         "passes": [
-            542,
-            488
+            512,
+            375
+        ]
+    },
+    "matchevents_sweden_vs_tunisia_15 jun 2026 - group f": [
+        {
+            "minute": "34'",
+            "scorer": "Alexander Isak",
+            "assist": "Dejan Kulusevski",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Alexander Isak Goal"
+        },
+        {
+            "minute": "72'",
+            "scorer": "Viktor Gyökeres",
+            "assist": "Emil Forsberg",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Viktor Gyökeres Goal"
+        },
+        {
+            "minute": "88'",
+            "scorer": "Youssef Msakni",
+            "assist": "Hamza Rafia",
+            "team": "Tunisia",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Youssef Msakni Goal"
+        }
+    ],
+    "qatar_vs_switzerland_13 jun 2026 - group b": [
+        {
+            "name": "Meshaal Barsham",
+            "jersey": "22",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "",
+            "age": "28",
+            "val": "€1.2M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Pedro Miguel",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "",
+            "age": "35",
+            "val": "€500K",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Al-Mahdi Ali Mukhtar",
+            "jersey": "3",
+            "rating": 6.4,
+            "pos": "RCB",
+            "photo": "",
+            "age": "34",
+            "val": "€400K",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Lucas Mendes",
+            "jersey": "12",
+            "rating": 6.7,
+            "pos": "LCB",
+            "photo": "",
+            "age": "35",
+            "val": "€800K",
+            "height": "182 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Homam Ahmed",
+            "jersey": "14",
+            "rating": 6.6,
+            "pos": "LB",
+            "photo": "",
+            "age": "26",
+            "val": "€1M",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jassem Gaber",
+            "jersey": "24",
+            "rating": 6.6,
+            "pos": "DM",
+            "photo": "",
+            "age": "24",
+            "val": "€600K",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ahmed Fathy",
+            "jersey": "6",
+            "rating": 6.5,
+            "pos": "CM",
+            "photo": "",
+            "age": "33",
+            "val": "€500K",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Hassan Al-Haydos",
+            "jersey": "10",
+            "rating": 7.0,
+            "pos": "CAM",
+            "photo": "",
+            "age": "35",
+            "val": "€800K",
+            "height": "174 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Akram Afif",
+            "jersey": "11",
+            "rating": 7.7,
+            "pos": "LW",
+            "photo": "",
+            "age": "29",
+            "val": "€5M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Almoez Ali",
+            "jersey": "19",
+            "rating": 6.9,
+            "pos": "ST",
+            "photo": "",
+            "age": "29",
+            "val": "€3M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Khalid Muneer",
+            "jersey": "7",
+            "rating": 6.6,
+            "pos": "RW",
+            "photo": "",
+            "age": "27",
+            "val": "€500K",
+            "height": "173 cm",
+            "sofa_id": ""
+        }
+    ],
+    "switzerland_vs_qatar_13 jun 2026 - group b": [
+        {
+            "name": "Yann Sommer",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "",
+            "age": "37",
+            "val": "€5M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Silvan Widmer",
+            "jersey": "3",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "",
+            "age": "33",
+            "val": "€3.5M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Manuel Akanji",
+            "jersey": "5",
+            "rating": 7.4,
+            "pos": "RCB",
+            "photo": "",
+            "age": "30",
+            "val": "€45M",
+            "height": "187 cm",
+            "sofa_id": "316654"
+        },
+        {
+            "name": "Ricardo Rodriguez",
+            "jersey": "13",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "",
+            "age": "33",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Fabian Schär",
+            "jersey": "22",
+            "rating": 7.1,
+            "pos": "LB",
+            "photo": "",
+            "age": "34",
+            "val": "€8M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Remo Freuler",
+            "jersey": "8",
+            "rating": 7.1,
+            "pos": "DM",
+            "photo": "",
+            "age": "34",
+            "val": "€10M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Granit Xhaka",
+            "jersey": "10",
+            "rating": 7.6,
+            "pos": "CM",
+            "photo": "",
+            "age": "33",
+            "val": "€20M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Michel Aebischer",
+            "jersey": "20",
+            "rating": 6.9,
+            "pos": "CM",
+            "photo": "",
+            "age": "29",
+            "val": "€8M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Dan Ndoye",
+            "jersey": "19",
+            "rating": 7.1,
+            "pos": "RW",
+            "photo": "",
+            "age": "25",
+            "val": "€12M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ruben Vargas",
+            "jersey": "17",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "",
+            "age": "27",
+            "val": "€8M",
+            "height": "177 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Breel Embolo",
+            "jersey": "7",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "",
+            "age": "29",
+            "val": "€15M",
+            "height": "187 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_qatar_vs_switzerland_13 jun 2026 - group b": {
+        "possession": [
+            41,
+            59
+        ],
+        "shots": [
+            8,
+            17
+        ],
+        "bigChances": [
+            1,
+            3
+        ],
+        "passes": [
+            362,
+            510
+        ]
+    },
+    "matchevents_qatar_vs_switzerland_13 jun 2026 - group b": [
+        {
+            "minute": "31'",
+            "scorer": "Breel Embolo",
+            "assist": "Granit Xhaka",
+            "team": "Switzerland",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Breel Embolo Goal"
+        },
+        {
+            "minute": "72'",
+            "scorer": "Akram Afif",
+            "assist": "Almoez Ali",
+            "team": "Qatar",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Akram Afif Penalty"
+        }
+    ],
+    "new zealand_vs_haiti_friendlies 2": [
+        {
+            "name": "Michael Woud",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/michael_woud.png",
+            "age": "25",
+            "val": "€500K",
+            "height": "193 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Tyler Bindon",
+            "jersey": "2",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/tyler_bindon.png",
+            "age": "21",
+            "val": "€1.2M",
+            "height": "191 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Winston Reid",
+            "jersey": "4",
+            "rating": 7.1,
+            "pos": "RCB",
+            "photo": "frontend/assets/winston_reid.png",
+            "age": "35",
+            "val": "€100K",
+            "height": "191 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Nando Pijnaker",
+            "jersey": "5",
+            "rating": 6.9,
+            "pos": "LCB",
+            "photo": "frontend/assets/nando_pijnaker.png",
+            "age": "25",
+            "val": "€900K",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Dane Ingham",
+            "jersey": "3",
+            "rating": 6.8,
+            "pos": "LB",
+            "photo": "frontend/assets/dane_ingham.png",
+            "age": "25",
+            "val": "€600K",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Clayton Lewis",
+            "jersey": "7",
+            "rating": 7.3,
+            "pos": "RDM",
+            "photo": "frontend/assets/clayton_lewis.png",
+            "age": "27",
+            "val": "€800K",
+            "height": "173 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Joe Bell",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "LDM",
+            "photo": "frontend/assets/joe_bell.png",
+            "age": "25",
+            "val": "€2.5M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Bill Tuiloma",
+            "jersey": "16",
+            "rating": 7.1,
+            "pos": "CM",
+            "photo": "frontend/assets/bill_tuiloma.png",
+            "age": "29",
+            "val": "€600K",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Callum McCowatt",
+            "jersey": "11",
+            "rating": 6.9,
+            "pos": "LW",
+            "photo": "frontend/assets/callum_mccowatt.png",
+            "age": "25",
+            "val": "€1M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ben Waine",
+            "jersey": "9",
+            "rating": 7.6,
+            "pos": "ST",
+            "photo": "frontend/assets/ben_waine.png",
+            "age": "22",
+            "val": "€3M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Sarpreet Singh",
+            "jersey": "17",
+            "rating": 7.2,
+            "pos": "RW",
+            "photo": "frontend/assets/sarpreet_singh.png",
+            "age": "25",
+            "val": "€1.2M",
+            "height": "182 cm",
+            "sofa_id": ""
+        }
+    ],
+    "liverpool_vs_psg_16 jun 2026": [
+        {
+            "name": "Alisson Becker",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/alisson_becker.png",
+            "age": "33",
+            "val": "€25M",
+            "height": "193 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jeremie Frimpong",
+            "jersey": "2",
+            "rating": 7.5,
+            "pos": "RB",
+            "photo": "frontend/assets/jeremie_frimpong.png",
+            "age": "25",
+            "val": "€45M",
+            "height": "169 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Virgil van Dijk",
+            "jersey": "4",
+            "rating": 7.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/virgil_van_dijk.png",
+            "age": "34",
+            "val": "€20M",
+            "height": "195 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jarell Quansah",
+            "jersey": "78",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "frontend/assets/jarell_quansah.png",
+            "age": "23",
+            "val": "€40M",
+            "height": "191 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Milos Kerkez",
+            "jersey": "21",
+            "rating": 7.3,
+            "pos": "LB",
+            "photo": "frontend/assets/milos_kerkez.png",
+            "age": "22",
+            "val": "€35M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ryan Gravenberch",
+            "jersey": "38",
+            "rating": 8.1,
+            "pos": "RDM",
+            "photo": "frontend/assets/ryan_gravenberch.png",
+            "age": "24",
+            "val": "€75M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Alexis Mac Allister",
+            "jersey": "10",
+            "rating": 7.8,
+            "pos": "LDM",
+            "photo": "frontend/assets/alexis_mac_allister.png",
+            "age": "27",
+            "val": "€70M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Florian Wirtz",
+            "jersey": "8",
+            "rating": 8.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/florian_wirtz.png",
+            "age": "23",
+            "val": "€140M",
+            "height": "176 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Mohamed Salah",
+            "jersey": "11",
+            "rating": 8.3,
+            "pos": "RW",
+            "photo": "frontend/assets/mohamed_salah.png",
+            "age": "34",
+            "val": "€35M",
+            "height": "175 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Hugo Ekitike",
+            "jersey": "14",
+            "rating": 7.7,
+            "pos": "ST",
+            "photo": "frontend/assets/hugo_ekitike.png",
+            "age": "23",
+            "val": "€50M",
+            "height": "190 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Cody Gakpo",
+            "jersey": "18",
+            "rating": 7.6,
+            "pos": "LW",
+            "photo": "frontend/assets/cody_gakpo.png",
+            "age": "27",
+            "val": "€65M",
+            "height": "189 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_liverpool_vs_psg_16 jun 2026": {
+        "possession": [
+            55,
+            45
+        ],
+        "shots": [
+            18,
+            12
+        ],
+        "bigChances": [
+            0,
+            0
+        ],
+        "passes": [
+            600,
+            400
         ],
         "predicted_score": [
             0,
@@ -11271,413 +13141,145 @@
         {
             "name": "Alisson Becker",
             "jersey": "1",
-            "rating": 7.2,
+            "rating": 7.8,
             "pos": "GK",
             "photo": "frontend/assets/alisson_becker.png",
-            "age": "33",
-            "val": "€28M",
-            "height": "191 cm",
-            "sofa_id": "21141"
+            "age": "35",
+            "val": "€60M",
+            "height": "190 cm",
+            "sofa_id": ""
         },
         {
-            "name": "Trent Alexander-Arnold",
-            "jersey": "66",
-            "rating": 6.8,
+            "name": "Achraf Hakimi",
+            "jersey": "2",
+            "rating": 7.6,
             "pos": "RB",
-            "photo": "frontend/assets/trent_alexander_arnold.png",
-            "age": "26",
-            "val": "€70M",
-            "height": "181 cm",
-            "sofa_id": "731430"
+            "photo": "frontend/assets/achraf_hakimi.png",
+            "age": "27",
+            "val": "€75M",
+            "height": "183 cm",
+            "sofa_id": ""
         },
         {
-            "name": "Ibrahima Konaté",
-            "jersey": "5",
-            "rating": 7.5,
+            "name": "Rúben Dias",
+            "jersey": "6",
+            "rating": 7.9,
             "pos": "RCB",
-            "photo": "frontend/assets/ibrahima_konat.png",
-            "age": "26",
-            "val": "€45M",
-            "height": "194 cm",
-            "sofa_id": "913640"
+            "photo": "frontend/assets/rben_dias.png",
+            "age": "27",
+            "val": "€85M",
+            "height": "185 cm",
+            "sofa_id": ""
         },
         {
             "name": "Virgil van Dijk",
             "jersey": "4",
-            "rating": 8.1,
+            "rating": 8.0,
             "pos": "LCB",
             "photo": "frontend/assets/virgil_van_dijk.png",
             "age": "34",
-            "val": "€30M",
-            "height": "193 cm",
-            "sofa_id": "231428"
+            "val": "€70M",
+            "height": "186 cm",
+            "sofa_id": ""
         },
         {
-            "name": "Andrew Robertson",
-            "jersey": "26",
-            "rating": 7.0,
-            "pos": "LB",
-            "photo": "frontend/assets/andrew_robertson.png",
-            "age": "31",
-            "val": "€35M",
-            "height": "182 cm",
-            "sofa_id": "783144"
-        },
-        {
-            "name": "Alexis Mac Allister",
-            "jersey": "10",
-            "rating": 7.4,
-            "pos": "RCM",
-            "photo": "frontend/assets/alexis_mac_allister.png",
-            "age": "26",
-            "val": "€75M",
-            "height": "176 cm",
-            "sofa_id": "933210"
-        },
-        {
-            "name": "Dominik Szoboszlai",
-            "jersey": "8",
-            "rating": 6.9,
-            "pos": "LCM",
-            "photo": "frontend/assets/dominik_szoboszlai.png",
-            "age": "24",
-            "val": "€65M",
-            "height": "187 cm",
-            "sofa_id": "912451"
-        },
-        {
-            "name": "Ryan Gravenberch",
-            "jersey": "38",
-            "rating": 7.1,
-            "pos": "CM",
-            "photo": "frontend/assets/ryan_gravenberch.png",
-            "age": "23",
-            "val": "€40M",
-            "height": "190 cm",
-            "sofa_id": "931212"
-        },
-        {
-            "name": "Mohamed Salah",
-            "jersey": "11",
-            "rating": 8.4,
-            "pos": "RW",
-            "photo": "frontend/assets/mohamed_salah.png",
-            "age": "32",
-            "val": "€65M",
-            "height": "175 cm",
-            "sofa_id": "212132"
-        },
-        {
-            "name": "Luis Díaz",
+            "name": "Joao Cancelo",
             "jersey": "23",
-            "rating": 7.6,
-            "pos": "LW",
-            "photo": "frontend/assets/luis_daz.png",
+            "rating": 7.7,
+            "pos": "LB",
+            "photo": "frontend/assets/joao_cancelo.png",
             "age": "28",
-            "val": "€75M",
-            "height": "181 cm",
-            "sofa_id": "913441"
+            "val": "€80M",
+            "height": "180 cm",
+            "sofa_id": ""
         },
         {
-            "name": "Darwin Núñez",
+            "name": "Declan Rice",
+            "jersey": "41",
+            "rating": 7.8,
+            "pos": "LDM",
+            "photo": "frontend/assets/declan_rice.png",
+            "age": "26",
+            "val": "€100M",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Kevin De Bruyne",
+            "jersey": "17",
+            "rating": 8.2,
+            "pos": "CM",
+            "photo": "frontend/assets/kevin_de_bruyne.png",
+            "age": "32",
+            "val": "€120M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Bruno Fernandes",
+            "jersey": "8",
+            "rating": 8.0,
+            "pos": "CAM",
+            "photo": "frontend/assets/bruno_fernandes.png",
+            "age": "30",
+            "val": "€85M",
+            "height": "183 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Sadio Mané",
+            "jersey": "10",
+            "rating": 7.9,
+            "pos": "LW",
+            "photo": "frontend/assets/sadio_man.png",
+            "age": "31",
+            "val": "€50M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Erling Haaland",
             "jersey": "9",
-            "rating": 6.5,
+            "rating": 8.5,
             "pos": "ST",
-            "photo": "frontend/assets/darwin_nez.png",
-            "age": "25",
-            "val": "€60M",
-            "height": "187 cm",
-            "sofa_id": "931215"
+            "photo": "frontend/assets/erling_haaland.png",
+            "age": "28",
+            "val": "€150M",
+            "height": "194 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Vinícius Júnior",
+            "jersey": "7",
+            "rating": 8.3,
+            "pos": "RW",
+            "photo": "frontend/assets/vincius_jnior.png",
+            "age": "24",
+            "val": "€150M",
+            "height": "175 cm",
+            "sofa_id": ""
         }
     ],
     "matchstats_fictional fc_vs_obscure city_01 jan 2026": {
         "possession": [
-            48,
-            52
+            55,
+            45
         ],
         "shots": [
-            8,
-            11
+            14,
+            9
         ],
         "bigChances": [
-            1,
-            2
+            3,
+            1
         ],
         "passes": [
-            423,
-            487
+            510,
+            420
         ],
         "predicted_score": [
-            0,
-            0
-        ]
-    },
-    "egypt_vs_belgium_today": [
-        {
-            "name": "Mohamed El Shenawy",
-            "jersey": "1",
-            "rating": 7.1,
-            "pos": "GK",
-            "photo": "frontend/assets/mohamed_el_shenawy.png",
-            "age": "30",
-            "val": "€1.5M",
-            "height": "192 cm",
-            "sofa_id": "244751"
-        },
-        {
-            "name": "Mohamed Hany",
-            "jersey": "2",
-            "rating": 6.8,
-            "pos": "RB",
-            "photo": "frontend/assets/mohamed_hany.png",
-            "age": "28",
-            "val": "€800K",
-            "height": "175 cm",
-            "sofa_id": "271452"
-        },
-        {
-            "name": "Ahmed Hegazi",
-            "jersey": "4",
-            "rating": 7.2,
-            "pos": "RCB",
-            "photo": "frontend/assets/ahmed_hegazi.jpg",
-            "age": "30",
-            "val": "€1.2M",
-            "height": "186 cm",
-            "sofa_id": "178412"
-        },
-        {
-            "name": "Mohamed Abdelhamid Hassan",
-            "jersey": "5",
-            "rating": 6.9,
-            "pos": "LCB",
-            "photo": "none",
-            "age": "27",
-            "val": "€2.5M",
-            "height": "182 cm",
-            "sofa_id": "265411"
-        },
-        {
-            "name": "Mohamed Hamdi",
-            "jersey": "3",
-            "rating": 6.7,
-            "pos": "LB",
-            "photo": "frontend/assets/mohamed_hamdi.png",
-            "age": "25",
-            "val": "€1.1M",
-            "height": "178 cm",
-            "sofa_id": "312455"
-        },
-        {
-            "name": "Hamdi Farid",
-            "jersey": "6",
-            "rating": 7.0,
-            "pos": "RDM",
-            "photo": "frontend/assets/hamdi_farid.jpg",
-            "age": "26",
-            "val": "€900K",
-            "height": "177 cm",
-            "sofa_id": "298741"
-        },
-        {
-            "name": "Marwan Attia",
-            "jersey": "8",
-            "rating": 7.4,
-            "pos": "LDM",
-            "photo": "frontend/assets/marwan_attia.jpg",
-            "age": "26",
-            "val": "€1.8M",
-            "height": "180 cm",
-            "sofa_id": "341209"
-        },
-        {
-            "name": "Mohamed Elneny",
-            "jersey": "10",
-            "rating": 7.1,
-            "pos": "CM",
-            "photo": "frontend/assets/mohamed_elneny.png",
-            "age": "31",
-            "val": "€1.2M",
-            "height": "175 cm",
-            "sofa_id": "192341"
-        },
-        {
-            "name": "Omar Marmoush",
-            "jersey": "11",
-            "rating": 7.6,
-            "pos": "LW",
-            "photo": "frontend/assets/omar_marmoush.png",
-            "age": "25",
-            "val": "€12M",
-            "height": "183 cm",
-            "sofa_id": "321456"
-        },
-        {
-            "name": "Trezege",
-            "jersey": "17",
-            "rating": 6.5,
-            "pos": "RW",
-            "photo": "frontend/assets/trezege.jpg",
-            "age": "28",
-            "val": "€2.5M",
-            "height": "174 cm",
-            "sofa_id": "254112"
-        },
-        {
-            "name": "Mohamed Salah",
-            "jersey": "14",
-            "rating": 8.2,
-            "pos": "ST",
-            "photo": "frontend/assets/mohamed_salah.png",
-            "age": "31",
-            "val": "€65M",
-            "height": "175 cm",
-            "sofa_id": "214121"
-        }
-    ],
-    "matchstats_belgium_vs_egypt_today": {
-        "possession": [
-            48,
-            52
-        ],
-        "shots": [
-            10,
-            14
-        ],
-        "bigChances": [
             2,
-            4
-        ],
-        "passes": [
-            450,
-            550
-        ],
-        "predicted_score": [
-            1,
-            2
+            1
         ]
-    },
-    "belgium_vs_egypt_today": [
-        {
-            "name": "Thibaut Courtois",
-            "jersey": "1",
-            "rating": 8.1,
-            "pos": "GK",
-            "photo": "frontend/assets/thibaut_courtois.png",
-            "age": "32",
-            "val": "€85M",
-            "height": "194 cm",
-            "sofa_id": "12345"
-        },
-        {
-            "name": "Jan Vertonghen",
-            "jersey": "4",
-            "rating": 7.8,
-            "pos": "RCB",
-            "photo": "frontend/assets/jan_vertonghen.png",
-            "age": "36",
-            "val": "€15M",
-            "height": "183 cm",
-            "sofa_id": "23456"
-        },
-        {
-            "name": "Romelu Lukaku",
-            "jersey": "11",
-            "rating": 8.5,
-            "pos": "ST",
-            "photo": "frontend/assets/romelu_lukaku.png",
-            "age": "31",
-            "val": "€120M",
-            "height": "190 cm",
-            "sofa_id": "34567"
-        },
-        {
-            "name": "Kevin De Bruyne",
-            "jersey": "8",
-            "rating": 9.0,
-            "pos": "CAM",
-            "photo": "frontend/assets/kevin_de_bruyne.png",
-            "age": "31",
-            "val": "€100M",
-            "height": "184 cm",
-            "sofa_id": "45678"
-        },
-        {
-            "name": "Thomas Meunier",
-            "jersey": "7",
-            "rating": 8.3,
-            "pos": "RW",
-            "photo": "frontend/assets/thomas_meunier.png",
-            "age": "29",
-            "val": "€70M",
-            "height": "177 cm",
-            "sofa_id": "56789"
-        },
-        {
-            "name": "Youri Tielemans",
-            "jersey": "6",
-            "rating": 7.6,
-            "pos": "CM",
-            "photo": "frontend/assets/youri_tielemans.png",
-            "age": "30",
-            "val": "€40M",
-            "height": "176 cm",
-            "sofa_id": "67890"
-        },
-        {
-            "name": "Nacer Chadli",
-            "jersey": "10",
-            "rating": 7.4,
-            "pos": "LAM",
-            "photo": "frontend/assets/nacer_chadli.png",
-            "age": "32",
-            "val": "€30M",
-            "height": "176 cm",
-            "sofa_id": "78901"
-        },
-        {
-            "name": "Jan Heymans",
-            "jersey": "5",
-            "rating": 7.2,
-            "pos": "LDM",
-            "photo": "none",
-            "age": "27",
-            "val": "€25M",
-            "height": "180 cm",
-            "sofa_id": "89012"
-        },
-        {
-            "name": "Kyle Lauber",
-            "jersey": "3",
-            "rating": 7.5,
-            "pos": "RCB",
-            "photo": "frontend/assets/kyle_lauber.jpg",
-            "age": "25",
-            "val": "€20M",
-            "height": "185 cm",
-            "sofa_id": "90123"
-        },
-        {
-            "name": "Dries Mertens",
-            "jersey": "9",
-            "rating": 7.7,
-            "pos": "RW",
-            "photo": "frontend/assets/dries_mertens.png",
-            "age": "32",
-            "val": "€50M",
-            "height": "175 cm",
-            "sofa_id": "10123"
-        },
-        {
-            "name": "Arthur Theate",
-            "jersey": "2",
-            "rating": 6.8,
-            "pos": "LW",
-            "photo": "frontend/assets/arthur_theate.png",
-            "age": "24",
-            "val": "€15M",
-            "height": "178 cm",
-            "sofa_id": "11234"
-        }
-    ]
+    }
 }

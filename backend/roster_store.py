@@ -804,7 +804,10 @@ def get_real_world_roster(
                     ],
                     temperature=0.3 + (attempt * 0.1)
                 )
-                response_text = completion.choices[0].message.content.strip()
+                raw_content = completion.choices[0].message.content
+                if not raw_content:
+                    raw_content = getattr(completion.choices[0].message, 'reasoning', None) or ""
+                response_text = raw_content.strip()
                 if response_text.startswith("```json"):
                     response_text = response_text[7:]
                 if response_text.endswith("```"):
@@ -923,7 +926,10 @@ Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (lik
                     ],
                     temperature=0.3 + (attempt * 0.1)
                 )
-                response_text = completion.choices[0].message.content.strip()
+                raw_content = completion.choices[0].message.content
+                if not raw_content:
+                    raw_content = getattr(completion.choices[0].message, 'reasoning', None) or ""
+                response_text = raw_content.strip()
                 
                 # Clean markdown wrappers if any
                 if response_text.startswith("```json"):
@@ -1071,7 +1077,10 @@ def get_dynamic_match_stats_via_llm(
                     ],
                     temperature=0.3 + (attempt * 0.1)
                 )
-                res_text = completion.choices[0].message.content.strip()
+                raw_content = completion.choices[0].message.content
+                if not raw_content:
+                    raw_content = getattr(completion.choices[0].message, 'reasoning', None) or ""
+                res_text = raw_content.strip()
                 if res_text.startswith("```json"):
                     res_text = res_text[7:]
                 if res_text.endswith("```"):

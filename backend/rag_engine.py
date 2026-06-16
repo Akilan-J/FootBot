@@ -457,7 +457,6 @@ class RAGEngine:
             
         if self.openai_client is not None:
             try:
-                logger.info(f"Submitting query to OpenAI LLM ({self.model_name})...")
                 completion = self.openai_client.chat.completions.create(
                     model=self.model_name,
                     messages=[
@@ -465,9 +464,17 @@ class RAGEngine:
                         {"role": "user", "content": user_prompt}
                     ],
                     temperature=temperature,
-                    max_tokens=1500
+                    max_tokens=4000
                 )
-                response_text = completion.choices[0].message.content
+                raw_content = completion.choices[0].message.content
+                if raw_content:
+                    response_text = raw_content
+                else:
+                    reasoning = getattr(completion.choices[0].message, 'reasoning', None)
+                    if reasoning:
+                        response_text = f"💡 *Reasoning / Thoughts:*\n{reasoning}\n\n⚠️ *Note: The model's final response was truncated or not generated.*"
+                    else:
+                        response_text = "⚠️ *The AI model returned an empty response.*"
             except Exception as e:
                 logger.error(f"OpenAI API call failed: {str(e)}")
                 response_text = f"⚠️ **OpenAI API Execution Error**: {str(e)}\n\n*Please check your internet connection, API billing limits, or API key configurations in the `.env` file.*"

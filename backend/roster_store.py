@@ -256,7 +256,13 @@ def normalize_date_string(date_str: str) -> str:
         return match.group(0).lower().strip()
     # Otherwise split by " - " or "@" and take the first part
     parts = re.split(r"\s+[-@]\s+", date_str)
-    return parts[0].lower().strip()
+    res = parts[0].lower().strip()
+    if res == "today":
+        if "@" in date_str:
+            return date_str.lower().strip()
+        import datetime
+        return datetime.date.today().strftime("%d %b %Y").lower()
+    return res
 
 def load_cache() -> Dict[str, List[Dict[str, Any]]]:
     lock_path = CACHE_PATH.with_suffix(".lock")
@@ -750,9 +756,18 @@ def get_real_world_roster(
         match_key = f"{norm_name}_vs_{norm_opp}_{norm_date}"
         
         cache = load_cache()
+        roster = None
         if match_key in cache:
-            logger.info(f"Roster for '{team_name}' vs '{opponent_name}' ({match_date}) found in cache.")
             roster = cache[match_key]
+        else:
+            # Fallback for predefined "_today" keys
+            if "today" in match_date.lower():
+                today_key = f"{norm_name}_vs_{norm_opp}_today"
+                if today_key in cache:
+                    roster = cache[today_key]
+                    
+        if roster is not None:
+            logger.info(f"Roster for '{team_name}' vs '{opponent_name}' ({match_date}) found in cache.")
             updated_photos = ensure_player_photos(roster, team_name)
             if updated_photos:
                 current_cache = load_cache()
@@ -763,7 +778,11 @@ def get_real_world_roster(
     # 2. Match-specific search-grounded LLM query
     if match_key and rag_engine.openai_client is not None:
         logger.info(f"Match-specific roster for '{team_name}' vs '{opponent_name}' ({match_date}) not in cache. Querying web search & LLM...")
-        search_query = f"{team_name} {opponent_name} {match_date} starting lineup"
+        resolved_date = match_date
+        if "today" in match_date.lower():
+            import datetime
+            resolved_date = datetime.date.today().strftime("%d %b %Y")
+        search_query = f"{team_name} {opponent_name} {resolved_date} starting lineup"
         search_results = []
         try:
             search_results = rag_engine.web_search_fallback(search_query, max_results=3, clean=False)
@@ -774,7 +793,7 @@ def get_real_world_roster(
         if search_results:
             search_context = "\n".join([f"- {r['title']}: {r['body']}" for r in search_results])
             
-        prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world starting XI lineup/squad for the football team '{team_name}' in their match against '{opponent_name}' played on '{match_date}'.
+        prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world starting XI lineup/squad for the football team '{team_name}' in their match against '{opponent_name}' played on '{resolved_date}'.
         
         Here is the search context about the match:
         {search_context}

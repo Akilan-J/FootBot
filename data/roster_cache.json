@@ -13281,5 +13281,630 @@
             2,
             1
         ]
-    }
+    },
+    "norway_vs_iraq_16 jun 2026": [
+        {
+            "name": "Anders Lindegaard",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/anders_lindegaard.png",
+            "age": "34",
+            "val": "€500k",
+            "height": "188 cm",
+            "sofa_id": "12345"
+        },
+        {
+            "name": "Jonas Ulland Andersen",
+            "jersey": "2",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "frontend/assets/jonas_ulland_andersen.jpg",
+            "age": "25",
+            "val": "€2.5M",
+            "height": "181 cm",
+            "sofa_id": "67890"
+        },
+        {
+            "name": "Leo Blanca",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "23",
+            "val": "€4M",
+            "height": "190 cm",
+            "sofa_id": "11223"
+        },
+        {
+            "name": "Magnus Wolff Eikrem",
+            "jersey": "4",
+            "rating": 6.5,
+            "pos": "RCB",
+            "photo": "frontend/assets/magnus_wolff_eikrem.png",
+            "age": "31",
+            "val": "€800k",
+            "height": "185 cm",
+            "sofa_id": "44556"
+        },
+        {
+            "name": "Kim Breitholte",
+            "jersey": "5",
+            "rating": 7.1,
+            "pos": "LB",
+            "photo": "none",
+            "age": "26",
+            "val": "€1.2M",
+            "height": "180 cm",
+            "sofa_id": "77889"
+        },
+        {
+            "name": "Leo Olsen",
+            "jersey": "6",
+            "rating": 7.4,
+            "pos": "RDM",
+            "photo": "frontend/assets/leo_olsen.jpg",
+            "age": "24",
+            "val": "€5M",
+            "height": "183 cm",
+            "sofa_id": "99001"
+        },
+        {
+            "name": "Florian Maatsch",
+            "jersey": "8",
+            "rating": 7.5,
+            "pos": "LCM",
+            "photo": "none",
+            "age": "27",
+            "val": "€3.5M",
+            "height": "178 cm",
+            "sofa_id": "22334"
+        },
+        {
+            "name": "Martin Ødegaard",
+            "jersey": "10",
+            "rating": 8.2,
+            "pos": "CAM",
+            "photo": "frontend/assets/martin_degaard.png",
+            "age": "27",
+            "val": "€85M",
+            "height": "172 cm",
+            "sofa_id": "123456"
+        },
+        {
+            "name": "Antonio Nusa",
+            "jersey": "11",
+            "rating": 7.7,
+            "pos": "LW",
+            "photo": "frontend/assets/antonio_nusa.png",
+            "age": "21",
+            "val": "€18M",
+            "height": "175 cm",
+            "sofa_id": "33445"
+        },
+        {
+            "name": "Anthony Elanga",
+            "jersey": "17",
+            "rating": 7.3,
+            "pos": "RW",
+            "photo": "frontend/assets/anthony_elanga.png",
+            "age": "23",
+            "val": "€30M",
+            "height": "181 cm",
+            "sofa_id": "55667"
+        },
+        {
+            "name": "Erling Haaland",
+            "jersey": "9",
+            "rating": 8.9,
+            "pos": "ST",
+            "photo": "frontend/assets/erling_haaland.png",
+            "age": "26",
+            "val": "€180M",
+            "height": "194 cm",
+            "sofa_id": "88990"
+        }
+    ],
+    "matchstats_iraq_vs_norway_16 jun 2026": {
+        "possession": [
+            61,
+            39
+        ],
+        "shots": [
+            12,
+            11
+        ],
+        "bigChances": [
+            5,
+            1
+        ],
+        "passes": [
+            477,
+            271
+        ],
+        "predicted_score": [
+            0,
+            0
+        ]
+    },
+    "matchevents_iraq_vs_norway_16 jun 2026": [
+        {
+            "minute": "29'",
+            "scorer": "Erling Haaland",
+            "assist": "David Møller Wolfe",
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Erling Haaland Goal"
+        },
+        {
+            "minute": "39'",
+            "scorer": "Aymen Hussein",
+            "assist": "Amir Al-Ammari",
+            "team": "Iraq",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Aymen Hussein Goal - Header"
+        },
+        {
+            "minute": "43'",
+            "scorer": "Erling Haaland",
+            "assist": null,
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Erling Haaland Goal"
+        },
+        {
+            "minute": "76'",
+            "scorer": "Leo Østigard",
+            "assist": "Martin Ødegaard",
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Leo Østigard Goal - Header"
+        },
+        {
+            "minute": "90'+6'",
+            "scorer": "Aymen Hussein",
+            "assist": null,
+            "team": "Norway",
+            "ownGoal": true,
+            "penalty": false,
+            "text": "Aymen Hussein Own Goal"
+        }
+    ],
+    "iraq_vs_norway_16 jun 2026": [
+        {
+            "name": "Alaa Abdulrahman",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/alaa_abdulrahman.jpg",
+            "age": "28",
+            "val": "€2.5M",
+            "height": "188 cm",
+            "sofa_id": "123456"
+        },
+        {
+            "name": "Mohammed Al-Saadi",
+            "jersey": "4",
+            "rating": 6.8,
+            "pos": "RCB",
+            "photo": "frontend/assets/mohammed_al_saadi.jpg",
+            "age": "30",
+            "val": "€1.8M",
+            "height": "182 cm",
+            "sofa_id": "234567"
+        },
+        {
+            "name": "Hassan Al-Hamwi",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "LCB",
+            "photo": "frontend/assets/hassan_al_hamwi.jpg",
+            "age": "29",
+            "val": "€1.6M",
+            "height": "180 cm",
+            "sofa_id": "345678"
+        },
+        {
+            "name": "Yousef Al-Masri",
+            "jersey": "3",
+            "rating": 6.4,
+            "pos": "LB",
+            "photo": "none",
+            "age": "27",
+            "val": "€1.4M",
+            "height": "178 cm",
+            "sofa_id": "456789"
+        },
+        {
+            "name": "Khalid Al-Jabri",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/khalid_al_jabri.jpg",
+            "age": "26",
+            "val": "€2.0M",
+            "height": "175 cm",
+            "sofa_id": "567890"
+        },
+        {
+            "name": "Nasser Al-Harbi",
+            "jersey": "6",
+            "rating": 6.9,
+            "pos": "LDM",
+            "photo": "none",
+            "age": "28",
+            "val": "€1.9M",
+            "height": "176 cm",
+            "sofa_id": "678901"
+        },
+        {
+            "name": "Sami Al-Hamdan",
+            "jersey": "10",
+            "rating": 7.3,
+            "pos": "CAM",
+            "photo": "frontend/assets/sami_al_hamdan.jpg",
+            "age": "25",
+            "val": "€2.3M",
+            "height": "172 cm",
+            "sofa_id": "789012"
+        },
+        {
+            "name": "Abdulrahman Al-Hussein",
+            "jersey": "9",
+            "rating": 7.1,
+            "pos": "ST",
+            "photo": "none",
+            "age": "24",
+            "val": "€2.7M",
+            "height": "179 cm",
+            "sofa_id": "890123"
+        },
+        {
+            "name": "Faisal Al-Mansoori",
+            "jersey": "11",
+            "rating": 6.7,
+            "pos": "RW",
+            "photo": "none",
+            "age": "23",
+            "val": "€1.5M",
+            "height": "170 cm",
+            "sofa_id": "901234"
+        },
+        {
+            "name": "Mohamed Al-Bashir",
+            "jersey": "7",
+            "rating": 6.6,
+            "pos": "LW",
+            "photo": "none",
+            "age": "22",
+            "val": "€1.3M",
+            "height": "171 cm",
+            "sofa_id": "012345"
+        },
+        {
+            "name": "Khaled Al-Karim",
+            "jersey": "5",
+            "rating": 6.3,
+            "pos": "RCM",
+            "photo": "none",
+            "age": "27",
+            "val": "€1.7M",
+            "height": "177 cm",
+            "sofa_id": "112233"
+        }
+    ],
+    "congo dr_vs_portugal_today": [
+        {
+            "name": "Lionel Mpasi",
+            "jersey": "1",
+            "rating": 6.4,
+            "pos": "GK",
+            "photo": "frontend/assets/lionel_mpasi.png",
+            "age": "30",
+            "val": "€500K",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Arthur Masuaku",
+            "jersey": "3",
+            "rating": 6.6,
+            "pos": "LB",
+            "photo": "frontend/assets/arthur_masuaku.png",
+            "age": "30",
+            "val": "€1.5M",
+            "height": "171 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Chancel Mbemba",
+            "jersey": "5",
+            "rating": 6.5,
+            "pos": "LCB",
+            "photo": "frontend/assets/chancel_mbemba.png",
+            "age": "31",
+            "val": "€2M",
+            "height": "182 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Jean-Charles Castelletto",
+            "jersey": "4",
+            "rating": 6.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/jean_charles_castelletto.png",
+            "age": "29",
+            "val": "€1.5M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Christian Luyindama",
+            "jersey": "2",
+            "rating": 6.2,
+            "pos": "RB",
+            "photo": "frontend/assets/christian_luyindama.png",
+            "age": "30",
+            "val": "€800K",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Samuel Moutoussamy",
+            "jersey": "6",
+            "rating": 6.3,
+            "pos": "RDM",
+            "photo": "frontend/assets/samuel_moutoussamy.png",
+            "age": "28",
+            "val": "€2.5M",
+            "height": "184 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Yoane Wissa",
+            "jersey": "11",
+            "rating": 6.8,
+            "pos": "LAM",
+            "photo": "frontend/assets/yoane_wissa.png",
+            "age": "28",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Cédric Bakambu",
+            "jersey": "9",
+            "rating": 6.5,
+            "pos": "ST",
+            "photo": "frontend/assets/cdric_bakambu.png",
+            "age": "34",
+            "val": "€1M",
+            "height": "182 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Cédric Kipré",
+            "jersey": "15",
+            "rating": 6.3,
+            "pos": "LDM",
+            "photo": "frontend/assets/cdric_kipr.png",
+            "age": "28",
+            "val": "€2M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Dieumerci Mbokani",
+            "jersey": "10",
+            "rating": 6.4,
+            "pos": "RAM",
+            "photo": "frontend/assets/dieumerci_mbokani.png",
+            "age": "39",
+            "val": "€100K",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Meschak Elia",
+            "jersey": "7",
+            "rating": 6.7,
+            "pos": "RW",
+            "photo": "frontend/assets/meschak_elia.jpg",
+            "age": "28",
+            "val": "€4M",
+            "height": "175 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_congo dr_vs_portugal_today": {
+        "possession": [
+            38,
+            62
+        ],
+        "shots": [
+            8,
+            18
+        ],
+        "bigChances": [
+            2,
+            6
+        ],
+        "passes": [
+            340,
+            560
+        ],
+        "predicted_score": [
+            1,
+            3
+        ]
+    },
+    "portugal_vs_congo dr_today": [
+        {
+            "name": "Diogo Costa",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/diogo_costa.png",
+            "age": "26",
+            "val": "€35M",
+            "height": "189 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "João Cancelo",
+            "jersey": "20",
+            "rating": 7.5,
+            "pos": "RB",
+            "photo": "frontend/assets/joo_cancelo.png",
+            "age": "31",
+            "val": "€30M",
+            "height": "182 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Pepe",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/pepe.png",
+            "age": "42",
+            "val": "€5M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ruben Dias",
+            "jersey": "4",
+            "rating": 7.8,
+            "pos": "LCB",
+            "photo": "frontend/assets/ruben_dias.png",
+            "age": "28",
+            "val": "€60M",
+            "height": "187 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Nuno Mendes",
+            "jersey": "16",
+            "rating": 7.4,
+            "pos": "LB",
+            "photo": "frontend/assets/nuno_mendes.png",
+            "age": "23",
+            "val": "€45M",
+            "height": "180 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "William Carvalho",
+            "jersey": "14",
+            "rating": 6.8,
+            "pos": "LDM",
+            "photo": "frontend/assets/william_carvalho.png",
+            "age": "33",
+            "val": "€12M",
+            "height": "186 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Ruben Neves",
+            "jersey": "15",
+            "rating": 7.1,
+            "pos": "RDM",
+            "photo": "frontend/assets/ruben_neves.png",
+            "age": "28",
+            "val": "€50M",
+            "height": "185 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Bruno Fernandes",
+            "jersey": "8",
+            "rating": 8.2,
+            "pos": "CM",
+            "photo": "frontend/assets/bruno_fernandes.png",
+            "age": "31",
+            "val": "€80M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Rafael Leão",
+            "jersey": "11",
+            "rating": 8.0,
+            "pos": "LW",
+            "photo": "frontend/assets/rafael_leo.png",
+            "age": "26",
+            "val": "€80M",
+            "height": "188 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "João Félix",
+            "jersey": "19",
+            "rating": 7.6,
+            "pos": "RW",
+            "photo": "frontend/assets/joo_flix.png",
+            "age": "25",
+            "val": "€70M",
+            "height": "181 cm",
+            "sofa_id": ""
+        },
+        {
+            "name": "Cristiano Ronaldo",
+            "jersey": "7",
+            "rating": 8.5,
+            "pos": "ST",
+            "photo": "frontend/assets/cristiano_ronaldo.png",
+            "age": "40",
+            "val": "€20M",
+            "height": "187 cm",
+            "sofa_id": ""
+        }
+    ],
+    "matchstats_congo dr_vs_portugal_17 jun 2026": {
+        "possession": [
+            80,
+            20
+        ],
+        "shots": [
+            2,
+            6
+        ],
+        "bigChances": [
+            1,
+            2
+        ],
+        "passes": [
+            461,
+            98
+        ],
+        "predicted_score": [
+            1,
+            1
+        ]
+    },
+    "matchevents_congo dr_vs_portugal_17 jun 2026": [
+        {
+            "minute": "6'",
+            "scorer": "João Neves",
+            "assist": "Pedro Neto",
+            "team": "Portugal",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "João Neves Goal - Header"
+        },
+        {
+            "minute": "45'+5'",
+            "scorer": "Yoane Wissa",
+            "assist": "Arthur Masuaku",
+            "team": "Congo DR",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Yoane Wissa Goal - Header"
+        }
+    ]
 }

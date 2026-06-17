@@ -1710,7 +1710,10 @@ async function loadHistoricalMatches() {
             exist.hs = hs;
             exist.as = as;
             exist.status = status;
-            exist.date = (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today';
+            // Preserve the real match_date from the DB record — only fall back to 'Today' if no real date exists
+            if (!exist.date || exist.date === 'Today' || exist.date.startsWith('Today @')) {
+              exist.date = (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today';
+            }
           }
         } else {
           filteredAndMapped.push({

@@ -258,8 +258,6 @@ def normalize_date_string(date_str: str) -> str:
     parts = re.split(r"\s+[-@]\s+", date_str)
     res = parts[0].lower().strip()
     if res == "today":
-        if "@" in date_str:
-            return date_str.lower().strip()
         import datetime
         return datetime.date.today().strftime("%d %b %Y").lower()
     return res
@@ -752,7 +750,12 @@ def get_real_world_roster(
     match_key = None
     if opponent_name and match_date:
         norm_opp = normalize_name(opponent_name)
-        norm_date = normalize_date_string(match_date)
+        # Resolve "Today" or "Today @ HH:MM IST" to the actual calendar date
+        resolved_match_date = match_date
+        if resolved_match_date.lower().startswith("today"):
+            import datetime
+            resolved_match_date = datetime.date.today().strftime("%d %b %Y")
+        norm_date = normalize_date_string(resolved_match_date)
         match_key = f"{norm_name}_vs_{norm_opp}_{norm_date}"
         
         cache = load_cache()
@@ -1209,15 +1212,20 @@ def get_match_stats(
 
     norm_home = normalize_name(home)
     norm_away = normalize_name(away)
-    norm_date = normalize_date_string(date)
+    # Resolve "Today" or "Today @ HH:MM" to the real calendar date before normalizing
+    resolved_date = date
+    if resolved_date.lower().startswith("today"):
+        resolved_date = datetime.date.today().strftime("%d %b %Y")
+    norm_date = normalize_date_string(resolved_date)
 
     # Deterministic cache key — sort team names alphabetically so direction doesn't matter
     sorted_teams = sorted([norm_home, norm_away])
     cache_key = f"matchstats_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}"
 
-    # 1. Cache hit
+    # 1. Cache hit — but for today's matches, skip cached stats so live numbers stay fresh
+    is_today_match = norm_date == datetime.date.today().strftime("%d %b %Y").lower()
     cache = load_cache()
-    if cache_key in cache:
+    if cache_key in cache and not is_today_match:
         logger.info(f"Match stats for '{home}' vs '{away}' found in cache (key: {cache_key})")
         stats_val = cache[cache_key]
         if stats_val and "predicted_score" not in stats_val:
@@ -1225,6 +1233,7 @@ def get_match_stats(
         return stats_val
 
     is_future = is_future_match(norm_date)
+
 
     # 2. Try ESPN soccer scoreboard for past matches
     if not is_future:
@@ -1426,22 +1435,42 @@ def get_match_events(
     """
     norm_home = normalize_name(home)
     norm_away = normalize_name(away)
-    norm_date = normalize_date_string(date)
+    # Resolve "Today" or "Today @ HH:MM" to the real calendar date
+    resolved_date = date
+    if resolved_date.lower().startswith("today"):
+        import datetime
+        resolved_date = datetime.date.today().strftime("%d %b %Y")
+    norm_date = normalize_date_string(resolved_date)
 
     sorted_teams = sorted([norm_home, norm_away])
     cache_key = f"matchevents_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}"
 
-    # Cache hit
+    # Cache hit — skip empty-list cache for today (match may be live)
+    import datetime as _dt
+    is_today = norm_date == _dt.date.today().strftime("%d %b %Y").lower()
     cache = load_cache()
     if cache_key in cache:
-        logger.info(f"Match events for '{home}' vs '{away}' found in cache")
-        return cache[cache_key]
+        cached_val = cache[cache_key]
+        if cached_val or not is_today:
+            logger.info(f"Match events for '{home}' vs '{away}' found in cache")
+            return cached_val
+        logger.info(f"Skipping empty event cache for today's live match '{home}' vs '{away}', re-fetching...")
 
     espn_date = _espn_date_from_norm(norm_date)
     if not espn_date:
         return None
 
     event_id, matched_league, _ = _resolve_espn_event(home, away, espn_date)
+
+    # Midnight-crossing fallback: if match was played yesterday (local clock ticked past midnight),
+    # try yesterday's ESPN date before giving up.
+    if not event_id and (is_today or date.lower().startswith("today")):
+        import datetime as _dt2
+        yesterday = (_dt2.date.today() - _dt2.timedelta(days=1)).strftime("%Y%m%d")
+        if yesterday != espn_date:
+            logger.info(f"Match not found on ESPN for {espn_date}, trying yesterday {yesterday}...")
+            event_id, matched_league, _ = _resolve_espn_event(home, away, yesterday)
+
     if not event_id:
         return None
 

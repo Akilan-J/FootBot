@@ -571,15 +571,19 @@ def get_roster_endpoint(
             except Exception as ev_err:
                 logger.error(f"Error fetching match events for {team_name} vs {opponent_name}: {str(ev_err)}")
 
+        response = {}
         if roster:
-            response = {"status": "success", "roster": roster}
-            if stats is not None:
-                response["stats"] = stats
-            if events is not None:
-                response["events"] = events
-            return response
+            response["status"] = "success"
+            response["roster"] = roster
         else:
-            return {"status": "fallback", "message": "Failed to get real roster, use fallback"}
+            response["status"] = "fallback"
+            response["message"] = "Failed to get real roster, use fallback"
+
+        if stats is not None:
+            response["stats"] = stats
+        if events is not None:
+            response["events"] = events
+        return response
     except Exception as e:
         logger.error(f"Error serving roster for {team_name}: {str(e)}")
         raise HTTPException(

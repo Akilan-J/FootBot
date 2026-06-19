@@ -276,22 +276,60 @@ class RAGEngine:
         return cleaned
 
     def web_search_fallback(self, query: str, max_results: int = 3, clean: bool = True) -> List[Dict[str, Any]]:
-        """Queries DuckDuckGo search API to pull relevant real-time snippets."""
-        # Simplify the query before sending to DDG HTML parser
+        """Queries Yahoo Search first for clean real-time snippets, falling back to DuckDuckGo if needed."""
         clean_q = self._clean_search_query(query) if clean else query
-        logger.info(f"Triggering live web search fallback for query: '{clean_q}'")
+        logger.info(f"Triggering live web search for query: '{clean_q}'")
         results = []
+        
+        # 1. Query Yahoo Search (highly reliable, no Javascript requirements, rich snippets)
         try:
-            with DDGS() as ddgs:
-                ddg_generator = ddgs.text(clean_q, backend="html", max_results=max_results)
-                for r in ddg_generator:
-                    results.append({
-                        "title": r.get("title", ""),
-                        "body": r.get("body", ""),
-                        "href": r.get("href", "")
-                    })
-        except Exception as e:
-            logger.error(f"DuckDuckGo search encountered an error: {str(e)}")
+            import requests
+            from bs4 import BeautifulSoup
+            import urllib.parse
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            encoded_query = urllib.parse.quote_plus(clean_q)
+            res = requests.get(f"https://search.yahoo.com/search?q={encoded_query}", headers=headers, timeout=10)
+            logger.info(f"Yahoo Search HTTP response: {res.status_code}, URL: {res.url}")
+            if res.status_code == 200:
+                soup = BeautifulSoup(res.text, 'html.parser')
+                items = soup.find_all(class_='algo')
+                for item in items[:max_results]:
+                    h3 = item.find('h3')
+                    snippet_div = item.find('div', class_='compText')
+                    a = item.find('a')
+                    
+                    title = h3.text.strip() if h3 else ""
+                    body = snippet_div.text.strip() if snippet_div else ""
+                    href = a['href'] if a and a.has_attr('href') else ""
+                    
+                    if title or body:
+                        results.append({
+                            "title": title,
+                            "body": body,
+                            "href": href
+                        })
+                logger.info(f"Successfully retrieved {len(results)} results from Yahoo search.")
+        except Exception as y_err:
+            logger.error(f"Yahoo Search failed: {str(y_err)}")
+
+        # 2. Fallback to DuckDuckGo Search if Yahoo returned nothing
+        if not results:
+            logger.info("Yahoo Search returned no results. Falling back to DuckDuckGo...")
+            try:
+                with DDGS() as ddgs:
+                    ddg_generator = ddgs.text(clean_q, backend="html", max_results=max_results)
+                    for r in ddg_generator:
+                        results.append({
+                            "title": r.get("title", ""),
+                            "body": r.get("body", ""),
+                            "href": r.get("href", "")
+                        })
+            except Exception as e:
+                logger.error(f"DuckDuckGo search encountered an error: {str(e)}")
+
         return results
 
     def generate_tactical_analysis(

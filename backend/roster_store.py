@@ -785,16 +785,73 @@ def get_real_world_roster(
         if "today" in match_date.lower():
             import datetime
             resolved_date = datetime.date.today().strftime("%d %b %Y")
-        search_query = f"{team_name} {opponent_name} {resolved_date} starting lineup"
+            
+        # Standardize month names to full format for better indexing
+        search_date = resolved_date
+        month_map = {
+            "jan": "January", "feb": "February", "mar": "March", "apr": "April",
+            "may": "May", "jun": "June", "jul": "July", "aug": "August",
+            "sep": "September", "oct": "October", "nov": "November", "dec": "December"
+        }
+        for k, v in month_map.items():
+            if k in search_date.lower():
+                search_date = re.sub(k, v, search_date, flags=re.IGNORECASE)
+                break
+                
+        # Combine multiple search queries to bypass Yahoo 500 errors and gather rich context
+        q1 = f"{team_name} vs {opponent_name} {search_date} starting XI"
+        q2 = f"{team_name} vs {opponent_name} {search_date} lineups"
+        
         search_results = []
         try:
-            search_results = rag_engine.web_search_fallback(search_query, max_results=3, clean=False)
+            r1 = rag_engine.web_search_fallback(q1, max_results=3, clean=False)
+            r2 = rag_engine.web_search_fallback(q2, max_results=3, clean=False)
+            
+            # Combine results, removing duplicates by href
+            seen = set()
+            for r in r1 + r2:
+                href = r.get("href", "")
+                if href and href in seen:
+                    continue
+                if href:
+                    seen.add(href)
+                search_results.append(r)
         except Exception as e:
             logger.error(f"Web search fallback failed: {e}")
             
         search_context = ""
         if search_results:
-            search_context = "\n".join([f"- {r['title']}: {r['body']}" for r in search_results])
+            search_context_parts = []
+            for r in search_results:
+                search_context_parts.append(f"- {r['title']}: {r['body']}")
+            
+            # Fetch full page text for the top results to avoid LLM hallucinations
+            fetched_count = 0
+            for r in search_results:
+                url = r.get("href", "")
+                if url and not any(loc in url for loc in ["localhost", "127.0.0.1"]):
+                    logger.info(f"Fetching webpage content for RAG context: {url}")
+                    try:
+                        headers = {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                        }
+                        page_res = requests.get(url, headers=headers, timeout=5.0)
+                        if page_res.status_code == 200:
+                            from bs4 import BeautifulSoup
+                            page_soup = BeautifulSoup(page_res.text, "html.parser")
+                            for s in page_soup(["script", "style", "noscript", "header", "footer", "nav"]):
+                                s.extract()
+                            page_text = page_soup.get_text(separator=" ")
+                            cleaned_page_text = " ".join([phrase.strip() for phrase in page_text.split() if phrase.strip()])
+                            if len(cleaned_page_text) > 100:
+                                search_context_parts.append(f"\n--- Full Page Content from {url} ---\n{cleaned_page_text[:6000]}")
+                                fetched_count += 1
+                                if fetched_count >= 2:
+                                    break
+                    except Exception as page_err:
+                        logger.error(f"Failed to fetch content from {url}: {page_err}")
+            
+            search_context = "\n".join(search_context_parts)
             
         prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world starting XI lineup/squad for the football team '{team_name}' in their match against '{opponent_name}' played on '{resolved_date}'.
         
@@ -824,7 +881,8 @@ def get_real_world_roster(
                         {"role": "system", "content": "You are a database system returning raw JSON arrays only. Double check that you output exactly 11 players, one of which has position 'GK'."},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=0.3 + (attempt * 0.1)
+                    temperature=0.3 + (attempt * 0.1),
+                    timeout=15.0
                 )
                 raw_content = completion.choices[0].message.content
                 if not raw_content:

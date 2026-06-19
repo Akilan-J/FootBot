@@ -286,32 +286,58 @@ class RAGEngine:
             import requests
             from bs4 import BeautifulSoup
             import urllib.parse
+            import time
             
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
-            encoded_query = urllib.parse.quote_plus(clean_q)
-            res = requests.get(f"https://search.yahoo.com/search?q={encoded_query}", headers=headers, timeout=10)
-            logger.info(f"Yahoo Search HTTP response: {res.status_code}, URL: {res.url}")
-            if res.status_code == 200:
-                soup = BeautifulSoup(res.text, 'html.parser')
-                items = soup.find_all(class_='algo')
-                for item in items[:max_results]:
-                    h3 = item.find('h3')
-                    snippet_div = item.find('div', class_='compText')
-                    a = item.find('a')
-                    
-                    title = h3.text.strip() if h3 else ""
-                    body = snippet_div.text.strip() if snippet_div else ""
-                    href = a['href'] if a and a.has_attr('href') else ""
-                    
-                    if title or body:
-                        results.append({
-                            "title": title,
-                            "body": body,
-                            "href": href
-                        })
-                logger.info(f"Successfully retrieved {len(results)} results from Yahoo search.")
+            
+            # Generate variations of the query if we hit status 500 / other errors
+            queries_to_try = [clean_q]
+            if "congo dr" in clean_q.lower():
+                queries_to_try.append(clean_q.lower().replace("congo dr", "dr congo"))
+                queries_to_try.append(clean_q.lower().replace("congo dr", "congo"))
+            elif "dr congo" in clean_q.lower():
+                queries_to_try.append(clean_q.lower().replace("dr congo", "congo dr"))
+                
+            for q_idx, q in enumerate(queries_to_try):
+                encoded_query = urllib.parse.quote_plus(q)
+                url = f"https://search.yahoo.com/search?q={encoded_query}"
+                
+                # Retry transient 500 errors
+                res = None
+                for attempt in range(2):
+                    try:
+                        res = requests.get(url, headers=headers, timeout=10)
+                        if res.status_code == 200:
+                            break
+                        logger.warning(f"Yahoo Search returned status {res.status_code} for query '{q}'. Attempt {attempt+1} of 2. Retrying in 1.0s...")
+                        time.sleep(1.0)
+                    except Exception as req_e:
+                        logger.warning(f"Yahoo Search request failed for '{q}': {req_e}. Retrying in 1.0s...")
+                        time.sleep(1.0)
+                        
+                if res and res.status_code == 200:
+                    soup = BeautifulSoup(res.text, 'html.parser')
+                    items = soup.find_all(class_='algo')
+                    for item in items[:max_results]:
+                        h3 = item.find('h3')
+                        snippet_div = item.find('div', class_='compText')
+                        a = item.find('a')
+                        
+                        title = h3.text.strip() if h3 else ""
+                        body = snippet_div.text.strip() if snippet_div else ""
+                        href = a['href'] if a and a.has_attr('href') else ""
+                        
+                        if title or body:
+                            results.append({
+                                "title": title,
+                                "body": body,
+                                "href": href
+                            })
+                    if results:
+                        logger.info(f"Successfully retrieved {len(results)} results from Yahoo search using query '{q}'.")
+                        break
         except Exception as y_err:
             logger.error(f"Yahoo Search failed: {str(y_err)}")
 

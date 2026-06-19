@@ -1298,9 +1298,24 @@ def get_match_stats(
     if cache_key in cache and not is_today_match:
         logger.info(f"Match stats for '{home}' vs '{away}' found in cache (key: {cache_key})")
         stats_val = cache[cache_key]
-        if stats_val and "predicted_score" not in stats_val:
-            stats_val["predicted_score"] = [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
-        return stats_val
+        if stats_val:
+            if "predicted_score" not in stats_val:
+                stats_val["predicted_score"] = [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
+            
+            # Extract first team name from the cache key to detect if we need to swap order
+            key_without_prefix = cache_key
+            if key_without_prefix.startswith("matchstats_"):
+                key_without_prefix = key_without_prefix[len("matchstats_"):]
+            parts = key_without_prefix.split("_vs_")
+            if len(parts) >= 2:
+                norm_team1 = normalize_name(parts[0].strip())
+                if norm_team1 == norm_away:
+                    logger.info(f"Swapping cached stats order to match requested home/away ({home} vs {away})")
+                    stats_val = dict(stats_val)
+                    for k in ["possession", "shots", "bigChances", "passes", "predicted_score"]:
+                        if k in stats_val and isinstance(stats_val[k], list) and len(stats_val[k]) == 2:
+                            stats_val[k] = [stats_val[k][1], stats_val[k][0]]
+            return stats_val
 
     is_future = is_future_match(norm_date)
 
@@ -1412,10 +1427,21 @@ def get_match_stats(
                                     "predicted_score": [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
                                 }
 
+                                if norm_home == sorted_teams[1]:
+                                    cache_stats = {
+                                        "possession": [a_poss, h_poss],
+                                        "shots":      [int(a_shots or 0),  int(h_shots or 0)],
+                                        "bigChances": [int(a_bc or 0),     int(h_bc or 0)],
+                                        "passes":     [int(a_passes or 0), int(h_passes or 0)],
+                                        "predicted_score": [away_score if away_score is not None else 0, home_score if home_score is not None else 0]
+                                    }
+                                else:
+                                    cache_stats = stats
+
                                 current_cache = load_cache()
-                                current_cache[cache_key] = stats
+                                current_cache[cache_key] = cache_stats
                                 save_cache(current_cache)
-                                logger.info(f"Cached real ESPN stats for '{home}' vs '{away}': {stats}")
+                                logger.info(f"Cached real ESPN stats for '{home}' vs '{away}': {cache_stats}")
                                 return stats
                 except Exception as e:
                     logger.error(f"ESPN summary error for event {event_id}: {e}")
@@ -1424,8 +1450,18 @@ def get_match_stats(
     logger.info(f"ESPN lookup missed or match is future ({is_future=}). Generating dynamic stats via LLM...")
     stats = get_dynamic_match_stats_via_llm(home, away, date, home_score, away_score, is_future)
     if stats:
+        if norm_home == sorted_teams[1]:
+            cache_stats = {
+                "possession": [stats["possession"][1], stats["possession"][0]],
+                "shots":      [stats["shots"][1], stats["shots"][0]],
+                "bigChances": [stats["bigChances"][1], stats["bigChances"][0]],
+                "passes":     [stats["passes"][1], stats["passes"][0]],
+                "predicted_score": [stats["predicted_score"][1], stats["predicted_score"][0]]
+            }
+        else:
+            cache_stats = stats
         current_cache = load_cache()
-        current_cache[cache_key] = stats
+        current_cache[cache_key] = cache_stats
         save_cache(current_cache)
         return stats
 

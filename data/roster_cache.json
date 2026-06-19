@@ -6454,129 +6454,6 @@
             "sofa_id": "123457"
         }
     ],
-    "dr congo": [
-        {
-            "name": "Seko Fofana",
-            "jersey": "1",
-            "rating": 7.1,
-            "pos": "GK",
-            "photo": "frontend/assets/seko_fofana.png",
-            "age": "29",
-            "val": "€1.5M",
-            "height": "186 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Diego N'Goua",
-            "jersey": "2",
-            "rating": 7.3,
-            "pos": "RB",
-            "photo": "none",
-            "age": "27",
-            "val": "€2.0M",
-            "height": "180 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Moussa Nguema",
-            "jersey": "3",
-            "rating": 7.0,
-            "pos": "RCB",
-            "photo": "none",
-            "age": "26",
-            "val": "€1.8M",
-            "height": "182 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Koffi Bamba",
-            "jersey": "4",
-            "rating": 7.2,
-            "pos": "LCB",
-            "photo": "none",
-            "age": "28",
-            "val": "€1.9M",
-            "height": "183 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Bongani Mwana",
-            "jersey": "5",
-            "rating": 7.4,
-            "pos": "LB",
-            "photo": "none",
-            "age": "25",
-            "val": "€2.1M",
-            "height": "179 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Joumana Kanda",
-            "jersey": "6",
-            "rating": 7.5,
-            "pos": "LDM",
-            "photo": "none",
-            "age": "24",
-            "val": "€2.3M",
-            "height": "176 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Yannick Mbala",
-            "jersey": "7",
-            "rating": 7.6,
-            "pos": "CM",
-            "photo": "none",
-            "age": "23",
-            "val": "€2.5M",
-            "height": "178 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Basile Soko",
-            "jersey": "8",
-            "rating": 7.2,
-            "pos": "RDM",
-            "photo": "none",
-            "age": "26",
-            "val": "€1.7M",
-            "height": "181 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Léandre Tchouka",
-            "jersey": "9",
-            "rating": 7.8,
-            "pos": "LAM",
-            "photo": "none",
-            "age": "22",
-            "val": "€2.8M",
-            "height": "177 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Félix N'Diaye",
-            "jersey": "10",
-            "rating": 7.9,
-            "pos": "CAM",
-            "photo": "none",
-            "age": "24",
-            "val": "€3.0M",
-            "height": "175 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Kévin Mbala",
-            "jersey": "11",
-            "rating": 7.3,
-            "pos": "RCM",
-            "photo": "frontend/assets/kvin_mbala.png",
-            "age": "25",
-            "val": "€2.2M",
-            "height": "179 cm",
-            "sofa_id": ""
-        }
-    ],
     "ivory coast": [
         {
             "name": "Albert Baning",
@@ -13597,314 +13474,815 @@
             "sofa_id": "112233"
         }
     ],
-    "congo dr_vs_portugal_today": [
+    "england_vs_croatia_17 jun 2026": [
         {
-            "name": "Lionel Mpasi",
+            "name": "Jordan Pickford",
             "jersey": "1",
-            "rating": 6.4,
+            "rating": 7.2,
             "pos": "GK",
-            "photo": "frontend/assets/lionel_mpasi.png",
+            "photo": "frontend/assets/jordan_pickford.png",
+            "age": "32",
+            "val": "€15M",
+            "height": "183 cm",
+            "sofa_id": "101234"
+        },
+        {
+            "name": "Kieran Trippier",
+            "jersey": "2",
+            "rating": 7.5,
+            "pos": "RB",
+            "photo": "frontend/assets/kieran_trippier.png",
+            "age": "36",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "101235"
+        },
+        {
+            "name": "John Stones",
+            "jersey": "5",
+            "rating": 7.8,
+            "pos": "RCB",
+            "photo": "frontend/assets/john_stones.png",
             "age": "30",
-            "val": "€500K",
+            "val": "€45M",
+            "height": "188 cm",
+            "sofa_id": "101236"
+        },
+        {
+            "name": "Marc Guehi",
+            "jersey": "20",
+            "rating": 7.4,
+            "pos": "LCB",
+            "photo": "frontend/assets/marc_guehi.png",
+            "age": "31",
+            "val": "€30M",
+            "height": "185 cm",
+            "sofa_id": "101237"
+        },
+        {
+            "name": "Luke Shaw",
+            "jersey": "23",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "frontend/assets/luke_shaw.png",
+            "age": "29",
+            "val": "€35M",
+            "height": "185 cm",
+            "sofa_id": "101238"
+        },
+        {
+            "name": "Declan Rice",
+            "jersey": "41",
+            "rating": 7.6,
+            "pos": "LDM",
+            "photo": "frontend/assets/declan_rice.png",
+            "age": "29",
+            "val": "€45M",
             "height": "186 cm",
-            "sofa_id": ""
+            "sofa_id": "101239"
+        },
+        {
+            "name": "Jude Bellingham",
+            "jersey": "22",
+            "rating": 8.2,
+            "pos": "RCM",
+            "photo": "frontend/assets/jude_bellingham.png",
+            "age": "23",
+            "val": "€150M",
+            "height": "182 cm",
+            "sofa_id": "101240"
+        },
+        {
+            "name": "Phil Foden",
+            "jersey": "47",
+            "rating": 7.9,
+            "pos": "LCM",
+            "photo": "frontend/assets/phil_foden.png",
+            "age": "26",
+            "val": "€80M",
+            "height": "175 cm",
+            "sofa_id": "101241"
+        },
+        {
+            "name": "Mason Mount",
+            "jersey": "19",
+            "rating": 7.7,
+            "pos": "CM",
+            "photo": "frontend/assets/mason_mount.png",
+            "age": "27",
+            "val": "€70M",
+            "height": "180 cm",
+            "sofa_id": "101242"
+        },
+        {
+            "name": "Jadon Sancho",
+            "jersey": "24",
+            "rating": 7.5,
+            "pos": "RW",
+            "photo": "frontend/assets/jadon_sancho.png",
+            "age": "29",
+            "val": "€50M",
+            "height": "180 cm",
+            "sofa_id": "101243"
+        },
+        {
+            "name": "Harry Kane",
+            "jersey": "10",
+            "rating": 8.5,
+            "pos": "ST",
+            "photo": "frontend/assets/harry_kane.png",
+            "age": "33",
+            "val": "€80M",
+            "height": "186 cm",
+            "sofa_id": "101244"
+        }
+    ],
+    "matchstats_croatia_vs_england_17 jun 2026": {
+        "possession": [
+            52,
+            48
+        ],
+        "shots": [
+            22,
+            10
+        ],
+        "bigChances": [
+            11,
+            5
+        ],
+        "passes": [
+            406,
+            381
+        ],
+        "predicted_score": [
+            4,
+            2
+        ]
+    },
+    "croatia_vs_england_17 jun 2026": [
+        {
+            "name": "Dominik Livaković",
+            "jersey": "12",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/dominik_livakovi.png",
+            "age": "32",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "12345"
+        },
+        {
+            "name": "Sime Vrsaljko",
+            "jersey": "2",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "none",
+            "age": "30",
+            "val": "€8M",
+            "height": "178 cm",
+            "sofa_id": "67890"
+        },
+        {
+            "name": "Domagoj Vida",
+            "jersey": "4",
+            "rating": 6.5,
+            "pos": "RCB",
+            "photo": "frontend/assets/domagoj_vida.png",
+            "age": "34",
+            "val": "€5M",
+            "height": "188 cm",
+            "sofa_id": "24680"
+        },
+        {
+            "name": "Dejan Lovren",
+            "jersey": "6",
+            "rating": 6.7,
+            "pos": "LCB",
+            "photo": "frontend/assets/dejan_lovren.png",
+            "age": "37",
+            "val": "€5M",
+            "height": "185 cm",
+            "sofa_id": "13579"
+        },
+        {
+            "name": "Ivan Perišić",
+            "jersey": "11",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "frontend/assets/ivan_perii.png",
+            "age": "37",
+            "val": "€5M",
+            "height": "180 cm",
+            "sofa_id": "11223"
+        },
+        {
+            "name": "Mateo Kovačić",
+            "jersey": "8",
+            "rating": 7.3,
+            "pos": "LDM",
+            "photo": "frontend/assets/mateo_kovai.png",
+            "age": "30",
+            "val": "€40M",
+            "height": "180 cm",
+            "sofa_id": "45678"
+        },
+        {
+            "name": "Luka Modrić",
+            "jersey": "7",
+            "rating": 7.5,
+            "pos": "RDM",
+            "photo": "frontend/assets/luka_modri.png",
+            "age": "41",
+            "val": "€15M",
+            "height": "175 cm",
+            "sofa_id": "36912"
+        },
+        {
+            "name": "Mario Pašalić",
+            "jersey": "10",
+            "rating": 7.1,
+            "pos": "CAM",
+            "photo": "frontend/assets/mario_paali.png",
+            "age": "32",
+            "val": "€15M",
+            "height": "175 cm",
+            "sofa_id": "78945"
+        },
+        {
+            "name": "Andrej Kramarić",
+            "jersey": "9",
+            "rating": 6.9,
+            "pos": "ST",
+            "photo": "frontend/assets/andrej_kramari.png",
+            "age": "35",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "24681"
+        },
+        {
+            "name": "Petar Šimić",
+            "jersey": "17",
+            "rating": 6.6,
+            "pos": "RW",
+            "photo": "none",
+            "age": "24",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "36913"
+        },
+        {
+            "name": "Marko Čičak",
+            "jersey": "19",
+            "rating": 6.4,
+            "pos": "LW",
+            "photo": "none",
+            "age": "22",
+            "val": "€15M",
+            "height": "182 cm",
+            "sofa_id": "78946"
+        }
+    ],
+    "matchevents_croatia_vs_england_17 jun 2026": [
+        {
+            "minute": "12'",
+            "scorer": "Harry Kane",
+            "assist": null,
+            "team": "England",
+            "ownGoal": false,
+            "penalty": true,
+            "text": "Harry Kane Penalty - Scored"
+        },
+        {
+            "minute": "36'",
+            "scorer": "Martin Baturina",
+            "assist": "Petar Sucic",
+            "team": "Croatia",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Martin Baturina Goal"
+        },
+        {
+            "minute": "42'",
+            "scorer": "Harry Kane",
+            "assist": "Declan Rice",
+            "team": "England",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Harry Kane Goal - Header"
+        },
+        {
+            "minute": "45'+5'",
+            "scorer": "Petar Musa",
+            "assist": "Ivan Perisic",
+            "team": "Croatia",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Petar Musa Goal"
+        },
+        {
+            "minute": "47'",
+            "scorer": "Jude Bellingham",
+            "assist": "Elliot Anderson",
+            "team": "England",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Jude Bellingham Goal"
+        },
+        {
+            "minute": "85'",
+            "scorer": "Marcus Rashford",
+            "assist": "Bukayo Saka",
+            "team": "England",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Marcus Rashford Goal"
+        }
+    ],
+    "germany_vs_curacao_14 jun 2026": [
+        {
+            "name": "Florian Kremser",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "none",
+            "age": "28",
+            "val": "€8M",
+            "height": "190 cm",
+            "sofa_id": "123456"
+        },
+        {
+            "name": "Maximilian Götz",
+            "jersey": "2",
+            "rating": 7.4,
+            "pos": "RB",
+            "photo": "none",
+            "age": "26",
+            "val": "€12M",
+            "height": "183 cm",
+            "sofa_id": "123457"
+        },
+        {
+            "name": "Niklas Süle",
+            "jersey": "4",
+            "rating": 7.1,
+            "pos": "RCB",
+            "photo": "frontend/assets/niklas_sle.png",
+            "age": "30",
+            "val": "€15M",
+            "height": "196 cm",
+            "sofa_id": "123458"
+        },
+        {
+            "name": "Antonio Rüdiger",
+            "jersey": "5",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/antonio_rdiger.png",
+            "age": "32",
+            "val": "€10M",
+            "height": "190 cm",
+            "sofa_id": "123459"
+        },
+        {
+            "name": "Robin Gosens",
+            "jersey": "3",
+            "rating": 7.3,
+            "pos": "LB",
+            "photo": "frontend/assets/robin_gosens.png",
+            "age": "31",
+            "val": "€9M",
+            "height": "185 cm",
+            "sofa_id": "123460"
+        },
+        {
+            "name": "Joshua Kimmich",
+            "jersey": "6",
+            "rating": 8.1,
+            "pos": "LCM",
+            "photo": "frontend/assets/joshua_kimmich.png",
+            "age": "30",
+            "val": "€45M",
+            "height": "176 cm",
+            "sofa_id": "123461"
+        },
+        {
+            "name": "Leon Goretzka",
+            "jersey": "8",
+            "rating": 7.9,
+            "pos": "RCM",
+            "photo": "frontend/assets/leon_goretzka.png",
+            "age": "29",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "123462"
+        },
+        {
+            "name": "Thomas Müller",
+            "jersey": "10",
+            "rating": 7.6,
+            "pos": "CAM",
+            "photo": "frontend/assets/thomas_mller.png",
+            "age": "36",
+            "val": "€5M",
+            "height": "182 cm",
+            "sofa_id": "123463"
+        },
+        {
+            "name": "Serge Gnabry",
+            "jersey": "11",
+            "rating": 7.8,
+            "pos": "RW",
+            "photo": "frontend/assets/serge_gnabry.png",
+            "age": "28",
+            "val": "€25M",
+            "height": "179 cm",
+            "sofa_id": "123464"
+        },
+        {
+            "name": "Leroy Sané",
+            "jersey": "7",
+            "rating": 7.7,
+            "pos": "LW",
+            "photo": "frontend/assets/leroy_san.png",
+            "age": "27",
+            "val": "€30M",
+            "height": "180 cm",
+            "sofa_id": "123465"
+        },
+        {
+            "name": "Kai Havertz",
+            "jersey": "9",
+            "rating": 7.5,
+            "pos": "ST",
+            "photo": "frontend/assets/kai_havertz.png",
+            "age": "26",
+            "val": "€55M",
+            "height": "188 cm",
+            "sofa_id": "123466"
+        }
+    ],
+    "matchstats_curacao_vs_germany_14 jun 2026": {
+        "possession": [
+            65,
+            35
+        ],
+        "shots": [
+            26,
+            8
+        ],
+        "bigChances": [
+            12,
+            2
+        ],
+        "passes": [
+            554,
+            282
+        ],
+        "predicted_score": [
+            0,
+            0
+        ]
+    },
+    "matchevents_curacao_vs_germany_14 jun 2026": [
+        {
+            "minute": "6'",
+            "scorer": "Felix Nmecha",
+            "assist": "Florian Wirtz",
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Felix Nmecha Goal"
+        },
+        {
+            "minute": "21'",
+            "scorer": "Livano Comenencia",
+            "assist": null,
+            "team": "Curaçao",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Livano Comenencia Goal"
+        },
+        {
+            "minute": "38'",
+            "scorer": "Nico Schlotterbeck",
+            "assist": "Nathaniel Brown",
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Nico Schlotterbeck Goal - Header"
+        },
+        {
+            "minute": "45'+5'",
+            "scorer": "Kai Havertz",
+            "assist": null,
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": true,
+            "text": "Kai Havertz Penalty - Scored"
+        },
+        {
+            "minute": "47'",
+            "scorer": "Jamal Musiala",
+            "assist": "Joshua Kimmich",
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Jamal Musiala Goal"
+        },
+        {
+            "minute": "68'",
+            "scorer": "Nathaniel Brown",
+            "assist": "Deniz Undav",
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Nathaniel Brown Goal - Volley"
+        },
+        {
+            "minute": "78'",
+            "scorer": "Deniz Undav",
+            "assist": "Joshua Kimmich",
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Deniz Undav Goal"
+        },
+        {
+            "minute": "88'",
+            "scorer": "Kai Havertz",
+            "assist": "Deniz Undav",
+            "team": "Germany",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Kai Havertz Goal"
+        }
+    ],
+    "portugal_vs_congo dr_17 jun 2026": [
+        {
+            "name": "Rui Patrício",
+            "jersey": "1",
+            "rating": 7.1,
+            "pos": "GK",
+            "photo": "frontend/assets/rui_patrcio.png",
+            "age": "37",
+            "val": "€12M",
+            "height": "186 cm",
+            "sofa_id": "101234"
+        },
+        {
+            "name": "João Cancelo",
+            "jersey": "2",
+            "rating": 7.6,
+            "pos": "RB",
+            "photo": "frontend/assets/joo_cancelo.png",
+            "age": "33",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "102345"
+        },
+        {
+            "name": "Diogo Costa",
+            "jersey": "4",
+            "rating": 7.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/diogo_costa.png",
+            "age": "27",
+            "val": "€25M",
+            "height": "182 cm",
+            "sofa_id": "103456"
+        },
+        {
+            "name": "Rúben Dias",
+            "jersey": "5",
+            "rating": 7.8,
+            "pos": "LCB",
+            "photo": "frontend/assets/rben_dias.png",
+            "age": "29",
+            "val": "€35M",
+            "height": "184 cm",
+            "sofa_id": "104567"
+        },
+        {
+            "name": "Nuno Mendes",
+            "jersey": "6",
+            "rating": 7.3,
+            "pos": "LB",
+            "photo": "frontend/assets/nuno_mendes.png",
+            "age": "26",
+            "val": "€28M",
+            "height": "178 cm",
+            "sofa_id": "105678"
+        },
+        {
+            "name": "João Neves",
+            "jersey": "7",
+            "rating": 7.5,
+            "pos": "LDM",
+            "photo": "frontend/assets/joo_neves.png",
+            "age": "27",
+            "val": "€22M",
+            "height": "180 cm",
+            "sofa_id": "106789"
+        },
+        {
+            "name": "Vitinha",
+            "jersey": "8",
+            "rating": 7.2,
+            "pos": "RDM",
+            "photo": "frontend/assets/vitinha.png",
+            "age": "23",
+            "val": "€18M",
+            "height": "175 cm",
+            "sofa_id": "107890"
+        },
+        {
+            "name": "João Félix",
+            "jersey": "9",
+            "rating": 7.9,
+            "pos": "LAM",
+            "photo": "frontend/assets/joo_flix.png",
+            "age": "24",
+            "val": "€45M",
+            "height": "178 cm",
+            "sofa_id": "108901"
+        },
+        {
+            "name": "Bruno Fernandes",
+            "jersey": "10",
+            "rating": 7.7,
+            "pos": "CAM",
+            "photo": "frontend/assets/bruno_fernandes.png",
+            "age": "30",
+            "val": "€40M",
+            "height": "175 cm",
+            "sofa_id": "109012"
+        },
+        {
+            "name": "Bernardo Silva",
+            "jersey": "11",
+            "rating": 7.6,
+            "pos": "RAM",
+            "photo": "frontend/assets/bernardo_silva.png",
+            "age": "28",
+            "val": "€38M",
+            "height": "173 cm",
+            "sofa_id": "110123"
+        },
+        {
+            "name": "João Moutinho",
+            "jersey": "13",
+            "rating": 7.0,
+            "pos": "ST",
+            "photo": "frontend/assets/joo_moutinho.png",
+            "age": "35",
+            "val": "€15M",
+            "height": "180 cm",
+            "sofa_id": "111234"
+        }
+    ],
+    "congo dr_vs_portugal_17 jun 2026": [
+        {
+            "name": "Anthony Mandi",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "frontend/assets/anthony_mandi.jpg",
+            "age": "28",
+            "val": "€2M",
+            "height": "185 cm",
+            "sofa_id": "12345"
+        },
+        {
+            "name": "Christian Luyuku",
+            "jersey": "2",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "none",
+            "age": "26",
+            "val": "€4M",
+            "height": "178 cm",
+            "sofa_id": "67890"
+        },
+        {
+            "name": "Marcel Tisserand",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/marcel_tisserand.png",
+            "age": "30",
+            "val": "€5M",
+            "height": "183 cm",
+            "sofa_id": "54321"
+        },
+        {
+            "name": "Glorieux Mputu",
+            "jersey": "4",
+            "rating": 6.7,
+            "pos": "LCB",
+            "photo": "none",
+            "age": "27",
+            "val": "€3M",
+            "height": "180 cm",
+            "sofa_id": "98765"
         },
         {
             "name": "Arthur Masuaku",
-            "jersey": "3",
-            "rating": 6.6,
+            "jersey": "5",
+            "rating": 7.2,
             "pos": "LB",
             "photo": "frontend/assets/arthur_masuaku.png",
-            "age": "30",
-            "val": "€1.5M",
-            "height": "171 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Chancel Mbemba",
-            "jersey": "5",
-            "rating": 6.5,
-            "pos": "LCB",
-            "photo": "frontend/assets/chancel_mbemba.png",
-            "age": "31",
-            "val": "€2M",
-            "height": "182 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Jean-Charles Castelletto",
-            "jersey": "4",
-            "rating": 6.4,
-            "pos": "RCB",
-            "photo": "frontend/assets/jean_charles_castelletto.png",
             "age": "29",
-            "val": "€1.5M",
-            "height": "188 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Christian Luyindama",
-            "jersey": "2",
-            "rating": 6.2,
-            "pos": "RB",
-            "photo": "frontend/assets/christian_luyindama.png",
-            "age": "30",
-            "val": "€800K",
-            "height": "186 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Samuel Moutoussamy",
-            "jersey": "6",
-            "rating": 6.3,
-            "pos": "RDM",
-            "photo": "frontend/assets/samuel_moutoussamy.png",
-            "age": "28",
-            "val": "€2.5M",
-            "height": "184 cm",
-            "sofa_id": ""
+            "val": "€6M",
+            "height": "175 cm",
+            "sofa_id": "11223"
         },
         {
             "name": "Yoane Wissa",
-            "jersey": "11",
-            "rating": 6.8,
+            "jersey": "10",
+            "rating": 7.8,
             "pos": "LAM",
             "photo": "frontend/assets/yoane_wissa.png",
-            "age": "28",
-            "val": "€20M",
+            "age": "27",
+            "val": "€15M",
             "height": "178 cm",
-            "sofa_id": ""
+            "sofa_id": "44556"
         },
         {
             "name": "Cédric Bakambu",
             "jersey": "9",
-            "rating": 6.5,
-            "pos": "ST",
+            "rating": 6.9,
+            "pos": "CM",
             "photo": "frontend/assets/cdric_bakambu.png",
-            "age": "34",
-            "val": "€1M",
+            "age": "31",
+            "val": "€8M",
             "height": "182 cm",
-            "sofa_id": ""
+            "sofa_id": "77889"
         },
         {
-            "name": "Cédric Kipré",
-            "jersey": "15",
-            "rating": 6.3,
-            "pos": "LDM",
-            "photo": "frontend/assets/cdric_kipr.png",
-            "age": "28",
-            "val": "€2M",
-            "height": "187 cm",
-            "sofa_id": ""
+            "name": "Jean-Philippe Mateta",
+            "jersey": "8",
+            "rating": 6.6,
+            "pos": "RCM",
+            "photo": "frontend/assets/jean_philippe_mateta.png",
+            "age": "25",
+            "val": "€7M",
+            "height": "180 cm",
+            "sofa_id": "33445"
         },
         {
             "name": "Dieumerci Mbokani",
-            "jersey": "10",
+            "jersey": "7",
             "rating": 6.4,
-            "pos": "RAM",
+            "pos": "RM",
             "photo": "frontend/assets/dieumerci_mbokani.png",
-            "age": "39",
-            "val": "€100K",
-            "height": "181 cm",
-            "sofa_id": ""
+            "age": "34",
+            "val": "€2M",
+            "height": "177 cm",
+            "sofa_id": "55667"
         },
         {
-            "name": "Meschak Elia",
-            "jersey": "7",
-            "rating": 6.7,
-            "pos": "RW",
-            "photo": "frontend/assets/meschak_elia.jpg",
-            "age": "28",
-            "val": "€4M",
-            "height": "175 cm",
-            "sofa_id": ""
-        }
-    ],
-    "matchstats_congo dr_vs_portugal_today": {
-        "possession": [
-            38,
-            62
-        ],
-        "shots": [
-            8,
-            18
-        ],
-        "bigChances": [
-            2,
-            6
-        ],
-        "passes": [
-            340,
-            560
-        ],
-        "predicted_score": [
-            1,
-            3
-        ]
-    },
-    "portugal_vs_congo dr_today": [
-        {
-            "name": "Diogo Costa",
-            "jersey": "1",
-            "rating": 7.2,
-            "pos": "GK",
-            "photo": "frontend/assets/diogo_costa.png",
-            "age": "26",
-            "val": "€35M",
-            "height": "189 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "João Cancelo",
-            "jersey": "20",
-            "rating": 7.5,
-            "pos": "RB",
-            "photo": "frontend/assets/joo_cancelo.png",
-            "age": "31",
-            "val": "€30M",
-            "height": "182 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Pepe",
-            "jersey": "3",
-            "rating": 7.0,
-            "pos": "RCB",
-            "photo": "frontend/assets/pepe.png",
-            "age": "42",
-            "val": "€5M",
-            "height": "187 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Ruben Dias",
-            "jersey": "4",
-            "rating": 7.8,
-            "pos": "LCB",
-            "photo": "frontend/assets/ruben_dias.png",
-            "age": "28",
-            "val": "€60M",
-            "height": "187 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Nuno Mendes",
-            "jersey": "16",
-            "rating": 7.4,
-            "pos": "LB",
-            "photo": "frontend/assets/nuno_mendes.png",
-            "age": "23",
-            "val": "€45M",
-            "height": "180 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "William Carvalho",
-            "jersey": "14",
-            "rating": 6.8,
-            "pos": "LDM",
-            "photo": "frontend/assets/william_carvalho.png",
-            "age": "33",
-            "val": "€12M",
-            "height": "186 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Ruben Neves",
-            "jersey": "15",
-            "rating": 7.1,
-            "pos": "RDM",
-            "photo": "frontend/assets/ruben_neves.png",
-            "age": "28",
-            "val": "€50M",
-            "height": "185 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Bruno Fernandes",
-            "jersey": "8",
-            "rating": 8.2,
-            "pos": "CM",
-            "photo": "frontend/assets/bruno_fernandes.png",
-            "age": "31",
-            "val": "€80M",
-            "height": "181 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Rafael Leão",
+            "name": "Lyle Foster",
             "jersey": "11",
-            "rating": 8.0,
-            "pos": "LW",
-            "photo": "frontend/assets/rafael_leo.png",
-            "age": "26",
-            "val": "€80M",
-            "height": "188 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "João Félix",
-            "jersey": "19",
-            "rating": 7.6,
-            "pos": "RW",
-            "photo": "frontend/assets/joo_flix.png",
-            "age": "25",
-            "val": "€70M",
-            "height": "181 cm",
-            "sofa_id": ""
-        },
-        {
-            "name": "Cristiano Ronaldo",
-            "jersey": "7",
-            "rating": 8.5,
+            "rating": 7.1,
             "pos": "ST",
-            "photo": "frontend/assets/cristiano_ronaldo.png",
-            "age": "40",
-            "val": "€20M",
-            "height": "187 cm",
-            "sofa_id": ""
+            "photo": "frontend/assets/lyle_foster.png",
+            "age": "24",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "66778"
+        },
+        {
+            "name": "Jonathan Bamba",
+            "jersey": "6",
+            "rating": 6.7,
+            "pos": "LM",
+            "photo": "frontend/assets/jonathan_bamba.png",
+            "age": "28",
+            "val": "€9M",
+            "height": "176 cm",
+            "sofa_id": "88990"
         }
     ],
     "matchstats_congo dr_vs_portugal_17 jun 2026": {
         "possession": [
-            80,
-            20
+            25,
+            75
         ],
         "shots": [
-            2,
-            6
+            8,
+            7
         ],
         "bigChances": [
-            1,
-            2
+            2,
+            1
         ],
         "passes": [
-            461,
-            98
+            195,
+            724
         ],
         "predicted_score": [
-            1,
-            1
+            0,
+            0
         ]
-    },
-    "matchevents_congo dr_vs_portugal_17 jun 2026": [
-        {
-            "minute": "6'",
-            "scorer": "João Neves",
-            "assist": "Pedro Neto",
-            "team": "Portugal",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "João Neves Goal - Header"
-        },
-        {
-            "minute": "45'+5'",
-            "scorer": "Yoane Wissa",
-            "assist": "Arthur Masuaku",
-            "team": "Congo DR",
-            "ownGoal": false,
-            "penalty": false,
-            "text": "Yoane Wissa Goal - Header"
-        }
-    ]
+    }
 }

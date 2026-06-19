@@ -382,11 +382,11 @@ input[type=range]::-webkit-slider-thumb{
 }
 .match-card:hover{background:rgba(16,185,129,0.07);border-color:rgba(16,185,129,0.4);transform:translateY(-3px);box-shadow:0 8px 24px rgba(16,185,129,0.12);}
 .match-league{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
-.match-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.team-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;}
+.match-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:nowrap;gap:4px;}
+.team-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .match-score{
   font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;
-  color:var(--emerald);padding:0 12px;
+  color:var(--emerald);padding:0 12px;white-space:nowrap;min-width:60px;text-align:center;
 }
 .match-date{font-size:11px;color:var(--text-muted);text-align:center;}
 .match-status{
@@ -1602,7 +1602,7 @@ function renderMatches(matches) {
         <div class="match-status" style="${statusStyle}">${m.status}</div>
         <div class="match-teams">
           <span class="team-name">${getFlagEmoji(m.home)} ${stripEmoji(m.home)}</span>
-          <span class="match-score">${m.hs}–${m.as}</span>
+          <span class="match-score" style="flex-shrink:0;">${m.hs}–${m.as}</span>
           <span class="team-name" style="text-align:right">${stripEmoji(m.away)} ${getFlagEmoji(m.away)}</span>
         </div>
         <div class="match-date">${m.date}</div>

@@ -830,6 +830,13 @@ def get_real_world_roster(
             for r in search_results:
                 url = r.get("href", "")
                 if url and not any(loc in url for loc in ["localhost", "127.0.0.1"]):
+                    # Skip general country/place pages that are not about the football match
+                    url_lower = url.lower()
+                    if "wikipedia.org/wiki/" in url_lower and any(c in url_lower for c in ["congo", "portugal", "spain", "peru", "angola", "japan", "iceland", "argentina", "germany", "france", "england", "belgium", "vietnam", "philippines", "guam"]):
+                        continue
+                    if "britannica.com" in url_lower:
+                        continue
+                        
                     logger.info(f"Fetching webpage content for RAG context: {url}")
                     try:
                         headers = {

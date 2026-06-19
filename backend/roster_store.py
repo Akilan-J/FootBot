@@ -859,7 +859,12 @@ def get_real_world_roster(
         {search_context}
         
         Using the search context above and your general football knowledge, return the exact starting XI players that started this match for '{team_name}'.
-        You must output exactly 11 players in JSON format.
+        
+        CRITICAL RULES FOR LINEUP ACCURACY:
+        1. Prioritize official, actual confirmed lineups and match reports over fantasy previews, predicted lineups, or pre-match articles.
+        2. Any players mentioned as goalscorers, assisters, or key players in the match text (such as Yoane Wissa, João Neves, Cristiano Ronaldo, Pedro Neto, Arthur Masuaku) MUST be included in the starting XI if they belong to that team.
+        3. Double check that the players are active in the year 2026 for their respective national teams (for example, avoid retired players like Yannick Bolasie, Pepe, etc. if they are not playing in the 2026 World Cup).
+        4. You must output exactly 11 players in JSON format.
         Each player must have exactly the following keys:
         - 'name': The real player's full name (e.g. 'Bukayo Saka' or 'A. Lunin')
         - 'jersey': Their squad/jersey number as a string (e.g. '7')

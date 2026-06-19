@@ -373,6 +373,23 @@ input[type=range]::-webkit-slider-thumb{
   background:rgba(16,185,129,0.12);color:var(--emerald);
   border-color:rgba(16,185,129,0.3);
 }
+.match-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.match-search-input:focus {
+  border-color: rgba(16,185,129,0.4) !important;
+  box-shadow: 0 0 8px rgba(16,185,129,0.15);
+  background: rgba(255,255,255,0.06) !important;
+}
 .matches-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
 .match-card{
   background:rgba(255,255,255,0.03);
@@ -708,14 +725,20 @@ input[type=range]::-webkit-slider-thumb{
           </div>
           <button class="btn-crawl" onclick="crawlMatches()">⚡ Crawl & Sync Past Results</button>
         </div>
-        <div class="league-filter" id="league-filter">
-          <button class="filter-btn active" onclick="filterLeague('all',this)">All Leagues</button>
-          <button class="filter-btn" onclick="filterLeague('Premier League',this)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
-          <button class="filter-btn" onclick="filterLeague('La Liga',this)">🇪🇸 La Liga</button>
-          <button class="filter-btn" onclick="filterLeague('Bundesliga',this)">🇩🇪 Bundesliga</button>
-          <button class="filter-btn" onclick="filterLeague('Serie A',this)">🇮🇹 Serie A</button>
-          <button class="filter-btn" onclick="filterLeague('Ligue 1',this)">🇫🇷 Ligue 1</button>
-          <button class="filter-btn" onclick="filterLeague('World Cup',this)">🏆 World Cup</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+          <div class="league-filter" id="league-filter">
+            <button class="filter-btn active" onclick="filterLeague('all',this)">All Leagues</button>
+            <button class="filter-btn" onclick="filterLeague('Premier League',this)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
+            <button class="filter-btn" onclick="filterLeague('La Liga',this)">🇪🇸 La Liga</button>
+            <button class="filter-btn" onclick="filterLeague('Bundesliga',this)">🇩🇪 Bundesliga</button>
+            <button class="filter-btn" onclick="filterLeague('Serie A',this)">🇮🇹 Serie A</button>
+            <button class="filter-btn" onclick="filterLeague('Ligue 1',this)">🇫🇷 Ligue 1</button>
+            <button class="filter-btn" onclick="filterLeague('World Cup',this)">🏆 World Cup</button>
+          </div>
+          <div style="position:relative; width:100%; max-width:280px;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px; pointer-events:none;">🔍</span>
+            <input type="text" id="match-search" placeholder="Search teams..." class="match-search-input" oninput="handleMatchSearch(this.value)">
+          </div>
         </div>
         <div class="scores-content">
           <div class="matches-grid" id="matches-grid">
@@ -775,6 +798,7 @@ let currentSessionId = null;
 let sessionsList = [];
 let loadedMatches = [];
 let currentActiveLeague = 'all';
+let matchSearchQuery = '';
 let currentMatch = null;
 let selectedPlayer = null;
 let currentMetric = 'rating';
@@ -1578,14 +1602,33 @@ function filterLeague(league, el) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   currentActiveLeague = league;
-  const filtered = league === 'all' ? loadedMatches : loadedMatches.filter(m => m.league === league);
+  applyMatchFiltersAndRender();
+}
+
+function handleMatchSearch(val) {
+  matchSearchQuery = val.toLowerCase().trim();
+  applyMatchFiltersAndRender();
+}
+
+function applyMatchFiltersAndRender() {
+  const filtered = loadedMatches.filter(m => {
+    const matchLeague = currentActiveLeague === 'all' || m.league === currentActiveLeague;
+    const cleanHome = stripEmoji(m.home).toLowerCase();
+    const cleanAway = stripEmoji(m.away).toLowerCase();
+    const matchSearch = !matchSearchQuery || 
+      cleanHome.includes(matchSearchQuery) || 
+      cleanAway.includes(matchSearchQuery) ||
+      m.league.toLowerCase().includes(matchSearchQuery);
+    return matchLeague && matchSearch;
+  });
   renderMatches(filtered);
 }
 
 function renderMatches(matches) {
   const grid = document.getElementById('matches-grid');
   if (!matches.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No matches for selected league.</div>';
+    const msg = matchSearchQuery ? 'No matches match your search criteria.' : 'No matches for selected league.';
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">${msg}</div>`;
     return;
   }
   grid.innerHTML = matches.map((m, idx) => {
@@ -1731,8 +1774,7 @@ async function loadHistoricalMatches() {
     
     loadedMatches = filteredAndMapped;
     
-    const filtered = currentActiveLeague === 'all' ? loadedMatches : loadedMatches.filter(m => m.league === currentActiveLeague);
-    renderMatches(filtered);
+    applyMatchFiltersAndRender();
     updateSelectorOptions();
   } catch(e) {
     console.error('Failed to load completed matches:', e);

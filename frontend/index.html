@@ -171,14 +171,30 @@ body::before{
 }
 .nav-tab:hover:not(.active){background:rgba(255,255,255,0.05);color:var(--text-dim);}
 .nav-user{
-  margin-left:auto;display:flex;align-items:center;gap:10px;
+  margin-left:auto;display:flex;align-items:center;gap:10px;position:relative;
 }
 .user-avatar{
   width:32px;height:32px;border-radius:50%;
   background:linear-gradient(135deg,var(--emerald),#059669);
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:600;color:#fff;
+  font-size:13px;font-weight:600;color:#fff;cursor:pointer;
 }
+.user-dropdown{
+  position:absolute;top:40px;right:0;width:240px;
+  background:rgba(15,23,42,0.95);backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);border-radius:12px;
+  padding:16px;box-shadow:0 10px 25px rgba(0,0,0,0.5);
+  display:none;flex-direction:column;gap:12px;z-index:100;
+  font-family:'Inter',sans-serif;text-align:left;
+}
+.user-dropdown.active{display:flex;}
+.user-dropdown h4{
+  font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;margin:0 0 4px 0;color:var(--text);
+}
+.dropdown-item{
+  font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;
+}
+.dropdown-item span:last-child{color:var(--text);font-weight:600;}
 .btn-logout{
   padding:6px 14px;background:rgba(255,255,255,0.05);
   border:1px solid var(--glass-border);border-radius:8px;
@@ -466,6 +482,17 @@ input[type=range]::-webkit-slider-thumb{
   background:rgba(16,185,129,0.12);color:var(--emerald);
   border-color:rgba(16,185,129,0.3);
 }
+.subtab-btn{
+  flex:1;padding:8px 12px;border:none;background:transparent;
+  color:var(--text-muted);cursor:pointer;font-weight:600;font-size:12px;
+  border-radius:8px;transition:.2s;font-family:'Space Grotesk',sans-serif;
+  text-align:center;
+}
+.subtab-btn:hover{color:var(--text);}
+.subtab-btn.active{
+  background:rgba(255,255,255,0.06);color:var(--text);
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
 .match-main{overflow-y:auto;display:flex;flex-direction:column;gap:20px;padding-right:4px;}
 .section-head{
   font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;
@@ -584,7 +611,16 @@ input[type=range]::-webkit-slider-thumb{
       <button class="nav-tab" onclick="switchTab('sofascore',this)">🏟️ Match Centre</button>
     </div>
     <div class="nav-user">
-      <div class="user-avatar" id="nav-avatar">P</div>
+      <div class="user-avatar" id="nav-avatar" onclick="toggleUserDropdown(event)">P</div>
+      <div class="user-dropdown" id="user-dropdown">
+        <h4 id="dropdown-username">Username</h4>
+        <div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;word-break:break-all;" id="dropdown-token-label">Token: <span id="dropdown-token" style="font-family:monospace;color:var(--text);background:rgba(255,255,255,0.06);padding:2px 4px;border-radius:4px;">Token</span></div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:10px;display:flex;flex-direction:column;gap:6px;">
+          <div class="dropdown-item"><span>Total Sessions:</span><span id="dropdown-sessions-count">0</span></div>
+          <div class="dropdown-item"><span>LLM Model:</span><span id="dropdown-model-name">openrouter/free</span></div>
+          <div class="dropdown-item"><span>Server Host:</span><span>127.0.0.1</span></div>
+        </div>
+      </div>
       <button class="btn-logout" onclick="logout()">Sign Out</button>
     </div>
   </div>
@@ -805,6 +841,12 @@ let pitchPlayers = [];
 let chatMessages = [];
 let draggingPlayer = null;
 let dragOffX = 0, dragOffY = 0;
+
+let currentSubTab = 'overview';
+let h2hPlayerA = null;
+let h2hPlayerB = null;
+let activeShots = [];
+let selectedShot = null;
 
 // ============================================================
 // AUTH
@@ -1963,13 +2005,24 @@ async function loadMatch(id) {
         status: m.status,
         possession: matchStats ? matchStats.possession : [50, 50],
         shots: matchStats ? matchStats.shots : [0, 0],
+        shotsOnTarget: matchStats ? matchStats.shotsOnTarget : [0, 0],
         bigChances: matchStats ? matchStats.bigChances : [0, 0],
         passes: matchStats ? matchStats.passes : [0, 0],
+        corners: matchStats ? matchStats.corners : [0, 0],
+        fouls: matchStats ? matchStats.fouls : [0, 0],
+        yellowCards: matchStats ? matchStats.yellowCards : [0, 0],
+        offsides: matchStats ? matchStats.offsides : [0, 0],
         momentum: generateMomentum(m.status !== 'upcoming' && m.status !== 'Fixture'),
         homePlayers: enrichedHome,
         awayPlayers: enrichedAway,
         events: matchEvents || []
       };
+      
+      // Reset SofaScore states
+      h2hPlayerA = null;
+      h2hPlayerB = null;
+      activeShots = generateShots(currentMatch);
+      selectedShot = null;
     } catch(e) {
       console.error("Error loading db match rosters:", e);
       currentMatch = {
@@ -1983,13 +2036,22 @@ async function loadMatch(id) {
         status: m.status,
         possession: [50, 50],
         shots: [0, 0],
+        shotsOnTarget: [0, 0],
         bigChances: [0, 0],
         passes: [0, 0],
+        corners: [0, 0],
+        fouls: [0, 0],
+        yellowCards: [0, 0],
+        offsides: [0, 0],
         momentum: generateMomentum(m.status !== 'upcoming' && m.status !== 'Fixture'),
         homePlayers: [],
         awayPlayers: [],
         events: []
       };
+      h2hPlayerA = null;
+      h2hPlayerB = null;
+      activeShots = [];
+      selectedShot = null;
     }
   }
   selectedPlayer = null;
@@ -2085,49 +2147,133 @@ function renderMatchCentre() {
       ${renderScorersSection(m)}
     </div>
 
-    <!-- Momentum -->
-    <div class="momentum-chart-wrap">
-      <div class="section-head">📈 Attacking Momentum</div>
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:8px;">
-        <span style="color:var(--emerald)">▲ ${m.homeFlag} ${m.home}</span>
-        <span>Minute</span>
-        <span style="color:var(--blue)">▼ ${m.away} ${m.awayFlag}</span>
-      </div>
-      <canvas id="momentum-canvas" height="120" style="width:100%;display:block;touch-action:none;"></canvas>
+    <!-- SofaScore Sub-tabs Navigation -->
+    <div class="sofascore-subtabs" style="display:flex;gap:6px;margin:8px 0;background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);padding:4px;border-radius:10px;">
+      <button class="subtab-btn ${currentSubTab === 'overview' ? 'active' : ''}" onclick="switchSubTab('overview')">Overview</button>
+      <button class="subtab-btn ${currentSubTab === 'lineups' ? 'active' : ''}" onclick="switchSubTab('lineups')">Lineups</button>
+      <button class="subtab-btn ${currentSubTab === 'shotmap' ? 'active' : ''}" onclick="switchSubTab('shotmap')">Shotmap</button>
+      <button class="subtab-btn ${currentSubTab === 'standings' ? 'active' : ''}" onclick="switchSubTab('standings')">Standings</button>
+      <button class="subtab-btn ${currentSubTab === 'compare' ? 'active' : ''}" onclick="switchSubTab('compare')">Compare</button>
     </div>
 
-    <!-- H2H Stats -->
-    <div class="h2h-wrap">
-      <div class="section-head">📊 Match Statistics</div>
-      ${renderH2H('Possession %', homePct, awayPct, true)}
-      ${renderH2H('Total Shots', m.shots[0], m.shots[1])}
-      ${renderH2H('Big Chances', m.bigChances[0], m.bigChances[1])}
-      ${renderH2H('Passes', m.passes[0], m.passes[1])}
-    </div>
-
-    <!-- Metric overlay -->
-    <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
-      <div class="section-head">🎽 Starting XI Overlay</div>
-      <div class="metric-toggle" id="metric-toggle">
-        <button class="metric-btn active" onclick="setMetric('rating',this)">⭐ Rating</button>
-        <button class="metric-btn" onclick="setMetric('age',this)">🎂 Age</button>
-        <button class="metric-btn" onclick="setMetric('value',this)">💰 Value</button>
-        <button class="metric-btn" onclick="setMetric('flag',this)">🌍 Nationality</button>
-      </div>
-      <canvas id="lineup-canvas" height="720" style="width:100%;display:block;cursor:pointer;"></canvas>
-    </div>
-
-    <!-- Substitutes Section -->
-    <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;margin-top:16px;">
-      <div class="section-head">🔄 Substitutes & Bench</div>
-      ${renderSubstitutesSection(m)}
+    <!-- Sub-tab Content Container -->
+    <div id="match-subtab-content" style="display:flex;flex-direction:column;gap:20px;">
+      <!-- Content loaded dynamically -->
     </div>
   `;
 
-  setTimeout(() => {
-    drawMomentum();
-    drawLineup();
-  }, 50);
+  renderSubTabContent();
+}
+
+function switchSubTab(tab) {
+  currentSubTab = tab;
+  renderMatchCentre();
+}
+
+function selectComparePlayer(side, name) {
+  const m = currentMatch;
+  if (!m) return;
+  const squad = side === 'A' ? m.homePlayers : m.awayPlayers;
+  const p = squad.find(x => x.name === name);
+  if (p) {
+    if (side === 'A') h2hPlayerA = p;
+    else h2hPlayerB = p;
+    const container = document.getElementById('match-subtab-content');
+    if (container) {
+      container.innerHTML = renderPlayerCompare(m);
+    }
+  }
+}
+
+function renderSubTabContent() {
+  const container = document.getElementById('match-subtab-content');
+  const m = currentMatch;
+  if (!container || !m) return;
+
+  if (currentSubTab === 'overview') {
+    container.innerHTML = `
+      <!-- Momentum -->
+      <div class="momentum-chart-wrap">
+        <div class="section-head">📈 Attacking Momentum</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:8px;">
+          <span style="color:var(--emerald)">▲ ${m.homeFlag} ${m.home}</span>
+          <span>Minute</span>
+          <span style="color:var(--blue)">▼ ${m.away} ${m.awayFlag}</span>
+        </div>
+        <canvas id="momentum-canvas" height="120" style="width:100%;display:block;touch-action:none;"></canvas>
+      </div>
+
+      <!-- Advanced Match Statistics -->
+      <div class="h2h-wrap">
+        <div class="section-head">📊 Match Statistics</div>
+        ${renderH2H('Possession %', m.possession[0], m.possession[1], true)}
+        ${renderH2H('Total Shots', m.shots[0], m.shots[1])}
+        ${renderH2H('Shots on Target', m.shotsOnTarget ? m.shotsOnTarget[0] : 0, m.shotsOnTarget ? m.shotsOnTarget[1] : 0)}
+        ${renderH2H('Big Chances', m.bigChances[0], m.bigChances[1])}
+        ${renderH2H('Passes', m.passes[0], m.passes[1])}
+        ${renderH2H('Corner Kicks', m.corners ? m.corners[0] : 0, m.corners ? m.corners[1] : 0)}
+        ${renderH2H('Fouls', m.fouls ? m.fouls[0] : 0, m.fouls ? m.fouls[1] : 0)}
+        ${renderH2H('Yellow Cards', m.yellowCards ? m.yellowCards[0] : 0, m.yellowCards ? m.yellowCards[1] : 0)}
+        ${renderH2H('Offsides', m.offsides ? m.offsides[0] : 0, m.offsides ? m.offsides[1] : 0)}
+      </div>
+
+      <!-- Match Timeline -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+        <div class="section-head">🕒 Match Timeline</div>
+        ${renderMatchTimeline(m)}
+      </div>
+    `;
+    setTimeout(drawMomentum, 50);
+
+  } else if (currentSubTab === 'lineups') {
+    container.innerHTML = `
+      <!-- Lineups overlay -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+        <div class="section-head">🎽 Starting XI Overlay</div>
+        <div class="metric-toggle" id="metric-toggle">
+          <button class="metric-btn ${currentMetric === 'rating' ? 'active' : ''}" onclick="setMetric('rating',this)">⭐ Rating</button>
+          <button class="metric-btn ${currentMetric === 'age' ? 'active' : ''}" onclick="setMetric('age',this)">🎂 Age</button>
+          <button class="metric-btn ${currentMetric === 'value' ? 'active' : ''}" onclick="setMetric('value',this)">💰 Value</button>
+          <button class="metric-btn ${currentMetric === 'flag' ? 'active' : ''}" onclick="setMetric('flag',this)">🌍 Nationality</button>
+        </div>
+        <canvas id="lineup-canvas" height="720" style="width:100%;display:block;cursor:pointer;"></canvas>
+      </div>
+
+      <!-- Substitutes Section -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+        <div class="section-head">🔄 Substitutes & Bench</div>
+        ${renderSubstitutesSection(m)}
+      </div>
+    `;
+    setTimeout(drawLineup, 50);
+
+  } else if (currentSubTab === 'shotmap') {
+    container.innerHTML = `
+      <!-- Shotmap pitch canvas -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+        <div class="section-head">⚽ Interactive Shotmap</div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:12px;">
+          <span>🟢 Goal</span>
+          <span>🟡 Saved</span>
+          <span>⚪ Off Target / Blocked</span>
+        </div>
+        <canvas id="shotmap-canvas" height="400" style="width:100%;display:block;cursor:pointer;border-radius:10px;"></canvas>
+        <div id="shot-details-container" style="margin-top:16px;">
+          <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:12px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);border-radius:8px;">
+            Click on any shot node on the pitch above to inspect details.
+          </div>
+        </div>
+      </div>
+    `;
+    setTimeout(drawShotmap, 50);
+
+  } else if (currentSubTab === 'standings') {
+    container.innerHTML = renderStandingsTable(m);
+
+  } else if (currentSubTab === 'compare') {
+    container.innerHTML = renderPlayerCompare(m);
+  }
+}
 }
 
 function renderSubstitutesSection(m) {
@@ -3001,6 +3147,422 @@ function drawHeatmap(player) {
   </svg>`;
 }
 
+function generateShots(m) {
+  const shots = [];
+  const seed = m.home.length + m.away.length + (parseInt(m.hs) || 0);
+  
+  // 1. Add actual goals
+  (m.events || []).forEach((g, idx) => {
+    const isHome = stripEmoji(g.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(g.team || '').toLowerCase().trim());
+    const xPct = isHome ? (42 + (idx * 17) % 16) : (42 + (idx * 13) % 16);
+    const yPct = isHome ? (10 + (idx * 9) % 8) : (90 - (idx * 7) % 8);
+    shots.push({
+      player: g.scorer,
+      minute: g.minute,
+      team: g.team,
+      isGoal: true,
+      result: g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
+      x: xPct,
+      y: yPct
+    });
+  });
+
+  // 2. Add shots on target (saved)
+  const homeSOTCount = Math.max(0, (m.shotsOnTarget ? m.shotsOnTarget[0] : 4) - shots.filter(s => s.isGoal && (stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(s.team || '').toLowerCase().trim()))).length);
+  const awaySOTCount = Math.max(0, (m.shotsOnTarget ? m.shotsOnTarget[1] : 3) - shots.filter(s => s.isGoal && (stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.away).toLowerCase().trim()) || stripEmoji(m.away).toLowerCase().trim().includes(stripEmoji(s.team || '').toLowerCase().trim()))).length);
+
+  for (let i = 0; i < homeSOTCount; i++) {
+    const p = m.homePlayers.filter(x => !x.sub)[(i + seed) % 11];
+    shots.push({
+      player: p ? p.name : 'Attacker',
+      minute: `${20 + i * 15}'`,
+      team: m.home,
+      isGoal: false,
+      result: 'Saved',
+      x: 35 + (i * 29) % 30,
+      y: 12 + (i * 17) % 15
+    });
+  }
+  for (let i = 0; i < awaySOTCount; i++) {
+    const p = m.awayPlayers.filter(x => !x.sub)[(i + seed * 3) % 11];
+    shots.push({
+      player: p ? p.name : 'Attacker',
+      minute: `${25 + i * 15}'`,
+      team: m.away,
+      isGoal: false,
+      result: 'Saved',
+      x: 35 + (i * 23) % 30,
+      y: 88 - (i * 19) % 15
+    });
+  }
+
+  // 3. Add shots off target
+  const homeOffCount = Math.max(0, (m.shots[0] || 10) - shots.filter(s => stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim())).length);
+  const awayOffCount = Math.max(0, (m.shots[1] || 8) - shots.filter(s => stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.away).toLowerCase().trim())).length);
+
+  for (let i = 0; i < homeOffCount; i++) {
+    const p = m.homePlayers.filter(x => !x.sub)[(i + seed * 2) % 11];
+    shots.push({
+      player: p ? p.name : 'Player',
+      minute: `${10 + i * 12}'`,
+      team: m.home,
+      isGoal: false,
+      result: 'Off Target',
+      x: 20 + (i * 37) % 60,
+      y: 20 + (i * 13) % 20
+    });
+  }
+  for (let i = 0; i < awayOffCount; i++) {
+    const p = m.awayPlayers.filter(x => !x.sub)[(i + seed * 4) % 11];
+    shots.push({
+      player: p ? p.name : 'Player',
+      minute: `${15 + i * 12}'`,
+      team: m.away,
+      isGoal: false,
+      result: 'Off Target',
+      x: 20 + (i * 41) % 60,
+      y: 80 - (i * 11) % 20
+    });
+  }
+
+  return shots;
+}
+
+function renderMatchTimeline(m) {
+  const timelineEvents = [];
+  
+  (m.events || []).forEach(g => {
+    timelineEvents.push({
+      minute: parseInt(g.minute) || 0,
+      minuteStr: g.minute,
+      type: 'goal',
+      title: g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
+      desc: `${g.scorer}${g.assist ? ' (assist: ' + g.assist + ')' : ''}`,
+      team: g.team,
+      icon: '⚽'
+    });
+  });
+  
+  const findTeamForPlayer = (name) => {
+    if ((m.homePlayers || []).some(p => p.name === name)) return m.home;
+    if ((m.awayPlayers || []).some(p => p.name === name)) return m.away;
+    return m.home;
+  };
+  
+  const allPlayers = [...(m.homePlayers || []), ...(m.awayPlayers || [])];
+  allPlayers.forEach(p => {
+    if (p.sub && p.subbed_in_for && p.subbed_in_minute) {
+      const teamName = findTeamForPlayer(p.name);
+      timelineEvents.push({
+        minute: parseInt(p.subbed_in_minute) || 0,
+        minuteStr: p.subbed_in_minute,
+        type: 'sub',
+        title: 'Substitution',
+        desc: `🔄 ${p.name} for ${p.subbed_in_for}`,
+        team: teamName,
+        icon: '🔄'
+      });
+    }
+  });
+
+  const seed = m.home.length + m.away.length + (parseInt(m.hs) || 0);
+  const homeYellow = allPlayers.filter(p => !p.sub && findTeamForPlayer(p.name) === m.home)[1 % allPlayers.length]?.name || 'Defender';
+  const awayYellow = allPlayers.filter(p => !p.sub && findTeamForPlayer(p.name) === m.away)[3 % allPlayers.length]?.name || 'Defender';
+  
+  timelineEvents.push({
+    minute: (seed * 7) % 40 + 15,
+    minuteStr: `${(seed * 7) % 40 + 15}'`,
+    type: 'card',
+    title: 'Yellow Card',
+    desc: `🟨 ${homeYellow}`,
+    team: m.home,
+    icon: '🟨'
+  });
+  
+  timelineEvents.push({
+    minute: (seed * 11) % 40 + 50,
+    minuteStr: `${(seed * 11) % 40 + 50}'`,
+    type: 'card',
+    title: 'Yellow Card',
+    desc: `🟨 ${awayYellow}`,
+    team: m.away,
+    icon: '🟨'
+  });
+
+  timelineEvents.sort((a, b) => a.minute - b.minute);
+
+  const renderedEvents = timelineEvents.map(evt => {
+    const isHomeEvent = stripEmoji(evt.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(evt.team || '').toLowerCase().trim());
+    return `
+      <div style="display:flex;align-items:center;margin:12px 0;font-family:'Inter',sans-serif;font-size:12px;">
+        <div style="width:40px;text-align:right;font-weight:700;color:var(--emerald);padding-right:12px;">${evt.minuteStr}</div>
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:13px;z-index:2;margin-right:12px;">
+          ${evt.icon}
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);padding:8px 12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span style="font-weight:600;color:var(--text);margin-right:6px;">${evt.title}</span>
+            <span style="color:var(--text-muted);">${evt.desc}</span>
+          </div>
+          <span style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;color:${isHomeEvent ? 'var(--emerald)' : 'var(--blue)'};">
+            ${isHomeEvent ? m.homeFlag : m.awayFlag}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="position:relative;margin-top:16px;padding-left:4px;">
+      <div style="position:absolute;left:48px;top:10px;bottom:10px;width:1.5px;background:rgba(255,255,255,0.06);z-index:1;"></div>
+      ${renderedEvents}
+    </div>
+  `;
+}
+
+function drawShotmap() {
+  const canvas = document.getElementById('shotmap-canvas');
+  if (!canvas || !currentMatch) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth;
+  const H = 400;
+  canvas.width = W * window.devicePixelRatio;
+  canvas.height = H * window.devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  ctx.fillStyle = '#0c2118'; ctx.fillRect(0,0,W,H);
+  for (let i=0;i<5;i++) {
+    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.015)':'transparent';
+    ctx.fillRect(0,i*(H/5),W,H/5);
+  }
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(15,10,W-30,H-20);
+  ctx.beginPath(); ctx.moveTo(15,H/2); ctx.lineTo(W-15,H/2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(W/2, H/2, 40, 0, Math.PI*2); ctx.stroke();
+
+  ctx.strokeRect((W-80)/2, 10, 80, 40);
+  ctx.strokeRect((W-80)/2, H-50, 80, 40);
+
+  activeShots.forEach((s) => {
+    const cx = 15 + (s.x / 100) * (W - 30);
+    const cy = 10 + (s.y / 100) * (H - 20);
+    s.canvasX = cx;
+    s.canvasY = cy;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 7, 0, Math.PI*2);
+    if (s.isGoal) {
+      ctx.fillStyle = '#10b981';
+    } else if (s.result === 'Saved') {
+      ctx.fillStyle = '#f59e0b';
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    }
+    ctx.fill();
+    ctx.strokeStyle = selectedShot === s ? '#fff' : 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = selectedShot === s ? 2 : 1;
+    ctx.stroke();
+  });
+
+  canvas.onclick = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left);
+    const my = (e.clientY - rect.top);
+    let found = null;
+    activeShots.forEach(s => {
+      const dx = mx - s.canvasX;
+      const dy = my - s.canvasY;
+      if (Math.sqrt(dx*dx + dy*dy) < 12) found = s;
+    });
+    if (found) {
+      selectedShot = found;
+      drawShotmap();
+      renderSelectedShotDetails(found);
+    }
+  };
+}
+
+function renderSelectedShotDetails(s) {
+  const container = document.getElementById('shot-details-container');
+  if (!container) return;
+  const color = s.isGoal ? 'var(--emerald)' : s.result === 'Saved' ? 'var(--amber)' : 'var(--text-muted)';
+  container.innerHTML = `
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);padding:12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;font-family:'Inter',sans-serif;">
+      <div>
+        <div style="font-weight:600;font-size:13px;color:var(--text);">${s.player}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${s.minute} · ${s.result}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;color:${color};text-transform:uppercase;">
+        ${s.result}
+      </div>
+    </div>
+  `;
+}
+
+function renderStandingsTable(m) {
+  const seed = m.home.length + m.away.length;
+  const teams = [
+    { name: m.home, flag: m.homeFlag, mp: 3, w: 2, d: 1, l: 0, gf: 6, ga: 2, gd: 4, pts: 7 },
+    { name: m.away, flag: m.awayFlag, mp: 3, w: 1, d: 1, l: 1, gf: 4, ga: 5, gd: -1, pts: 4 },
+    { name: seed % 2 === 0 ? 'Belgium' : 'Spain', flag: seed % 2 === 0 ? '🇧🇪' : '🇪🇸', mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 4, gd: -1, pts: 3 },
+    { name: seed % 2 === 0 ? 'Morocco' : 'Croatia', flag: seed % 2 === 0 ? '🇲🇦' : '🇭🇷', mp: 3, w: 0, d: 2, l: 1, gf: 2, ga: 4, gd: -2, pts: 2 }
+  ];
+
+  if (m.hs > m.as) {
+    teams[0].pts += 3;
+    teams[0].w += 1;
+    teams[1].l += 1;
+  } else if (m.hs < m.as) {
+    teams[1].pts += 3;
+    teams[1].w += 1;
+    teams[0].l += 1;
+  } else {
+    teams[0].pts += 1;
+    teams[1].pts += 1;
+    teams[0].d += 1;
+    teams[1].d += 1;
+  }
+  
+  teams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+
+  const rows = teams.map((t, idx) => {
+    const isCurrentMatchTeam = t.name === m.home || t.name === m.away;
+    const bg = isCurrentMatchTeam ? 'rgba(255,255,255,0.03)' : 'transparent';
+    const borderLeft = t.name === m.home ? '3px solid var(--emerald)' : t.name === m.away ? '3px solid var(--blue)' : '3px solid transparent';
+    return `
+      <tr style="background:${bg};border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Inter',sans-serif;font-size:12px;">
+        <td style="padding:10px 8px;text-align:center;font-weight:700;color:var(--text-muted);border-left:${borderLeft};">${idx + 1}</td>
+        <td style="padding:10px 8px;font-weight:600;display:flex;align-items:center;gap:6px;">
+          <span>${t.flag}</span>
+          <span style="color:${isCurrentMatchTeam ? 'var(--text)' : 'rgba(255,255,255,0.7)'};">${t.name}</span>
+        </td>
+        <td style="padding:10px 8px;text-align:center;">${t.mp}</td>
+        <td style="padding:10px 8px;text-align:center;color:var(--text-muted);">${t.w}</td>
+        <td style="padding:10px 8px;text-align:center;color:var(--text-muted);">${t.d}</td>
+        <td style="padding:10px 8px;text-align:center;color:var(--text-muted);">${t.l}</td>
+        <td style="padding:10px 8px;text-align:center;color:var(--text-muted);">${t.gf}:${t.ga}</td>
+        <td style="padding:10px 8px;text-align:center;font-weight:600;color:${t.gd>=0?'var(--emerald)':'#ef4444'};">${t.gd>0?'+':''}${t.gd}</td>
+        <td style="padding:10px 8px;text-align:center;font-weight:700;color:var(--text);">${t.pts}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div style="background:rgba(255,255,255,0.015);border:1px solid var(--glass-border);border-radius:12px;overflow:hidden;margin-top:16px;">
+      <div style="padding:12px 16px;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.04);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--text);">
+        🏆 League Table / Group Standings (${m.league || 'Tournament'})
+      </div>
+      <table style="width:100%;border-collapse:collapse;text-align:left;">
+        <thead>
+          <tr style="border-bottom:1.5px solid rgba(255,255,255,0.06);font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">
+            <th style="padding:8px;text-align:center;width:30px;">#</th>
+            <th style="padding:8px;">Team</th>
+            <th style="padding:8px;text-align:center;width:40px;">PL</th>
+            <th style="padding:8px;text-align:center;width:30px;">W</th>
+            <th style="padding:8px;text-align:center;width:30px;">D</th>
+            <th style="padding:8px;text-align:center;width:30px;">L</th>
+            <th style="padding:8px;text-align:center;width:50px;">GD</th>
+            <th style="padding:8px;text-align:center;width:45px;">+/-</th>
+            <th style="padding:8px;text-align:center;width:40px;">PTS</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderPlayerCompare(m) {
+  const homeSquad = (m.homePlayers || []);
+  const awaySquad = (m.awayPlayers || []);
+  
+  if (!h2hPlayerA && homeSquad.length) h2hPlayerA = homeSquad[0];
+  if (!h2hPlayerB && awaySquad.length) h2hPlayerB = awaySquad[0];
+
+  const compareRow = (label, valA, valB, isBetter = 'higher') => {
+    let styleA = '', styleB = '';
+    const numA = parseFloat(valA.toString().replace(/[^0-9.]/g, ''));
+    const numB = parseFloat(valB.toString().replace(/[^0-9.]/g, ''));
+    if (!isNaN(numA) && !isNaN(numB)) {
+      if (isBetter === 'higher') {
+        if (numA > numB) styleA = 'color:var(--emerald);font-weight:700;';
+        else if (numB > numA) styleB = 'color:var(--emerald);font-weight:700;';
+      } else {
+        if (numA < numB) styleA = 'color:var(--emerald);font-weight:700;';
+        else if (numB < numA) styleB = 'color:var(--emerald);font-weight:700;';
+      }
+    }
+    return `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px;font-family:'Inter',sans-serif;">
+        <span style="flex:1;text-align:left;${styleA}">${valA}</span>
+        <span style="color:var(--text-muted);font-weight:600;text-align:center;min-width:120px;text-transform:uppercase;font-size:10px;letter-spacing:.8px;">${label}</span>
+        <span style="flex:1;text-align:right;${styleB}">${valB}</span>
+      </div>
+    `;
+  };
+
+  const optionsA = homeSquad.map(p => `<option value="${p.name}" ${h2hPlayerA?.name===p.name?'selected':''}>#${p.num} ${p.name} (${p.role})</option>`).join('');
+  const optionsB = awaySquad.map(p => `<option value="${p.name}" ${h2hPlayerB?.name===p.name?'selected':''}>#${p.num} ${p.name} (${p.role})</option>`).join('');
+
+  return `
+    <div style="background:rgba(255,255,255,0.01);border:1px solid var(--glass-border);border-radius:14px;padding:16px;margin-top:16px;">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;margin-bottom:16px;text-align:center;">🏆 Player Head-to-Head Comparison</div>
+      
+      <div style="display:flex;gap:16px;margin-bottom:20px;">
+        <div style="flex:1;">
+          <label style="font-size:10px;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">${m.homeFlag} ${m.home} Player</label>
+          <select onchange="selectComparePlayer('A', this.value)" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;">
+            ${optionsA}
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label style="font-size:10px;color:var(--text-muted);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">${m.awayFlag} ${m.away} Player</label>
+          <select onchange="selectComparePlayer('B', this.value)" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:12px;outline:none;">
+            ${optionsB}
+          </select>
+        </div>
+      </div>
+
+      ${h2hPlayerA && h2hPlayerB ? `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Inter',sans-serif;">
+          <div style="text-align:left;display:flex;align-items:center;gap:10px;">
+            <img src="${BACKEND_URL}/player/image?name=${encodeURIComponent(h2hPlayerA.name)}&sofa_id=${h2hPlayerA.sofa_id || ''}&pos=${h2hPlayerA.role || ''}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-border);" />
+            <div>
+              <div style="font-weight:700;font-size:14px;">${h2hPlayerA.name}</div>
+              <div style="font-size:11px;color:var(--text-muted);">${h2hPlayerA.role} · #${h2hPlayerA.num}</div>
+            </div>
+          </div>
+          <div style="font-weight:800;font-size:14px;color:var(--text-muted);">VS</div>
+          <div style="text-align:right;display:flex;flex-direction:row-reverse;align-items:center;gap:10px;">
+            <img src="${BACKEND_URL}/player/image?name=${encodeURIComponent(h2hPlayerB.name)}&sofa_id=${h2hPlayerB.sofa_id || ''}&pos=${h2hPlayerB.role || ''}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:1px solid var(--glass-border);" />
+            <div>
+              <div style="font-weight:700;font-size:14px;">${h2hPlayerB.name}</div>
+              <div style="font-size:11px;color:var(--text-muted);">${h2hPlayerB.role} · #${h2hPlayerB.num}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          ${compareRow('SofaScore Rating', h2hPlayerA.rating, h2hPlayerB.rating)}
+          ${compareRow('Age', h2hPlayerA.age, h2hPlayerB.age, 'lower')}
+          ${compareRow('Height', h2hPlayerA.height, h2hPlayerB.height)}
+          ${compareRow('Market Value', h2hPlayerA.value, h2hPlayerB.value)}
+          ${compareRow('Scouting: ATT', h2hPlayerA.att, h2hPlayerB.att)}
+          ${compareRow('Scouting: CTRL', h2hPlayerA.ctrl, h2hPlayerB.ctrl)}
+          ${compareRow('Scouting: CREA', h2hPlayerA.crea, h2hPlayerB.crea)}
+          ${compareRow('Scouting: PHYS', h2hPlayerA.phys, h2hPlayerB.phys)}
+          ${compareRow('Scouting: SCAN', h2hPlayerA.scan, h2hPlayerB.scan)}
+          ${compareRow('Scouting: DEF', h2hPlayerA.def, h2hPlayerB.def)}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 async function generateScoutingReport() {
   const m = currentMatch;
   if (!m) return;
@@ -3012,6 +3574,25 @@ async function generateScoutingReport() {
   document.getElementById('chat-input').value = prompt;
   await sendChat();
 }
+
+function toggleUserDropdown(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('user-dropdown');
+  const isActive = dropdown.classList.contains('active');
+  dropdown.classList.toggle('active');
+  
+  if (!isActive) {
+    document.getElementById('dropdown-username').textContent = currentUser || 'Guest';
+    const token = localStorage.getItem('fb_token') || 'None';
+    document.getElementById('dropdown-token').textContent = token.length > 12 ? token.substring(0, 12) + '...' : token;
+    document.getElementById('dropdown-token').title = token;
+    document.getElementById('dropdown-sessions-count').textContent = sessionsList.length || 0;
+  }
+}
+
+window.addEventListener('click', () => {
+  document.getElementById('user-dropdown')?.classList.remove('active');
+});
 
 // ============================================================
 // INIT

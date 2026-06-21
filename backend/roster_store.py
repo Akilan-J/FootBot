@@ -1188,8 +1188,13 @@ def get_dynamic_match_stats_via_llm(
     Your response must be a valid JSON object with the following keys and values:
     - 'possession': An array of two integers representing possession percentage for Home and Away (e.g. [55, 45]). The sum must be exactly 100.
     - 'shots': An array of two integers representing total shots for Home and Away (e.g. [14, 9]).
+    - 'shotsOnTarget': An array of two integers representing shots on target for Home and Away (e.g. [6, 4]).
     - 'bigChances': An array of two integers representing big chances for Home and Away (e.g. [3, 1]).
     - 'passes': An array of two integers representing accurate or total passes for Home and Away (e.g. [510, 420]).
+    - 'corners': An array of two integers representing corner kicks for Home and Away (e.g. [6, 3]).
+    - 'fouls': An array of two integers representing fouls committed for Home and Away (e.g. [10, 12]).
+    - 'yellowCards': An array of two integers representing yellow cards for Home and Away (e.g. [2, 1]).
+    - 'offsides': An array of two integers representing offsides for Home and Away (e.g. [1, 2]).
     - 'predicted_score': An array of two integers representing the predicted/actual score (e.g. [2, 1]).
     
     Return ONLY a raw valid JSON object. Do not write any markdown code wrappers, explanations, or notes."""
@@ -1225,8 +1230,15 @@ def get_dynamic_match_stats_via_llm(
                     else:
                         stats["possession"] = [50, 50]
                     
-                    for k in ["shots", "bigChances", "passes"]:
-                        if not isinstance(stats[k], list) or len(stats[k]) != 2:
+                    # Fill default keys for safety
+                    stats["shotsOnTarget"] = stats.get("shotsOnTarget", [round(stats["shots"][0]*0.4), round(stats["shots"][1]*0.4)])
+                    stats["corners"] = stats.get("corners", [5, 4])
+                    stats["fouls"] = stats.get("fouls", [10, 11])
+                    stats["yellowCards"] = stats.get("yellowCards", [1, 1])
+                    stats["offsides"] = stats.get("offsides", [2, 2])
+
+                    for k in ["shots", "shotsOnTarget", "bigChances", "passes", "corners", "fouls", "yellowCards", "offsides"]:
+                        if k not in stats or not isinstance(stats[k], list) or len(stats[k]) != 2:
                             stats[k] = [0, 0]
                         else:
                             stats[k] = [int(x) for x in stats[k]]
@@ -1442,10 +1454,20 @@ def get_match_stats(
                             a_poss   = _stat(a_stats, "Possession")
                             h_shots  = _stat(h_stats, "SHOTS", "Shots")
                             a_shots  = _stat(a_stats, "SHOTS", "Shots")
+                            h_shots_on_target = _stat(h_stats, "Shots on Goal")
+                            a_shots_on_target = _stat(a_stats, "Shots on Goal")
                             h_passes = _stat(h_stats, "Accurate Passes", "Passes")
                             a_passes = _stat(a_stats, "Accurate Passes", "Passes")
                             h_bc     = _stat(h_stats, "ON GOAL")
                             a_bc     = _stat(a_stats, "ON GOAL")
+                            h_corners = _stat(h_stats, "Corner Kicks")
+                            a_corners = _stat(a_stats, "Corner Kicks")
+                            h_fouls = _stat(h_stats, "Fouls")
+                            a_fouls = _stat(a_stats, "Fouls")
+                            h_yellow = _stat(h_stats, "Yellow Cards")
+                            a_yellow = _stat(a_stats, "Yellow Cards")
+                            h_offsides = _stat(h_stats, "Offsides")
+                            a_offsides = _stat(a_stats, "Offsides")
 
                             if h_poss is not None and h_shots is not None:
                                 total_p = (h_poss or 0) + (a_poss or 0)
@@ -1455,11 +1477,21 @@ def get_match_stats(
                                     h_poss = round(h_poss or 50)
                                 a_poss = 100 - h_poss
 
+                                if h_shots_on_target is None:
+                                    h_shots_on_target = round((h_shots or 0) * 0.4)
+                                if a_shots_on_target is None:
+                                    a_shots_on_target = round((a_shots or 0) * 0.4)
+
                                 stats = {
                                     "possession": [h_poss, a_poss],
                                     "shots":      [int(h_shots or 0),  int(a_shots or 0)],
+                                    "shotsOnTarget": [int(h_shots_on_target or 0), int(a_shots_on_target or 0)],
                                     "bigChances": [int(h_bc or 0),     int(a_bc or 0)],
                                     "passes":     [int(h_passes or 0), int(a_passes or 0)],
+                                    "corners":    [int(h_corners or 5), int(a_corners or 4)],
+                                    "fouls":      [int(h_fouls or 10), int(a_fouls or 11)],
+                                    "yellowCards": [int(h_yellow or 1), int(a_yellow or 1)],
+                                    "offsides":   [int(h_offsides or 2), int(a_offsides or 2)],
                                     "predicted_score": [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
                                 }
 
@@ -1467,8 +1499,13 @@ def get_match_stats(
                                     cache_stats = {
                                         "possession": [a_poss, h_poss],
                                         "shots":      [int(a_shots or 0),  int(h_shots or 0)],
+                                        "shotsOnTarget": [int(a_shots_on_target or 0), int(h_shots_on_target or 0)],
                                         "bigChances": [int(a_bc or 0),     int(h_bc or 0)],
                                         "passes":     [int(a_passes or 0), int(h_passes or 0)],
+                                        "corners":    [int(a_corners or 4), int(h_corners or 5)],
+                                        "fouls":      [int(a_fouls or 11), int(h_fouls or 10)],
+                                        "yellowCards": [int(a_yellow or 1), int(h_yellow or 1)],
+                                        "offsides":   [int(a_offsides or 2), int(h_offsides or 2)],
                                         "predicted_score": [away_score if away_score is not None else 0, home_score if home_score is not None else 0]
                                     }
                                 else:
@@ -1490,8 +1527,13 @@ def get_match_stats(
             cache_stats = {
                 "possession": [stats["possession"][1], stats["possession"][0]],
                 "shots":      [stats["shots"][1], stats["shots"][0]],
+                "shotsOnTarget": [stats["shotsOnTarget"][1], stats["shotsOnTarget"][0]],
                 "bigChances": [stats["bigChances"][1], stats["bigChances"][0]],
                 "passes":     [stats["passes"][1], stats["passes"][0]],
+                "corners":    [stats["corners"][1], stats["corners"][0]],
+                "fouls":      [stats["fouls"][1], stats["fouls"][0]],
+                "yellowCards": [stats["yellowCards"][1], stats["yellowCards"][0]],
+                "offsides":   [stats["offsides"][1], stats["offsides"][0]],
                 "predicted_score": [stats["predicted_score"][1], stats["predicted_score"][0]]
             }
         else:

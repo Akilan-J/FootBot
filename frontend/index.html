@@ -723,7 +723,6 @@ input[type=range]::-webkit-slider-thumb{
             <h2 style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px;">Live & Historical Results</h2>
             <p style="font-size:13px;color:var(--text-muted);">Top European competitions & World Cup</p>
           </div>
-          <button class="btn-crawl" onclick="crawlMatches()">⚡ Crawl & Sync Past Results</button>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
           <div class="league-filter" id="league-filter">
@@ -1934,6 +1933,9 @@ async function loadMatch(id) {
           weight: p.weight || '75kg',
           value: p.val || '€10M',
           sofa_id: p.sofa_id || '',
+          sub: p.sub || false,
+          subbed_in_for: p.subbed_in_for || null,
+          subbed_in_minute: p.subbed_in_minute || null,
           att: Math.max(30, Math.min(99, Math.round(rating * 10 + (isAtt ? 8 : -15)))),
           ctrl: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 5 : -5)))),
           crea: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 8 : -20)))),
@@ -2013,7 +2015,7 @@ function renderScorersSection(m) {
       detail += ' <span style="font-size:10px;color:var(--red);background:rgba(239,68,68,0.15);padding:1px 4px;border-radius:4px;margin-left:4px;font-weight:600;">OG</span>';
     }
     detail += ` <span style="color:var(--emerald);font-weight:600;margin-left:4px;">${evt.minute}</span>`;
-    if (evt.assist) {
+    if (evt.assist && evt.assist !== 'null' && evt.assist !== 'None' && evt.assist !== 'unknown' && evt.assist !== evt.scorer) {
       detail += `<span style="font-size:10px;color:var(--text-muted);display:block;margin-top:1px;">👟 assist by ${evt.assist}</span>`;
     }
     
@@ -2114,12 +2116,72 @@ function renderMatchCentre() {
       </div>
       <canvas id="lineup-canvas" height="720" style="width:100%;display:block;cursor:pointer;"></canvas>
     </div>
+
+    <!-- Substitutes Section -->
+    <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;margin-top:16px;">
+      <div class="section-head">🔄 Substitutes & Bench</div>
+      ${renderSubstitutesSection(m)}
+    </div>
   `;
 
   setTimeout(() => {
     drawMomentum();
     drawLineup();
   }, 50);
+}
+
+function renderSubstitutesSection(m) {
+  const subsHome = (m.homePlayers || []).filter(p => p.sub);
+  const subsAway = (m.awayPlayers || []).filter(p => p.sub);
+
+  if (!subsHome.length && !subsAway.length) {
+    return `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:10px 0;font-family:'Inter',sans-serif;">No substitute data available for this match.</div>`;
+  }
+
+  const renderSubRow = (p) => {
+    let subInfo = "";
+    if (p.subbed_in_for) {
+      let min = p.subbed_in_minute || '';
+      if (min && !min.toString().endsWith("'")) {
+        min = min + "'";
+      }
+      subInfo = ` <span style="color:var(--emerald);font-size:11px;font-weight:600;">(➡️ ${min} subbed in for ${p.subbed_in_for})</span>`;
+    }
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:12px;font-family:'Inter',sans-serif;">
+        <span style="font-weight:500;">
+          <span style="color:var(--text-muted);margin-right:6px;width:18px;display:inline-block;text-align:right;">#${p.num}</span>
+          ${p.name}
+          ${subInfo}
+        </span>
+        <span style="background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;font-size:10px;color:var(--text-muted);font-weight:600;">${p.role}</span>
+      </div>
+    `;
+  };
+
+  return `
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:12px;font-family:'Inter',sans-serif;">
+      <!-- Home Subs -->
+      <div style="flex:1;min-width:240px;">
+        <div style="font-weight:600;font-size:13px;color:var(--emerald);margin-bottom:8px;border-bottom:1.5px solid rgba(16,185,129,0.15);padding-bottom:4px;display:flex;align-items:center;gap:6px;">
+          <span>${m.homeFlag || ''}</span> <span>${m.home} Bench</span>
+        </div>
+        <div>
+          ${subsHome.map(renderSubRow).join('')}
+        </div>
+      </div>
+      
+      <!-- Away Subs -->
+      <div style="flex:1;min-width:240px;">
+        <div style="font-weight:600;font-size:13px;color:var(--blue);margin-bottom:8px;border-bottom:1.5px solid rgba(59,130,246,0.15);padding-bottom:4px;display:flex;align-items:center;gap:6px;">
+          <span>${m.awayFlag || ''}</span> <span>${m.away} Bench</span>
+        </div>
+        <div>
+          ${subsAway.map(renderSubRow).join('')}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 function renderH2H(label, hv, av, isPct=false) {
@@ -2332,8 +2394,10 @@ function drawLineup() {
     else canvas._positions.away = positions.map((p,i) => ({...p, player:players[i]}));
   }
 
-  drawTeam(m.homePlayers, true);
-  drawTeam(m.awayPlayers, false);
+  const startingHome = (m.homePlayers || []).filter(p => !p.sub);
+  const startingAway = (m.awayPlayers || []).filter(p => !p.sub);
+  drawTeam(startingHome, true);
+  drawTeam(startingAway, false);
 
   // Home/Away labels
   ctx.fillStyle = 'rgba(16,185,129,0.7)'; ctx.font = 'bold 11px Space Grotesk,sans-serif';
@@ -2453,6 +2517,38 @@ function forceLayout(players, W, startY, teamH, isHome) {
       y: yPx,
     };
   });
+
+  // 10-pass simple collision resolution to push overlapping player nodes apart
+  for (let iter = 0; iter < 10; iter++) {
+    for (let i = 0; i < coords.length; i++) {
+      for (let j = i + 1; j < coords.length; j++) {
+        const dx = coords[i].x - coords[j].x;
+        const dy = coords[i].y - coords[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = 60; // Safe distance to prevent circle + name/rating label overlap
+        if (dist < minDist) {
+          const push = (minDist - dist) / 2;
+          if (Math.abs(dy) > 0.1) {
+            const sign = dy > 0 ? 1 : -1;
+            coords[i].y += sign * push;
+            coords[j].y -= sign * push;
+          } else {
+            const sign = dx >= 0 ? 1 : -1;
+            coords[i].x += sign * push;
+            coords[j].x -= sign * push;
+          }
+        }
+      }
+    }
+  }
+
+  // Ensure all players stay within team half bounds
+  coords.forEach(c => {
+    c.x = Math.max(28, Math.min(W - 28, c.x));
+    c.y = Math.max(startY + 15, Math.min(startY + teamH - 15, c.y));
+  });
+
+  return coords;
 }
 
 function setMetric(metric, btn) {

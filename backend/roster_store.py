@@ -262,6 +262,20 @@ def normalize_date_string(date_str: str) -> str:
         return datetime.date.today().strftime("%d %b %Y").lower()
     return res
 
+def _clean_yahoo_url(url: str) -> str:
+    """Decodes Yahoo search redirect URLs to direct target URLs."""
+    if "r.search.yahoo.com" in url and "/RU=" in url:
+        try:
+            import urllib.parse
+            parts = url.split("/RU=")
+            if len(parts) > 1:
+                target = parts[1].split("/RK=")[0] if "/RK=" in parts[1] else parts[1].split("/")[0]
+                return urllib.parse.unquote(target)
+        except Exception:
+            pass
+    return url
+
+
 def load_cache() -> Dict[str, List[Dict[str, Any]]]:
     lock_path = CACHE_PATH.with_suffix(".lock")
     if not lock_path.exists():
@@ -829,6 +843,8 @@ def get_real_world_roster(
             fetched_count = 0
             for r in search_results:
                 url = r.get("href", "")
+                if url:
+                    url = _clean_yahoo_url(url)
                 if url and not any(loc in url for loc in ["localhost", "127.0.0.1"]):
                     # Skip general country/place pages that are not about the football match
                     url_lower = url.lower()
@@ -860,28 +876,33 @@ def get_real_world_roster(
             
             search_context = "\n".join(search_context_parts)
             
-        prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world starting XI lineup/squad for the football team '{team_name}' in their match against '{opponent_name}' played on '{resolved_date}'.
+        prompt = f"""You are a professional football database helper. Your job is to return the actual, real-world starting XI lineup AND substitutes squad for the football team '{team_name}' in their match against '{opponent_name}' played on '{resolved_date}'.
         
         Here is the search context about the match:
         {search_context}
         
-        Using the search context above and your general football knowledge, return the exact starting XI players that started this match for '{team_name}'.
+        Using the search context above and your general football knowledge, return a list of players in the matchday team. This list MUST include:
+        1. The 11 starting players who started the match.
+        2. The substitutes/bench players (up to 7-10 main substitutes).
         
         CRITICAL RULES FOR LINEUP ACCURACY:
         1. Prioritize official, actual confirmed lineups and match reports over fantasy previews, predicted lineups, or pre-match articles.
-        2. Any players mentioned as goalscorers, assisters, or key players in the match text (such as Yoane Wissa, João Neves, Cristiano Ronaldo, Pedro Neto, Arthur Masuaku) MUST be included in the starting XI if they belong to that team.
-        3. Double check that the players are active in the year 2026 for their respective national teams (for example, avoid retired players like Yannick Bolasie, Pepe, etc. if they are not playing in the 2026 World Cup).
-        4. You must output exactly 11 players in JSON format.
-        Each player must have exactly the following keys:
+        2. Any players mentioned as goalscorers, assisters, or key players in the match text (such as Yoane Wissa, João Neves, Cristiano Ronaldo, Pedro Neto, Arthur Masuaku) MUST be included in the starting XI if they started, or as substitutes if they were subbed in.
+        3. Double check that the players are active in the year 2026 for their respective national teams.
+        4. Ensure there are exactly 11 players with 'sub': false (representing the starting XI), and one of those starters must be a goalkeeper (pos: 'GK'). All other players should have 'sub': true.
+        5. Each player must have exactly the following keys:
         - 'name': The real player's full name (e.g. 'Bukayo Saka' or 'A. Lunin')
         - 'jersey': Their squad/jersey number as a string (e.g. '7')
         - 'rating': A realistic SofaScore performance rating for this match as a float between 5.0 and 9.9 (e.g. 7.4)
-        - 'pos': One of the standard tactical positions: 'GK', 'RB', 'RCB', 'LCB', 'LB', 'LDM', 'RDM', 'LCM', 'CM', 'RCM', 'LAM', 'CAM', 'RAM', 'LW', 'ST', 'RW', 'LST', 'RST', 'LM', 'RM', 'AM'. There must be exactly one 'GK' (goalkeeper).
+        - 'pos': One of the standard tactical positions: 'GK', 'RB', 'RCB', 'LCB', 'LB', 'LDM', 'RDM', 'LCM', 'CM', 'RCM', 'LAM', 'CAM', 'RAM', 'LW', 'ST', 'RW', 'LST', 'RST', 'LM', 'RM', 'AM'.
         - 'photo': Always an empty string ""
         - 'age': The player's age as a string (e.g. '24')
         - 'val': The player's market value as a string (e.g. '€120M' or '€5M')
         - 'height': The player's height as a string (e.g. '178 cm')
-        - 'sofa_id': The player's official numerical Sofascore player ID as a string if known. Guess a highly realistic numerical ID if you know it, otherwise return empty string "".
+        - 'sofa_id': The player's official numerical Sofascore player ID as a string if known, otherwise "".
+        - 'sub': true if the player was a substitute (bench player) who did not start, false if they were in the starting XI.
+        - 'subbed_in_for': If the player was a substitute and was subbed on to replace another player during the match (either a starter or another substitute), specify the exact name of the player they replaced. Otherwise, return null.
+        - 'subbed_in_minute': If the player was subbed on, specify the minute of the substitution (e.g. "65'" or "89'"). Otherwise, return null.
         
         Return ONLY a raw valid JSON array. Do not write any markdown code wrappers, notes, explanations, or extra characters. Simply return the raw JSON text."""
         
@@ -890,7 +911,7 @@ def get_real_world_roster(
                 completion = rag_engine.openai_client.chat.completions.create(
                     model=rag_engine.model_name,
                     messages=[
-                        {"role": "system", "content": "You are a database system returning raw JSON arrays only. Double check that you output exactly 11 players, one of which has position 'GK'."},
+                        {"role": "system", "content": "You are a database system returning raw JSON arrays only. Double check that you output exactly 11 starting players with 'sub': false and one has position 'GK'."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.3 + (attempt * 0.1),
@@ -920,14 +941,29 @@ def get_real_world_roster(
                     except Exception as ast_err:
                         raise json_err
                         
-                if isinstance(roster, list) and len(roster) == 11:
+                if isinstance(roster, list) and len(roster) >= 11:
                     valid = True
-                    required_keys = {"name", "jersey", "rating", "pos", "photo", "age", "val", "height", "sofa_id"}
+                    required_keys = {"name", "jersey", "rating", "pos", "photo", "age", "val", "height", "sofa_id", "sub", "subbed_in_for", "subbed_in_minute"}
                     for p in roster:
-                        if not required_keys.issubset(p.keys()):
+                        # Backwards compatibility and default fields for safety
+                        p["sub"] = p.get("sub", False)
+                        p["subbed_in_for"] = p.get("subbed_in_for", None)
+                        p["subbed_in_minute"] = p.get("subbed_in_minute", None)
+                        if not {"name", "jersey", "rating", "pos", "photo", "age", "val", "height", "sofa_id"}.issubset(p.keys()):
                             valid = False
                             break
                     if valid:
+                        # Post-process to ensure no player is subbed out more than twice
+                        subbed_out_counts = {}
+                        for p in roster:
+                            if p.get("sub") and p.get("subbed_in_for"):
+                                tgt = p["subbed_in_for"].strip().lower()
+                                current_cnt = subbed_out_counts.get(tgt, 0)
+                                if current_cnt >= 2:
+                                    p["subbed_in_for"] = None
+                                    p["subbed_in_minute"] = None
+                                else:
+                                    subbed_out_counts[tgt] = current_cnt + 1
                         logger.info(f"Successfully retrieved and validated match roster for '{team_name}' on attempt {attempt}.")
                         ensure_player_photos(roster, team_name)
                         current_cache = load_cache()
@@ -1529,6 +1565,162 @@ def _espn_date_from_norm(norm_date: str) -> Optional[str]:
 # ────────────────────────────────────────────────────────────────────────────
 
 
+def fetch_real_world_match_events_via_rag(
+    home: str,
+    away: str,
+    date: str
+) -> Optional[List[Dict[str, Any]]]:
+    """
+    Searches the web for match goalscorers and assisters, scrapes the top pages,
+    and uses the LLM to extract clean, real-world goal events.
+    """
+    norm_home = normalize_name(home)
+    norm_away = normalize_name(away)
+    resolved_date = date
+    if resolved_date.lower().startswith("today"):
+        import datetime
+        resolved_date = datetime.date.today().strftime("%d %b %Y")
+    norm_date = normalize_date_string(resolved_date)
+
+    if is_future_match(norm_date):
+        logger.info(f"Match '{home}' vs '{away}' is in the future. Returning empty goal events list.")
+        return []
+
+    # 1. Search for goals, goalscorers, assists
+    search_query = f"{home} vs {away} {resolved_date} goalscorers assists goals score"
+    logger.info(f"Triggering live web search for match events: {search_query}")
+    search_results = rag_engine.web_search_fallback(search_query, max_results=5, clean=False)
+
+    search_context = ""
+    if search_results:
+        search_context_parts = []
+        for r in search_results:
+            search_context_parts.append(f"- {r['title']}: {r['body']}")
+        
+        # Build keywords list with team name variations
+        team_keywords = []
+        for team in [home, away]:
+            t_norm = normalize_name(team)
+            team_keywords.append(t_norm)
+            for word in t_norm.split():
+                if len(word) > 3:
+                    team_keywords.append(word)
+        if any(x in team_keywords for x in ["congo dr", "congo"]):
+            team_keywords.extend(["congo", "dr congo", "drc"])
+
+        keywords = team_keywords + ["goal", "assist", "score", "minute", "scorer", "penalty", "own goal", "ht", "ft"]
+
+        # Fetch full page text for the top results to avoid hallucinations
+        fetched_count = 0
+        for r in search_results:
+            url = r.get("href", "")
+            if url:
+                url = _clean_yahoo_url(url)
+            if url and not any(loc in url for loc in ["wikipedia.org/wiki/Portugal", "wikipedia.org/wiki/Democratic_Republic_of_the_Congo", "wikipedia.org/wiki/Congo"]):
+                try:
+                    logger.info(f"Fetching webpage content for events RAG context: {url}")
+                    headers = {
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+                    }
+                    page_res = requests.get(url, headers=headers, timeout=5.0)
+                    if page_res.status_code == 200:
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(page_res.text, "html.parser")
+                        text_content = soup.get_text(separator="\n")
+                        
+                        # Filter sentences to keep context density high
+                        lines = [l.strip() for l in text_content.splitlines() if l.strip()]
+                        relevant_sentences = []
+                        for line in lines:
+                            if any(k in line.lower() for k in keywords) and len(line) < 300:
+                                relevant_sentences.append(line)
+                        
+                        filtered_text = " ".join(relevant_sentences)[:2000]
+                        if filtered_text:
+                            search_context_parts.append(f"[Webpage Content from {url}]:\n{filtered_text}")
+                            fetched_count += 1
+                            if fetched_count >= 3:
+                                break
+                except Exception as fetch_err:
+                    logger.warning(f"Failed to fetch webpage content for events: {fetch_err}")
+
+        search_context = "\n\n".join(search_context_parts)
+
+    if not search_context:
+        logger.warning(f"No search context found for '{home}' vs '{away}' events.")
+        return []
+
+    # 2. LLM Prompt
+    prompt = f"""You are a professional football database helper. Your job is to extract the actual, real-world goal events (goalscorers and assists) for the match: '{home}' vs '{away}' played on '{resolved_date}'.
+
+Here is the search context containing match reports, commentaries, or summaries:
+{search_context}
+
+Using the search context above, return a JSON list of all actual goals scored during the match.
+Each goal event in the list must be a JSON object with exactly the following keys:
+- 'minute': the minute of the goal (e.g. "12'" or "45+2'")
+- 'scorer': the full name of the goalscorer
+- 'assist': the full name of the player who assisted the goal (or null if unassisted)
+- 'team': the exact team name who scored (either '{home}' or '{away}')
+- 'ownGoal': true if it was an own goal, false otherwise
+- 'penalty': true if it was a penalty, false otherwise
+- 'text': a short description of the goal
+
+Important Rules:
+1. Do NOT make up, predict, or estimate any goals. Extract ONLY the actual goals that occurred as documented in the search context.
+2. If the match has not happened yet, or if no goal details are found in the search context, return an empty JSON array [].
+3. Ensure the team names match exactly '{home}' or '{away}'.
+4. Return ONLY a raw valid JSON array. Do not write any markdown code wrappers, explanations, or notes."""
+
+    if rag_engine.openai_client is not None:
+        for attempt in range(1, 4):
+            try:
+                completion = rag_engine.openai_client.chat.completions.create(
+                    model=rag_engine.model_name,
+                    messages=[
+                        {"role": "system", "content": "You are a database system returning raw JSON arrays only."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=0.1,
+                    timeout=15.0
+                )
+                raw_content = completion.choices[0].message.content
+                if not raw_content:
+                    raw_content = getattr(completion.choices[0].message, 'reasoning', None) or ""
+                response_text = raw_content.strip()
+                if response_text.startswith("```json"):
+                    response_text = response_text[7:]
+                if response_text.endswith("```"):
+                    response_text = response_text[:-3]
+                response_text = response_text.strip()
+                
+                goals = json.loads(response_text)
+                if isinstance(goals, list):
+                    # Validate keys
+                    valid = True
+                    required_keys = {"minute", "scorer", "assist", "team", "ownGoal", "penalty", "text"}
+                    for g in goals:
+                        if not required_keys.issubset(g.keys()):
+                            valid = False
+                            break
+                    if valid:
+                        # Normalize team name to match exact home/away string
+                        for g in goals:
+                            g_team = normalize_name(g.get("team", ""))
+                            if g_team == normalize_name(home):
+                                g["team"] = home
+                            elif g_team == normalize_name(away) or g_team in ["dr congo", "drc", "congo dr", "congo"]:
+                                g["team"] = away
+                        logger.info(f"Successfully retrieved and validated match events for '{home}' vs '{away}' via RAG.")
+                        return goals
+            except Exception as e:
+                logger.error(f"Attempt {attempt} failed to query LLM for match events of '{home}': {e}")
+            import time
+            time.sleep(1.0)
+
+    return []
+
+
 def get_match_events(
     home: str,
     away: str,
@@ -1563,21 +1755,29 @@ def get_match_events(
         logger.info(f"Skipping empty event cache for today's live match '{home}' vs '{away}', re-fetching...")
 
     espn_date = _espn_date_from_norm(norm_date)
-    if not espn_date:
-        return None
+    event_id = None
+    matched_league = None
+    if espn_date:
+        event_id, matched_league, _ = _resolve_espn_event(home, away, espn_date)
 
-    event_id, matched_league, _ = _resolve_espn_event(home, away, espn_date)
-
-    # Midnight-crossing fallback: if match was played yesterday (local clock ticked past midnight),
-    # try yesterday's ESPN date before giving up.
-    if not event_id and (is_today or date.lower().startswith("today")):
-        import datetime as _dt2
-        yesterday = (_dt2.date.today() - _dt2.timedelta(days=1)).strftime("%Y%m%d")
-        if yesterday != espn_date:
-            logger.info(f"Match not found on ESPN for {espn_date}, trying yesterday {yesterday}...")
-            event_id, matched_league, _ = _resolve_espn_event(home, away, yesterday)
+        # Midnight-crossing fallback: if match was played yesterday (local clock ticked past midnight),
+        # try yesterday's ESPN date before giving up.
+        if not event_id and (is_today or date.lower().startswith("today")):
+            import datetime as _dt2
+            yesterday = (_dt2.date.today() - _dt2.timedelta(days=1)).strftime("%Y%m%d")
+            if yesterday != espn_date:
+                logger.info(f"Match not found on ESPN for {espn_date}, trying yesterday {yesterday}...")
+                event_id, matched_league, _ = _resolve_espn_event(home, away, yesterday)
 
     if not event_id:
+        logger.info(f"ESPN event lookup missed for '{home}' vs '{away}'. Falling back to RAG search for real-world goal events...")
+        goals = fetch_real_world_match_events_via_rag(home, away, date)
+        if goals is not None:
+            current_cache = load_cache()
+            current_cache[cache_key] = goals
+            save_cache(current_cache)
+            logger.info(f"Cached {len(goals)} RAG-extracted goal events for '{home}' vs '{away}'")
+            return goals
         return None
 
     try:

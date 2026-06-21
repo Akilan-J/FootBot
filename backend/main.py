@@ -527,7 +527,7 @@ def get_featured_matches():
         "upcoming": {
             "home": "Liverpool", "away": "PSG",
             "hs": 0, "as": 0, "league": "Champions League", "status": "upcoming",
-            "date": "16 Jun 2026"
+            "date": "28 Jun 2026"
         }
     }
 

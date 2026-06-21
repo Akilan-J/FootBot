@@ -597,6 +597,15 @@ input[type=range]::-webkit-slider-thumb{
       </div>
       <button class="btn-primary" id="auth-btn" onclick="doAuth()">Sign In</button>
     </div>
+    <div id="offline-message" style="display: none; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">🔌</div>
+      <h3 style="margin-bottom: 8px; color: var(--text);">Backend Server Offline</h3>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+        Cannot connect to the backend at <code style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; color: var(--emerald);">http://127.0.0.1:8000</code>.<br>
+        Please start the server and try again.
+      </p>
+      <button class="btn-primary" onclick="window.location.reload()">Retry Connection</button>
+    </div>
   </div>
 </div>
 
@@ -621,7 +630,6 @@ input[type=range]::-webkit-slider-thumb{
           <div class="dropdown-item"><span>Server Host:</span><span>127.0.0.1</span></div>
         </div>
       </div>
-      <button class="btn-logout" onclick="logout()">Sign Out</button>
     </div>
   </div>
 
@@ -3608,8 +3616,43 @@ document.querySelectorAll('.nav-tab')[1]?.addEventListener('click', () => { setT
 document.querySelectorAll('.nav-tab')[3]?.addEventListener('click', () => { setTimeout(() => { drawMomentum(); drawLineup(); }, 100); });
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const token = localStorage.getItem('fb_token');
-  const username = localStorage.getItem('fb_username');
+  let token = localStorage.getItem('fb_token');
+  let username = localStorage.getItem('fb_username');
+  
+  if (!token || !username) {
+    try {
+      // 1. Attempt login with default user
+      const loginRes = await fetch(`${BACKEND_URL}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'test_user1', password: 'password123' })
+      });
+      if (loginRes.ok) {
+        const data = await loginRes.json();
+        localStorage.setItem('fb_token', data.token);
+        localStorage.setItem('fb_username', data.username);
+        token = data.token;
+        username = data.username;
+      } else {
+        // 2. If login fails (user not registered), register the default user
+        const regRes = await fetch(`${BACKEND_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: 'test_user1', password: 'password123' })
+        });
+        if (regRes.ok) {
+          const data = await regRes.json();
+          localStorage.setItem('fb_token', data.token);
+          localStorage.setItem('fb_username', data.username);
+          token = data.token;
+          username = data.username;
+        }
+      }
+    } catch (err) {
+      console.error("Auto-login failed:", err);
+    }
+  }
+
   if (token && username) {
     currentUser = username;
     document.getElementById('login-screen').style.display = 'none';
@@ -3623,9 +3666,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     await loadMatch('arg_fra');
     silentCrawlMatches();
   } else {
+    // Graceful fallback if the backend is entirely offline/unreachable
     document.getElementById('login-screen').style.display = 'flex';
     document.getElementById('app').style.display = 'none';
+    if (document.querySelector('.tab-toggle')) document.querySelector('.tab-toggle').style.display = 'none';
+    if (document.querySelector('.login-subtitle')) document.querySelector('.login-subtitle').style.display = 'none';
+    if (document.getElementById('login-form')) document.getElementById('login-form').style.display = 'none';
+    if (document.getElementById('offline-message')) document.getElementById('offline-message').style.display = 'block';
   }
+  
   // Setup interval to fetch/update scores every 60 seconds
   setInterval(silentCrawlMatches, 60000);
 });

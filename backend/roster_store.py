@@ -1239,9 +1239,34 @@ def get_dynamic_match_stats_via_llm(
 
                     for k in ["shots", "shotsOnTarget", "bigChances", "passes", "corners", "fouls", "yellowCards", "offsides"]:
                         if k not in stats or not isinstance(stats[k], list) or len(stats[k]) != 2:
-                            stats[k] = [0, 0]
+                            if k == "shotsOnTarget":
+                                stats[k] = [round(stats.get("shots", [10, 10])[0]*0.4), round(stats.get("shots", [10, 10])[1]*0.4)]
+                            elif k == "corners":
+                                stats[k] = [5, 4]
+                            elif k == "fouls":
+                                stats[k] = [10, 11]
+                            elif k == "yellowCards":
+                                stats[k] = [1, 1]
+                            elif k == "offsides":
+                                stats[k] = [2, 2]
+                            else:
+                                stats[k] = [0, 0]
                         else:
-                            stats[k] = [int(x) for x in stats[k]]
+                            try:
+                                stats[k] = [int(x) for x in stats[k]]
+                            except Exception:
+                                if k == "shotsOnTarget":
+                                    stats[k] = [round(stats.get("shots", [10, 10])[0]*0.4), round(stats.get("shots", [10, 10])[1]*0.4)]
+                                elif k == "corners":
+                                    stats[k] = [5, 4]
+                                elif k == "fouls":
+                                    stats[k] = [10, 11]
+                                elif k == "yellowCards":
+                                    stats[k] = [1, 1]
+                                elif k == "offsides":
+                                    stats[k] = [2, 2]
+                                else:
+                                    stats[k] = [0, 0]
                     
                     if "predicted_score" not in stats or not isinstance(stats["predicted_score"], list) or len(stats["predicted_score"]) != 2:
                         stats["predicted_score"] = [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
@@ -1263,15 +1288,30 @@ def get_dynamic_match_stats_via_llm(
     a_poss = 100 - h_poss
     h_shots = random.randint(8, 20)
     a_shots = random.randint(6, 18)
+    h_sot = max(1, round(h_shots * random.uniform(0.3, 0.5)))
+    a_sot = max(1, round(a_shots * random.uniform(0.3, 0.5)))
     h_bc = max(0, int(h_shots * 0.15))
     a_bc = max(0, int(a_shots * 0.15))
     h_passes = random.randint(350, 600)
     a_passes = random.randint(350, 600)
+    h_corners = random.randint(2, 9)
+    a_corners = random.randint(2, 9)
+    h_fouls = random.randint(6, 16)
+    a_fouls = random.randint(6, 16)
+    h_yellow = random.randint(0, 3)
+    a_yellow = random.randint(0, 3)
+    h_offsides = random.randint(0, 4)
+    a_offsides = random.randint(0, 4)
     return {
         "possession": [h_poss, a_poss],
         "shots": [h_shots, a_shots],
+        "shotsOnTarget": [h_sot, a_sot],
         "bigChances": [h_bc, a_bc],
         "passes": [h_passes, a_passes],
+        "corners": [h_corners, a_corners],
+        "fouls": [h_fouls, a_fouls],
+        "yellowCards": [h_yellow, a_yellow],
+        "offsides": [h_offsides, a_offsides],
         "predicted_score": [home_score if home_score is not None else 1, away_score if away_score is not None else 1]
     }
 

@@ -151,7 +151,11 @@ def root():
     from fastapi.responses import HTMLResponse
     try:
         with open("frontend/index.html", "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read(), status_code=200)
+            return HTMLResponse(
+                content=f.read(),
+                status_code=200,
+                headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"}
+            )
     except Exception as e:
         return HTMLResponse(content=f"<h3>FootBot Backend Online</h3><p>Frontend file not found: {str(e)}</p>", status_code=200)
 

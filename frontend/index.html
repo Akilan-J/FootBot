@@ -2258,7 +2258,7 @@ function renderSubTabContent() {
   } else if (currentSubTab === 'shotmap') {
     container.innerHTML = `
       <!-- Shotmap pitch canvas -->
-      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
+      <div style="position:relative;background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
         <div class="section-head">⚽ Interactive Shotmap</div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:12px;">
           <span>🟢 Goal</span>
@@ -2266,6 +2266,7 @@ function renderSubTabContent() {
           <span>⚪ Off Target / Blocked</span>
         </div>
         <canvas id="shotmap-canvas" height="400" style="width:100%;display:block;cursor:pointer;border-radius:10px;"></canvas>
+        <div id="shotmap-tooltip" style="position:absolute;display:none;background:rgba(10,18,14,0.95);border:1px solid var(--emerald);border-radius:8px;padding:8px 12px;color:var(--text);font-size:11px;font-family:'Inter',sans-serif;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:100;backdrop-filter:blur(8px);width:160px;"></div>
         <div id="shot-details-container" style="margin-top:16px;">
           <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:12px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);border-radius:8px;">
             Click on any shot node on the pitch above to inspect details.
@@ -3158,11 +3159,18 @@ function generateShots(m) {
   const shots = [];
   const seed = m.home.length + m.away.length + (parseInt(m.hs) || 0);
   
+  const getBodyPart = (s) => {
+    const parts = ['Right Foot', 'Left Foot', 'Header'];
+    return parts[(s % 3)];
+  };
+
   // 1. Add actual goals
   (m.events || []).forEach((g, idx) => {
     const isHome = stripEmoji(g.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(g.team || '').toLowerCase().trim());
-    const xPct = isHome ? (42 + (idx * 17) % 16) : (42 + (idx * 13) % 16);
+    const xPct = isHome ? (40 + (idx * 17) % 20) : (40 + (idx * 13) % 20);
     const yPct = isHome ? (10 + (idx * 9) % 8) : (90 - (idx * 7) % 8);
+    const shotSeed = seed + idx;
+    
     shots.push({
       player: g.scorer,
       minute: g.minute,
@@ -3170,7 +3178,12 @@ function generateShots(m) {
       isGoal: true,
       result: g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
       x: xPct,
-      y: yPct
+      y: yPct,
+      xG: g.penalty ? 0.76 : parseFloat((0.4 + (shotSeed % 5) * 0.1).toFixed(2)),
+      bodyPart: g.penalty ? 'Right Foot' : getBodyPart(shotSeed),
+      distance: g.penalty ? 12 : Math.round(yPct < 50 ? yPct * 0.8 : (100 - yPct) * 0.8),
+      goalX: 30 + (shotSeed * 17) % 40, // 30% to 70% of goal width
+      goalY: 20 + (shotSeed * 11) % 60  // 20% to 80% of goal height
     });
   });
 
@@ -3180,26 +3193,38 @@ function generateShots(m) {
 
   for (let i = 0; i < homeSOTCount; i++) {
     const p = m.homePlayers.filter(x => !x.sub)[(i + seed) % 11];
+    const shotSeed = seed + i + 10;
     shots.push({
       player: p ? p.name : 'Attacker',
       minute: `${20 + i * 15}'`,
       team: m.home,
       isGoal: false,
       result: 'Saved',
-      x: 35 + (i * 29) % 30,
-      y: 12 + (i * 17) % 15
+      x: 30 + (i * 29) % 40,
+      y: 12 + (i * 17) % 15,
+      xG: parseFloat((0.1 + (shotSeed % 4) * 0.05).toFixed(2)),
+      bodyPart: getBodyPart(shotSeed),
+      distance: Math.round((12 + (i * 17) % 15) * 0.8),
+      goalX: 20 + (shotSeed * 19) % 60,
+      goalY: 15 + (shotSeed * 13) % 70
     });
   }
   for (let i = 0; i < awaySOTCount; i++) {
     const p = m.awayPlayers.filter(x => !x.sub)[(i + seed * 3) % 11];
+    const shotSeed = seed + i + 20;
     shots.push({
       player: p ? p.name : 'Attacker',
       minute: `${25 + i * 15}'`,
       team: m.away,
       isGoal: false,
       result: 'Saved',
-      x: 35 + (i * 23) % 30,
-      y: 88 - (i * 19) % 15
+      x: 30 + (i * 23) % 40,
+      y: 88 - (i * 19) % 15,
+      xG: parseFloat((0.1 + (shotSeed % 4) * 0.05).toFixed(2)),
+      bodyPart: getBodyPart(shotSeed),
+      distance: Math.round((12 - (i * 19) % 15) * 0.8),
+      goalX: 20 + (shotSeed * 23) % 60,
+      goalY: 15 + (shotSeed * 17) % 70
     });
   }
 
@@ -3209,26 +3234,38 @@ function generateShots(m) {
 
   for (let i = 0; i < homeOffCount; i++) {
     const p = m.homePlayers.filter(x => !x.sub)[(i + seed * 2) % 11];
+    const shotSeed = seed + i + 30;
     shots.push({
       player: p ? p.name : 'Player',
       minute: `${10 + i * 12}'`,
       team: m.home,
       isGoal: false,
       result: 'Off Target',
-      x: 20 + (i * 37) % 60,
-      y: 20 + (i * 13) % 20
+      x: 18 + (i * 37) % 64,
+      y: 20 + (i * 13) % 20,
+      xG: parseFloat((0.03 + (shotSeed % 4) * 0.04).toFixed(2)),
+      bodyPart: getBodyPart(shotSeed),
+      distance: Math.round((20 + (i * 13) % 20) * 0.8),
+      goalX: shotSeed % 2 === 0 ? 5 : 95, // completely missed the goal frame
+      goalY: 10 + (shotSeed * 7) % 80
     });
   }
   for (let i = 0; i < awayOffCount; i++) {
     const p = m.awayPlayers.filter(x => !x.sub)[(i + seed * 4) % 11];
+    const shotSeed = seed + i + 40;
     shots.push({
       player: p ? p.name : 'Player',
       minute: `${15 + i * 12}'`,
       team: m.away,
       isGoal: false,
       result: 'Off Target',
-      x: 20 + (i * 41) % 60,
-      y: 80 - (i * 11) % 20
+      x: 18 + (i * 41) % 64,
+      y: 80 - (i * 11) % 20,
+      xG: parseFloat((0.03 + (shotSeed % 4) * 0.04).toFixed(2)),
+      bodyPart: getBodyPart(shotSeed),
+      distance: Math.round((20 - (i * 11) % 20) * 0.8),
+      goalX: shotSeed % 2 === 0 ? 5 : 95,
+      goalY: 10 + (shotSeed * 9) % 80
     });
   }
 
@@ -3339,39 +3376,150 @@ function drawShotmap() {
   canvas.style.height = H + 'px';
   ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
 
-  ctx.fillStyle = '#0c2118'; ctx.fillRect(0,0,W,H);
+  // Pitch bg — dark premium turf look
+  ctx.fillStyle = '#060a08'; ctx.fillRect(0,0,W,H);
   for (let i=0;i<5;i++) {
-    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.015)':'transparent';
+    ctx.fillStyle = i%2===0?'rgba(255,255,255,0.01)':'transparent';
     ctx.fillRect(0,i*(H/5),W,H/5);
   }
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5;
+  
+  // Tactical grid glow lines
+  ctx.strokeStyle = 'rgba(16,185,129,0.04)'; ctx.lineWidth = 1;
+  for (let x=50; x<W; x+=50) {
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+  }
+  for (let y=50; y<H; y+=50) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+  }
+
+  // Pitch Boundary Lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
   ctx.strokeRect(15,10,W-30,H-20);
+  
+  // Halfway line
   ctx.beginPath(); ctx.moveTo(15,H/2); ctx.lineTo(W-15,H/2); ctx.stroke();
+  
+  // Centre circle
   ctx.beginPath(); ctx.arc(W/2, H/2, 40, 0, Math.PI*2); ctx.stroke();
 
+  // Penalty Boxes (glowing borders)
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
   ctx.strokeRect((W-80)/2, 10, 80, 40);
   ctx.strokeRect((W-80)/2, H-50, 80, 40);
 
+  // Trajectory Tracers for selected shot
+  if (selectedShot) {
+    const targetY = selectedShot.y < 50 ? 10 : H - 10;
+    const targetX = W / 2;
+    
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(selectedShot.canvasX, selectedShot.canvasY);
+    ctx.lineTo(targetX, targetY);
+    ctx.strokeStyle = selectedShot.isGoal ? 'rgba(16,185,129,0.45)' : selectedShot.result === 'Saved' ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    
+    // Draw goal target pulse ring
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, 5, 0, Math.PI*2);
+    ctx.fillStyle = selectedShot.isGoal ? '#10b981' : 'rgba(255,255,255,0.6)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Render Shot Nodes
   activeShots.forEach((s) => {
     const cx = 15 + (s.x / 100) * (W - 30);
     const cy = 10 + (s.y / 100) * (H - 20);
     s.canvasX = cx;
     s.canvasY = cy;
 
-    ctx.beginPath();
-    ctx.arc(cx, cy, 7, 0, Math.PI*2);
+    // Outer glow for selected
+    if (selectedShot === s) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, 12, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.save();
+    // Drop shadow / glow
+    ctx.shadowBlur = selectedShot === s ? 12 : 6;
     if (s.isGoal) {
+      ctx.shadowColor = '#10b981';
       ctx.fillStyle = '#10b981';
     } else if (s.result === 'Saved') {
+      ctx.shadowColor = '#f59e0b';
       ctx.fillStyle = '#f59e0b';
     } else {
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.shadowColor = 'rgba(255,255,255,0.2)';
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
     }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, selectedShot === s ? 8 : 6, 0, Math.PI*2);
     ctx.fill();
-    ctx.strokeStyle = selectedShot === s ? '#fff' : 'rgba(0,0,0,0.5)';
-    ctx.lineWidth = selectedShot === s ? 2 : 1;
-    ctx.stroke();
+
+    // Inner detail (white center for goals, dark core for saved)
+    if (s.isGoal) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+    }
+    ctx.restore();
   });
+
+  // Hover detection for dynamic tooltip
+  canvas.onmousemove = function(e) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left);
+    const my = (e.clientY - rect.top);
+    let hovered = null;
+    activeShots.forEach(s => {
+      const dx = mx - s.canvasX;
+      const dy = my - s.canvasY;
+      if (Math.sqrt(dx*dx + dy*dy) < 10) hovered = s;
+    });
+
+    const tooltip = document.getElementById('shotmap-tooltip');
+    if (hovered && tooltip) {
+      canvas.style.cursor = 'pointer';
+      tooltip.style.display = 'block';
+      tooltip.style.left = (mx + 15) + 'px';
+      tooltip.style.top = (my + 15) + 'px';
+      
+      const badgeColor = hovered.isGoal ? '#10b981' : hovered.result === 'Saved' ? '#f59e0b' : '#9ca3af';
+      tooltip.innerHTML = `
+        <div style="font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${hovered.player}</div>
+        <div style="color:var(--text-muted);margin-bottom:6px;font-size:10px;">${hovered.minute} · ${hovered.team}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <span style="color:${badgeColor};font-weight:600;">${hovered.result}</span>
+          <span style="background:rgba(255,255,255,0.08);padding:1px 4px;border-radius:4px;font-size:9px;color:var(--text-muted);">${hovered.bodyPart || 'Shot'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
+          <span style="font-size:9px;color:var(--text-muted);">xG:</span>
+          <div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
+            <div style="width:${(hovered.xG || 0.1)*100}%;height:100%;background:${hovered.isGoal ? 'var(--emerald)' : 'var(--amber)'};"></div>
+          </div>
+          <span style="font-size:9px;font-weight:700;color:#fff;">${hovered.xG || 0.1}</span>
+        </div>
+      `;
+    } else if (tooltip) {
+      canvas.style.cursor = 'default';
+      tooltip.style.display = 'none';
+    }
+  };
+
+  canvas.onmouseleave = function() {
+    const tooltip = document.getElementById('shotmap-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+  };
 
   canvas.onclick = function(e) {
     const rect = canvas.getBoundingClientRect();
@@ -3396,13 +3544,54 @@ function renderSelectedShotDetails(s) {
   if (!container) return;
   const color = s.isGoal ? 'var(--emerald)' : s.result === 'Saved' ? 'var(--amber)' : 'var(--text-muted)';
   container.innerHTML = `
-    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);padding:12px;border-radius:10px;display:flex;align-items:center;justify-content:space-between;font-family:'Inter',sans-serif;">
-      <div>
-        <div style="font-weight:600;font-size:13px;color:var(--text);">${s.player}</div>
-        <div style="font-size:11px;color:var(--text-muted);">${s.minute} · ${s.result}</div>
+    <style>
+    @keyframes pulse {
+      0% { transform: translate(-6px, -6px) scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+      70% { transform: translate(-6px, -6px) scale(1); box-shadow: 0 0 0 6px rgba(255, 255, 255, 0); }
+      100% { transform: translate(-6px, -6px) scale(0.95); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+    </style>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--glass-border);padding:16px;border-radius:14px;display:flex;flex-direction:column;gap:14px;font-family:'Inter',sans-serif;">
+      <!-- Shot info -->
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;font-size:14px;color:var(--text);">${s.player}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${s.minute} · ${s.team}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:end;gap:4px;">
+          <span style="font-size:11px;font-weight:700;color:${color};text-transform:uppercase;">${s.result}</span>
+          <span style="font-size:10px;color:var(--text-muted);">Distance: ${s.distance || 15} yds</span>
+        </div>
       </div>
-      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;color:${color};text-transform:uppercase;">
-        ${s.result}
+      
+      <!-- Metrics row -->
+      <div style="display:flex;gap:12px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:8px;">
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;">Expected Goals</div>
+          <div style="font-size:15px;font-weight:800;color:var(--emerald);">${s.xG || 0.1}</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.08);align-self:stretch;"></div>
+        <div style="flex:1;text-align:center;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;">Body Part</div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-top:2px;">${s.bodyPart || 'Foot'}</div>
+        </div>
+      </div>
+
+      <!-- Goal mouth visualizer -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Goalmouth Placement</div>
+        <div style="position:relative;width:180px;height:90px;background:rgba(0,0,0,0.4);border:2px solid #9ca3af;border-bottom:3px solid #fff;border-radius:6px 6px 0 0;box-shadow:inset 0 0 20px rgba(255,255,255,0.05);overflow:hidden;">
+          <!-- Net grid -->
+          <div style="position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);background-size:10px 10px;"></div>
+          <!-- Goalkeeper representation in middle -->
+          <div style="position:absolute;left:75px;bottom:0;width:30px;height:45px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.15);border-radius:15px 15px 0 0;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.25);">🧤</div>
+          <!-- Shot point -->
+          ${
+            s.result === 'Off Target' 
+            ? `<div style="position:absolute;left:${s.goalX < 50 ? '5px' : '165px'};top:${s.goalY}px;width:10px;height:100px;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:14px;font-weight:800;transform:translateY(-50px);">❌</div>`
+            : `<div style="position:absolute;left:${s.goalX}%;top:${s.goalY}%;width:12px;height:12px;border-radius:50%;background:${s.isGoal ? '#10b981' : '#f59e0b'};border:2px solid #fff;box-shadow:0 0 10px ${s.isGoal ? '#10b981' : '#f59e0b'};transform:translate(-6px, -6px);animation:pulse 1.5s infinite;"></div>`
+          }
+        </div>
       </div>
     </div>
   `;

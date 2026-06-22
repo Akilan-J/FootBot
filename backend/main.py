@@ -640,14 +640,15 @@ def get_player_image_endpoint(
             from backend.roster_store import load_cache
             cache = load_cache()
             for team, players in cache.items():
-                for p in players:
-                    if p.get("sofa_id") == sofa_id_str:
-                        found_photo = p.get("photo", "")
-                        if not pos and p.get("pos"):
-                            pos = p.get("pos")
+                if isinstance(players, list):
+                    for p in players:
+                        if isinstance(p, dict) and p.get("sofa_id") == sofa_id_str:
+                            found_photo = p.get("photo", "")
+                            if not pos and p.get("pos"):
+                                pos = p.get("pos")
+                            break
+                    if found_photo:
                         break
-                if found_photo:
-                    break
                     
         if found_photo and found_photo != "none":
             file_path = base_dir / found_photo if not Path(found_photo).is_absolute() else Path(found_photo)

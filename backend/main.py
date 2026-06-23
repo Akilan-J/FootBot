@@ -34,6 +34,47 @@ from fastapi.staticfiles import StaticFiles
 app.mount("/assets", StaticFiles(directory="frontend/assets"), name="assets")
 app.mount("/postman", StaticFiles(directory="postman"), name="postman")
 
+async def auto_crawl_loop():
+    """Periodically crawls historical matches in the background every 30 minutes."""
+    import asyncio
+    # Wait a few seconds after startup to let the app settle
+    await asyncio.sleep(5)
+    while True:
+        try:
+            logger.info("Auto-crawl: Scraping historical matches...")
+            from backend.loaders.live_score_loader import fetch_historical_results_from_html
+            from backend.database import save_historical_match
+            
+            # Run the synchronous scraper in an executor to avoid blocking the async event loop
+            loop = asyncio.get_running_loop()
+            matches = await loop.run_in_executor(None, fetch_historical_results_from_html)
+            
+            saved_count = 0
+            for m in matches:
+                if m["home_score"] is not None and m["away_score"] is not None:
+                    save_historical_match(
+                        home=m["home_team"],
+                        away=m["away_team"],
+                        home_score=m["home_score"],
+                        away_score=m["away_score"],
+                        date_str=m["match_date"],
+                        league=m["league"]
+                    )
+                    saved_count += 1
+            logger.info(f"Auto-crawl: Successfully crawled and saved {saved_count} historical matches.")
+        except Exception as e:
+            logger.error(f"Auto-crawl failed: {e}")
+            
+        # Crawl every 30 minutes (1800 seconds)
+        await asyncio.sleep(1800)
+
+@app.on_event("startup")
+async def startup_event():
+    import asyncio
+    # Start auto-crawl loop in the background task
+    asyncio.create_task(auto_crawl_loop())
+
+
 # --- Pydantic Data Models ---
 
 class UserRegisterRequest(BaseModel):
@@ -579,6 +620,14 @@ def get_roster_endpoint(
         if roster:
             response["status"] = "success"
             response["roster"] = roster
+            # Dynamically fetch the formation using the LLM/cache
+            try:
+                from backend.roster_store import get_match_formation
+                formation = get_match_formation(team_name, opponent_name, match_date)
+                if formation:
+                    response["formation"] = formation
+            except Exception as f_err:
+                logger.error(f"Error fetching formation for {team_name}: {f_err}")
         else:
             response["status"] = "fallback"
             response["message"] = "Failed to get real roster, use fallback"

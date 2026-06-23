@@ -777,6 +777,7 @@ input[type=range]::-webkit-slider-thumb{
             <button class="filter-btn" onclick="filterLeague('Serie A',this)">🇮🇹 Serie A</button>
             <button class="filter-btn" onclick="filterLeague('Ligue 1',this)">🇫🇷 Ligue 1</button>
             <button class="filter-btn" onclick="filterLeague('World Cup',this)">🏆 World Cup</button>
+            <button class="filter-btn" onclick="filterLeague('other',this)">🌍 Other Leagues</button>
           </div>
           <div style="position:relative; width:100%; max-width:280px;">
             <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px; pointer-events:none;">🔍</span>
@@ -1299,11 +1300,19 @@ function getFlagEmoji(text) {
     'canada': '🇨🇦', 'bosnia': '🇧🇦', 'scotland': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'turkey': '🇹🇷',
     'australia': '🇦🇺', 'japan': '🇯🇵', 'south korea': '🇰🇷', 'saudi arabia': '🇸🇦',
     'jordan': '🇯🇴', 'uzbekistan': '🇺🇿', 'algeria': '🇩🇿', 'cape verde': '🇨🇻',
-    'dr congo': '🇨🇩', 'ivory coast': '🇨🇮', 'egypt': '🇪🇬', 'ghana': '🇬🇭',
+    'dr congo': '🇨🇩', 'congo dr': '🇨🇩', 'congo': '🇨🇩', 'ivory coast': '🇨🇮', 'cã´te': '🇨🇮', 'egypt': '🇪🇬', 'ghana': '🇬🇭',
     'south africa': '🇿🇦', 'tunisia': '🇹🇳', 'colombia': '🇨🇴', 'ecuador': '🇪🇨',
     'austria': '🇦🇹', 'norway': '🇳🇴', 'sweden': '🇸🇪', 'ukraine': '🇺🇦',
     'poland': '🇵🇱', 'denmark': '🇩🇰', 'mexico': '🇲🇽', 'wales': '🏴󠁧󠁢󠁷󠁬󠁳󠁿',
     'senegal': '🇸🇳', 'iran': '🇮🇷', 'iraq': '🇮🇶',
+    // Irish clubs
+    'bohemians': '🇮🇪', 'derry': '🇮🇪', 'drogheda': '🇮🇪', 'dundalk': '🇮🇪',
+    'galway': '🇮🇪', 'shamrock': '🇮🇪', 'shelbourne': '🇮🇪', 'sligo': '🇮🇪',
+    'patricks': '🇮🇪', 'patrick\'s': '🇮🇪', 'waterford': '🇮🇪',
+    // Finnish clubs
+    'gnistan': '🇫🇮', 'hjk': '🇫🇮', 'ilves': '🇫🇮', 'inter turku': '🇫🇮',
+    'jaro': '🇫🇮', 'kups': '🇫🇮', 'lahti': '🇫🇮', 'mariehamn': '🇫🇮',
+    'oulu': '🇫🇮', 'sjk': '🇫🇮', 'tps': '🇫🇮', 'vps': '🇫🇮',
     // Curaçao & variant spellings
     'cura\u00e7ao': '🇨🇼', 'curacao': '🇨🇼', 'cura': '🇨🇼',
     // Côte d'Ivoire variants
@@ -1592,11 +1601,9 @@ async function crawlMatches() {
   btn.innerHTML = '<span class="spinner"></span> Syncing...';
   btn.disabled = true;
   
-  const token = localStorage.getItem('fb_token');
   try {
     const crawlRes = await fetch(`${BACKEND_URL}/historical-matches/crawl`, {
-      method: 'POST',
-      headers: { 'X-User-Token': token }
+      method: 'POST'
     });
     if (crawlRes.ok) {
       await loadHistoricalMatches();
@@ -1613,12 +1620,9 @@ async function crawlMatches() {
 }
 
 async function silentCrawlMatches() {
-  const token = localStorage.getItem('fb_token');
-  if (!token) return;
   try {
     const crawlRes = await fetch(`${BACKEND_URL}/historical-matches/crawl`, {
-      method: 'POST',
-      headers: { 'X-User-Token': token }
+      method: 'POST'
     });
     if (crawlRes.ok) {
       await loadHistoricalMatches();
@@ -1661,7 +1665,9 @@ function handleMatchSearch(val) {
 
 function applyMatchFiltersAndRender() {
   const filtered = loadedMatches.filter(m => {
-    const matchLeague = currentActiveLeague === 'all' || m.league === currentActiveLeague;
+    const mainLeagues = ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1', 'World Cup'];
+    const matchLeague = currentActiveLeague === 'all' || 
+      (currentActiveLeague === 'other' ? !mainLeagues.includes(m.league) : m.league === currentActiveLeague);
     const cleanHome = stripEmoji(m.home).toLowerCase();
     const cleanAway = stripEmoji(m.away).toLowerCase();
     const matchSearch = !matchSearchQuery || 
@@ -1705,10 +1711,9 @@ function renderMatches(matches) {
 }
 
 async function loadHistoricalMatches() {
-  const token = localStorage.getItem('fb_token');
   try {
     const [histRes, liveRes] = await Promise.all([
-      fetch(`${BACKEND_URL}/historical-matches`, { headers: { 'X-User-Token': token } }),
+      fetch(`${BACKEND_URL}/historical-matches`),
       fetch(`${BACKEND_URL}/live-matches`)
     ]);
     
@@ -1738,17 +1743,15 @@ async function loadHistoricalMatches() {
       else if (leagueLower.includes('serie a')) normalizedLeague = 'Serie A';
       else if (leagueLower.includes('ligue 1') || leagueLower.includes('ligue1')) normalizedLeague = 'Ligue 1';
       
-      if (normalizedLeague) {
-        filteredAndMapped.push({
-          home: m.home_team,
-          away: m.away_team,
-          hs: m.home_score !== null ? m.home_score : '?',
-          as: m.away_score !== null ? m.away_score : '?',
-          league: normalizedLeague,
-          date: m.match_date,
-          status: 'FT'
-        });
-      }
+      filteredAndMapped.push({
+        home: m.home_team,
+        away: m.away_team,
+        hs: m.home_score !== null ? m.home_score : '?',
+        as: m.away_score !== null ? m.away_score : '?',
+        league: normalizedLeague || m.league || 'Other Leagues',
+        date: m.match_date,
+        status: 'FT'
+      });
     });
     
     // Process live matches
@@ -1762,62 +1765,60 @@ async function loadHistoricalMatches() {
       else if (leagueLower.includes('serie a')) normalizedLeague = 'Serie A';
       else if (leagueLower.includes('ligue 1') || leagueLower.includes('ligue1')) normalizedLeague = 'Ligue 1';
       
-      if (normalizedLeague) {
-        let hs = '?', as = '?';
-        let status = 'FT';
-        
-        const isFixture = m.description.includes('Not started') || m.description.includes('Fixture') || m.title.includes(' vs ');
-        if (isFixture) {
-          const kickoff = m.description.replace('Fixture/Kickoff. Status:', '').trim();
-          status = (kickoff && kickoff !== 'Not started' && kickoff !== 'Fixture') ? convertUKTimeToIST(kickoff) : 'Fixture';
+      let hs = '?', as = '?';
+      let status = 'FT';
+      
+      const isFixture = m.description.includes('Not started') || m.description.includes('Fixture') || m.title.includes(' vs ');
+      if (isFixture) {
+        const kickoff = m.description.replace('Fixture/Kickoff. Status:', '').trim();
+        status = (kickoff && kickoff !== 'Not started' && kickoff !== 'Fixture') ? convertUKTimeToIST(kickoff) : 'Fixture';
+      } else {
+        const parts = m.title.split(' - ');
+        if (parts.length === 2) {
+          const left = parts[0].trim().split(' ');
+          const right = parts[1].trim().split(' ');
+          hs = parseInt(left[left.length - 1]);
+          as = parseInt(right[0]);
+          if (isNaN(hs)) hs = '?';
+          if (isNaN(as)) as = '?';
+        }
+        if (m.description.includes('Full time') || m.description.includes('FT')) {
+          status = 'FT';
         } else {
-          const parts = m.title.split(' - ');
-          if (parts.length === 2) {
-            const left = parts[0].trim().split(' ');
-            const right = parts[1].trim().split(' ');
-            hs = parseInt(left[left.length - 1]);
-            as = parseInt(right[0]);
-            if (isNaN(hs)) hs = '?';
-            if (isNaN(as)) as = '?';
-          }
-          if (m.description.includes('Full time') || m.description.includes('FT')) {
-            status = 'FT';
-          } else {
-            const matchMinute = m.description.replace('Status:', '').trim();
-            status = cleanMatchStatus(matchMinute);
+          const matchMinute = m.description.replace('Status:', '').trim();
+          status = cleanMatchStatus(matchMinute);
+        }
+      }
+      
+      // Prevent duplication / merge live updates
+      const existingIdx = filteredAndMapped.findIndex(x => 
+        stripEmoji(x.home).toLowerCase().trim() === stripEmoji(m.home_team).toLowerCase().trim() && 
+        stripEmoji(x.away).toLowerCase().trim() === stripEmoji(m.away_team).toLowerCase().trim()
+      );
+      
+      if (existingIdx !== -1) {
+        const exist = filteredAndMapped[existingIdx];
+        // Always update if the live status is an active match timer (e.g. "54'", "HT") or "LIVE" or if scores/status has changed
+        const isOngoing = status !== 'FT' && status !== 'Fixture';
+        if (isOngoing || exist.status !== status || exist.hs === '?' || (hs !== '?' && hs !== exist.hs) || (as !== '?' && as !== exist.as)) {
+          exist.hs = hs;
+          exist.as = as;
+          exist.status = status;
+          // Preserve the real match_date from the DB record — only fall back to 'Today' if no real date exists
+          if (!exist.date || exist.date === 'Today' || exist.date.startsWith('Today @')) {
+            exist.date = (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today';
           }
         }
-        
-        // Prevent duplication / merge live updates
-        const existingIdx = filteredAndMapped.findIndex(x => 
-          stripEmoji(x.home).toLowerCase().trim() === stripEmoji(m.home_team).toLowerCase().trim() && 
-          stripEmoji(x.away).toLowerCase().trim() === stripEmoji(m.away_team).toLowerCase().trim()
-        );
-        
-        if (existingIdx !== -1) {
-          const exist = filteredAndMapped[existingIdx];
-          // Always update if the live status is an active match timer (e.g. "54'", "HT") or "LIVE" or if scores/status has changed
-          const isOngoing = status !== 'FT' && status !== 'Fixture';
-          if (isOngoing || exist.status !== status || exist.hs === '?' || (hs !== '?' && hs !== exist.hs) || (as !== '?' && as !== exist.as)) {
-            exist.hs = hs;
-            exist.as = as;
-            exist.status = status;
-            // Preserve the real match_date from the DB record — only fall back to 'Today' if no real date exists
-            if (!exist.date || exist.date === 'Today' || exist.date.startsWith('Today @')) {
-              exist.date = (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today';
-            }
-          }
-        } else {
-          filteredAndMapped.push({
-            home: m.home_team,
-            away: m.away_team,
-            hs: hs,
-            as: as,
-            league: normalizedLeague,
-            date: (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today',
-            status: status
-          });
-        }
+      } else {
+        filteredAndMapped.push({
+          home: m.home_team,
+          away: m.away_team,
+          hs: hs,
+          as: as,
+          league: normalizedLeague || m.league || 'Other Leagues',
+          date: (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today',
+          status: status
+        });
       }
     });
     
@@ -1943,6 +1944,8 @@ async function loadMatch(id) {
 
       let homePlayers = [];
       let awayPlayers = [];
+      let homeFormation = '4-3-3';
+      let awayFormation = '4-3-3';
       let matchStats = null;
       let matchEvents = null;
 
@@ -1950,6 +1953,9 @@ async function loadMatch(id) {
         const data = await homeRes.json();
         if (data.status === 'success' && data.roster) {
           homePlayers = data.roster;
+        }
+        if (data.formation) {
+          homeFormation = data.formation;
         }
         if (data.stats) {
           matchStats = data.stats;
@@ -1962,6 +1968,9 @@ async function loadMatch(id) {
         const data = await awayRes.json();
         if (data.status === 'success' && data.roster) {
           awayPlayers = data.roster;
+        }
+        if (data.formation) {
+          awayFormation = data.formation;
         }
       }
 
@@ -2023,6 +2032,8 @@ async function loadMatch(id) {
         momentum: generateMomentum(m.status !== 'upcoming' && m.status !== 'Fixture'),
         homePlayers: enrichedHome,
         awayPlayers: enrichedAway,
+        homeFormation: homeFormation,
+        awayFormation: awayFormation,
         events: matchEvents || []
       };
       
@@ -2500,9 +2511,10 @@ function drawLineup() {
     const rowCount = 4;
     const startY = isHome ? H*0.1 : H*0.55;
     const teamH = H*0.38;
+    const formation = isHome ? m.homeFormation : m.awayFormation;
 
     // Force-directed layout
-    const positions = forceLayout(players, W, startY, teamH, isHome);
+    const positions = forceLayout(players, W, startY, teamH, isHome, formation);
 
     positions.forEach((pos, i) => {
       const p = players[i];
@@ -2556,9 +2568,11 @@ function drawLineup() {
   // Home/Away labels
   ctx.fillStyle = 'rgba(16,185,129,0.7)'; ctx.font = 'bold 11px Space Grotesk,sans-serif';
   ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(m.homeFlag + ' ' + m.home, 26, 15);
+  const homeFormText = m.homeFormation ? ` (${m.homeFormation})` : '';
+  ctx.fillText(m.homeFlag + ' ' + m.home + homeFormText, 26, 15);
   ctx.fillStyle = 'rgba(59,130,246,0.7)';
-  ctx.fillText(m.awayFlag + ' ' + m.away, 26, H/2 + 8);
+  const awayFormText = m.awayFormation ? ` (${m.awayFormation})` : '';
+  ctx.fillText(m.awayFlag + ' ' + m.away + awayFormText, 26, H/2 + 8);
 
   canvas.onclick = function(e) {
     const rect = canvas.getBoundingClientRect();
@@ -2574,103 +2588,304 @@ function drawLineup() {
   };
 }
 
-function forceLayout(players, W, startY, teamH, isHome) {
-  // Normalise position labels
-  const norm = (r) => {
-    r = (r || 'CM').toUpperCase();
-    if (r === 'CDM' || r === 'DM') return 'DM';
-    if (r === 'AM') return 'CAM';
-    if (r === 'CF' || r === 'FW') return 'ST';
-    if (r === 'DF' || r === 'CB') return 'CB';
-    return r;
-  };
+const NOMINAL_COORDS = {
+  'GK': { x: 50, y: 5 },
+  'LB': { x: 15, y: 20 },
+  'LWB': { x: 10, y: 25 },
+  'LCB': { x: 30, y: 20 },
+  'CB': { x: 50, y: 20 },
+  'RCB': { x: 70, y: 20 },
+  'RB': { x: 85, y: 20 },
+  'RWB': { x: 90, y: 25 },
+  'DM': { x: 50, y: 38 },
+  'LDM': { x: 35, y: 38 },
+  'RDM': { x: 65, y: 38 },
+  'LM': { x: 15, y: 54 },
+  'LCM': { x: 33, y: 54 },
+  'CM': { x: 50, y: 54 },
+  'RCM': { x: 67, y: 54 },
+  'RM': { x: 85, y: 54 },
+  'LAM': { x: 30, y: 71 },
+  'CAM': { x: 50, y: 71 },
+  'RAM': { x: 70, y: 71 },
+  'AM': { x: 50, y: 71 },
+  'LW': { x: 15, y: 87 },
+  'SS': { x: 50, y: 80 },
+  'RW': { x: 85, y: 87 },
+  'LST': { x: 35, y: 87 },
+  'ST': { x: 50, y: 87 },
+  'CF': { x: 50, y: 87 },
+  'FW': { x: 50, y: 87 },
+  'RST': { x: 65, y: 87 }
+};
 
-  const normPlayers = players.map((p, i) => ({ role: norm(p.role), idx: i }));
+function getNominalCoords(role) {
+  let r = (role || 'CM').toUpperCase();
+  if (r === 'CDM' || r === 'DM') r = 'DM';
+  if (r === 'DF') r = 'CB';
+  return NOMINAL_COORDS[r] || { x: 50, y: 54 };
+}
 
-  // ── Fixed Y depths for each tactical row (% of team half, 0=GK end, 100=attack end) ──
-  const ROW_Y = {
-    GK:  5,
-    DEF: 20,   // all defenders share one row
-    CDM: 37,   // LDM / DM / RDM
-    MID: 54,   // LCM / CM / RCM / LM / RM
-    ATM: 71,   // LAM / CAM / RAM / SS
-    FWD: 87,   // LW / LST / ST / RST / RW
-  };
-
-  // Which row does each position belong to?
-  const posRow = {
-    GK:'GK',
-    LB:'DEF', LWB:'DEF', LCB:'DEF', CB:'DEF', RCB:'DEF', RB:'DEF', RWB:'DEF',
-    LDM:'CDM', DM:'CDM', RDM:'CDM',
-    LM:'MID', LCM:'MID', CM:'MID', RCM:'MID', RM:'MID',
-    LAM:'ATM', CAM:'ATM', RAM:'ATM', SS:'ATM',
-    LW:'FWD', LST:'FWD', ST:'FWD', RST:'FWD', RW:'FWD',
-  };
-
-  // ── Fixed X positions for each position key ──
-  // For multi-player positions (CB, CM, DM etc.) we spread them evenly.
-  const posX = {
-    GK: [50],
-    LB: [8], LWB: [8],
-    LCB: [30], RCB: [70],
-    RB: [92], RWB: [92],
-    LDM: [28], RDM: [72],
-    LM: [10], RM: [90],
-    LCM: [28], RCM: [72],
-    LAM: [26], RAM: [74],
-    LW: [10], RW: [90],
-    LST: [34], RST: [66],
-  };
-
-  // For positions that can have multiple players (CB, DM, CM, ST, CAM, SS)
-  const spreadX = {
-    CB:  { 1:[50], 2:[33,67], 3:[25,50,75], 4:[18,38,62,82] },
-    DM:  { 1:[50], 2:[33,67], 3:[25,50,75] },
-    CM:  { 1:[50], 2:[33,67], 3:[20,50,80] },
-    CAM: { 1:[50], 2:[33,67], 3:[25,50,75] },
-    SS:  { 1:[50], 2:[35,65] },
-    ST:  { 1:[50], 2:[35,65], 3:[25,50,75] },
-  };
-
-  // Count how many of each role we have
-  const roleCounts = {};
-  normPlayers.forEach(p => { roleCounts[p.role] = (roleCounts[p.role] || 0) + 1; });
-
-  // Track occurrence index per role
-  const roleIdx = {};
-
-  return normPlayers.map(np => {
-    const role = np.role;
-    const occ = roleIdx[role] || 0;
-    roleIdx[role] = occ + 1;
-    const count = roleCounts[role] || 1;
-
-    // Determine Y
-    const row = posRow[role] || 'MID';
-    const yPct = ROW_Y[row] || 54;
-
-    // Determine X
-    let xPct;
-    if (spreadX[role]) {
-      const spread = spreadX[role][count] || spreadX[role][Object.keys(spreadX[role]).pop()];
-      xPct = spread[Math.min(occ, spread.length - 1)];
-    } else if (posX[role]) {
-      xPct = posX[role][0];
-    } else {
-      // Fallback: spread evenly between 15% and 85%
-      xPct = count === 1 ? 50 : 15 + (occ / (count - 1)) * 70;
+function getFormationSlots(formation) {
+  if (!formation || typeof formation !== 'string') return null;
+  const cleanForm = formation.replace(/\s+/g, '');
+  const parts = cleanForm.split('-').map(Number);
+  
+  const sum = parts.reduce((a, b) => a + b, 0);
+  if (parts.length < 2 || parts.some(isNaN) || sum !== 10) {
+    return null;
+  }
+  
+  const slots = [{ role: 'GK', x: 50, y: 5 }];
+  const numRows = parts.length;
+  
+  for (let i = 0; i < numRows; i++) {
+    const count = parts[i];
+    const yPct = numRows === 1 ? 50 : 20 + (i / (numRows - 1)) * 65;
+    
+    for (let j = 0; j < count; j++) {
+      let xPct;
+      if (count === 1) {
+        xPct = 50;
+      } else if (count === 2) {
+        xPct = j === 0 ? 33 : 67;
+      } else if (count === 3) {
+        if (i === 0) {
+          xPct = j === 0 ? 25 : j === 1 ? 50 : 75;
+        } else if (i === numRows - 1) {
+          xPct = j === 0 ? 15 : j === 1 ? 50 : 85;
+        } else {
+          xPct = j === 0 ? 25 : j === 1 ? 50 : 75;
+        }
+      } else if (count === 4) {
+        xPct = j === 0 ? 15 : j === 1 ? 38 : j === 2 ? 62 : 85;
+      } else if (count === 5) {
+        xPct = j === 0 ? 10 : j === 1 ? 30 : j === 2 ? 50 : j === 3 ? 70 : 90;
+      } else {
+        xPct = 10 + (j / (count - 1)) * 80;
+      }
+      
+      let role = 'CM';
+      if (i === 0) {
+        role = count === 3 ? (j === 0 ? 'LCB' : j === 1 ? 'CB' : 'RCB') : (j === 0 ? 'LB' : j === 1 ? 'LCB' : j === 2 ? 'RCB' : 'RB');
+      } else if (i === numRows - 1) {
+        role = count === 1 ? 'ST' : (j === 0 ? 'LW' : j === 1 ? 'ST' : 'RW');
+      }
+      
+      slots.push({ role, x: xPct, y: yPct });
     }
+  }
+  
+  return slots;
+}
 
-    const xPx = 28 + (xPct / 100) * (W - 56);
-    const yPx = isHome
-      ? startY + (yPct / 100) * teamH
-      : startY + (1 - yPct / 100) * teamH;
-
-    return {
-      x: Math.max(28, Math.min(W - 28, xPx)),
-      y: yPx,
-    };
+function matchPlayersToSlots(players, slots) {
+  const gkPlayer = players.find(p => (p.role || '').toUpperCase() === 'GK') || players[0];
+  const gkSlot = slots.find(s => s.role === 'GK') || slots[0];
+  
+  const outfieldPlayers = players.filter(p => p !== gkPlayer);
+  const outfieldSlots = slots.filter(s => s !== gkSlot);
+  
+  const n = outfieldPlayers.length;
+  if (n !== outfieldSlots.length) {
+    const result = new Array(players.length);
+    const gkIndex = players.indexOf(gkPlayer);
+    result[gkIndex] = gkSlot;
+    let sIdx = 0;
+    players.forEach((p, idx) => {
+      if (idx !== gkIndex) {
+        result[idx] = outfieldSlots[sIdx] || slots[0];
+        sIdx++;
+      }
+    });
+    return result;
+  }
+  
+  const cost = [];
+  for (let i = 0; i < n; i++) {
+    cost[i] = [];
+    const pCoords = getNominalCoords(outfieldPlayers[i].role);
+    for (let j = 0; j < n; j++) {
+      const s = outfieldSlots[j];
+      const dy = (pCoords.y - s.y) * 2.5; // Weight row vertical alignment more heavily
+      const dx = pCoords.x - s.x;
+      cost[i][j] = dx * dx + dy * dy;
+    }
+  }
+  
+  let bestCost = Infinity;
+  let bestMapping = [];
+  const assigned = new Array(n).fill(false);
+  const currentMapping = new Array(n);
+  
+  let greedyCost = 0;
+  const slotUsed = new Array(n).fill(false);
+  for (let i = 0; i < n; i++) {
+    let minC = Infinity;
+    let minJ = 0;
+    for (let j = 0; j < n; j++) {
+      if (!slotUsed[j] && cost[i][j] < minC) {
+        minC = cost[i][j];
+        minJ = j;
+      }
+    }
+    slotUsed[minJ] = true;
+    greedyCost += minC;
+  }
+  bestCost = greedyCost;
+  
+  function search(playerIdx, currentCost) {
+    if (currentCost >= bestCost) return;
+    if (playerIdx === n) {
+      bestCost = currentCost;
+      bestMapping = [...currentMapping];
+      return;
+    }
+    
+    for (let slotIdx = 0; slotIdx < n; slotIdx++) {
+      if (!assigned[slotIdx]) {
+        assigned[slotIdx] = true;
+        currentMapping[playerIdx] = slotIdx;
+        search(playerIdx + 1, currentCost + cost[playerIdx][slotIdx]);
+        assigned[slotIdx] = false;
+      }
+    }
+  }
+  
+  search(0, 0);
+  
+  const result = new Array(players.length);
+  const gkIndex = players.indexOf(gkPlayer);
+  result[gkIndex] = gkSlot;
+  
+  let outfieldIndex = 0;
+  players.forEach((p, idx) => {
+    if (idx !== gkIndex) {
+      const matchedSlotIdx = bestMapping[outfieldIndex];
+      result[idx] = outfieldSlots[matchedSlotIdx];
+      outfieldIndex++;
+    }
   });
+  
+  return result;
+}
+
+function forceLayout(players, W, startY, teamH, isHome, formation) {
+  let slots = null;
+  if (formation && typeof formation === 'string') {
+    slots = getFormationSlots(formation);
+  }
+
+  let coords;
+  if (slots && slots.length === players.length) {
+    const matchedSlots = matchPlayersToSlots(players, slots);
+    coords = matchedSlots.map(s => {
+      const xPx = 28 + (s.x / 100) * (W - 56);
+      const yPx = isHome
+        ? startY + (s.y / 100) * teamH
+        : startY + (1 - s.y / 100) * teamH;
+      return {
+        x: Math.max(28, Math.min(W - 28, xPx)),
+        y: yPx
+      };
+    });
+  } else {
+    // Normalise position labels
+    const norm = (r) => {
+      r = (r || 'CM').toUpperCase();
+      if (r === 'CDM' || r === 'DM') return 'DM';
+      if (r === 'AM') return 'CAM';
+      if (r === 'CF' || r === 'FW') return 'ST';
+      if (r === 'DF' || r === 'CB') return 'CB';
+      return r;
+    };
+
+    const normPlayers = players.map((p, i) => ({ role: norm(p.role), idx: i }));
+
+    // ── Fixed Y depths for each tactical row (% of team half, 0=GK end, 100=attack end) ──
+    const ROW_Y = {
+      GK:  5,
+      DEF: 20,   // all defenders share one row
+      CDM: 37,   // LDM / DM / RDM
+      MID: 54,   // LCM / CM / RCM / LM / RM
+      ATM: 71,   // LAM / CAM / RAM / SS
+      FWD: 87,   // LW / LST / ST / RST / RW
+    };
+
+    // Which row does each position belong to?
+    const posRow = {
+      GK:'GK',
+      LB:'DEF', LWB:'DEF', LCB:'DEF', CB:'DEF', RCB:'DEF', RB:'DEF', RWB:'DEF',
+      LDM:'CDM', DM:'CDM', RDM:'CDM',
+      LM:'MID', LCM:'MID', CM:'MID', RCM:'MID', RM:'MID',
+      LAM:'ATM', CAM:'ATM', RAM:'ATM', SS:'ATM',
+      LW:'FWD', LST:'FWD', ST:'FWD', RST:'FWD', RW:'FWD',
+    };
+
+    // ── Fixed X positions for each position key ──
+    const posX = {
+      GK: [50],
+      LB: [8], LWB: [8],
+      LCB: [30], RCB: [70],
+      RB: [92], RWB: [92],
+      LDM: [28], RDM: [72],
+      LM: [10], RM: [90],
+      LCM: [28], RCM: [72],
+      LAM: [26], RAM: [74],
+      LW: [10], RW: [90],
+      LST: [34], RST: [66],
+    };
+
+    // For positions that can have multiple players (CB, DM, CM, ST, CAM, SS)
+    const spreadX = {
+      CB:  { 1:[50], 2:[33,67], 3:[25,50,75], 4:[18,38,62,82] },
+      DM:  { 1:[50], 2:[33,67], 3:[25,50,75] },
+      CM:  { 1:[50], 2:[33,67], 3:[20,50,80] },
+      CAM: { 1:[50], 2:[33,67], 3:[25,50,75] },
+      SS:  { 1:[50], 2:[35,65] },
+      ST:  { 1:[50], 2:[35,65], 3:[25,50,75] },
+    };
+
+    // Count how many of each role we have
+    const roleCounts = {};
+    normPlayers.forEach(p => { roleCounts[p.role] = (roleCounts[p.role] || 0) + 1; });
+
+    // Track occurrence index per role
+    const roleIdx = {};
+
+    coords = normPlayers.map(np => {
+      const role = np.role;
+      const occ = roleIdx[role] || 0;
+      roleIdx[role] = occ + 1;
+      const count = roleCounts[role] || 1;
+
+      // Determine Y
+      const row = posRow[role] || 'MID';
+      const yPct = ROW_Y[row] || 54;
+
+      // Determine X
+      let xPct;
+      if (spreadX[role]) {
+        const spread = spreadX[role][count] || spreadX[role][Object.keys(spreadX[role]).pop()];
+        xPct = spread[Math.min(occ, spread.length - 1)];
+      } else if (posX[role]) {
+        xPct = posX[role][0];
+      } else {
+        // Fallback: spread evenly between 15% and 85%
+        xPct = count === 1 ? 50 : 15 + (occ / (count - 1)) * 70;
+      }
+
+      const xPx = 28 + (xPct / 100) * (W - 56);
+      const yPx = isHome
+        ? startY + (yPct / 100) * teamH
+        : startY + (1 - yPct / 100) * teamH;
+
+      return {
+        x: Math.max(28, Math.min(W - 28, xPx)),
+        y: yPx,
+      };
+    });
+  }
 
   // 10-pass simple collision resolution to push overlapping player nodes apart
   for (let iter = 0; iter < 10; iter++) {
@@ -3333,9 +3548,36 @@ function renderMatchTimeline(m) {
     icon: '🟨'
   });
 
-  timelineEvents.sort((a, b) => a.minute - b.minute);
+  // Parse match status to filter out future mock/upcoming events in ongoing matches
+  let currentMinute = 90; // Default to full-time if completed/unknown
+  if (m.status) {
+    const statusLower = m.status.toLowerCase().trim();
+    if (statusLower === 'ht') {
+      currentMinute = 45;
+    } else if (statusLower === 'ft') {
+      currentMinute = 90;
+    } else if (statusLower === 'fixture' || statusLower === 'upcoming' || statusLower.includes(':')) {
+      currentMinute = 0;
+    } else {
+      const match = m.status.match(/(\d+)/);
+      if (match) {
+        currentMinute = parseInt(match[1]);
+      }
+    }
+  }
 
-  const renderedEvents = timelineEvents.map(evt => {
+  const filteredEvents = timelineEvents.filter(evt => evt.minute <= currentMinute);
+  filteredEvents.sort((a, b) => a.minute - b.minute);
+
+  if (filteredEvents.length === 0) {
+    return `
+      <div style="text-align:center;padding:24px;color:var(--text-muted);font-family:'Inter',sans-serif;font-size:13px;">
+        No match events recorded yet.
+      </div>
+    `;
+  }
+
+  const renderedEvents = filteredEvents.map(evt => {
     const isHomeEvent = stripEmoji(evt.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(evt.team || '').toLowerCase().trim());
     return `
       <div style="display:flex;align-items:center;margin:12px 0;font-family:'Inter',sans-serif;font-size:12px;">

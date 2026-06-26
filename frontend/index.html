@@ -1621,12 +1621,7 @@ async function crawlMatches() {
 
 async function silentCrawlMatches() {
   try {
-    const crawlRes = await fetch(`${BACKEND_URL}/historical-matches/crawl`, {
-      method: 'POST'
-    });
-    if (crawlRes.ok) {
-      await loadHistoricalMatches();
-    }
+    await loadHistoricalMatches();
   } catch(e) {
     console.error('Silent background sync error:', e);
   }

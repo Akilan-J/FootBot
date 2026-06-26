@@ -87,6 +87,10 @@ def init_db() -> None:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        # Create Indexes for optimization
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_historical_matches_teams ON historical_matches(home_team, away_team)")
         
         conn.commit()
         
@@ -368,7 +372,7 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
     finally:
         conn.close()
 
-def get_historical_matches(limit: int = 50) -> List[Dict[str, Any]]:
+def get_historical_matches(limit: int = 1000) -> List[Dict[str, Any]]:
     """Retrieves saved historical matches, filtering out women's matches."""
     conn = get_db_connection()
     cursor = conn.cursor()

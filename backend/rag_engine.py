@@ -163,6 +163,7 @@ class RAGEngine:
         self.vector_store: Optional[FAISS] = None
         self.openai_client: Optional[openai.OpenAI] = None
         self.model_name: str = settings.OPENAI_MODEL_NAME
+        self.bm25_searcher: Optional[BM25Searcher] = None
         
         # Load components lazily to prevent long startup locks
         self.initialize_openai()
@@ -221,10 +222,27 @@ class RAGEngine:
                 allow_dangerous_deserialization=True
             )
             logger.info("FAISS vector database successfully loaded.")
+            
+            # Pre-compile the BM25 searcher index in memory
+            try:
+                if hasattr(self.vector_store, 'docstore') and hasattr(self.vector_store.docstore, '_dict'):
+                    all_docs = list(self.vector_store.docstore._dict.values())
+                    if all_docs:
+                        self.bm25_searcher = BM25Searcher(all_docs)
+                        logger.info(f"Pre-compiled BM25 lexical index with {len(all_docs)} documents.")
+                    else:
+                        self.bm25_searcher = None
+                else:
+                    self.bm25_searcher = None
+            except Exception as e:
+                logger.error(f"Failed to pre-compile BM25 index: {str(e)}")
+                self.bm25_searcher = None
+
             return True
         except Exception as e:
             logger.error(f"Failed to load FAISS index: {str(e)}")
             self.vector_store = None
+            self.bm25_searcher = None
             return False
 
     def retrieve_context(self, query: str, top_k: int) -> List[Tuple[Document, float]]:
@@ -400,14 +418,23 @@ class RAGEngine:
         dense_results = self.retrieve_context(query, top_k * 2)
         
         lexical_results = []
-        if self.vector_store and hasattr(self.vector_store, 'docstore') and hasattr(self.vector_store.docstore, '_dict'):
-            try:
-                all_docs = list(self.vector_store.docstore._dict.values())
-                if all_docs:
-                    bm25 = BM25Searcher(all_docs)
-                    lexical_results = bm25.search(query, top_k * 2)
-            except Exception as e:
-                logger.error(f"Error compiling or searching BM25 lexical index: {str(e)}")
+        if self.vector_store:
+            # Lazy initialize if needed
+            if self.bm25_searcher is None:
+                try:
+                    if hasattr(self.vector_store, 'docstore') and hasattr(self.vector_store.docstore, '_dict'):
+                        all_docs = list(self.vector_store.docstore._dict.values())
+                        if all_docs:
+                            self.bm25_searcher = BM25Searcher(all_docs)
+                            logger.info(f"Compiled lazy BM25 index with {len(all_docs)} documents.")
+                except Exception as e:
+                    logger.error(f"Error compiling lazy BM25 index: {str(e)}")
+            
+            if self.bm25_searcher is not None:
+                try:
+                    lexical_results = self.bm25_searcher.search(query, top_k * 2)
+                except Exception as e:
+                    logger.error(f"Error searching BM25 index: {str(e)}")
                 
         # Perform Reciprocal Rank Fusion (RRF)
         retrieved_results = reciprocal_rank_fusion(dense_results, lexical_results, top_k=top_k)

@@ -275,8 +275,20 @@ def _clean_yahoo_url(url: str) -> str:
             pass
     return url
 
+_in_memory_cache = None
+_cache_last_mtime = 0.0
 
 def load_cache() -> Dict[str, List[Dict[str, Any]]]:
+    global _in_memory_cache, _cache_last_mtime
+    import os
+    if CACHE_PATH.exists():
+        try:
+            mtime = os.path.getmtime(CACHE_PATH)
+            if _in_memory_cache is not None and mtime == _cache_last_mtime:
+                return _in_memory_cache
+        except Exception:
+            pass
+
     lock_path = CACHE_PATH.with_suffix(".lock")
     if not lock_path.exists():
         try:
@@ -288,12 +300,20 @@ def load_cache() -> Dict[str, List[Dict[str, Any]]]:
             fcntl.flock(lock_f.fileno(), fcntl.LOCK_SH)
             if CACHE_PATH.exists():
                 with open(CACHE_PATH, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    _in_memory_cache = data
+                    try:
+                        _cache_last_mtime = os.path.getmtime(CACHE_PATH)
+                    except Exception:
+                        pass
+                    return data
     except Exception as e:
         logger.error(f"Error loading roster cache from {CACHE_PATH}: {e}")
     return {}
 
 def save_cache(cache: Dict[str, List[Dict[str, Any]]]) -> None:
+    global _in_memory_cache, _cache_last_mtime
+    import os
     try:
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
         lock_path = CACHE_PATH.with_suffix(".lock")
@@ -301,6 +321,11 @@ def save_cache(cache: Dict[str, List[Dict[str, Any]]]) -> None:
             fcntl.flock(lock_f.fileno(), fcntl.LOCK_EX)
             with open(CACHE_PATH, "w", encoding="utf-8") as f:
                 json.dump(cache, f, indent=4, ensure_ascii=False)
+            _in_memory_cache = cache
+            try:
+                _cache_last_mtime = os.path.getmtime(CACHE_PATH)
+            except Exception:
+                pass
     except Exception as e:
         logger.error(f"Error saving roster cache to {CACHE_PATH}: {e}")
 

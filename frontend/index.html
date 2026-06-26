@@ -2003,8 +2003,26 @@ async function loadMatch(id) {
       const enrichedAway = awayPlayers.map((p, i) => mapPlayer(p, i, false));
 
       const isUpcoming = (m.status === 'upcoming' || m.status === 'Fixture');
-      const resolvedHS = isUpcoming ? (matchStats?.predicted_score?.[0] ?? 0) : m.hs;
-      const resolvedAS = isUpcoming ? (matchStats?.predicted_score?.[1] ?? 0) : m.as;
+      let resolvedHS = isUpcoming ? (matchStats?.predicted_score?.[0] ?? 0) : m.hs;
+      let resolvedAS = isUpcoming ? (matchStats?.predicted_score?.[1] ?? 0) : m.as;
+
+      // Adjust completed/live score to match actual loaded goal events if available
+      if (!isUpcoming && matchEvents && matchEvents.length > 0) {
+        let homeG = 0;
+        let awayG = 0;
+        matchEvents.forEach(ev => {
+          const evTeam = stripEmoji(ev.team || '').toLowerCase().trim();
+          const homeCleanName = stripEmoji(m.home || '').toLowerCase().trim();
+          const awayCleanName = stripEmoji(m.away || '').toLowerCase().trim();
+          if (evTeam === homeCleanName || homeCleanName.includes(evTeam) || evTeam.includes(homeCleanName)) {
+            homeG++;
+          } else if (evTeam === awayCleanName || awayCleanName.includes(evTeam) || evTeam.includes(awayCleanName)) {
+            awayG++;
+          }
+        });
+        resolvedHS = homeG;
+        resolvedAS = awayG;
+      }
 
       currentMatch = {
         home: homeClean,

@@ -87,10 +87,32 @@ def init_db() -> None:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        
+        # Create API-Football Team Mapping table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS api_football_teams (
+                team_name TEXT PRIMARY KEY,
+                api_id INTEGER NOT NULL
+            )
+        """)
+
+        # Create API-Football Fixture Mapping table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS api_football_fixtures (
+                home_team TEXT,
+                away_team TEXT,
+                match_date TEXT,
+                fixture_id INTEGER NOT NULL,
+                PRIMARY KEY (home_team, away_team, match_date)
+            )
+        """)
+
         # Create Indexes for optimization
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_messages_session_id ON messages(session_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_historical_matches_teams ON historical_matches(home_team, away_team)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_football_teams_name ON api_football_teams(team_name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_football_fixtures_match ON api_football_fixtures(home_team, away_team, match_date)")
         
         conn.commit()
         
@@ -433,6 +455,70 @@ def search_historical_matches(team_name: str) -> List[Dict[str, Any]]:
         conn.close()
         
     return results
+
+def get_api_team_id(team_name: str) -> Optional[int]:
+    """Retrieves cached API-Football team ID for a team name (case-insensitive)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT api_id FROM api_football_teams WHERE LOWER(team_name) = LOWER(?)",
+            (team_name.strip(),)
+        )
+        row = cursor.fetchone()
+        return row["api_id"] if row else None
+    except Exception as e:
+        logger.error(f"Error getting api team id: {e}")
+        return None
+    finally:
+        conn.close()
+
+def save_api_team_id(team_name: str, api_id: int) -> None:
+    """Caches API-Football team ID for a team name."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "INSERT OR REPLACE INTO api_football_teams (team_name, api_id) VALUES (?, ?)",
+            (team_name.strip(), api_id)
+        )
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Error saving api team id: {e}")
+    finally:
+        conn.close()
+
+def get_api_fixture_id(home: str, away: str, date: str) -> Optional[int]:
+    """Retrieves cached API-Football fixture ID (case-insensitive, normalized date)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT fixture_id FROM api_football_fixtures WHERE LOWER(home_team) = LOWER(?) AND LOWER(away_team) = LOWER(?) AND LOWER(match_date) = LOWER(?)",
+            (home.strip(), away.strip(), date.strip())
+        )
+        row = cursor.fetchone()
+        return row["fixture_id"] if row else None
+    except Exception as e:
+        logger.error(f"Error getting api fixture id: {e}")
+        return None
+    finally:
+        conn.close()
+
+def save_api_fixture_id(home: str, away: str, date: str, fixture_id: int) -> None:
+    """Caches API-Football fixture ID."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "INSERT OR REPLACE INTO api_football_fixtures (home_team, away_team, match_date, fixture_id) VALUES (?, ?, ?, ?)",
+            (home.strip(), away.strip(), date.strip(), fixture_id)
+        )
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Error saving api fixture id: {e}")
+    finally:
+        conn.close()
 
 if __name__ == "__main__":
     init_db()

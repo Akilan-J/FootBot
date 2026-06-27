@@ -777,7 +777,6 @@ input[type=range]::-webkit-slider-thumb{
             <button class="filter-btn" onclick="filterLeague('Serie A',this)">🇮🇹 Serie A</button>
             <button class="filter-btn" onclick="filterLeague('Ligue 1',this)">🇫🇷 Ligue 1</button>
             <button class="filter-btn" onclick="filterLeague('World Cup',this)">🏆 World Cup</button>
-            <button class="filter-btn" onclick="filterLeague('other',this)">🌍 Other Leagues</button>
           </div>
           <div style="position:relative; width:100%; max-width:280px;">
             <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px; pointer-events:none;">🔍</span>
@@ -1738,12 +1737,14 @@ async function loadHistoricalMatches() {
       else if (leagueLower.includes('serie a')) normalizedLeague = 'Serie A';
       else if (leagueLower.includes('ligue 1') || leagueLower.includes('ligue1')) normalizedLeague = 'Ligue 1';
       
+      if (!normalizedLeague) return; // Discard "Other Leagues"
+      
       filteredAndMapped.push({
         home: m.home_team,
         away: m.away_team,
         hs: m.home_score !== null ? m.home_score : '?',
         as: m.away_score !== null ? m.away_score : '?',
-        league: normalizedLeague || m.league || 'Other Leagues',
+        league: normalizedLeague,
         date: m.match_date,
         status: 'FT'
       });
@@ -1759,6 +1760,8 @@ async function loadHistoricalMatches() {
       else if (leagueLower.includes('bundesliga')) normalizedLeague = 'Bundesliga';
       else if (leagueLower.includes('serie a')) normalizedLeague = 'Serie A';
       else if (leagueLower.includes('ligue 1') || leagueLower.includes('ligue1')) normalizedLeague = 'Ligue 1';
+      
+      if (!normalizedLeague) return; // Discard "Other Leagues"
       
       let hs = '?', as = '?';
       let status = 'FT';
@@ -1810,7 +1813,7 @@ async function loadHistoricalMatches() {
           away: m.away_team,
           hs: hs,
           as: as,
-          league: normalizedLeague || m.league || 'Other Leagues',
+          league: normalizedLeague,
           date: (isFixture && status !== 'Fixture') ? `Today @ ${status}` : 'Today',
           status: status
         });
@@ -2006,23 +2009,7 @@ async function loadMatch(id) {
       let resolvedHS = isUpcoming ? (matchStats?.predicted_score?.[0] ?? 0) : m.hs;
       let resolvedAS = isUpcoming ? (matchStats?.predicted_score?.[1] ?? 0) : m.as;
 
-      // Adjust completed/live score to match actual loaded goal events if available
-      if (!isUpcoming && matchEvents && matchEvents.length > 0) {
-        let homeG = 0;
-        let awayG = 0;
-        matchEvents.forEach(ev => {
-          const evTeam = stripEmoji(ev.team || '').toLowerCase().trim();
-          const homeCleanName = stripEmoji(m.home || '').toLowerCase().trim();
-          const awayCleanName = stripEmoji(m.away || '').toLowerCase().trim();
-          if (evTeam === homeCleanName || homeCleanName.includes(evTeam) || evTeam.includes(homeCleanName)) {
-            homeG++;
-          } else if (evTeam === awayCleanName || awayCleanName.includes(evTeam) || evTeam.includes(awayCleanName)) {
-            awayG++;
-          }
-        });
-        resolvedHS = homeG;
-        resolvedAS = awayG;
-      }
+
 
       currentMatch = {
         home: homeClean,
@@ -2100,6 +2087,9 @@ function renderScorersSection(m) {
   const awayGoals = [];
   
   m.events.forEach(evt => {
+    const isMissed = evt.text && (evt.text.toLowerCase().includes('missed') || evt.text.toLowerCase().includes('saved penalty'));
+    if (isMissed) return;
+
     const t = stripEmoji(evt.team || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
     
     let detail = `<span style="font-weight:600;color:var(--text);">${evt.scorer}</span>`;
@@ -3394,6 +3384,9 @@ function generateShots(m) {
 
   // 1. Add actual goals
   (m.events || []).forEach((g, idx) => {
+    const isMissed = g.text && (g.text.toLowerCase().includes('missed') || g.text.toLowerCase().includes('saved penalty'));
+    if (isMissed) return;
+
     const isHome = stripEmoji(g.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(g.team || '').toLowerCase().trim());
     const xPct = isHome ? (40 + (idx * 17) % 20) : (40 + (idx * 13) % 20);
     const yPct = isHome ? (10 + (idx * 9) % 8) : (90 - (idx * 7) % 8);
@@ -3504,14 +3497,17 @@ function renderMatchTimeline(m) {
   const timelineEvents = [];
   
   (m.events || []).forEach(g => {
+    const isMissed = g.text && (g.text.toLowerCase().includes('missed') || g.text.toLowerCase().includes('saved penalty'));
+    const validAssist = g.assist && g.assist !== 'null' && g.assist !== 'None' && g.assist !== 'unknown' && g.assist !== g.scorer;
+    
     timelineEvents.push({
       minute: parseInt(g.minute) || 0,
       minuteStr: g.minute,
-      type: 'goal',
-      title: g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
-      desc: `${g.scorer}${g.assist ? ' (assist: ' + g.assist + ')' : ''}`,
+      type: isMissed ? 'penalty_missed' : 'goal',
+      title: isMissed ? 'Missed Penalty' : g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
+      desc: isMissed ? `${g.scorer} (missed penalty)` : `${g.scorer}${validAssist ? ' (assist: ' + g.assist + ')' : ''}`,
       team: g.team,
-      icon: '⚽'
+      icon: isMissed ? '❌' : '⚽'
     });
   });
   

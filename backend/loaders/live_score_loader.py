@@ -61,11 +61,12 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
                 away_team_el = away_team_container.find('span')
             away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
 
-            # Filter to include only men's football matches
+            # Filter to include only men's football matches from the 6 major leagues
             league_lower = league.lower()
             home_lower = home_team.lower()
             away_lower = away_team.lower()
-            if "women" in league_lower or "women" in home_lower or "women" in away_lower:
+            is_major = any(ml in league_lower for ml in ['world cup', 'premier league', 'la liga', 'laliga', 'bundesliga', 'serie a', 'ligue 1', 'ligue1'])
+            if not is_major or "women" in league_lower or "women" in home_lower or "women" in away_lower:
                 continue
             
             # Extract scores if they exist
@@ -281,11 +282,12 @@ def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
                     away_team_el = away_team_container.find('span')
                 away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
 
-                # Filter to include only men's football matches
+                # Filter to include only men's football matches from the 6 major leagues
                 league_lower = league.lower()
                 home_lower = home_team.lower()
                 away_lower = away_team.lower()
-                if "women" in league_lower or "women" in home_lower or "women" in away_lower:
+                is_major = any(ml in league_lower for ml in ['world cup', 'premier league', 'la liga', 'laliga', 'bundesliga', 'serie a', 'ligue 1', 'ligue1'])
+                if not is_major or "women" in league_lower or "women" in home_lower or "women" in away_lower:
                     continue
                 
                 # Extract scores

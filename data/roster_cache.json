@@ -9314,6 +9314,15 @@
     ],
     "matchevents_sweden_vs_tunisia_15 jun 2026 - group f": [
         {
+            "minute": "12'",
+            "scorer": "Dejan Kulusevski",
+            "assist": "Alexander Isak",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Dejan Kulusevski Goal"
+        },
+        {
             "minute": "34'",
             "scorer": "Alexander Isak",
             "assist": "Dejan Kulusevski",
@@ -9323,6 +9332,15 @@
             "text": "Alexander Isak Goal"
         },
         {
+            "minute": "52'",
+            "scorer": "Viktor Gyökeres",
+            "assist": "Anthony Elanga",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Viktor Gyökeres Goal"
+        },
+        {
             "minute": "72'",
             "scorer": "Viktor Gyökeres",
             "assist": "Emil Forsberg",
@@ -9330,6 +9348,15 @@
             "ownGoal": false,
             "penalty": false,
             "text": "Viktor Gyökeres Goal"
+        },
+        {
+            "minute": "81'",
+            "scorer": "Anthony Elanga",
+            "assist": "Viktor Gyökeres",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Anthony Elanga Goal"
         },
         {
             "minute": "88'",
@@ -9558,7 +9585,35 @@
             "text": "Yoane Wissa Goal - Header"
         }
     ],
-    "matchevents_algeria_vs_argentina_17 jun 2026": [],
+    "matchevents_algeria_vs_argentina_17 jun 2026": [
+        {
+            "minute": "21'",
+            "scorer": "Lionel Messi",
+            "assist": null,
+            "team": "Argentina",
+            "ownGoal": false,
+            "penalty": true,
+            "text": "Lionel Messi Penalty Goal"
+        },
+        {
+            "minute": "54'",
+            "scorer": "Lautaro Martínez",
+            "assist": "Lionel Messi",
+            "team": "Argentina",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Lautaro Martínez Goal"
+        },
+        {
+            "minute": "79'",
+            "scorer": "Julián Álvarez",
+            "assist": "Alexis Mac Allister",
+            "team": "Argentina",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Julián Álvarez Goal"
+        }
+    ],
     "matchevents_brazil_vs_haiti_20 jun 2026": [
         {
             "minute": "23'",
@@ -12297,40 +12352,40 @@
     ],
     "matchstats_portugal_vs_uzbekistan_23 jun 2026": {
         "possession": [
-            78,
-            22
+            74,
+            26
         ],
         "shots": [
+            18,
+            4
+        ],
+        "shotsOnTarget": [
+            9,
+            1
+        ],
+        "bigChances": [
             5,
             1
         ],
-        "shotsOnTarget": [
-            2,
-            0
-        ],
-        "bigChances": [
-            2,
-            1
-        ],
         "passes": [
-            110,
-            27
+            620,
+            230
         ],
         "corners": [
-            1,
-            5
+            7,
+            2
         ],
         "fouls": [
-            11,
-            3
+            8,
+            10
         ],
         "yellowCards": [
             1,
-            1
+            2
         ],
         "offsides": [
             2,
-            2
+            1
         ],
         "predicted_score": [
             0,
@@ -12345,7 +12400,7 @@
             "team": "Portugal",
             "ownGoal": false,
             "penalty": false,
-            "text": "Cristiano Ronaldo Goal"
+            "text": "Cristiano Ronaldo Goal - Volley"
         },
         {
             "minute": "17'",
@@ -12355,6 +12410,33 @@
             "ownGoal": false,
             "penalty": false,
             "text": "Nuno Mendes Goal - Free-kick"
+        },
+        {
+            "minute": "39'",
+            "scorer": "Cristiano Ronaldo",
+            "assist": "Bruno Fernandes",
+            "team": "Portugal",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Cristiano Ronaldo Goal"
+        },
+        {
+            "minute": "60'",
+            "scorer": "Abduvohid Nematov",
+            "assist": null,
+            "team": "Portugal",
+            "ownGoal": true,
+            "penalty": false,
+            "text": "Abduvohid Nematov Own Goal"
+        },
+        {
+            "minute": "87'",
+            "scorer": "Rafael Leão",
+            "assist": null,
+            "team": "Portugal",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Rafael Leão Goal"
         }
     ],
     "formation_uzbekistan_vs_portugal_23 jun 2026": "4-3-3",
@@ -12510,6 +12592,2291 @@
             "height": "181 cm",
             "sofa_id": "",
             "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "paraguay_vs_australia_26 jun 2026": [
+        {
+            "name": "Orlando Gill",
+            "jersey": "12",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "frontend/assets/orlando_gill.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "70852",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alexandro Maidana",
+            "jersey": "26",
+            "rating": 7.0,
+            "pos": "LWB",
+            "photo": "frontend/assets/alexandro_maidana.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "425020",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Omar Alderete",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/omar_alderete.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "6168",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gustavo Gómez",
+            "jersey": "15",
+            "rating": 7.0,
+            "pos": "CB",
+            "photo": "frontend/assets/gustavo_gmez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2502",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gustavo Velázquez",
+            "jersey": "2",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/gustavo_velzquez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "35808",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Juan Cáceres",
+            "jersey": "4",
+            "rating": 7.0,
+            "pos": "RWB",
+            "photo": "frontend/assets/juan_cceres.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "195992",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Matías Galarza",
+            "jersey": "23",
+            "rating": 7.0,
+            "pos": "LCM",
+            "photo": "frontend/assets/matas_galarza.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "305832",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Andrés Cubas",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/andrs_cubas.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "6236",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Diego Gómez",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "RCM",
+            "photo": "frontend/assets/diego_gmez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "278370",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Julio Enciso",
+            "jersey": "19",
+            "rating": 7.0,
+            "pos": "LST",
+            "photo": "frontend/assets/julio_enciso.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "70747",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gabriel Ávalos",
+            "jersey": "21",
+            "rating": 7.0,
+            "pos": "RST",
+            "photo": "frontend/assets/gabriel_valos.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "6483",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mauricio",
+            "jersey": "11",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/mauricio.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "106485",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alex Arce",
+            "jersey": "18",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/alex_arce.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "95460",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "José Canale",
+            "jersey": "13",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/jos_canale.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "70732",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Junior Alonso",
+            "jersey": "6",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/junior_alonso.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2499",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Damián Bobadilla",
+            "jersey": "16",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/damin_bobadilla.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "195107",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Roberto Fernández",
+            "jersey": "1",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/roberto_fernndez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2497",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gastón Olveira",
+            "jersey": "22",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/gastn_olveira.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51733",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Fabián Balbuena",
+            "jersey": "5",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/fabin_balbuena.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2500",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Braian Ojeda",
+            "jersey": "20",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/braian_ojeda.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "70767",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gustavo Caballero",
+            "jersey": "24",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/gustavo_caballero.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "119128",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alejandro Romero",
+            "jersey": "17",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/alejandro_romero.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2514",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ramón Sosa",
+            "jersey": "7",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/ramn_sosa.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "196298",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Antonio Sanabria",
+            "jersey": "9",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/antonio_sanabria.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2522",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Isidro Pitta",
+            "jersey": "25",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/isidro_pitta.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "70670",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchstats_australia_vs_paraguay_26 jun 2026": {
+        "possession": [
+            44,
+            56
+        ],
+        "shots": [
+            7,
+            12
+        ],
+        "bigChances": [
+            0,
+            1
+        ],
+        "passes": [
+            427,
+            536
+        ],
+        "predicted_score": [
+            0,
+            0
+        ]
+    },
+    "matchevents_australia_vs_paraguay_26 jun 2026": [],
+    "formation_paraguay_vs_australia_26 jun 2026": "4-2-3-1",
+    "norway_vs_france_27 jun 2026": [
+        {
+            "name": "Egil Selvik",
+            "jersey": "13",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "frontend/assets/egil_selvik.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "39082",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Fredrik André Bjørkan",
+            "jersey": "15",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "frontend/assets/fredrik_andr_bjrkan.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39058",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Leo Østigård",
+            "jersey": "4",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/leo_stigrd.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "18967",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Henrik Sælebakke Falchener",
+            "jersey": "25",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "180937",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Fredrik Aursnes",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/fredrik_aursnes.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39043",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Thelo Aasgaard",
+            "jersey": "19",
+            "rating": 7.0,
+            "pos": "LCM",
+            "photo": "frontend/assets/thelo_aasgaard.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "277930",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Patrick Berg",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/patrick_berg.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39064",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Kristian Thorstvedt",
+            "jersey": "18",
+            "rating": 7.0,
+            "pos": "RCM",
+            "photo": "frontend/assets/kristian_thorstvedt.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39143",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Andreas Schjelderup",
+            "jersey": "21",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "frontend/assets/andreas_schjelderup.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "301528",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jørgen Strand Larsen",
+            "jersey": "11",
+            "rating": 7.0,
+            "pos": "ST",
+            "photo": "frontend/assets/jrgen_strand_larsen.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2032",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Oscar Bobb",
+            "jersey": "22",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "frontend/assets/oscar_bobb.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "278133",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ørjan Nyland",
+            "jersey": "1",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/rjan_nyland.jpg",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "19172",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sander Tangvik",
+            "jersey": "12",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/sander_tangvik.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "264378",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Kristoffer Ajer",
+            "jersey": "3",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/kristoffer_ajer.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1119",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "David Møller Wolfe",
+            "jersey": "5",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/david_mller_wolfe.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "265782",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Torbjørn Heggem",
+            "jersey": "17",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/torbjrn_heggem.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39254",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sondre Langås",
+            "jersey": "24",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/sondre_langs.jpg",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "265444",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marcus Pedersen",
+            "jersey": "16",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/marcus_pedersen.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39362",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Morten Thorsby",
+            "jersey": "2",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/morten_thorsby.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "36980",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sander Berge",
+            "jersey": "8",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/sander_berge.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1934",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Martin Ødegaard",
+            "jersey": "10",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/martin_degaard.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "37127",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Julian Ryerson",
+            "jersey": "26",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/julian_ryerson.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "24845",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jens Petter Hauge",
+            "jersey": "23",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/jens_petter_hauge.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "39073",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alexander Sørloth",
+            "jersey": "7",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/alexander_srloth.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "8492",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Erling Haaland",
+            "jersey": "9",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/erling_haaland.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1100",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Antonio Nusa",
+            "jersey": "20",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/antonio_nusa.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "314511",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchstats_france_vs_norway_27 jun 2026": {
+        "possession": [
+            43,
+            57
+        ],
+        "shots": [
+            10,
+            18
+        ],
+        "shotsOnTarget": [
+            4,
+            9
+        ],
+        "bigChances": [
+            1,
+            3
+        ],
+        "passes": [
+            420,
+            557
+        ],
+        "corners": [
+            4,
+            5
+        ],
+        "fouls": [
+            9,
+            11
+        ],
+        "yellowCards": [
+            1,
+            1
+        ],
+        "offsides": [
+            1,
+            2
+        ],
+        "predicted_score": [
+            0,
+            0
+        ]
+    },
+    "matchevents_france_vs_norway_27 jun 2026": [
+        {
+            "minute": "7",
+            "scorer": "Ousmane Dembélé",
+            "assist": "Kylian Mbappé",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "20",
+            "scorer": "Ousmane Dembélé",
+            "assist": "Kylian Mbappé",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "21",
+            "scorer": "Thelo Aasgaard",
+            "assist": "Andreas Schjelderup",
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "32",
+            "scorer": "Ousmane Dembélé",
+            "assist": "Aurélien Tchouaméni",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "50",
+            "scorer": "Jørgen Strand Larsen",
+            "assist": null,
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": true,
+            "text": "Missed Penalty"
+        },
+        {
+            "minute": "90+4",
+            "scorer": "Désiré Doué",
+            "assist": "Bradley Barcola",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        }
+    ],
+    "formation_norway_vs_france_27 jun 2026": "4-2-3-1",
+    "matchevents_sweden_vs_tunisia_15 jun 2026": [
+        {
+            "minute": "12'",
+            "scorer": "Dejan Kulusevski",
+            "assist": "Alexander Isak",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Dejan Kulusevski Goal"
+        },
+        {
+            "minute": "34'",
+            "scorer": "Alexander Isak",
+            "assist": "Dejan Kulusevski",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Alexander Isak Goal"
+        },
+        {
+            "minute": "52'",
+            "scorer": "Viktor Gyökeres",
+            "assist": "Anthony Elanga",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Viktor Gyökeres Goal"
+        },
+        {
+            "minute": "72'",
+            "scorer": "Viktor Gyökeres",
+            "assist": "Emil Forsberg",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Viktor Gyökeres Goal"
+        },
+        {
+            "minute": "81'",
+            "scorer": "Anthony Elanga",
+            "assist": "Viktor Gyökeres",
+            "team": "Sweden",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Anthony Elanga Goal"
+        },
+        {
+            "minute": "88'",
+            "scorer": "Youssef Msakni",
+            "assist": "Hamza Rafia",
+            "team": "Tunisia",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Youssef Msakni Goal"
+        }
+    ],
+    "matchstats_sweden_vs_tunisia_15 jun 2026 - group f": {
+        "possession": [
+            68,
+            32
+        ],
+        "shots": [
+            18,
+            5
+        ],
+        "shotsOnTarget": [
+            9,
+            2
+        ],
+        "bigChances": [
+            5,
+            1
+        ],
+        "passes": [
+            580,
+            290
+        ],
+        "corners": [
+            7,
+            2
+        ],
+        "fouls": [
+            8,
+            11
+        ],
+        "yellowCards": [
+            1,
+            2
+        ],
+        "offsides": [
+            3,
+            1
+        ]
+    },
+    "matchstats_sweden_vs_tunisia_15 jun 2026": {
+        "possession": [
+            68,
+            32
+        ],
+        "shots": [
+            18,
+            5
+        ],
+        "shotsOnTarget": [
+            9,
+            2
+        ],
+        "bigChances": [
+            5,
+            1
+        ],
+        "passes": [
+            580,
+            290
+        ],
+        "corners": [
+            7,
+            2
+        ],
+        "fouls": [
+            8,
+            11
+        ],
+        "yellowCards": [
+            1,
+            2
+        ],
+        "offsides": [
+            3,
+            1
+        ]
+    },
+    "matchevents_argentina_vs_algeria_17 jun 2026": [
+        {
+            "minute": "21'",
+            "scorer": "Lionel Messi",
+            "assist": null,
+            "team": "Argentina",
+            "ownGoal": false,
+            "penalty": true,
+            "text": "Lionel Messi Penalty Goal"
+        },
+        {
+            "minute": "54'",
+            "scorer": "Lautaro Martínez",
+            "assist": "Lionel Messi",
+            "team": "Argentina",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Lautaro Martínez Goal"
+        },
+        {
+            "minute": "79'",
+            "scorer": "Julián Álvarez",
+            "assist": "Alexis Mac Allister",
+            "team": "Argentina",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Julián Álvarez Goal"
+        }
+    ],
+    "matchstats_algeria_vs_argentina_17 jun 2026": {
+        "possession": [
+            65,
+            35
+        ],
+        "shots": [
+            15,
+            4
+        ],
+        "shotsOnTarget": [
+            7,
+            1
+        ],
+        "bigChances": [
+            4,
+            0
+        ],
+        "passes": [
+            620,
+            310
+        ],
+        "corners": [
+            6,
+            2
+        ],
+        "fouls": [
+            9,
+            14
+        ],
+        "yellowCards": [
+            1,
+            3
+        ],
+        "offsides": [
+            2,
+            1
+        ]
+    },
+    "matchstats_argentina_vs_algeria_17 jun 2026": {
+        "possession": [
+            65,
+            35
+        ],
+        "shots": [
+            15,
+            4
+        ],
+        "shotsOnTarget": [
+            7,
+            1
+        ],
+        "bigChances": [
+            4,
+            0
+        ],
+        "passes": [
+            620,
+            310
+        ],
+        "corners": [
+            6,
+            2
+        ],
+        "fouls": [
+            9,
+            14
+        ],
+        "yellowCards": [
+            1,
+            3
+        ],
+        "offsides": [
+            2,
+            1
+        ]
+    },
+    "france_vs_norway_27 jun 2026": [
+        {
+            "name": "Mike Maignan",
+            "jersey": "16",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "frontend/assets/mike_maignan.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "22221",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jules Koundé",
+            "jersey": "5",
+            "rating": 7.0,
+            "pos": "LM",
+            "photo": "frontend/assets/jules_kound.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1257",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Dayot Upamecano",
+            "jersey": "4",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/dayot_upamecano.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1149",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Maxence Lacroix",
+            "jersey": "26",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/maxence_lacroix.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "20995",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Theo Hernández",
+            "jersey": "19",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/theo_hernndez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47300",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Aurélien Tchouaméni",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/aurlien_tchouamni.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1271",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Manu Koné",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/manu_kon.jpg",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "22147",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ousmane Dembélé",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/ousmane_dembl.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "153",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Michael Olise",
+            "jersey": "11",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/michael_olise.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "19617",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Désiré Doué",
+            "jersey": "20",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "frontend/assets/dsir_dou.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "343027",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Kylian Mbappé",
+            "jersey": "10",
+            "rating": 7.0,
+            "pos": "RM",
+            "photo": "frontend/assets/kylian_mbapp.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "278",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rayan Cherki",
+            "jersey": "24",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/rayan_cherki.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "156477",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Bradley Barcola",
+            "jersey": "12",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/bradley_barcola.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "161904",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ibrahima Konaté",
+            "jersey": "15",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/ibrahima_konat.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1145",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Malo Gusto",
+            "jersey": "2",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/malo_gusto.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "161907",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jean-Philippe Mateta",
+            "jersey": "22",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/jean_philippe_mateta.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "25927",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Brice Samba",
+            "jersey": "1",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/brice_samba.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "21628",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Robin Risser",
+            "jersey": "23",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/robin_risser.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "347211",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lucas Digne",
+            "jersey": "3",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/lucas_digne.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2724",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "William Saliba",
+            "jersey": "17",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/william_saliba.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "22090",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lucas Hernández",
+            "jersey": "21",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/lucas_hernndez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "33",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "N'Golo Kanté",
+            "jersey": "13",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/ngolo_kant.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2290",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Adrien Rabiot",
+            "jersey": "14",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/adrien_rabiot.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "272",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Warren Zaïre-Emery",
+            "jersey": "18",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/warren_zare_emery.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "336657",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Maghnes Akliouche",
+            "jersey": "25",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/maghnes_akliouche.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "274300",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marcus Thuram",
+            "jersey": "9",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/marcus_thuram.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "21509",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchevents_norway_vs_france_27 jun 2026": [
+        {
+            "minute": "7",
+            "scorer": "Ousmane Dembélé",
+            "assist": "Kylian Mbappé",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "20",
+            "scorer": "Ousmane Dembélé",
+            "assist": "Kylian Mbappé",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "21",
+            "scorer": "Thelo Aasgaard",
+            "assist": "Andreas Schjelderup",
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "32",
+            "scorer": "Ousmane Dembélé",
+            "assist": "Aurélien Tchouaméni",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        },
+        {
+            "minute": "50",
+            "scorer": "Jørgen Strand Larsen",
+            "assist": null,
+            "team": "Norway",
+            "ownGoal": false,
+            "penalty": true,
+            "text": "Missed Penalty"
+        },
+        {
+            "minute": "90+4",
+            "scorer": "Désiré Doué",
+            "assist": "Bradley Barcola",
+            "team": "France",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        }
+    ],
+    "spain_vs_uruguay_27 jun 2026": [
+        {
+            "name": "Unai Simón",
+            "jersey": "23",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "frontend/assets/unai_simn.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "47270",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marc Cucurella",
+            "jersey": "24",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "frontend/assets/marc_cucurella.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47380",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Aymeric Laporte",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/aymeric_laporte.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "622",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Pau Cubarsí",
+            "jersey": "22",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/pau_cubars.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "396623",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marcos Llorente",
+            "jersey": "5",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/marcos_llorente.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "753",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rodri",
+            "jersey": "16",
+            "rating": 7.0,
+            "pos": "LDM",
+            "photo": "frontend/assets/rodri.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "44",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Pedri",
+            "jersey": "20",
+            "rating": 7.0,
+            "pos": "RDM",
+            "photo": "frontend/assets/pedri.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "133609",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alex Baena",
+            "jersey": "15",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "frontend/assets/alex_baena.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "182219",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mikel Merino",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "CAM",
+            "photo": "frontend/assets/mikel_merino.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47311",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lamine Yamal",
+            "jersey": "19",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "frontend/assets/lamine_yamal.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "386828",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mikel Oyarzabal",
+            "jersey": "21",
+            "rating": 7.0,
+            "pos": "ST",
+            "photo": "frontend/assets/mikel_oyarzabal.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47323",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Fabián Ruiz",
+            "jersey": "8",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/fabin_ruiz.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "328",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Dani Olmo",
+            "jersey": "10",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/dani_olmo.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1323",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Yéremy Pino",
+            "jersey": "11",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/yremy_pino.jpg",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "184226",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nico Williams",
+            "jersey": "17",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/nico_williams.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "183799",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ferran Torres",
+            "jersey": "7",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/ferran_torres.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "931",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Joan García",
+            "jersey": "13",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/joan_garca.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "182718",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "David Raya",
+            "jersey": "1",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/david_raya.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "19465",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marc Pubill",
+            "jersey": "2",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/marc_pubill.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "295793",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Eric García",
+            "jersey": "4",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/eric_garca.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "619",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Pedro Porro",
+            "jersey": "12",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/pedro_porro.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47519",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Pablo Gavi",
+            "jersey": "9",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/pablo_gavi.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "296667",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Martín Zubimendi",
+            "jersey": "18",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/martn_zubimendi.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47315",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alejandro Grimaldo",
+            "jersey": "3",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/alejandro_grimaldo.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "563",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Borja Iglesias",
+            "jersey": "26",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/borja_iglesias.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47348",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Víctor Muñoz",
+            "jersey": "25",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/vctor_muoz.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "338751",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchstats_spain_vs_uruguay_27 jun 2026": {
+        "possession": [
+            33,
+            67
+        ],
+        "shots": [
+            5,
+            6
+        ],
+        "shotsOnTarget": [
+            1,
+            1
+        ],
+        "bigChances": [
+            0,
+            0
+        ],
+        "passes": [
+            301,
+            623
+        ],
+        "corners": [
+            1,
+            6
+        ],
+        "fouls": [
+            14,
+            14
+        ],
+        "yellowCards": [
+            3,
+            1
+        ],
+        "offsides": [
+            5,
+            2
+        ],
+        "predicted_score": [
+            0,
+            1
+        ]
+    },
+    "matchevents_spain_vs_uruguay_27 jun 2026": [
+        {
+            "minute": "42",
+            "scorer": "A. Baena",
+            "assist": "M. Llorente",
+            "team": "Spain",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Normal Goal"
+        }
+    ],
+    "uruguay_vs_spain_27 jun 2026": [
+        {
+            "name": "Fernando Muslera",
+            "jersey": "23",
+            "rating": 7.0,
+            "pos": "GK",
+            "photo": "frontend/assets/fernando_muslera.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "429",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Juan Sanabria",
+            "jersey": "25",
+            "rating": 7.0,
+            "pos": "LB",
+            "photo": "frontend/assets/juan_sanabria.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "162891",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mathías Olivera",
+            "jersey": "16",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/mathas_olivera.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "47254",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sebastián Cáceres",
+            "jersey": "3",
+            "rating": 7.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/sebastin_cceres.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51535",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Guillermo Varela",
+            "jersey": "13",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/guillermo_varela.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "1290",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Manuel Ugarte",
+            "jersey": "5",
+            "rating": 7.0,
+            "pos": "DM",
+            "photo": "frontend/assets/manuel_ugarte.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51494",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Maximiliano Araújo",
+            "jersey": "20",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "none",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51776",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Federico Valverde",
+            "jersey": "8",
+            "rating": 7.0,
+            "pos": "LAM",
+            "photo": "frontend/assets/federico_valverde.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "756",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rodrigo Bentancur",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "RAM",
+            "photo": "frontend/assets/rodrigo_bentancur.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "863",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Agustín Canobbio",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "frontend/assets/agustn_canobbio.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51603",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Darwin Núñez",
+            "jersey": "9",
+            "rating": 7.0,
+            "pos": "ST",
+            "photo": "frontend/assets/darwin_nez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51617",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nicolás de la Cruz",
+            "jersey": "7",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/nicols_de_la_cruz.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "5995",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sergio Rochet",
+            "jersey": "1",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/sergio_rochet.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "50077",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Federico Viñas",
+            "jersey": "21",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/federico_vias.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51530",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Brian Rodríguez",
+            "jersey": "18",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/brian_rodrguez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51618",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Santiago Mele",
+            "jersey": "12",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/santiago_mele.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "61895",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Matías Viña",
+            "jersey": "17",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/matas_via.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51572",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Santiago Bueno",
+            "jersey": "24",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/santiago_bueno.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "135334",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "José María Giménez",
+            "jersey": "2",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/jos_mara_gimnez.jpg",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "31",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ronald Araújo",
+            "jersey": "4",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/ronald_arajo.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "101814",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Joaquín Piquerez",
+            "jersey": "22",
+            "rating": 6.0,
+            "pos": "CB",
+            "photo": "frontend/assets/joaqun_piquerez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "51466",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Emiliano Martínez",
+            "jersey": "15",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/emiliano_martnez.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "153083",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Giorgian de Arrascaeta",
+            "jersey": "10",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/giorgian_de_arrascaeta.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "2612",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Facundo Pellistri",
+            "jersey": "11",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/facundo_pellistri.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "70078",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rodrigo Aguirre",
+            "jersey": "19",
+            "rating": 6.0,
+            "pos": "ST",
+            "photo": "frontend/assets/rodrigo_aguirre.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "16482",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rodrigo Zalazar",
+            "jersey": "26",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/rodrigo_zalazar.png",
+            "age": "25",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "108563",
+            "sub": true,
             "subbed_in_for": null,
             "subbed_in_minute": null
         }

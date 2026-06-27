@@ -822,6 +822,32 @@ def get_real_world_roster(
                 save_cache(current_cache)
             return roster
 
+    # 1.5 Try API-Football Integration if Key is Configured
+    if settings.API_FOOTBALL_KEY and opponent_name and match_date:
+        try:
+            logger.info(f"API-Football Key detected. Attempting high-fidelity integration for '{team_name}' vs '{opponent_name}'...")
+            from backend.loaders.api_football_client import APIFootballClient
+            client = APIFootballClient()
+            fixture_id = client.resolve_fixture_id(team_name, opponent_name, match_date)
+            if fixture_id:
+                # Fetch lineups and events
+                lineups = client.fetch_lineup(fixture_id)
+                events = client.fetch_events(fixture_id)
+                if lineups:
+                    team_id = client.resolve_team_id(team_name)
+                    if team_id:
+                        roster = client.map_lineup_to_footbot(lineups, team_id, events)
+                        if roster and len(roster) >= 11:
+                            logger.info(f"Successfully fetched and mapped roster via API-Football for team '{team_name}' (Fixture ID: {fixture_id})")
+                            ensure_player_photos(roster, team_name)
+                            current_cache = load_cache()
+                            current_cache[match_key] = roster
+                            save_cache(current_cache)
+                            return roster
+            logger.warning("API-Football integration failed or match not found, falling back to LLM/scraper pipeline.")
+        except Exception as api_err:
+            logger.error(f"Error during API-Football get_real_world_roster integration: {api_err}", exc_info=True)
+
     # 2. Match-specific search-grounded LLM query
     if match_key and rag_engine.openai_client is not None:
         logger.info(f"Match-specific roster for '{team_name}' vs '{opponent_name}' ({match_date}) not in cache. Querying web search & LLM...")
@@ -1608,10 +1634,130 @@ def get_match_stats(
                 if norm_team1 == norm_away:
                     logger.info(f"Swapping cached stats order to match requested home/away ({home} vs {away})")
                     stats_val = dict(stats_val)
-                    for k in ["possession", "shots", "bigChances", "passes", "predicted_score"]:
+                    for k in ["possession", "shots", "shotsOnTarget", "bigChances", "passes", "corners", "fouls", "yellowCards", "offsides", "predicted_score"]:
                         if k in stats_val and isinstance(stats_val[k], list) and len(stats_val[k]) == 2:
                             stats_val[k] = [stats_val[k][1], stats_val[k][0]]
             return stats_val
+
+    # 1.5 Try API-Football Integration if Key is Configured
+    if settings.API_FOOTBALL_KEY:
+        try:
+            logger.info(f"API-Football Key detected. Attempting high-fidelity stats lookup for '{home}' vs '{away}'...")
+            from backend.loaders.api_football_client import APIFootballClient
+            client = APIFootballClient()
+            fixture_id = client.resolve_fixture_id(home, away, date)
+            if fixture_id:
+                raw_stats = client.fetch_stats(fixture_id)
+                if raw_stats and raw_stats.get("response"):
+                    # Find Home and Away teams
+                    home_id = client.resolve_team_id(home)
+                    away_id = client.resolve_team_id(away)
+                    
+                    home_stats_dict = {}
+                    away_stats_dict = {}
+                    
+                    for team_data in raw_stats["response"]:
+                        t_id = team_data.get("team", {}).get("id")
+                        stats_list = team_data.get("statistics", [])
+                        
+                        target_dict = None
+                        if t_id == home_id:
+                            target_dict = home_stats_dict
+                        elif t_id == away_id:
+                            target_dict = away_stats_dict
+                        else:
+                            # Substring name matching just in case
+                            t_name = team_data.get("team", {}).get("name", "").lower()
+                            if normalize_name(t_name) == norm_home:
+                                target_dict = home_stats_dict
+                            elif normalize_name(t_name) == norm_away:
+                                target_dict = away_stats_dict
+                                
+                        if target_dict is not None:
+                            for item in stats_list:
+                                target_dict[item["type"]] = item["value"]
+                                
+                    # Extract the stats we need: possession, shots, passes, bigChances
+                    def parse_val(val) -> int:
+                        if val is None:
+                            return 0
+                        if isinstance(val, str):
+                            val = val.replace("%", "").strip()
+                        try:
+                            return int(val)
+                        except ValueError:
+                            return 0
+                            
+                    def get_metric(stats_dict: Dict[str, Any], key: str, default: Any = 0) -> Any:
+                        key_lower = key.lower()
+                        for k, v in stats_dict.items():
+                            if k.lower() == key_lower:
+                                return v
+                        return default
+                            
+                    home_poss = parse_val(get_metric(home_stats_dict, "Ball Possession", 50))
+                    away_poss = parse_val(get_metric(away_stats_dict, "Ball Possession", 50))
+                    
+                    # Ensure possession sum is 100
+                    if home_poss + away_poss != 100:
+                        if home_poss > 0 or away_poss > 0:
+                            total = home_poss + away_poss
+                            home_poss = int(round(home_poss * 100 / total))
+                            away_poss = 100 - home_poss
+                        else:
+                            home_poss, away_poss = 50, 50
+                            
+                    home_shots = parse_val(get_metric(home_stats_dict, "Total Shots", 0))
+                    away_shots = parse_val(get_metric(away_stats_dict, "Total Shots", 0))
+                    
+                    home_passes = parse_val(get_metric(home_stats_dict, "Total passes", 0))
+                    if home_passes == 0:
+                        home_passes = parse_val(get_metric(home_stats_dict, "Passes total", 0))
+                    away_passes = parse_val(get_metric(away_stats_dict, "Total passes", 0))
+                    if away_passes == 0:
+                        away_passes = parse_val(get_metric(away_stats_dict, "Passes total", 0))
+                        
+                    # Estimate/Parse Big Chances
+                    home_s_on_goal = parse_val(get_metric(home_stats_dict, "Shots on Goal", 0))
+                    away_s_on_goal = parse_val(get_metric(away_stats_dict, "Shots on Goal", 0))
+                    
+                    home_big = parse_val(get_metric(home_stats_dict, "Big Chances Created", home_s_on_goal // 3))
+                    away_big = parse_val(get_metric(away_stats_dict, "Big Chances Created", away_s_on_goal // 3))
+                    
+                    home_big = max(0, home_big)
+                    away_big = max(0, away_big)
+
+                    home_corners = parse_val(get_metric(home_stats_dict, "Corner Kicks", 0))
+                    away_corners = parse_val(get_metric(away_stats_dict, "Corner Kicks", 0))
+                    home_fouls = parse_val(get_metric(home_stats_dict, "Fouls", 0))
+                    away_fouls = parse_val(get_metric(away_stats_dict, "Fouls", 0))
+                    home_yellow = parse_val(get_metric(home_stats_dict, "Yellow Cards", 0))
+                    away_yellow = parse_val(get_metric(away_stats_dict, "Yellow Cards", 0))
+                    home_offsides = parse_val(get_metric(home_stats_dict, "Offsides", 0))
+                    away_offsides = parse_val(get_metric(away_stats_dict, "Offsides", 0))
+                    
+                    stats_val = {
+                        "possession": [home_poss, away_poss],
+                        "shots": [home_shots, away_shots],
+                        "shotsOnTarget": [home_s_on_goal, away_s_on_goal],
+                        "bigChances": [home_big, away_big],
+                        "passes": [home_passes, away_passes],
+                        "corners": [home_corners, away_corners],
+                        "fouls": [home_fouls, away_fouls],
+                        "yellowCards": [home_yellow, away_yellow],
+                        "offsides": [home_offsides, away_offsides],
+                        "predicted_score": [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
+                    }
+                    
+                    # Save in cache
+                    current_cache = load_cache()
+                    current_cache[cache_key] = stats_val
+                    save_cache(current_cache)
+                    logger.info(f"Successfully fetched and cached stats via API-Football (Fixture ID: {fixture_id})")
+                    return stats_val
+            logger.warning("API-Football stats integration missed, falling back to ESPN/LLM pipeline.")
+        except Exception as stats_err:
+            logger.error(f"Error fetching stats from API-Football: {stats_err}", exc_info=True)
 
     is_future = is_future_match(norm_date)
 
@@ -2043,6 +2189,47 @@ def get_match_events(
             logger.info(f"Match events for '{home}' vs '{away}' found in cache")
             return cached_val
         logger.info(f"Skipping empty event cache for today's live match '{home}' vs '{away}', re-fetching...")
+
+    # 1.5 Try API-Football Integration if Key is Configured
+    if settings.API_FOOTBALL_KEY:
+        try:
+            logger.info(f"API-Football Key detected. Attempting high-fidelity events lookup for '{home}' vs '{away}'...")
+            from backend.loaders.api_football_client import APIFootballClient
+            client = APIFootballClient()
+            fixture_id = client.resolve_fixture_id(home, away, date)
+            if fixture_id:
+                raw_events = client.fetch_events(fixture_id)
+                if raw_events and raw_events.get("response"):
+                    goals = []
+                    for ev in raw_events["response"]:
+                        if ev.get("type") == "Goal":
+                            time_info = ev.get("time", {})
+                            elapsed = time_info.get("elapsed", 0)
+                            extra = time_info.get("extra")
+                            minute_str = f"{elapsed}" if not extra else f"{elapsed}+{extra}"
+                            
+                            detail = ev.get("detail", "Normal Goal")
+                            is_own_goal = "own-goal" in detail.lower() or "own goal" in detail.lower()
+                            is_penalty = "penalty" in detail.lower()
+                            
+                            goals.append({
+                                "minute": minute_str,
+                                "scorer": ev.get("player", {}).get("name", "Unknown"),
+                                "assist": ev.get("assist", {}).get("name"),
+                                "team": ev.get("team", {}).get("name", ""),
+                                "ownGoal": is_own_goal,
+                                "penalty": is_penalty,
+                                "text": detail
+                            })
+                            
+                    current_cache = load_cache()
+                    current_cache[cache_key] = goals
+                    save_cache(current_cache)
+                    logger.info(f"Successfully fetched and cached {len(goals)} goal events via API-Football (Fixture ID: {fixture_id})")
+                    return goals
+            logger.warning("API-Football events integration missed, falling back to ESPN/LLM pipeline.")
+        except Exception as api_err:
+            logger.error(f"Error fetching events from API-Football: {api_err}", exc_info=True)
 
     espn_date = _espn_date_from_norm(norm_date)
     event_id = None

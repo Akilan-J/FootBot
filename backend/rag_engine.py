@@ -116,16 +116,33 @@ def retrieve_historical_matches_context(query: str) -> str:
     except ImportError:
         return ""
         
-    words = re.findall(r"\b[A-Z][a-zA-Z]+\b", query)
-    if not words:
-        words = [w for w in query.split() if len(w) > 3]
+    # Extract alphabetic words of length >= 3
+    raw_words = re.findall(r"\b[a-zA-Z]+\b", query)
+    exclude_words = {
+        "versus", "vs", "compare", "analysis", "tactics", "tactical", "formation", "board",
+        "play", "player", "players", "coach", "coaches", "manager", "managers", "team", "teams",
+        "score", "scores", "result", "results", "match", "matches", "game", "games", "what", "show",
+        "tell", "explain", "about", "league", "group", "cup", "world", "final", "semi", "quarter",
+        "tiki", "taka", "juego", "posicion", "press", "pressing", "counter", "gegenpress", "gegenpressing",
+        "inverted", "fullback", "fullbacks", "pivot", "pivots", "midfielder", "midfielders", "striker",
+        "strikers", "winger", "wingers", "defender", "defenders", "goalkeeper", "goalkeepers", "goal",
+        "goals", "assist", "assists", "shot", "shots", "pass", "passes", "possession", "defense",
+        "fc", "united", "city", "real", "club", "town", "county", "athletic", "some", "more", "detail",
+        "details", "information", "info", "history", "recent", "past", "last", "latest", "next",
+        "today", "yesterday", "tomorrow", "live", "feed", "news", "report", "reports", "stats",
+        "statistics", "scouting", "analyst", "analysis", "tactician", "tactical", "opinion", "opinions"
+    }
+    
+    words = []
+    for w in raw_words:
+        w_clean = w.strip()
+        if w_clean.lower() not in exclude_words and len(w_clean) >= 3:
+            words.append(w_clean)
         
     found_matches = []
     seen = set()
     
     for word in words:
-        if word.lower() in ["fc", "united", "city", "real", "club", "town", "county", "athletic", "versus"]:
-            continue
         matches = search_historical_matches(word)
         for m in matches:
             match_key = f"{m['home_team']}__{m['away_team']}__{m['match_date']}"
@@ -265,6 +282,126 @@ class RAGEngine:
         except Exception as e:
             logger.error(f"Error during similarity search: {str(e)}")
             return []
+
+    def _expand_query(self, query: str) -> List[str]:
+        """
+        Uses the LLM to generate 3 alternative query formulations for better RAG retrieval.
+        Returns a list of queries including the original query.
+        """
+        if self.openai_client is None:
+            return [query]
+            
+        try:
+            prompt = (
+                f"You are a helpful assistant that generates alternative search queries for retrieval-augmented generation.\n"
+                f"Generate exactly 3 alternative search queries focused on retrieving documents that will help answer the user's tactical question.\n"
+                f"Make sure they focus on different aspects, keywords, or synonyms (e.g. 'counter-pressing' vs 'Gegenpress').\n"
+                f"Output exactly 3 queries, one per line. Do not number them or add any other text.\n\n"
+                f"User Question: {query}"
+            )
+            
+            completion = self.openai_client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "You are a professional assistant that generates search query formulations. Output only the queries, one per line, without any numbering, bullet points, introduction, or formatting."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=300
+            )
+            raw = completion.choices[0].message.content
+            if raw:
+                lines = [line.strip() for line in raw.split("\n") if line.strip()]
+                # Strip numbering prefix if LLM didn't follow instructions perfectly
+                cleaned_lines = []
+                for line in lines:
+                    cleaned_line = re.sub(r"^\d+[\.\-\s]+", "", line).strip()
+                    cleaned_line = re.sub(r"^[\-\*\s]+", "", cleaned_line).strip()
+                    if cleaned_line:
+                        cleaned_lines.append(cleaned_line)
+                if cleaned_lines:
+                    logger.info(f"Expanded query '{query}' into: {cleaned_lines}")
+                    return [query] + cleaned_lines[:3]
+        except Exception as e:
+            logger.error(f"Error during query expansion: {e}")
+            
+        return [query]
+
+    def _llm_rerank(self, query: str, candidates: List[Document], top_k: int) -> List[Tuple[Document, float]]:
+        """
+        Scores retrieved document candidate chunks on a scale of 0 to 10 based on their direct relevance
+        to the user's tactical query. Returns the top_k candidates sorted by relevance score.
+        """
+        import json
+        if self.openai_client is None or not candidates:
+            # Fallback to returning candidates with index-based default scores if LLM client is unavailable
+            return [(doc, 1.0 - (idx * 0.05)) for idx, doc in enumerate(candidates[:top_k])]
+            
+        try:
+            logger.info(f"Re-ranking {len(candidates)} document chunks using LLM...")
+            
+            # Format chunks with identifiers for LLM evaluation
+            chunks_text = ""
+            for idx, doc in enumerate(candidates):
+                content_preview = doc.page_content.replace("\n", " ").strip()
+                chunks_text += f"ID: {idx}\nSource: {doc.metadata.get('source', 'Unknown')}\nContent: {content_preview[:800]}\n---\n"
+                
+            prompt = (
+                f"You are an elite football tactical analyst grading retrieved context documents for their relevance to a user query.\n"
+                f"User Query: \"{query}\"\n\n"
+                f"Evaluate each document chunk below and assign it a relevance score from 0.0 (entirely irrelevant) to 10.0 (highly relevant, directly answers the query or provides critical context).\n"
+                f"Respond with a raw JSON object mapping each integer ID to its float score. Example:\n"
+                f"{{\n"
+                f"  \"0\": 8.5,\n"
+                f"  \"1\": 2.0\n"
+                f"}}\n"
+                f"Output only the raw JSON object. Do not include any reasoning, markdown formatting, or HTML tags.\n\n"
+                f"Retrieve chunks to evaluate:\n"
+                f"{chunks_text}"
+            )
+            
+            completion = self.openai_client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "You are a professional grader returning raw JSON scoring objects only. Do not wrap in markdown blocks."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.1,
+                max_tokens=500
+            )
+            
+            raw_content = completion.choices[0].message.content
+            if raw_content:
+                cleaned = raw_content.strip()
+                if cleaned.startswith("```json"):
+                    cleaned = cleaned[7:]
+                if cleaned.endswith("```"):
+                    cleaned = cleaned[:-3]
+                cleaned = cleaned.strip()
+                
+                try:
+                    scores_dict = json.loads(cleaned)
+                except Exception as json_e:
+                    logger.warning(f"Standard JSON parsing failed, falling back to regex extraction: {json_e}")
+                    scores_dict = {}
+                    # Find all "key": value pairs
+                    pairs = re.findall(r'["\']?(\d+)["\']?\s*:\s*(\d+\.?\d*)', cleaned)
+                    for k, v in pairs:
+                        scores_dict[k] = float(v)
+                
+                scored_docs = []
+                for idx, doc in enumerate(candidates):
+                    score = float(scores_dict.get(str(idx), scores_dict.get(idx, 0.0)))
+                    scored_docs.append((doc, score))
+                    
+                scored_docs.sort(key=lambda x: x[1], reverse=True)
+                logger.info(f"Re-ranked {len(scored_docs)} chunks. Top score: {scored_docs[0][1] if scored_docs else 0.0}")
+                return scored_docs[:top_k]
+        except Exception as e:
+            logger.error(f"Error during LLM re-ranking: {e}")
+            
+        # Fallback to index order
+        return [(doc, 1.0 - (idx * 0.05)) for idx, doc in enumerate(candidates[:top_k])]
 
     def _clean_search_query(self, query: str) -> str:
         """Simplifies the search query for search engine compatibility."""
@@ -413,37 +550,63 @@ class RAGEngine:
         # Query local historical SQLite matches
         historical_context = retrieve_historical_matches_context(query)
         
-        # 2. Retrieve Local Context Chunks via Hybrid Search (BM25 + FAISS Vector)
-        logger.info(f"Running Hybrid Search for query: '{query}'")
-        dense_results = self.retrieve_context(query, top_k * 2)
+        # 2. Retrieve Local Context Chunks via Hybrid Search (BM25 + FAISS Vector) with Query Expansion
+        logger.info(f"Running Hybrid Search with Query Expansion for query: '{query}'")
+        queries = self._expand_query(query)
         
-        lexical_results = []
-        if self.vector_store:
-            # Lazy initialize if needed
-            if self.bm25_searcher is None:
-                try:
-                    if hasattr(self.vector_store, 'docstore') and hasattr(self.vector_store.docstore, '_dict'):
-                        all_docs = list(self.vector_store.docstore._dict.values())
-                        if all_docs:
-                            self.bm25_searcher = BM25Searcher(all_docs)
-                            logger.info(f"Compiled lazy BM25 index with {len(all_docs)} documents.")
-                except Exception as e:
-                    logger.error(f"Error compiling lazy BM25 index: {str(e)}")
+        all_dense_results = []
+        all_lexical_results = []
+        
+        # Lazy compile BM25 searcher if needed
+        if self.vector_store and self.bm25_searcher is None:
+            try:
+                if hasattr(self.vector_store, 'docstore') and hasattr(self.vector_store.docstore, '_dict'):
+                    all_docs = list(self.vector_store.docstore._dict.values())
+                    if all_docs:
+                        self.bm25_searcher = BM25Searcher(all_docs)
+                        logger.info(f"Compiled lazy BM25 index with {len(all_docs)} documents.")
+            except Exception as e:
+                logger.error(f"Error compiling lazy BM25 index: {str(e)}")
+                
+        for q in queries:
+            dense_q = self.retrieve_context(q, top_k * 3)
+            all_dense_results.extend(dense_q)
             
             if self.bm25_searcher is not None:
                 try:
-                    lexical_results = self.bm25_searcher.search(query, top_k * 2)
+                    lexical_q = self.bm25_searcher.search(q, top_k * 3)
+                    all_lexical_results.extend(lexical_q)
                 except Exception as e:
-                    logger.error(f"Error searching BM25 index: {str(e)}")
-                
-        # Perform Reciprocal Rank Fusion (RRF)
-        retrieved_results = reciprocal_rank_fusion(dense_results, lexical_results, top_k=top_k)
-        logger.info(f"RRF Hybrid Search fused {len(dense_results)} dense and {len(lexical_results)} lexical results into top-{len(retrieved_results)} chunks.")
+                    logger.error(f"Error searching BM25 index for query '{q}': {str(e)}")
+                    
+        # Deduplicate dense and lexical lists based on page content to avoid RRF noise
+        def deduplicate_results(results):
+            seen_content = set()
+            deduped = []
+            for doc, score in results:
+                content_summary = doc.page_content[:150]
+                if content_summary not in seen_content:
+                    seen_content.add(content_summary)
+                    deduped.append((doc, score))
+            return deduped
+
+        deduped_dense = deduplicate_results(all_dense_results)
+        deduped_lexical = deduplicate_results(all_lexical_results)
+
+        # Merge candidates using RRF (ranking candidates over all expanded query formulations)
+        fused_candidates = reciprocal_rank_fusion(deduped_dense, deduped_lexical, top_k=top_k * 3)
+        candidate_docs = [doc for doc, score in fused_candidates]
         
-        # Evaluate local matching quality (relying on dense vector score)
+        # 3. LLM-Based Re-ranking to extract the top-k highest-quality chunks
+        retrieved_results = self._llm_rerank(query, candidate_docs, top_k)
+        
+        logger.info(f"Query Expansion & Hybrid Search retrieved {len(candidate_docs)} candidates; LLM Re-ranking selected top-{len(retrieved_results)} chunks.")
+        
+        # Evaluate local matching quality (relying on dense vector score of the original query)
         is_local_rag_sufficient = False
-        if dense_results:
-            max_dense_score = dense_results[0][1]
+        original_dense = self.retrieve_context(query, 1)
+        if original_dense:
+            max_dense_score = original_dense[0][1]
             if max_dense_score >= settings.RAG_SIMILARITY_THRESHOLD:
                 is_local_rag_sufficient = True
                 
@@ -451,7 +614,7 @@ class RAGEngine:
         is_web_search_active = False
         web_results = []
         if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient and not is_live_matches_active:
-            logger.info(f"Local RAG dense matches insufficient (max dense score: {dense_results[0][1] if dense_results else 0.0:.3f} < threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
+            logger.info(f"Local RAG dense matches insufficient (max dense score: {original_dense[0][1] if original_dense else 0.0:.3f} < threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
             web_results = self.web_search_fallback(query, max_results=3)
             if web_results:
                 is_web_search_active = True

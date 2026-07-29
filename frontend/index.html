@@ -748,7 +748,9 @@ input[type=range]::-webkit-slider-thumb{
           </div>
           <div>
             <div class="ctrl-section-title">Team Name</div>
-            <input class="ctrl-select" id="team-name-input" type="text" placeholder="My Team" value="My Team" style="border-radius:10px;padding:10px 12px;" oninput="renderPitch()">
+            <input class="ctrl-select" id="team-name-input" type="text" placeholder="My Team" value="My Team" style="border-radius:10px;padding:10px 12px;" oninput="renderPitch()" onkeydown="if(event.key==='Enter'){event.preventDefault();loadRealTeamRoster();}">
+            <button class="ctrl-select" id="load-real-team-btn" onclick="loadRealTeamRoster()" style="margin-top:8px;cursor:pointer;background:rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);color:var(--emerald);">⚽ Load Real Squad</button>
+            <div id="real-team-status" style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.4;"></div>
           </div>
         </div>
         <div class="pitch-wrap">
@@ -1366,6 +1368,44 @@ function getPlayerName(role, idx) {
   return arr[idx % arr.length];
 }
 
+// Real squad loaded from the backend (/roster), keyed by pitch node index (0 = GK,
+// then defenders, midfielders, forwards - matching the order get_real_world_roster()
+// returns starters in). When null, the board falls back to the placeholder
+// PLAYER_NAMES pool + randomized ratings above.
+let loadedRosterPlayers = null;
+
+async function loadRealTeamRoster() {
+  const input = document.getElementById('team-name-input');
+  const statusEl = document.getElementById('real-team-status');
+  const teamName = input.value.trim();
+  if (!teamName) {
+    statusEl.textContent = 'Enter a team name first.';
+    statusEl.style.color = '#f59e0b';
+    return;
+  }
+  statusEl.textContent = `Loading ${teamName}...`;
+  statusEl.style.color = 'var(--text-muted)';
+  try {
+    const res = await fetch(`${BACKEND_URL}/roster?team_name=${encodeURIComponent(teamName)}`);
+    const data = await res.json();
+    if (res.ok && data.status === 'success' && Array.isArray(data.roster) && data.roster.length > 0) {
+      loadedRosterPlayers = data.roster;
+      if (data.formation && document.querySelector(`#formation-select option[value="${data.formation}"]`)) {
+        document.getElementById('formation-select').value = data.formation;
+      }
+      statusEl.textContent = `Loaded ${data.roster.length} real players for ${teamName}.`;
+      statusEl.style.color = 'var(--emerald)';
+    } else {
+      statusEl.textContent = `Couldn't find a roster for "${teamName}" - showing placeholder shape.`;
+      statusEl.style.color = '#ef4444';
+    }
+  } catch (e) {
+    statusEl.textContent = 'Network error reaching backend - showing placeholder shape.';
+    statusEl.style.color = '#ef4444';
+  }
+  renderPitch();
+}
+
 function renderPitch() {
   const canvas = document.getElementById('pitch-canvas');
   const wrap = canvas.parentElement;
@@ -1450,10 +1490,15 @@ function renderPitch() {
       if (overloadRight && xp > 60) xp = Math.min(92, xp + 6);
 
       const [cx,cy] = px(xp, yp);
-      const name = getPlayerName(role==='gk'?'gk':role==='def'?'def':role==='fwd'?'fwd':'mid', pi+nodeIdx);
-      const rating = (6.5 + Math.random()*2.4).toFixed(1);
+      const realPlayer = loadedRosterPlayers ? loadedRosterPlayers[nodeIdx] : null;
+      const name = realPlayer && realPlayer.name
+        ? realPlayer.name
+        : getPlayerName(role==='gk'?'gk':role==='def'?'def':role==='fwd'?'fwd':'mid', pi+nodeIdx);
+      const rating = realPlayer && realPlayer.rating != null
+        ? Number(realPlayer.rating).toFixed(1)
+        : (6.5 + Math.random()*2.4).toFixed(1);
       const ratingColor = rating >= 8 ? '#10b981' : rating >= 7 ? '#f59e0b' : '#ef4444';
-      const num = nodeIdx + 1;
+      const num = realPlayer && realPlayer.jersey ? realPlayer.jersey : nodeIdx + 1;
 
       pitchPlayers.push({ x:cx, y:cy, name, rating, role, num, xp, yp });
 

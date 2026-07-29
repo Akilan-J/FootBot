@@ -326,6 +326,8 @@ def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(Non
         # 5. Inject session ID into return dict
         analysis_result["session_id"] = session_id
         return analysis_result
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error during chat generation: {str(e)}")
         raise HTTPException(

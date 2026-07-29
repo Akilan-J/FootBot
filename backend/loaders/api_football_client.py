@@ -1,6 +1,9 @@
 import requests
 import re
 import datetime
+import threading
+import time
+import collections
 from typing import Dict, Any, List, Optional
 from backend.config import settings
 from backend.utils import logger
@@ -10,6 +13,47 @@ from backend.database import (
     get_api_fixture_id,
     save_api_fixture_id
 )
+
+# API-Football's free tier caps requests at 10/minute. Enforce a shared, thread-safe
+# budget (FastAPI runs sync endpoints in a thread pool, so concurrent requests - e.g.
+# rendering many match cards' logos at once - previously fired in an uncoordinated
+# burst and instantly tripped the limit, causing most lookups to fail with 429 and
+# never resolve). Staying under the cap means every call eventually succeeds and gets
+# cached, instead of racing to fail.
+_RATE_LOCK = threading.Lock()
+_REQUEST_TIMESTAMPS: collections.deque = collections.deque()
+_MAX_REQUESTS_PER_MINUTE = 9
+
+def _throttle_api_football_request() -> None:
+    while True:
+        with _RATE_LOCK:
+            now = time.time()
+            while _REQUEST_TIMESTAMPS and now - _REQUEST_TIMESTAMPS[0] > 60:
+                _REQUEST_TIMESTAMPS.popleft()
+            if len(_REQUEST_TIMESTAMPS) < _MAX_REQUESTS_PER_MINUTE:
+                _REQUEST_TIMESTAMPS.append(now)
+                return
+            sleep_for = 60 - (now - _REQUEST_TIMESTAMPS[0]) + 0.1
+        time.sleep(max(sleep_for, 0.1))
+
+# Negative-result cache: avoids repeatedly burning rate-limit budget on team names
+# that are known not to resolve (e.g. made-up names, or names that failed during a
+# prior rate-limited window). Cooldown, not permanent, since a transient failure
+# shouldn't block a name forever.
+_UNRESOLVED_TEAM_COOLDOWN_SECONDS = 600
+_unresolved_teams: Dict[str, float] = {}
+
+# Common shorthand -> the official name API-Football actually indexes the club under.
+# Verified against the live API (each maps to the intended club's well-known low team
+# ID, e.g. Manchester City=50, Manchester United=33, Tottenham=47, Barcelona=529).
+TEAM_NAME_ALIASES: Dict[str, str] = {
+    "man city": "Manchester City",
+    "man utd": "Manchester United",
+    "man united": "Manchester United",
+    "spurs": "Tottenham",
+    "psg": "Paris Saint Germain",
+    "barca": "Barcelona",
+}
 
 class APIFootballClient:
     def __init__(self):
@@ -25,6 +69,7 @@ class APIFootballClient:
             return None
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         try:
+            _throttle_api_football_request()
             logger.info(f"API-Football GET request: {url} with params {params}")
             response = requests.get(url, headers=self.headers, params=params, timeout=10.0)
             if response.status_code != 200:
@@ -54,11 +99,27 @@ class APIFootballClient:
         if not team_name_clean:
             return None
 
+        # 0. Common football shorthand doesn't match API-Football's official naming well:
+        # e.g. searching "Man City" returns an unrelated Ghanaian club ("Techiman City")
+        # rather than Manchester City, because API-Football has no fuzzy alias handling of
+        # its own. Normalize known shorthand to the official name it actually indexes under
+        # before doing anything else, so the cache key and the query are both canonical.
+        canonical = TEAM_NAME_ALIASES.get(team_name_clean.lower())
+        if canonical:
+            team_name_clean = canonical
+
         # 1. Check database cache
         cached_id = get_api_team_id(team_name_clean)
         if cached_id is not None:
             logger.info(f"Resolved team '{team_name_clean}' from DB cache: {cached_id}")
             return cached_id
+
+        # 1.5 Skip names that recently failed to resolve, rather than re-spending
+        # rate-limit budget on them every time they're requested again.
+        cache_key = team_name_clean.lower()
+        last_failed_at = _unresolved_teams.get(cache_key)
+        if last_failed_at is not None and time.time() - last_failed_at < _UNRESOLVED_TEAM_COOLDOWN_SECONDS:
+            return None
 
         # 2. Try exact name lookup on API-Football
         params = {"name": team_name_clean}
@@ -94,6 +155,7 @@ class APIFootballClient:
             return team_id
 
         logger.warning(f"Could not resolve team ID for '{team_name_clean}'")
+        _unresolved_teams[cache_key] = time.time()
         return None
 
     def resolve_fixture_id(self, home: str, away: str, date_str: str) -> Optional[int]:

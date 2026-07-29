@@ -18,14 +18,41 @@ st.set_page_config(
 # --- Session State Initialization ---
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = True
-if "token" not in st.session_state:
-    st.session_state.token = "default_coach"
 if "username" not in st.session_state:
     st.session_state.username = "Coach Akilan"
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "active_session_id" not in st.session_state:
     st.session_state.active_session_id = None
+
+# This client has no login screen of its own: it logs into a single shared
+# "legacy demo" backend account to obtain an opaque X-User-Token (falling back to
+# registering that account on first run). The backend seeds the same account id so
+# pre-existing chat history stays reachable. See backend/config.py LEGACY_DEMO_*.
+# There is no default password: FOOTBOT_LEGACY_DEMO_PASSWORD must be set (matching
+# the backend) or this shim stays disabled and the app runs without a token.
+_LEGACY_DEMO_USERNAME = os.getenv("FOOTBOT_LEGACY_DEMO_USERNAME", "default_coach")
+_LEGACY_DEMO_PASSWORD = os.getenv("FOOTBOT_LEGACY_DEMO_PASSWORD", "")
+
+def _bootstrap_demo_token() -> Optional[str]:
+    """Logs into (or registers) the shared demo account and returns its session token,
+    or None if FOOTBOT_LEGACY_DEMO_PASSWORD isn't set or the backend is unreachable."""
+    if not _LEGACY_DEMO_PASSWORD:
+        return None
+    creds = {"username": _LEGACY_DEMO_USERNAME, "password": _LEGACY_DEMO_PASSWORD}
+    try:
+        resp = requests.post(f"{BACKEND_URL}/login", json=creds, timeout=5)
+        if resp.status_code == 200:
+            return resp.json().get("token")
+        resp = requests.post(f"{BACKEND_URL}/register", json=creds, timeout=5)
+        if resp.status_code == 201:
+            return resp.json().get("token")
+    except requests.exceptions.RequestException:
+        pass
+    return None
+
+if "token" not in st.session_state:
+    st.session_state.token = _bootstrap_demo_token()
 
 # --- Premium Custom Styling (Aesthetics) ---
 st.markdown("""
@@ -484,6 +511,8 @@ def get_historical_matches_feed() -> List[Dict[str, Any]]:
 
 def download_session_pdf(session_id: str) -> Optional[bytes]:
     """Downloads ReportLab tactical dossier PDF bytes from backend."""
+    if not st.session_state.token:
+        return None
     try:
         headers = {"X-User-Token": st.session_state.token}
         response = requests.get(f"{BACKEND_URL}/sessions/{session_id}/pdf", headers=headers, timeout=20)
@@ -596,6 +625,8 @@ if st.sidebar.button("➕ Start New Session", use_container_width=True):
 
 # Fetch and display saved sessions (Strict user-tenant token separation)
 try:
+    if not st.session_state.token:
+        raise requests.exceptions.RequestException("No session token available.")
     headers = {"X-User-Token": st.session_state.token}
     sessions_res = requests.get(f"{BACKEND_URL}/sessions", headers=headers, timeout=3)
     if sessions_res.status_code == 200:

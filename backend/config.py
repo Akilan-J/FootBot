@@ -30,6 +30,18 @@ class Settings:
     WEB_SEARCH_ENABLED: bool = os.getenv("WEB_SEARCH_ENABLED", "True").lower() == "true"
     RAG_SIMILARITY_THRESHOLD: float = float(os.getenv("RAG_SIMILARITY_THRESHOLD", "0.35"))
 
+    # Auth session tokens issued on /login and /register (default: 30 days)
+    SESSION_TOKEN_TTL_SECONDS: int = int(os.getenv("SESSION_TOKEN_TTL_SECONDS", str(30 * 24 * 3600)))
+
+    # Legacy single-tenant demo account: frontend/app.py has no login screen and used to
+    # send the literal user id "default_coach" as X-User-Token. This account is seeded so
+    # pre-existing chat history (stored under that user id) stays reachable once the
+    # frontend logs in for a real opaque session token instead.
+    # No default password: it must be set explicitly, so a shared, publicly-known
+    # credential is never the working default for this account.
+    LEGACY_DEMO_USERNAME: str = os.getenv("FOOTBOT_LEGACY_DEMO_USERNAME", "default_coach")
+    LEGACY_DEMO_PASSWORD: str = os.getenv("FOOTBOT_LEGACY_DEMO_PASSWORD", "")
+
     # Path configurations (with dynamic absolute resolution)
     _raw_path: str = os.getenv("RAW_DATA_PATH", "data/raw")
     _processed_path: str = os.getenv("PROCESSED_DATA_PATH", "data/processed")

@@ -3,6 +3,7 @@ import json
 import uuid
 import hashlib
 import os
+import secrets
 from typing import List, Dict, Any, Optional, Tuple
 from backend.config import settings
 from backend.utils import logger
@@ -88,6 +89,17 @@ def init_db() -> None:
             )
         """)
         
+        # Create Auth Tokens table (opaque bearer session tokens, separate from the permanent user id)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS auth_tokens (
+                token TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                expires_at TIMESTAMP NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            )
+        """)
+
         # Create API-Football Team Mapping table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS api_football_teams (
@@ -113,6 +125,7 @@ def init_db() -> None:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_historical_matches_teams ON historical_matches(home_team, away_team)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_football_teams_name ON api_football_teams(team_name)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_api_football_fixtures_match ON api_football_fixtures(home_team, away_team, match_date)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_auth_tokens_user_id ON auth_tokens(user_id)")
         
         conn.commit()
         
@@ -124,7 +137,34 @@ def init_db() -> None:
         except sqlite3.OperationalError:
             # Column already exists
             pass
-            
+
+        # One-time seed: pre-existing chat sessions were stored under the literal
+        # user_id "default_coach" (the frontend's hardcoded pseudo-identity, back when
+        # X-User-Token was the raw user id). Seed that id as a real user row so the
+        # frontend can log in and keep reaching that history via a minted session token.
+        # Only runs if FOOTBOT_LEGACY_DEMO_PASSWORD is explicitly set — there is no
+        # baked-in default password for this account.
+        if settings.LEGACY_DEMO_PASSWORD:
+            try:
+                cursor.execute("SELECT id FROM users WHERE id = ?", (settings.LEGACY_DEMO_USERNAME,))
+                if not cursor.fetchone():
+                    pwd_hash, salt = hash_password(settings.LEGACY_DEMO_PASSWORD)
+                    cursor.execute(
+                        "INSERT INTO users (id, username, password_hash, salt) VALUES (?, ?, ?, ?)",
+                        (settings.LEGACY_DEMO_USERNAME, settings.LEGACY_DEMO_USERNAME, pwd_hash, salt)
+                    )
+                    conn.commit()
+                    logger.info(f"Seeded legacy demo account '{settings.LEGACY_DEMO_USERNAME}' to preserve pre-existing chat history.")
+            except sqlite3.IntegrityError:
+                # Username collision with an already-registered real account; nothing to do.
+                pass
+        else:
+            logger.warning(
+                "FOOTBOT_LEGACY_DEMO_PASSWORD is not set: the legacy 'default_coach' demo "
+                "account was not seeded, so any pre-existing chat history stored under that "
+                "user id will be unreachable until it is set and the server is restarted."
+            )
+
         logger.info("SQLite database schema successfully compiled.")
     except Exception as e:
         logger.error(f"Failed to initialize SQLite database: {str(e)}")
@@ -175,6 +215,74 @@ def authenticate_user(username: str, password: str) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Error authenticating user: {str(e)}")
         return None
+    finally:
+        conn.close()
+
+def create_session_token(user_id: str, ttl_seconds: Optional[int] = None) -> str:
+    """Mints a new opaque, random bearer token for a user and stores it with an expiry.
+    This token (not the user's DB row id) is what gets handed to the client as X-User-Token.
+    Each call adds a new row rather than replacing prior ones, so a user can hold several
+    valid tokens at once (e.g. multiple devices/browsers) - each independently revocable
+    via /logout."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    token = secrets.token_urlsafe(32)
+    ttl = ttl_seconds if ttl_seconds is not None else settings.SESSION_TOKEN_TTL_SECONDS
+
+    try:
+        cursor.execute(
+            "INSERT INTO auth_tokens (token, user_id, expires_at) VALUES (?, ?, datetime('now', ?))",
+            (token, user_id, f"{ttl:+d} seconds")
+        )
+        conn.commit()
+        logger.info(f"Issued new session token for user ID: {user_id}")
+    finally:
+        conn.close()
+
+    return token
+
+def resolve_session_token(token: str) -> Optional[str]:
+    """Resolves an opaque session token to its owning user id, or None if it is missing/expired.
+    Expired tokens are deleted on lookup rather than kept around."""
+    if not token:
+        return None
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "SELECT user_id, expires_at, (expires_at < datetime('now')) AS is_expired FROM auth_tokens WHERE token = ?",
+            (token,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return None
+
+        if row["is_expired"]:
+            cursor.execute("DELETE FROM auth_tokens WHERE token = ?", (token,))
+            conn.commit()
+            logger.info("Session token expired and was removed.")
+            return None
+
+        return row["user_id"]
+    except Exception as e:
+        logger.error(f"Error resolving session token: {str(e)}")
+        return None
+    finally:
+        conn.close()
+
+def delete_session_token(token: str) -> None:
+    """Revokes a session token (logout). Deleting a token that doesn't exist is a no-op."""
+    if not token:
+        return
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("DELETE FROM auth_tokens WHERE token = ?", (token,))
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Error deleting session token: {str(e)}")
     finally:
         conn.close()
 

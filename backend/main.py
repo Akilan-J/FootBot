@@ -38,11 +38,22 @@ app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "frontend" / "assets")
 app.mount("/postman", StaticFiles(directory=str(BASE_DIR / "postman")), name="postman")
 
 def _mask_token(token: Optional[str]) -> str:
-    """Truncates the X-User-Token for logging so the permanent bearer credential
+    """Truncates the X-User-Token for logging so the bearer credential
     is never written to logs in full."""
     if not token:
         return "<none>"
     return f"{token[:4]}...{token[-4:]}" if len(token) > 8 else "***"
+
+def _resolve_user_id(x_user_token: Optional[str]) -> str:
+    """Resolves the X-User-Token header (an opaque session token) to the underlying
+    user id, raising 401 if the header is missing or the token is invalid/expired."""
+    if not x_user_token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    from backend.database import resolve_session_token
+    user_id = resolve_session_token(x_user_token)
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired session token.")
+    return user_id
 
 async def auto_crawl_loop():
     """Periodically crawls historical matches in the background every 30 minutes."""
@@ -227,35 +238,45 @@ def health_check():
 
 @app.post("/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED)
 def register(request: UserRegisterRequest):
-    from backend.database import register_user
+    from backend.database import register_user, create_session_token
     uid = register_user(request.username, request.password)
     if not uid:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already exists or registration failed."
         )
-    return {"token": uid, "username": request.username}
+    token = create_session_token(uid)
+    return {"token": token, "username": request.username}
 
 @app.post("/login", response_model=AuthResponse, status_code=status.HTTP_200_OK)
 def login(request: UserLoginRequest):
-    from backend.database import authenticate_user
+    from backend.database import authenticate_user, create_session_token
     user = authenticate_user(request.username, request.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password."
         )
-    return {"token": user["id"], "username": user["username"]}
+    token = create_session_token(user["id"])
+    return {"token": token, "username": user["username"]}
+
+@app.post("/logout", status_code=status.HTTP_200_OK)
+def logout(x_user_token: Optional[str] = Header(None)):
+    """Revokes the caller's session token. Idempotent: logging out an already-invalid
+    or missing token still succeeds, since the end state (no active token) is the same."""
+    from backend.database import delete_session_token
+    if x_user_token:
+        delete_session_token(x_user_token)
+    return {"status": "success", "message": "Logged out successfully."}
 
 @app.get("/sessions", response_model=List[SessionSchema], status_code=status.HTTP_200_OK)
 def get_sessions_endpoint(x_user_token: Optional[str] = Header(None)):
     """Retrieves a list of all historical chat sessions stored in the SQLite database."""
-    if not x_user_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    user_id = _resolve_user_id(x_user_token)
     logger.info(f"Fetching all saved sessions for user: {_mask_token(x_user_token)}")
     try:
         from backend.database import get_sessions
-        return get_sessions(user_id=x_user_token)
+        return get_sessions(user_id=user_id)
     except Exception as e:
         logger.error(f"Failed to fetch sessions: {str(e)}")
         raise HTTPException(
@@ -266,12 +287,11 @@ def get_sessions_endpoint(x_user_token: Optional[str] = Header(None)):
 @app.get("/sessions/{session_id}/messages", response_model=List[MessageSchema], status_code=status.HTTP_200_OK)
 def get_messages_endpoint(session_id: str, x_user_token: Optional[str] = Header(None)):
     """Retrieves all chat messages for a specific historical session."""
-    if not x_user_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    user_id = _resolve_user_id(x_user_token)
     logger.info(f"Fetching messages for session ID: {session_id} (User: {_mask_token(x_user_token)})")
     try:
         from backend.database import get_messages, verify_session_owner
-        if not verify_session_owner(session_id, x_user_token):
+        if not verify_session_owner(session_id, user_id):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
         messages = get_messages(session_id)
         return messages
@@ -290,29 +310,28 @@ def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(Non
     Accepts a tactical query, runs it through the RAG engine, 
     and returns tactical insights with citations, saving the transaction to SQLite.
     """
-    if not x_user_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    user_id = _resolve_user_id(x_user_token)
     logger.info(f"Received chat query: '{request.query}' (Session ID: {request.session_id})")
     if not request.query.strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Query content cannot be blank or whitespace."
         )
-        
+
     try:
         from backend.database import create_session, save_message, verify_session_owner
-        
+
         # 1. Resolve or create database session
         session_id = request.session_id
         if session_id and session_id.strip():
-            if not verify_session_owner(session_id, x_user_token):
+            if not verify_session_owner(session_id, user_id):
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
         else:
             # Generate descriptive session title
             title = request.query.strip()
             if len(title) > 35:
                 title = title[:35] + "..."
-            session_id = create_session(title, user_id=x_user_token)
+            session_id = create_session(title, user_id=user_id)
             
         # 2. Save user message to database
         save_message(session_id, "user", request.query, [])
@@ -525,12 +544,11 @@ def get_historical_matches_endpoint(background_tasks: BackgroundTasks, limit: in
 @app.get("/sessions/{session_id}/pdf", status_code=status.HTTP_200_OK)
 def get_session_pdf_endpoint(session_id: str, x_user_token: Optional[str] = Header(None)):
     """Generates and exports a beautifully styled ReportLab PDF tactical dossier for a chat session."""
-    if not x_user_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
+    user_id = _resolve_user_id(x_user_token)
     logger.info(f"Generating PDF for session ID: {session_id} (User: {_mask_token(x_user_token)})")
     try:
         from backend.database import get_messages, verify_session_owner
-        if not verify_session_owner(session_id, x_user_token):
+        if not verify_session_owner(session_id, user_id):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
             
         messages = get_messages(session_id)

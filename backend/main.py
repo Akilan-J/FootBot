@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, status, Header, Response, Background
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from backend.config import settings
+from backend.config import settings, BASE_DIR
 from backend.utils import logger, ensure_directories, is_vector_db_ready
 from backend.rag_engine import rag_engine
 from backend.ingest import run_ingestion
@@ -20,19 +20,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Configuration - enables Streamlit frontend connections
+# CORS Configuration - enables Streamlit frontend connections.
+# Auth uses the X-User-Token header rather than cookies, so credentials are not
+# needed here; allow_credentials=True combined with a wildcard origin is both
+# invalid per the CORS spec and an unnecessary attack surface.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # In production, restrict to Streamlit's specific origin
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Mount the static assets folder so images are directly accessible via Postman
 from fastapi.staticfiles import StaticFiles
-app.mount("/assets", StaticFiles(directory="frontend/assets"), name="assets")
-app.mount("/postman", StaticFiles(directory="postman"), name="postman")
+app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "frontend" / "assets")), name="assets")
+app.mount("/postman", StaticFiles(directory=str(BASE_DIR / "postman")), name="postman")
 
 async def auto_crawl_loop():
     """Periodically crawls historical matches in the background every 30 minutes."""
@@ -191,7 +194,7 @@ def resolve_rosters_and_headshots(teams: List[str]):
 def root():
     from fastapi.responses import HTMLResponse
     try:
-        with open("frontend/index.html", "r", encoding="utf-8") as f:
+        with open(BASE_DIR / "frontend" / "index.html", "r", encoding="utf-8") as f:
             return HTMLResponse(
                 content=f.read(),
                 status_code=200,

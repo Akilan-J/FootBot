@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 from backend.utils import logger
 
 # Public BBC Sport Football RSS feed
-BBC_FEED_URL = "http://feeds.bbci.co.uk/sport/football/rss.xml"
+BBC_FEED_URL = "https://feeds.bbci.co.uk/sport/football/rss.xml"
 
 def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
     """

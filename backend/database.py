@@ -400,8 +400,13 @@ def get_messages(session_id: str) -> List[Dict[str, Any]]:
         
     return results
 
-def save_historical_match(home: str, away: str, home_score: Optional[int], away_score: Optional[int], date_str: str, league: str) -> None:
-    """Saves a historical match scoreline to the database, updating scores if they changed, and preventing duplicates."""
+def save_historical_match(home: str, away: str, home_score: Optional[int], away_score: Optional[int], date_str: str, league: str, conn=None) -> None:
+    """Saves a historical match scoreline to the database, updating scores if they changed, and preventing duplicates.
+
+    Pass an existing `conn` (and commit/close it yourself) when saving many matches in
+    one crawl batch - opening a fresh SQLite connection and committing per match added
+    real overhead to a loop that can run over 100+ scraped fixtures every 30 minutes.
+    """
     import re
     import datetime
 
@@ -422,9 +427,11 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
                     pass
         return None
 
-    conn = get_db_connection()
+    owns_conn = conn is None
+    if owns_conn:
+        conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
         # Fetch existing matches for these two teams
         cursor.execute("""
@@ -482,11 +489,12 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
             # Update if scores changed or if we got more detailed date
             if home_score != exist_hs or away_score != exist_as or updated_date != exist_date_str:
                 cursor.execute("""
-                    UPDATE historical_matches 
+                    UPDATE historical_matches
                     SET home_score = ?, away_score = ?, match_date = ?, league = ?
                     WHERE id = ?
                 """, (home_score, away_score, updated_date, league, matched_id))
-                conn.commit()
+                if owns_conn:
+                    conn.commit()
                 logger.info(f"Updated match {home} vs {away} to {home_score}-{away_score} (Date: {updated_date})")
         else:
             # No match found, insert new record
@@ -494,13 +502,15 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
                 INSERT INTO historical_matches (home_team, away_team, home_score, away_score, match_date, league)
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (home, away, home_score, away_score, date_str, league))
-            conn.commit()
+            if owns_conn:
+                conn.commit()
             logger.info(f"Inserted new match {home} vs {away} ({home_score}-{away_score})")
-            
+
     except Exception as e:
         logger.error(f"Failed to save/update historical match: {str(e)}")
     finally:
-        conn.close()
+        if owns_conn:
+            conn.close()
 
 def get_historical_matches(limit: int = 1000) -> List[Dict[str, Any]]:
     """Retrieves saved historical matches, filtering out women's matches."""

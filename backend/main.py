@@ -64,24 +64,33 @@ async def auto_crawl_loop():
         try:
             logger.info("Auto-crawl: Scraping historical matches...")
             from backend.loaders.live_score_loader import fetch_historical_results_from_html
-            from backend.database import save_historical_match
-            
+            from backend.database import save_historical_match, get_db_connection
+
             # Run the synchronous scraper in an executor to avoid blocking the async event loop
             loop = asyncio.get_running_loop()
             matches = await loop.run_in_executor(None, fetch_historical_results_from_html)
-            
+
+            # Share one connection/transaction across the whole batch instead of opening
+            # a fresh SQLite connection and committing per match (this loop can process
+            # 100+ scraped fixtures every 30 minutes).
             saved_count = 0
-            for m in matches:
-                if m["home_score"] is not None and m["away_score"] is not None:
-                    save_historical_match(
-                        home=m["home_team"],
-                        away=m["away_team"],
-                        home_score=m["home_score"],
-                        away_score=m["away_score"],
-                        date_str=m["match_date"],
-                        league=m["league"]
-                    )
-                    saved_count += 1
+            conn = get_db_connection()
+            try:
+                for m in matches:
+                    if m["home_score"] is not None and m["away_score"] is not None:
+                        save_historical_match(
+                            home=m["home_team"],
+                            away=m["away_team"],
+                            home_score=m["home_score"],
+                            away_score=m["away_score"],
+                            date_str=m["match_date"],
+                            league=m["league"],
+                            conn=conn
+                        )
+                        saved_count += 1
+                conn.commit()
+            finally:
+                conn.close()
             logger.info(f"Auto-crawl: Successfully crawled and saved {saved_count} historical matches.")
         except Exception as e:
             logger.error(f"Auto-crawl failed: {e}")
@@ -498,21 +507,27 @@ def crawl_historical_matches_endpoint(background_tasks: BackgroundTasks):
     logger.info("Historical match crawl triggered via API.")
     try:
         from backend.loaders.live_score_loader import fetch_historical_results_from_html
-        from backend.database import save_historical_match
-        
+        from backend.database import save_historical_match, get_db_connection
+
         matches = fetch_historical_results_from_html()
         saved_count = 0
-        for m in matches:
-            if m["home_score"] is not None and m["away_score"] is not None:
-                save_historical_match(
-                    home=m["home_team"],
-                    away=m["away_team"],
-                    home_score=m["home_score"],
-                    away_score=m["away_score"],
-                    date_str=m["match_date"],
-                    league=m["league"]
-                )
-                saved_count += 1
+        conn = get_db_connection()
+        try:
+            for m in matches:
+                if m["home_score"] is not None and m["away_score"] is not None:
+                    save_historical_match(
+                        home=m["home_team"],
+                        away=m["away_team"],
+                        home_score=m["home_score"],
+                        away_score=m["away_score"],
+                        date_str=m["match_date"],
+                        league=m["league"],
+                        conn=conn
+                    )
+                    saved_count += 1
+            conn.commit()
+        finally:
+            conn.close()
 
         return {
             "status": "success",

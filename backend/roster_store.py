@@ -1,6 +1,7 @@
 import json
 import re
 import requests
+import time
 import unicodedata
 import urllib.parse
 import fcntl
@@ -488,12 +489,16 @@ NAME_EXPANSIONS = {
     "OJ Porteria": "José Porteria",
 }
 
-TRANSFERMARKT_BLOCKED = False
-WIKIPEDIA_BLOCKED = False
+# Circuit breakers: store the epoch time a source is blocked *until*, rather than
+# a permanent flag, so a single timeout only backs off the source temporarily
+# instead of disabling it for the rest of the process's lifetime.
+_CIRCUIT_BREAKER_COOLDOWN_SECONDS = 300
+TRANSFERMARKT_BLOCKED_UNTIL = 0.0
+WIKIPEDIA_BLOCKED_UNTIL = 0.0
 
 def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
-    global WIKIPEDIA_BLOCKED
-    if WIKIPEDIA_BLOCKED:
+    global WIKIPEDIA_BLOCKED_UNTIL
+    if time.time() < WIKIPEDIA_BLOCKED_UNTIL:
         return None
     headers = {'User-Agent': 'FootBotTacticsApp/1.0 (akilan@example.com)'}
     search_url = 'https://en.wikipedia.org/w/api.php'
@@ -561,8 +566,8 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
                                 if is_football and 'thumbnail' in pinfo:
                                     return pinfo['thumbnail']['source']
         except requests.exceptions.Timeout:
-            logger.error(f"Wikipedia request timed out for {q}. Tripping circuit breaker to prevent cascading timeouts.")
-            WIKIPEDIA_BLOCKED = True
+            logger.error(f"Wikipedia request timed out for {q}. Tripping circuit breaker for {_CIRCUIT_BREAKER_COOLDOWN_SECONDS}s to prevent cascading timeouts.")
+            WIKIPEDIA_BLOCKED_UNTIL = time.time() + _CIRCUIT_BREAKER_COOLDOWN_SECONDS
             break
         except Exception as e:
             logger.error(f"Error searching Wikipedia for {q}: {e}")
@@ -570,8 +575,8 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
     return None
 
 def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
-    global TRANSFERMARKT_BLOCKED
-    if TRANSFERMARKT_BLOCKED:
+    global TRANSFERMARKT_BLOCKED_UNTIL
+    if time.time() < TRANSFERMARKT_BLOCKED_UNTIL:
         return None
         
     import urllib.parse
@@ -605,8 +610,8 @@ def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
                             if "placeholder" not in src:
                                 return src
     except requests.exceptions.Timeout:
-        logger.error(f"Transfermarkt request timed out for {player_name}. Tripping circuit breaker to prevent cascading timeouts.")
-        TRANSFERMARKT_BLOCKED = True
+        logger.error(f"Transfermarkt request timed out for {player_name}. Tripping circuit breaker for {_CIRCUIT_BREAKER_COOLDOWN_SECONDS}s to prevent cascading timeouts.")
+        TRANSFERMARKT_BLOCKED_UNTIL = time.time() + _CIRCUIT_BREAKER_COOLDOWN_SECONDS
     except Exception as e:
         logger.error(f"Error fetching Transfermarkt image for {player_name}: {e}")
     return None

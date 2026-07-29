@@ -58,17 +58,25 @@ def _resolve_user_id(x_user_token: Optional[str]) -> str:
 async def auto_crawl_loop():
     """Periodically crawls historical matches in the background every 30 minutes."""
     import asyncio
+    import datetime
     # Wait a few seconds after startup to let the app settle
     await asyncio.sleep(5)
+    # Yesterday's and two-days-ago's results are effectively final once full time passes,
+    # so only re-crawl those pages once per calendar day instead of on every 30-minute
+    # tick; every other tick just refreshes today's page. Tracks the last date a full
+    # (all 3 dates) crawl ran.
+    last_full_crawl_date = None
     while True:
         try:
-            logger.info("Auto-crawl: Scraping historical matches...")
+            today = datetime.date.today()
+            include_older_dates = last_full_crawl_date != today
+            logger.info(f"Auto-crawl: Scraping historical matches (full 3-date crawl: {include_older_dates})...")
             from backend.loaders.live_score_loader import fetch_historical_results_from_html
             from backend.database import save_historical_match, get_db_connection
 
             # Run the synchronous scraper in an executor to avoid blocking the async event loop
             loop = asyncio.get_running_loop()
-            matches = await loop.run_in_executor(None, fetch_historical_results_from_html)
+            matches = await loop.run_in_executor(None, fetch_historical_results_from_html, include_older_dates)
 
             # Share one connection/transaction across the whole batch instead of opening
             # a fresh SQLite connection and committing per match (this loop can process
@@ -91,6 +99,8 @@ async def auto_crawl_loop():
                 conn.commit()
             finally:
                 conn.close()
+            if include_older_dates:
+                last_full_crawl_date = today
             logger.info(f"Auto-crawl: Successfully crawled and saved {saved_count} historical matches.")
         except Exception as e:
             logger.error(f"Auto-crawl failed: {e}")

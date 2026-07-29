@@ -212,21 +212,28 @@ def get_live_scores_context() -> str:
             
     return "\n".join(context_lines)
 
-def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
+def fetch_historical_results_from_html(include_older_dates: bool = True) -> List[Dict[str, Any]]:
     """
-    Crawls past football scorelines from multiple BBC scores-fixtures URLs
-    (today, yesterday, and two days ago) using BeautifulSoup,
+    Crawls past football scorelines from BBC scores-fixtures using BeautifulSoup,
     parsing home/away teams, final scores, dates, and leagues.
+
+    By default crawls today, yesterday, and two days ago. Pass include_older_dates=False
+    to only crawl today's page - yesterday/two-days-ago results are effectively final
+    once full time passes, so a caller that re-runs this frequently (e.g. every 30
+    minutes) can skip re-fetching and re-diffing those two settled pages on most runs
+    and only do the full 3-page crawl occasionally (e.g. once a day) to catch rare late
+    score corrections.
     """
     import datetime
-    
+
     today = datetime.date.today()
     urls_to_crawl = [
         ("https://www.bbc.com/sport/football/scores-fixtures", today.strftime("%d %b %Y")),
-        (f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=1)}", (today - datetime.timedelta(days=1)).strftime("%d %b %Y")),
-        (f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=2)}", (today - datetime.timedelta(days=2)).strftime("%d %b %Y")),
     ]
-    
+    if include_older_dates:
+        urls_to_crawl.append((f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=1)}", (today - datetime.timedelta(days=1)).strftime("%d %b %Y")))
+        urls_to_crawl.append((f"https://www.bbc.com/sport/football/scores-fixtures/{today - datetime.timedelta(days=2)}", (today - datetime.timedelta(days=2)).strftime("%d %b %Y")))
+
     logger.info(f"Scraping historical football results from BBC Sport website for {len(urls_to_crawl)} dates...")
     results = []
     seen_matches = set()

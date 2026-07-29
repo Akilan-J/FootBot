@@ -742,20 +742,22 @@ def get_player_image_endpoint(
         found_photo = None
         for team, players in PREDEFINED_ROSTERS.items():
             for p in players:
-                if p["name"].lower().strip() == norm_name:
+                if p.get("name", "").lower().strip() == norm_name:
                     found_photo = p.get("photo", "")
                     if not pos and p.get("pos"):
                         pos = p.get("pos")
                     break
             if found_photo:
                 break
-                
+
         if not found_photo:
             from backend.roster_store import load_cache
             cache = load_cache()
             for team, players in cache.items():
+                if not isinstance(players, list):
+                    continue
                 for p in players:
-                    if p["name"].lower().strip() == norm_name:
+                    if isinstance(p, dict) and p.get("name", "").lower().strip() == norm_name:
                         found_photo = p.get("photo", "")
                         if not pos and p.get("pos"):
                             pos = p.get("pos")

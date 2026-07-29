@@ -417,6 +417,7 @@ input[type=range]::-webkit-slider-thumb{
 .match-league{font-size:11px;color:var(--text-muted);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
 .match-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:nowrap;gap:4px;}
 .team-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.team-logo{width:18px;height:18px;object-fit:contain;vertical-align:middle;margin:0 4px;border-radius:3px;}
 .match-score{
   font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;
   color:var(--emerald);padding:0 12px;white-space:nowrap;min-width:60px;text-align:center;
@@ -1204,6 +1205,14 @@ function stripEmoji(text) {
   return text.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
 }
 
+function teamLogoImg(name) {
+  const clean = stripEmoji(name);
+  if (!clean) return '';
+  const url = `${BACKEND_URL}/team/logo?team_name=${encodeURIComponent(clean)}`;
+  // onerror hides the tag itself so unresolved teams just show no logo, not a broken-image icon
+  return `<img class="team-logo" src="${url}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+}
+
 function convertUKTimeToIST(timeStr) {
   if (!timeStr || !timeStr.includes(':')) return timeStr;
   try {
@@ -1745,9 +1754,9 @@ function renderMatches(matches) {
         <div class="match-league">${m.league}</div>
         <div class="match-status" style="${statusStyle}">${m.status}</div>
         <div class="match-teams">
-          <span class="team-name">${getFlagEmoji(m.home)} ${stripEmoji(m.home)}</span>
+          <span class="team-name">${teamLogoImg(m.home)}${getFlagEmoji(m.home)} ${stripEmoji(m.home)}</span>
           <span class="match-score" style="flex-shrink:0;">${m.hs}–${m.as}</span>
-          <span class="team-name" style="text-align:right">${stripEmoji(m.away)} ${getFlagEmoji(m.away)}</span>
+          <span class="team-name" style="text-align:right">${stripEmoji(m.away)} ${getFlagEmoji(m.away)}${teamLogoImg(m.away)}</span>
         </div>
         <div class="match-date">${m.date}</div>
         <div style="margin-top:10px;font-size:10px;color:var(--emerald);opacity:0.6;text-align:center;letter-spacing:.5px;">🏟️ TAP TO OPEN IN MATCH CENTRE</div>

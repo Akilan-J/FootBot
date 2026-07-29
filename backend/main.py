@@ -631,6 +631,23 @@ def get_featured_matches():
         }
     }
 
+@app.get("/team/logo")
+def get_team_logo_endpoint(team_name: str):
+    """Redirects to the team's official crest image, resolved via the same
+    API-Football team-ID lookup (and DB cache) already used for lineups/events."""
+    from fastapi.responses import RedirectResponse
+    from backend.loaders.api_football_client import APIFootballClient
+
+    if not settings.API_FOOTBALL_KEY:
+        raise HTTPException(status_code=404, detail="API-Football is not configured.")
+
+    client = APIFootballClient()
+    team_id = client.resolve_team_id(team_name)
+    if not team_id:
+        raise HTTPException(status_code=404, detail=f"Could not resolve a logo for '{team_name}'.")
+
+    return RedirectResponse(url=f"https://media.api-sports.io/football/teams/{team_id}.png")
+
 @app.get("/roster", status_code=status.HTTP_200_OK)
 def get_roster_endpoint(
     team_name: str,

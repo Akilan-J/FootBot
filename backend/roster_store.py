@@ -12,6 +12,11 @@ from backend.config import settings
 from backend.utils import logger
 from backend.rag_engine import rag_engine
 
+# Shared connection-pooling session: player photo resolution can make dozens of
+# requests per roster (FotMob/Transfermarkt/Wikipedia per player), and a fresh
+# TCP+TLS handshake per call was a major chunk of that latency.
+_session = requests.Session()
+
 CACHE_PATH = settings.RAW_DATA_PATH.parent / "roster_cache.json"
 
 # Predefined real-world squads (moved from frontend to simplify and centralize)
@@ -555,7 +560,7 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
             'format': 'json'
         }
         try:
-            r = requests.get(search_url, params=search_params, headers=headers, timeout=2.0)
+            r = _session.get(search_url, params=search_params, headers=headers, timeout=2.0)
             if r.status_code == 200:
                 data = r.json()
                 if len(data) >= 2 and data[1]:
@@ -571,7 +576,7 @@ def fetch_wikipedia_image_url(player_name: str) -> Optional[str]:
                             'format': 'json',
                             'pithumbsize': 500
                         }
-                        r_info = requests.get(search_url, params=info_params, headers=headers, timeout=2.0)
+                        r_info = _session.get(search_url, params=info_params, headers=headers, timeout=2.0)
                         if r_info.status_code == 200:
                             pages = r_info.json().get('query', {}).get('pages', {})
                             for pid, pinfo in pages.items():
@@ -631,7 +636,7 @@ def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
     url = f"https://www.transfermarkt.com/schnellsuche/ergebnis/schnellsuche?query={query}"
     
     try:
-        r = requests.get(url, headers=headers, timeout=2.0)
+        r = _session.get(url, headers=headers, timeout=2.0)
         if r.status_code == 200:
             soup = BeautifulSoup(r.content, 'html.parser')
             # Look for player search result table
@@ -657,7 +662,7 @@ def fetch_transfermarkt_image_url(player_name: str) -> Optional[str]:
 def download_image(url: str, dest_path: Path) -> bool:
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, load_image_fail_check_bypass) Chrome/115.0.0.0 Safari/537.36'}
-        r = requests.get(url, headers=headers, timeout=10)
+        r = _session.get(url, headers=headers, timeout=10)
         if r.status_code == 200:
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             with open(dest_path, 'wb') as f:
@@ -697,7 +702,7 @@ def resolve_fotmob_id(player_name: str, team_name: str = "") -> str:
             continue
         url = f"https://apigw.fotmob.com/searchapi/suggest?term={urllib.parse.quote_plus(query)}&lang=en"
         try:
-            r = requests.get(url, headers=headers, timeout=5)
+            r = _session.get(url, headers=headers, timeout=5)
             if r.status_code == 200:
                 data = r.json()
                 options = []
@@ -747,75 +752,79 @@ def resolve_fotmob_id(player_name: str, team_name: str = "") -> str:
             
     return ""
 
+_PHOTO_RESOLUTION_WORKERS = 8
+
+def _resolve_single_player_photo(p: Dict[str, Any], team_name: str, assets_dir: Path) -> bool:
+    """Resolves and downloads one player's photo. Safe to run concurrently across
+    players: each call only reads/writes its own player dict and its own image file."""
+    player_name = p["name"]
+    slug = slugify(player_name)
+
+    # Check if the PNG file already exists locally from a previous download
+    dest_filename_png = f"{slug}.png"
+    dest_path_png = assets_dir / dest_filename_png
+    relative_path_png = f"frontend/assets/{dest_filename_png}"
+
+    if dest_path_png.exists():
+        if p.get("photo") != relative_path_png:
+            p["photo"] = relative_path_png
+            return True
+        return False
+
+    logger.info(f"Attempting to resolve FotMob photo for {player_name}...")
+    fotmob_id = resolve_fotmob_id(player_name, team_name)
+    if fotmob_id:
+        fotmob_url = f"https://images.fotmob.com/image_resources/playerimages/{fotmob_id}.png"
+        if download_image(fotmob_url, dest_path_png):
+            p["photo"] = relative_path_png
+            return True
+
+    # Fallback to existing JPG check or Transfermarkt/Wikipedia
+    dest_filename_jpg = f"{slug}.jpg"
+    dest_path_jpg = assets_dir / dest_filename_jpg
+    relative_path_jpg = f"frontend/assets/{dest_filename_jpg}"
+
+    if dest_path_jpg.exists():
+        if p.get("photo") != relative_path_jpg:
+            p["photo"] = relative_path_jpg
+            return True
+        return False
+
+    logger.info(f"FotMob photo not resolved for {player_name}, trying Transfermarkt...")
+    url = fetch_transfermarkt_image_url(player_name)
+
+    if not url:
+        logger.info(f"Transfermarkt photo not resolved for {player_name}, trying Wikipedia...")
+        url = fetch_wikipedia_image_url(player_name)
+
+    if url and download_image(url, dest_path_jpg):
+        p["photo"] = relative_path_jpg
+    else:
+        p["photo"] = "none"
+    return True
+
 def ensure_player_photos(roster: List[Dict[str, Any]], team_name: str = "") -> bool:
     """
     Checks each player in the roster and resolves their photo path.
     First tries to resolve via FotMob ID and download from FotMob CDN.
     If that fails, queries Transfermarkt, falling back to Wikipedia.
     Returns True if any player's photo was updated.
+
+    Players are resolved concurrently: with a full squad and no photos cached yet,
+    each player can take several sequential HTTP round-trips (FotMob, then
+    Transfermarkt, then up to 3 Wikipedia queries), and doing that one player at a
+    time made a cold roster fetch take minutes.
     """
-    updated = False
     base_dir = Path(__file__).resolve().parent.parent
     assets_dir = base_dir / "frontend" / "assets"
-    
-    for p in roster:
-        player_name = p["name"]
-        slug = slugify(player_name)
-        
-        # Check if the PNG file already exists locally from a previous download
-        dest_filename_png = f"{slug}.png"
-        dest_path_png = assets_dir / dest_filename_png
-        relative_path_png = f"frontend/assets/{dest_filename_png}"
-        
-        if dest_path_png.exists():
-            if p.get("photo") != relative_path_png:
-                p["photo"] = relative_path_png
-                updated = True
-            continue
-            
-        logger.info(f"Attempting to resolve FotMob photo for {player_name}...")
-        fotmob_id = resolve_fotmob_id(player_name, team_name)
-        download_success = False
-        if fotmob_id:
-            fotmob_url = f"https://images.fotmob.com/image_resources/playerimages/{fotmob_id}.png"
-            if download_image(fotmob_url, dest_path_png):
-                p["photo"] = relative_path_png
-                updated = True
-                download_success = True
-                
-        if download_success:
-            continue
-            
-        # Fallback to existing JPG check or Transfermarkt/Wikipedia
-        dest_filename_jpg = f"{slug}.jpg"
-        dest_path_jpg = assets_dir / dest_filename_jpg
-        relative_path_jpg = f"frontend/assets/{dest_filename_jpg}"
-        
-        if dest_path_jpg.exists():
-            if p.get("photo") != relative_path_jpg:
-                p["photo"] = relative_path_jpg
-                updated = True
-            continue
-            
-        logger.info(f"FotMob photo not resolved for {player_name}, trying Transfermarkt...")
-        url = fetch_transfermarkt_image_url(player_name)
-        
-        if not url:
-            logger.info(f"Transfermarkt photo not resolved for {player_name}, trying Wikipedia...")
-            url = fetch_wikipedia_image_url(player_name)
-            
-        if url:
-            if download_image(url, dest_path_jpg):
-                p["photo"] = relative_path_jpg
-                updated = True
-            else:
-                p["photo"] = "none"
-                updated = True
-        else:
-            p["photo"] = "none"
-            updated = True
-            
-    return updated
+
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=_PHOTO_RESOLUTION_WORKERS) as executor:
+        results = list(executor.map(
+            lambda p: _resolve_single_player_photo(p, team_name, assets_dir),
+            roster
+        ))
+    return any(results)
 
 def get_real_world_roster(
     team_name: str,
@@ -955,7 +964,7 @@ def get_real_world_roster(
                         headers = {
                             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                         }
-                        page_res = requests.get(url, headers=headers, timeout=5.0)
+                        page_res = _session.get(url, headers=headers, timeout=5.0)
                         if page_res.status_code == 200:
                             from bs4 import BeautifulSoup
                             page_soup = BeautifulSoup(page_res.text, "html.parser")
@@ -1823,7 +1832,7 @@ def get_match_stats(
 
             for slug in espn_leagues:
                 try:
-                    sb_r = requests.get(
+                    sb_r = _session.get(
                         f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={espn_date}",
                         headers=req_headers, timeout=6
                     )
@@ -1850,7 +1859,7 @@ def get_match_stats(
             if event_id:
                 # Fetch real match stats from ESPN summary
                 try:
-                    sum_r = requests.get(
+                    sum_r = _session.get(
                         f"https://site.api.espn.com/apis/site/v2/sports/soccer/{matched_league}/summary?event={event_id}",
                         headers=req_headers, timeout=8
                     )
@@ -1990,7 +1999,7 @@ def _resolve_espn_event(home: str, away: str, espn_date: str):
     """
     for slug in ESPN_LEAGUES:
         try:
-            r = requests.get(
+            r = _session.get(
                 f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={espn_date}",
                 headers=ESPN_HEADERS, timeout=6
             )
@@ -2081,7 +2090,7 @@ def fetch_real_world_match_events_via_rag(
                     headers = {
                         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
                     }
-                    page_res = requests.get(url, headers=headers, timeout=5.0)
+                    page_res = _session.get(url, headers=headers, timeout=5.0)
                     if page_res.status_code == 200:
                         from bs4 import BeautifulSoup
                         soup = BeautifulSoup(page_res.text, "html.parser")
@@ -2277,7 +2286,7 @@ def get_match_events(
         return None
 
     try:
-        sum_r = requests.get(
+        sum_r = _session.get(
             f"https://site.api.espn.com/apis/site/v2/sports/soccer/{matched_league}/summary?event={event_id}",
             headers=ESPN_HEADERS, timeout=8
         )

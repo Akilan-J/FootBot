@@ -662,7 +662,18 @@ def get_player_image_endpoint(
     
     base_dir = Path(__file__).resolve().parent.parent
     assets_dir = base_dir / "frontend" / "assets"
-    
+
+    def _resolve_confined(candidate: str) -> Optional[Path]:
+        """Resolves a stored photo path but refuses anything outside the project directory,
+        since photo paths can originate from scraped/LLM-sourced roster data."""
+        p = Path(candidate)
+        resolved = (p if p.is_absolute() else base_dir / p).resolve()
+        try:
+            resolved.relative_to(base_dir.resolve())
+        except ValueError:
+            return None
+        return resolved
+
     # 1. Resolve by filename directly
     if filename:
         clean_filename = os.path.basename(filename)  # Prevent directory traversal
@@ -702,8 +713,8 @@ def get_player_image_endpoint(
                         break
                     
         if found_photo and found_photo != "none":
-            file_path = base_dir / found_photo if not Path(found_photo).is_absolute() else Path(found_photo)
-            if file_path.exists() and file_path.is_file():
+            file_path = _resolve_confined(found_photo)
+            if file_path and file_path.exists() and file_path.is_file():
                 return FileResponse(str(file_path))
                 
     # 3. Resolve by name
@@ -743,8 +754,8 @@ def get_player_image_endpoint(
                     break
                     
         if found_photo and found_photo != "none":
-            file_path = base_dir / found_photo if not Path(found_photo).is_absolute() else Path(found_photo)
-            if file_path.exists() and file_path.is_file():
+            file_path = _resolve_confined(found_photo)
+            if file_path and file_path.exists() and file_path.is_file():
                 return FileResponse(str(file_path))
 
     # 4. Fallback Silhouette Resolution

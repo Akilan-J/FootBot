@@ -6,6 +6,11 @@ from backend.utils import logger
 # Public BBC Sport Football RSS feed
 BBC_FEED_URL = "https://feeds.bbci.co.uk/sport/football/rss.xml"
 
+# Shared session so repeated requests to bbc.com (live scores, historical crawl
+# across multiple dates, RSS) reuse the same connection instead of a fresh
+# TCP+TLS handshake each time.
+_session = requests.Session()
+
 def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
     """
     Scrapes actual live football scores and fixtures from the BBC Sport website.
@@ -22,7 +27,7 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
     
     try:
         from bs4 import BeautifulSoup
-        response = requests.get(url, headers=headers, timeout=10)
+        response = _session.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         response.encoding = 'utf-8'  # Force UTF-8 so special chars (ç, é, ñ) decode correctly
         
@@ -132,7 +137,7 @@ def fetch_live_football_feed() -> List[Dict[str, Any]]:
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
-        response = requests.get(BBC_FEED_URL, headers=headers, timeout=8)
+        response = _session.get(BBC_FEED_URL, headers=headers, timeout=8)
         response.raise_for_status()
         
         # Parse XML content
@@ -233,7 +238,7 @@ def fetch_historical_results_from_html() -> List[Dict[str, Any]]:
     for url, date_fallback in urls_to_crawl:
         try:
             from bs4 import BeautifulSoup
-            response = requests.get(url, headers=headers, timeout=10)
+            response = _session.get(url, headers=headers, timeout=10)
             response.raise_for_status()
             response.encoding = 'utf-8'  # Force UTF-8 so special chars (ç, é, ñ) decode correctly
             

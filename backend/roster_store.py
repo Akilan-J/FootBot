@@ -313,6 +313,14 @@ def load_cache() -> Dict[str, List[Dict[str, Any]]]:
     return {}
 
 def save_cache(cache: Dict[str, List[Dict[str, Any]]]) -> None:
+    """Overwrites the on-disk cache with exactly the given dict (including deletions).
+
+    For adding/updating a single key, prefer update_cache_entry() instead: calling
+    load_cache() then save_cache() as two separate steps has a lost-update race if
+    another caller updates a different key in between (each call takes its own lock).
+    save_cache() itself stays a plain overwrite so callers that intentionally shrink
+    the cache (e.g. purging stale keys) keep working as expected.
+    """
     global _in_memory_cache, _cache_last_mtime
     import os
     try:
@@ -323,6 +331,36 @@ def save_cache(cache: Dict[str, List[Dict[str, Any]]]) -> None:
             with open(CACHE_PATH, "w", encoding="utf-8") as f:
                 json.dump(cache, f, indent=4, ensure_ascii=False)
             _in_memory_cache = cache
+            try:
+                _cache_last_mtime = os.path.getmtime(CACHE_PATH)
+            except Exception:
+                pass
+    except Exception as e:
+        logger.error(f"Error saving roster cache to {CACHE_PATH}: {e}")
+
+def update_cache_entry(key: str, value: List[Dict[str, Any]]) -> None:
+    """Atomically sets a single cache key under one lock, avoiding the lost-update
+    race that load_cache() + save_cache() has when two callers update different
+    keys concurrently (each of those calls takes its own separate lock).
+    """
+    global _in_memory_cache, _cache_last_mtime
+    import os
+    try:
+        CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        lock_path = CACHE_PATH.with_suffix(".lock")
+        with open(lock_path, "w") as lock_f:
+            fcntl.flock(lock_f.fileno(), fcntl.LOCK_EX)
+            current = {}
+            if CACHE_PATH.exists():
+                try:
+                    with open(CACHE_PATH, "r", encoding="utf-8") as f:
+                        current = json.load(f)
+                except Exception:
+                    current = {}
+            current[key] = value
+            with open(CACHE_PATH, "w", encoding="utf-8") as f:
+                json.dump(current, f, indent=4, ensure_ascii=False)
+            _in_memory_cache = current
             try:
                 _cache_last_mtime = os.path.getmtime(CACHE_PATH)
             except Exception:
@@ -822,9 +860,7 @@ def get_real_world_roster(
                 p.setdefault("subbed_in_minute", None)
             updated_photos = ensure_player_photos(roster, team_name)
             if updated_photos:
-                current_cache = load_cache()
-                current_cache[match_key] = roster
-                save_cache(current_cache)
+                update_cache_entry(match_key, roster)
             return roster
 
     # 1.5 Try API-Football Integration if Key is Configured
@@ -845,9 +881,7 @@ def get_real_world_roster(
                         if roster and len(roster) >= 11:
                             logger.info(f"Successfully fetched and mapped roster via API-Football for team '{team_name}' (Fixture ID: {fixture_id})")
                             ensure_player_photos(roster, team_name)
-                            current_cache = load_cache()
-                            current_cache[match_key] = roster
-                            save_cache(current_cache)
+                            update_cache_entry(match_key, roster)
                             return roster
             logger.warning("API-Football integration failed or match not found, falling back to LLM/scraper pipeline.")
         except Exception as api_err:
@@ -1043,9 +1077,7 @@ def get_real_world_roster(
                                     subbed_out_counts[tgt] = current_cnt + 1
                         logger.info(f"Successfully retrieved and validated match roster for '{team_name}' on attempt {attempt}.")
                         ensure_player_photos(roster, team_name)
-                        current_cache = load_cache()
-                        current_cache[match_key] = roster
-                        save_cache(current_cache)
+                        update_cache_entry(match_key, roster)
                         return roster
             except Exception as e:
                 logger.error(f"Attempt {attempt} failed to query LLM for match roster of '{team_name}': {e}")
@@ -1062,9 +1094,7 @@ def get_real_world_roster(
         if is_high_fidelity:
             logger.info(f"Using HIGH_FIDELITY fallback roster for '{team_name}' ({len(fallback_roster)} players). Caching under match key '{match_key}'.")
             ensure_player_photos(fallback_roster, team_name)
-            current_cache = load_cache()
-            current_cache[match_key] = fallback_roster
-            save_cache(current_cache)
+            update_cache_entry(match_key, fallback_roster)
             return fallback_roster
 
     # 3. Fallback to general roster lookup (predefined list, then cache, then LLM)
@@ -1108,9 +1138,7 @@ def get_real_world_roster(
                     
         updated_photos = ensure_player_photos(roster, team_name)
         if cache_updated or updated_photos:
-            current_cache = load_cache()
-            current_cache[norm_name] = roster
-            save_cache(current_cache)
+            update_cache_entry(norm_name, roster)
         return roster
 
     if predefined_val is not None:
@@ -1122,9 +1150,7 @@ def get_real_world_roster(
             p.setdefault("subbed_in_for", None)
             p.setdefault("subbed_in_minute", None)
         ensure_player_photos(roster, team_name)
-        current_cache = load_cache()
-        current_cache[norm_name] = roster
-        save_cache(current_cache)
+        update_cache_entry(norm_name, roster)
         return roster
 
     # 3. LLM Query if OpenAI is initialized
@@ -1198,9 +1224,7 @@ Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (lik
                     if valid:
                         logger.info(f"Successfully retrieved and validated LLM roster for '{team_name}' on attempt {attempt}. Caching...")
                         ensure_player_photos(roster, team_name)
-                        current_cache = load_cache()
-                        current_cache[norm_name] = roster
-                        save_cache(current_cache)
+                        update_cache_entry(norm_name, roster)
                         return roster
                     else:
                         logger.warning(f"Attempt {attempt}: LLM returned JSON list but it was missing required player keys.")
@@ -1755,9 +1779,7 @@ def get_match_stats(
                     }
                     
                     # Save in cache
-                    current_cache = load_cache()
-                    current_cache[cache_key] = stats_val
-                    save_cache(current_cache)
+                    update_cache_entry(cache_key, stats_val)
                     logger.info(f"Successfully fetched and cached stats via API-Football (Fixture ID: {fixture_id})")
                     return stats_val
             logger.warning("API-Football stats integration missed, falling back to ESPN/LLM pipeline.")
@@ -1910,9 +1932,7 @@ def get_match_stats(
                                 else:
                                     cache_stats = stats
 
-                                current_cache = load_cache()
-                                current_cache[cache_key] = cache_stats
-                                save_cache(current_cache)
+                                update_cache_entry(cache_key, cache_stats)
                                 logger.info(f"Cached real ESPN stats for '{home}' vs '{away}': {cache_stats}")
                                 return stats
                 except Exception as e:
@@ -1937,9 +1957,7 @@ def get_match_stats(
             }
         else:
             cache_stats = stats
-        current_cache = load_cache()
-        current_cache[cache_key] = cache_stats
-        save_cache(current_cache)
+        update_cache_entry(cache_key, cache_stats)
         return stats
 
     return None
@@ -2227,9 +2245,7 @@ def get_match_events(
                                 "text": detail
                             })
                             
-                    current_cache = load_cache()
-                    current_cache[cache_key] = goals
-                    save_cache(current_cache)
+                    update_cache_entry(cache_key, goals)
                     logger.info(f"Successfully fetched and cached {len(goals)} goal events via API-Football (Fixture ID: {fixture_id})")
                     return goals
             logger.warning("API-Football events integration missed, falling back to ESPN/LLM pipeline.")
@@ -2255,9 +2271,7 @@ def get_match_events(
         logger.info(f"ESPN event lookup missed for '{home}' vs '{away}'. Falling back to RAG search for real-world goal events...")
         goals = fetch_real_world_match_events_via_rag(home, away, date)
         if goals is not None:
-            current_cache = load_cache()
-            current_cache[cache_key] = goals
-            save_cache(current_cache)
+            update_cache_entry(cache_key, goals)
             logger.info(f"Cached {len(goals)} RAG-extracted goal events for '{home}' vs '{away}'")
             return goals
         return None
@@ -2302,9 +2316,7 @@ def get_match_events(
             })
 
         # Cache and return
-        current_cache = load_cache()
-        current_cache[cache_key] = goals
-        save_cache(current_cache)
+        update_cache_entry(cache_key, goals)
         logger.info(f"Cached {len(goals)} goal events for '{home}' vs '{away}'")
         return goals
 

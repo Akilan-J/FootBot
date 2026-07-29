@@ -37,6 +37,13 @@ from fastapi.staticfiles import StaticFiles
 app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "frontend" / "assets")), name="assets")
 app.mount("/postman", StaticFiles(directory=str(BASE_DIR / "postman")), name="postman")
 
+def _mask_token(token: Optional[str]) -> str:
+    """Truncates the X-User-Token for logging so the permanent bearer credential
+    is never written to logs in full."""
+    if not token:
+        return "<none>"
+    return f"{token[:4]}...{token[-4:]}" if len(token) > 8 else "***"
+
 async def auto_crawl_loop():
     """Periodically crawls historical matches in the background every 30 minutes."""
     import asyncio
@@ -245,7 +252,7 @@ def get_sessions_endpoint(x_user_token: Optional[str] = Header(None)):
     """Retrieves a list of all historical chat sessions stored in the SQLite database."""
     if not x_user_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
-    logger.info(f"Fetching all saved sessions for user: {x_user_token}")
+    logger.info(f"Fetching all saved sessions for user: {_mask_token(x_user_token)}")
     try:
         from backend.database import get_sessions
         return get_sessions(user_id=x_user_token)
@@ -261,7 +268,7 @@ def get_messages_endpoint(session_id: str, x_user_token: Optional[str] = Header(
     """Retrieves all chat messages for a specific historical session."""
     if not x_user_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
-    logger.info(f"Fetching messages for session ID: {session_id} (User: {x_user_token})")
+    logger.info(f"Fetching messages for session ID: {session_id} (User: {_mask_token(x_user_token)})")
     try:
         from backend.database import get_messages, verify_session_owner
         if not verify_session_owner(session_id, x_user_token):
@@ -520,7 +527,7 @@ def get_session_pdf_endpoint(session_id: str, x_user_token: Optional[str] = Head
     """Generates and exports a beautifully styled ReportLab PDF tactical dossier for a chat session."""
     if not x_user_token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Header X-User-Token is missing.")
-    logger.info(f"Generating PDF for session ID: {session_id} (User: {x_user_token})")
+    logger.info(f"Generating PDF for session ID: {session_id} (User: {_mask_token(x_user_token)})")
     try:
         from backend.database import get_messages, verify_session_owner
         if not verify_session_owner(session_id, x_user_token):

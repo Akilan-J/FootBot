@@ -1138,7 +1138,6 @@ def get_real_world_roster(
             except Exception as e:
                 logger.error(f"Attempt {attempt} failed to query LLM for match roster of '{team_name}': {e}")
             
-            import time
             time.sleep(1.5)
 
     # 2b. Match-specific fallback to HIGH_FIDELITY presets (when LLM fails)
@@ -1291,7 +1290,6 @@ Return ONLY a raw valid JSON array. Do not write any markdown code wrappers (lik
                 logger.error(f"Attempt {attempt} failed to query LLM for roster: {e}")
             
             if attempt < 3:
-                import time
                 time.sleep(1.5)
     else:
         logger.warning("OpenAI client not initialized. Cannot fetch roster via LLM.")

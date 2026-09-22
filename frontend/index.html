@@ -1765,6 +1765,29 @@ function renderMatches(matches) {
   }).join('');
 }
 
+// The 5 domestic leagues + World Cup this app tracks, matched by exact name (not
+// substring) against the scraped league string. Substring matching previously
+// conflated leagues that share a word across countries - e.g. "Brazilian Serie A"
+// contains "serie a" and was bucketing Brazilian club friendlies into the Italian
+// Serie A filter, "Ukraine Premier League" into the England filter, and "Austrian
+// Bundesliga" into the German filter. BBC's scraper emits the real domestic leagues
+// as exactly "Premier League", "La Liga", "Bundesliga", "Serie A", "Ligue 1" with no
+// country prefix, so exact match is safe and precise.
+const KNOWN_LEAGUE_NAMES = {
+  'world cup': 'World Cup',
+  'premier league': 'Premier League',
+  'la liga': 'La Liga',
+  'laliga': 'La Liga',
+  'bundesliga': 'Bundesliga',
+  'serie a': 'Serie A',
+  'ligue 1': 'Ligue 1',
+  'ligue1': 'Ligue 1',
+};
+
+function normalizeLeagueName(rawLeague) {
+  return KNOWN_LEAGUE_NAMES[(rawLeague || '').trim().toLowerCase()] || null;
+}
+
 async function loadHistoricalMatches() {
   try {
     const [histRes, liveRes] = await Promise.all([
@@ -1786,20 +1809,13 @@ async function loadHistoricalMatches() {
     }
     
     const filteredAndMapped = [];
-    
+
     // Process historical matches
     rawHistorical.forEach(m => {
-      const leagueLower = m.league.toLowerCase();
-      let normalizedLeague = null;
-      if (leagueLower.includes('world cup')) normalizedLeague = 'World Cup';
-      else if (leagueLower.includes('premier league')) normalizedLeague = 'Premier League';
-      else if (leagueLower.includes('la liga') || leagueLower.includes('laliga')) normalizedLeague = 'La Liga';
-      else if (leagueLower.includes('bundesliga')) normalizedLeague = 'Bundesliga';
-      else if (leagueLower.includes('serie a')) normalizedLeague = 'Serie A';
-      else if (leagueLower.includes('ligue 1') || leagueLower.includes('ligue1')) normalizedLeague = 'Ligue 1';
-      
+      const normalizedLeague = normalizeLeagueName(m.league);
+
       if (!normalizedLeague) return; // Discard "Other Leagues"
-      
+
       filteredAndMapped.push({
         home: m.home_team,
         away: m.away_team,
@@ -1810,18 +1826,11 @@ async function loadHistoricalMatches() {
         status: 'FT'
       });
     });
-    
+
     // Process live matches
     rawLive.forEach(m => {
-      const leagueLower = m.league.toLowerCase();
-      let normalizedLeague = null;
-      if (leagueLower.includes('world cup')) normalizedLeague = 'World Cup';
-      else if (leagueLower.includes('premier league')) normalizedLeague = 'Premier League';
-      else if (leagueLower.includes('la liga') || leagueLower.includes('laliga')) normalizedLeague = 'La Liga';
-      else if (leagueLower.includes('bundesliga')) normalizedLeague = 'Bundesliga';
-      else if (leagueLower.includes('serie a')) normalizedLeague = 'Serie A';
-      else if (leagueLower.includes('ligue 1') || leagueLower.includes('ligue1')) normalizedLeague = 'Ligue 1';
-      
+      const normalizedLeague = normalizeLeagueName(m.league);
+
       if (!normalizedLeague) return; // Discard "Other Leagues"
       
       let hs = '?', as = '?';

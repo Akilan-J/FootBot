@@ -1775,13 +1775,20 @@ function renderMatches(matches) {
 // country prefix, so exact match is safe and precise.
 const KNOWN_LEAGUE_NAMES = {
   'world cup': 'World Cup',
+  // English top flight is emitted unprefixed; "Ukraine Premier League" and
+  // "Nigerian Premier League" are different competitions and must not map here.
   'premier league': 'Premier League',
+  'english premier league': 'Premier League',
   'la liga': 'La Liga',
   'laliga': 'La Liga',
+  'spanish la liga': 'La Liga',
   'bundesliga': 'Bundesliga',
+  'german bundesliga': 'Bundesliga',
   'serie a': 'Serie A',
+  'italian serie a': 'Serie A',
   'ligue 1': 'Ligue 1',
   'ligue1': 'Ligue 1',
+  'french ligue 1': 'Ligue 1',
 };
 
 function normalizeLeagueName(rawLeague) {

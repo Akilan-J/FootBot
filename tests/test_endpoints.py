@@ -106,6 +106,46 @@ class TestPlayerImage:
         assert resp.status_code == 200
 
 
+class TestTeamLogo:
+    def test_cached_team_redirects_to_its_crest(self, client, db, monkeypatch):
+        from backend.loaders import api_football_client as afc
+
+        monkeypatch.setattr(afc.settings, "API_FOOTBALL_KEY", "test-key")
+        db.save_api_team_id("Arsenal", 42)
+
+        resp = client.get("/team/logo", params={"team_name": "Arsenal"}, follow_redirects=False)
+
+        assert resp.status_code == 307
+        assert resp.headers["location"].endswith("/teams/42.png")
+
+    def test_uncached_team_answers_immediately_instead_of_blocking(
+        self, client, db, monkeypatch
+    ):
+        """Regression: this endpoint used to run a live, rate-limited lookup inline,
+        blocking for up to ~2 minutes. A page requests dozens of crests at once, so
+        those held connections exhausted the browser's per-origin pool and stalled
+        every other image on the page."""
+        from backend.loaders import api_football_client as afc
+
+        monkeypatch.setattr(afc.settings, "API_FOOTBALL_KEY", "test-key")
+
+        def explode():
+            raise AssertionError("the request path must not wait on the rate limiter")
+
+        monkeypatch.setattr(afc, "_throttle_api_football_request", explode)
+        prefetched = []
+        monkeypatch.setattr(afc, "prefetch_team_id", prefetched.append)
+        # main.py imports these names inside the handler, so patch the source module.
+        monkeypatch.setattr(
+            "backend.loaders.api_football_client.prefetch_team_id", prefetched.append
+        )
+
+        resp = client.get("/team/logo", params={"team_name": "Some Unknown Club"})
+
+        assert resp.status_code == 404
+        assert prefetched == ["Some Unknown Club"], "should queue a background lookup"
+
+
 class TestHistoricalMatches:
     def test_listing_matches_returns_what_was_saved(self, client, db):
         db.save_historical_match("Arsenal", "Chelsea", 2, 1, "22 Sep 2024", "Premier League")

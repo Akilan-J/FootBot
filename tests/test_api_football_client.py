@@ -133,6 +133,72 @@ def test_empty_team_name_resolves_to_nothing(client):
     assert client.resolve_team_id("   ") is None
 
 
+class TestCacheOnlyLookup:
+    """get_cached_team_id must never hit the network: it backs the /team/logo
+    endpoint, which a page can call dozens of times in one render."""
+
+    def test_returns_a_cached_id(self, db, monkeypatch):
+        monkeypatch.setattr(afc.settings, "API_FOOTBALL_KEY", "test-key")
+        db.save_api_team_id("Arsenal", 42)
+
+        assert afc.get_cached_team_id("Arsenal") == 42
+
+    def test_resolves_shorthand_against_the_cached_official_name(self, db):
+        db.save_api_team_id("Manchester City", 50)
+
+        assert afc.get_cached_team_id("Man City") == 50
+
+    def test_returns_none_on_a_miss_without_calling_the_api(self, db, monkeypatch):
+        def explode(*a, **kw):
+            raise AssertionError("cache-only lookup must not perform a request")
+
+        monkeypatch.setattr(afc.requests, "get", explode)
+        monkeypatch.setattr(afc, "_throttle_api_football_request", explode)
+
+        assert afc.get_cached_team_id("Never Heard Of Them") is None
+
+    def test_blank_names_are_handled(self, db):
+        assert afc.get_cached_team_id("") is None
+        assert afc.get_cached_team_id("   ") is None
+
+
+class TestPrefetch:
+    def test_concurrent_prefetches_for_one_team_collapse_into_a_single_lookup(
+        self, db, monkeypatch
+    ):
+        monkeypatch.setattr(afc.settings, "API_FOOTBALL_KEY", "test-key")
+        started = []
+        release = afc.threading.Event()
+
+        def slow_resolve(self, team_name):
+            started.append(team_name)
+            release.wait(timeout=5)
+            return 1
+
+        monkeypatch.setattr(APIFootballClient, "resolve_team_id", slow_resolve)
+
+        for _ in range(5):
+            afc.prefetch_team_id("Arsenal")
+
+        time.sleep(0.2)
+        assert len(started) == 1, f"expected one in-flight lookup, got {len(started)}"
+        release.set()
+
+    def test_prefetch_does_not_raise_when_resolution_fails(self, db, monkeypatch):
+        monkeypatch.setattr(afc.settings, "API_FOOTBALL_KEY", "test-key")
+
+        def boom(self, team_name):
+            raise RuntimeError("upstream is down")
+
+        monkeypatch.setattr(APIFootballClient, "resolve_team_id", boom)
+
+        afc.prefetch_team_id("Arsenal")  # must not propagate
+        time.sleep(0.2)
+
+        # The team is released from the in-flight set so it can be retried later.
+        assert "arsenal" not in afc._prefetching_teams
+
+
 class TestRateLimiter:
     """API-Football's free tier allows 10 requests/minute; we budget 9."""
 

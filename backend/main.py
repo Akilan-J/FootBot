@@ -633,18 +633,26 @@ def get_featured_matches():
 
 @app.get("/team/logo")
 def get_team_logo_endpoint(team_name: str):
-    """Redirects to the team's official crest image, resolved via the same
-    API-Football team-ID lookup (and DB cache) already used for lineups/events."""
+    """Redirects to the team's official crest image, using the API-Football team id
+    cached by the same lookup that serves lineups/events.
+
+    This endpoint always answers immediately. A live team-id lookup can block for a
+    minute or more waiting on API-Football's 10 req/min budget, and a page of match
+    cards asks for dozens of crests at once - holding those connections open exhausts
+    the browser's per-origin connection pool and stalls every other image on the page.
+    So a cache miss returns 404 right away (the UI just shows no crest) and resolves
+    the team in the background, ready for the next render.
+    """
     from fastapi.responses import RedirectResponse
-    from backend.loaders.api_football_client import APIFootballClient
+    from backend.loaders.api_football_client import get_cached_team_id, prefetch_team_id
 
     if not settings.API_FOOTBALL_KEY:
         raise HTTPException(status_code=404, detail="API-Football is not configured.")
 
-    client = APIFootballClient()
-    team_id = client.resolve_team_id(team_name)
+    team_id = get_cached_team_id(team_name)
     if not team_id:
-        raise HTTPException(status_code=404, detail=f"Could not resolve a logo for '{team_name}'.")
+        prefetch_team_id(team_name)
+        raise HTTPException(status_code=404, detail=f"No cached logo for '{team_name}' yet.")
 
     return RedirectResponse(url=f"https://media.api-sports.io/football/teams/{team_id}.png")
 

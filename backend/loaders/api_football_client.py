@@ -55,6 +55,49 @@ TEAM_NAME_ALIASES: Dict[str, str] = {
     "barca": "Barcelona",
 }
 
+# Teams currently being resolved in the background, so a page that asks for the
+# same missing crest on every render only queues one lookup for it.
+_PREFETCH_LOCK = threading.Lock()
+_prefetching_teams: set = set()
+
+
+def get_cached_team_id(team_name: str) -> Optional[int]:
+    """Cache-only team lookup: resolves aliases and reads the DB, but never calls the
+    API. Used by request paths that must answer immediately, since a live lookup can
+    block for a minute or more waiting on the rate-limit budget."""
+    if not team_name or not team_name.strip():
+        return None
+    name = team_name.strip()
+    return get_api_team_id(TEAM_NAME_ALIASES.get(name.lower(), name))
+
+
+def prefetch_team_id(team_name: str) -> None:
+    """Resolves a team in the background so the next request can serve it from cache.
+
+    Safe to call on every miss: concurrent calls for the same team collapse into one,
+    and the resolution itself is still rate-limited like any other API-Football call.
+    """
+    if not team_name or not team_name.strip():
+        return
+    key = team_name.strip().lower()
+
+    with _PREFETCH_LOCK:
+        if key in _prefetching_teams:
+            return
+        _prefetching_teams.add(key)
+
+    def _run():
+        try:
+            APIFootballClient().resolve_team_id(team_name)
+        except Exception as e:
+            logger.error(f"Background team-id prefetch failed for '{team_name}': {e}")
+        finally:
+            with _PREFETCH_LOCK:
+                _prefetching_teams.discard(key)
+
+    threading.Thread(target=_run, daemon=True, name=f"prefetch-team-{key[:20]}").start()
+
+
 class APIFootballClient:
     def __init__(self):
         self.api_key = settings.API_FOOTBALL_KEY

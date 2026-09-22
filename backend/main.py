@@ -20,13 +20,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS Configuration - enables Streamlit frontend connections.
+# CORS Configuration - allows browser clients to call the API.
 # Auth uses the X-User-Token header rather than cookies, so credentials are not
 # needed here; allow_credentials=True combined with a wildcard origin is both
 # invalid per the CORS spec and an unnecessary attack surface.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, restrict to Streamlit's specific origin
+    allow_origins=["*"], # In production, restrict to the deployed UI's origin
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,6 +1,8 @@
 version: '3.8'
 
 services:
+  # Single service: the backend serves both the REST API and the web UI
+  # (frontend/index.html) on port 8000.
   backend:
     build:
       context: .
@@ -15,19 +17,3 @@ services:
     environment:
       - RAW_DATA_PATH=/app/data/raw
       - DB_PATH=/app/data/footbot.db
-
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "8501:8501"
-    volumes:
-      - ./frontend/assets:/app/frontend/assets
-      - ./data:/app/data
-    env_file:
-      - .env
-    environment:
-      - FOOTBOT_BACKEND_URL=http://backend:8000
-    depends_on:
-      - backend

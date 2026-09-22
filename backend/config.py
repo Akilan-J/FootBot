@@ -33,10 +33,10 @@ class Settings:
     # Auth session tokens issued on /login and /register (default: 30 days)
     SESSION_TOKEN_TTL_SECONDS: int = int(os.getenv("SESSION_TOKEN_TTL_SECONDS", str(30 * 24 * 3600)))
 
-    # Legacy single-tenant demo account: frontend/app.py has no login screen and used to
-    # send the literal user id "default_coach" as X-User-Token. This account is seeded so
-    # pre-existing chat history (stored under that user id) stays reachable once the
-    # frontend logs in for a real opaque session token instead.
+    # Legacy single-tenant demo account: the retired Streamlit client had no login
+    # screen and used to send the literal user id "default_coach" as X-User-Token.
+    # This account is still seeded so chat history stored under that user id stays
+    # reachable; set the password below to be able to log into it.
     # No default password: it must be set explicitly, so a shared, publicly-known
     # credential is never the working default for this account.
     LEGACY_DEMO_USERNAME: str = os.getenv("FOOTBOT_LEGACY_DEMO_USERNAME", "default_coach")

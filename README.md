@@ -36,7 +36,7 @@ graph TD
     B -->|Generate Embeddings| C[(FAISS Vector Database)]
 
     User((User))
-    -->|Chat Query| D[Streamlit Frontend]
+    -->|Chat Query| D[Web UI - HTML/JS]
 
     D -->|REST API Request| E[FastAPI Backend]
 
@@ -127,8 +127,9 @@ High-performance backend service handling:
 
 ---
 
-## 🎨 Streamlit Frontend
-Interactive football analysis chat interface.
+## 🎨 Web Interface
+Interactive football analysis UI - tactical chat, 2D formation board, live
+scorelines and match centre - served directly by the backend at `/`.
 
 ---
 
@@ -141,7 +142,7 @@ Interactive football analysis chat interface.
 | Embeddings | SentenceTransformers |
 | Vector Database | FAISS |
 | Backend | FastAPI |
-| Frontend | Streamlit |
+| Frontend | HTML/CSS/JS (served by FastAPI) |
 | API Server | Uvicorn |
 | Language | Python 3.10+ |
 
@@ -159,7 +160,8 @@ footbot/
 │   └── utils.py
 │
 ├── frontend/
-│   └── app.py
+│   ├── index.html
+│   └── assets/
 │
 ├── data/
 │   ├── raw/
@@ -252,12 +254,12 @@ http://localhost:8000/docs
 
 ---
 
-# 7️⃣ Start Streamlit Frontend
+# 7️⃣ Open the Web UI
 
-Open a new terminal:
+The backend serves the web interface itself — no separate frontend process needed:
 
-```bash
-streamlit run frontend/app.py
+```text
+http://localhost:8000
 ```
 
 ---

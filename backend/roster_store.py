@@ -941,10 +941,17 @@ def get_real_world_roster(
         
         search_results = []
         try:
-            r1 = rag_engine.web_search_fallback(q1, max_results=3, clean=False) or []
-            r2 = rag_engine.web_search_fallback(q2, max_results=3, clean=False) or []
-            r3 = rag_engine.web_search_fallback(q3, max_results=3, clean=False) or []
-            
+            # Run the three searches at once: they're independent, and each takes a few
+            # seconds, so doing them in sequence dominated the time to resolve a squad.
+            # web_search_fallback swallows its own errors and returns [], so one query
+            # failing just means fewer hits to merge, not a failed lookup.
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                r1, r2, r3 = executor.map(
+                    lambda q: rag_engine.web_search_fallback(q, max_results=3, clean=False) or [],
+                    (q1, q2, q3)
+                )
+
             # Combine results, removing duplicates by href
             seen = set()
             for r in r1 + r2 + r3:

@@ -1,6 +1,7 @@
 import os
 import math
 import re
+import time
 from typing import List, Dict, Any, Tuple, Optional
 from collections import Counter
 import openai
@@ -442,20 +443,30 @@ class RAGEngine:
         logger.info(f"Triggering live web search for query: '{clean_q}'")
         results = []
         
-        try:
-            with DDGS() as ddgs:
-                for r in ddgs.text(clean_q, max_results=max_results):
-                    results.append({
-                        "title": r.get("title", ""),
-                        "body": r.get("body", ""),
-                        "href": r.get("href", "")
-                    })
-            if results:
-                logger.info(f"Retrieved {len(results)} web results for '{clean_q}'.")
-            else:
-                logger.warning(f"Web search returned no results for '{clean_q}'.")
-        except Exception as e:
-            logger.error(f"Web search failed for '{clean_q}': {e}")
+        # DuckDuckGo throttles bursts, so a query fired alongside others often raises on
+        # the first try and succeeds moments later. Retry once on error (but not on an
+        # empty result, which is a real answer and shouldn't cost another round trip).
+        for attempt in range(2):
+            try:
+                with DDGS() as ddgs:
+                    for r in ddgs.text(clean_q, max_results=max_results):
+                        results.append({
+                            "title": r.get("title", ""),
+                            "body": r.get("body", ""),
+                            "href": r.get("href", "")
+                        })
+                if results:
+                    logger.info(f"Retrieved {len(results)} web results for '{clean_q}'.")
+                else:
+                    logger.warning(f"Web search returned no results for '{clean_q}'.")
+                break
+            except Exception as e:
+                results = []
+                if attempt == 0:
+                    logger.warning(f"Web search for '{clean_q}' failed ({e}); retrying once.")
+                    time.sleep(1.5)
+                else:
+                    logger.error(f"Web search failed for '{clean_q}': {e}")
 
         return results
 

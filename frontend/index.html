@@ -1435,6 +1435,14 @@ function renderPitch() {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
 
+  // The pitch is sized from its container, which measures 0 while the tab is hidden
+  // or before layout settles. Drawing then makes the inner dimensions negative and
+  // canvas throws on the first negative arc radius, aborting the whole render (and
+  // any caller mid-flight). The tab-switch and resize handlers redraw once there's
+  // a real size to work with.
+  const MIN_PITCH_SIZE = 120;
+  if (W < MIN_PITCH_SIZE || H < MIN_PITCH_SIZE) return;
+
   // Background
   ctx.fillStyle = '#0d2818';
   ctx.fillRect(0,0,W,H);

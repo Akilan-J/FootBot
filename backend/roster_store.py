@@ -17,6 +17,10 @@ from backend.rag_engine import rag_engine
 # TCP+TLS handshake per call was a major chunk of that latency.
 _session = requests.Session()
 
+# Caps on pulling a search result's page in as RAG context - see the fetch site below.
+_PAGE_FETCH_MAX_BYTES = 2_000_000
+_PAGE_FETCH_DEADLINE_SECONDS = 12
+
 CACHE_PATH = settings.RAW_DATA_PATH.parent / "roster_cache.json"
 
 # Predefined real-world squads (moved from frontend to simplify and centralize)
@@ -989,10 +993,28 @@ def get_real_world_roster(
                         headers = {
                             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                         }
-                        page_res = _session.get(url, headers=headers, timeout=5.0)
+                        # requests' timeout caps each socket read, not the whole
+                        # transfer, so a server that trickles bytes can hold a lookup
+                        # open for minutes (observed: one page stalled a squad lookup
+                        # for ~2 of its 4.5 minutes). Stream with a byte cap and an
+                        # overall deadline so one slow page can't dominate.
+                        page_res = _session.get(url, headers=headers, timeout=5.0, stream=True)
                         if page_res.status_code == 200:
+                            deadline = time.time() + _PAGE_FETCH_DEADLINE_SECONDS
+                            chunks, total = [], 0
+                            # Small chunks so the deadline is actually checked often;
+                            # with large ones the read blocks until a full chunk fills.
+                            for chunk in page_res.iter_content(chunk_size=1024):
+                                chunks.append(chunk)
+                                total += len(chunk)
+                                if total >= _PAGE_FETCH_MAX_BYTES or time.time() > deadline:
+                                    logger.warning(f"Stopped reading {url} early ({total} bytes).")
+                                    break
+                            page_res.close()
+                            html = b"".join(chunks).decode(page_res.encoding or "utf-8", errors="ignore")
+
                             from bs4 import BeautifulSoup
-                            page_soup = BeautifulSoup(page_res.text, "html.parser")
+                            page_soup = BeautifulSoup(html, "html.parser")
                             for s in page_soup(["script", "style", "noscript", "header", "footer", "nav"]):
                                 s.extract()
                             page_text = page_soup.get_text(separator=" ")

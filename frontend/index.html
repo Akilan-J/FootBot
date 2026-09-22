@@ -1383,12 +1383,24 @@ function getPlayerName(role, idx) {
 // PLAYER_NAMES pool + randomized ratings above.
 let loadedRosterPlayers = null;
 
+// Default/placeholder values that aren't real teams. The backend has no way to tell
+// these apart from a genuine club, so it burns a lookup and an LLM call on them.
+const PLACEHOLDER_TEAM_NAMES = new Set(['my team', 'home team', 'away team', 'team name', 'team']);
+
 async function loadRealTeamRoster() {
   const input = document.getElementById('team-name-input');
   const statusEl = document.getElementById('real-team-status');
   const teamName = input.value.trim();
   if (!teamName) {
     statusEl.textContent = 'Enter a team name first.';
+    statusEl.style.color = '#f59e0b';
+    return;
+  }
+  // The field ships with a placeholder name. Sending it to /roster makes the backend
+  // spend a (rate-limited) API lookup and then an LLM call inventing a squad for a
+  // club that doesn't exist, and caches the result under "my team".
+  if (PLACEHOLDER_TEAM_NAMES.has(teamName.toLowerCase())) {
+    statusEl.textContent = `Replace "${teamName}" with a real club or country first.`;
     statusEl.style.color = '#f59e0b';
     return;
   }

@@ -373,10 +373,27 @@ def update_cache_entry(key: str, value: List[Dict[str, Any]]) -> None:
     except Exception as e:
         logger.error(f"Error saving roster cache to {CACHE_PATH}: {e}")
 
+# Letters NFKD can't decompose into "base + accent": they're distinct letters, not
+# accented forms, so they'd otherwise be dropped entirely.
+_SLUG_TRANSLITERATIONS = {
+    'ð': 'd', 'Ð': 'D', 'þ': 'th', 'Þ': 'Th', 'æ': 'ae', 'Æ': 'Ae',
+    'ø': 'o', 'Ø': 'O', 'ß': 'ss', 'ł': 'l', 'Ł': 'L', 'đ': 'd', 'ı': 'i',
+}
+
 def slugify(name: str) -> str:
-    # Remove non-alphanumeric characters and replace spaces/hyphens with underscores
+    """Builds the asset filename stem for a player name.
+
+    Accents are transliterated rather than stripped: "Jérémy Doku" becomes
+    jeremy_doku, not jrmy_doku. Dropping them also meant the accented and
+    unaccented spellings of one player ("Rúben Dias" / "Ruben Dias") produced
+    different filenames, so the same photo got downloaded twice.
+    """
+    for char, replacement in _SLUG_TRANSLITERATIONS.items():
+        name = name.replace(char, replacement)
+    # NFKD splits "é" into "e" + combining accent; encoding to ASCII drops the accent.
+    name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('utf-8')
     name_clean = re.sub(r'[^a-zA-Z0-9\s-]', '', name)
-    return re.sub(r'[\s-]+', '_', name_clean).lower()
+    return re.sub(r'[\s-]+', '_', name_clean).strip('_').lower()
 
 NAME_EXPANSIONS = {
     # Manchester City
@@ -1464,8 +1481,8 @@ def generate_backend_fallback_roster(team_name: str, opponent_name: Optional[str
     HIGH_FIDELITY = {
         "portugal": [
             {"name": "Diogo Costa", "jersey": "22", "rating": 7.2, "pos": "GK", "photo": "frontend/assets/diogo_costa.png", "age": "26", "val": "€45M", "height": "186 cm", "sofa_id": "103456", "sub": False},
-            {"name": "João Cancelo", "jersey": "2", "rating": 7.5, "pos": "RB", "photo": "frontend/assets/joo_cancelo.png", "age": "32", "val": "€25M", "height": "182 cm", "sofa_id": "102345", "sub": False},
-            {"name": "Rúben Dias", "jersey": "4", "rating": 7.7, "pos": "RCB", "photo": "frontend/assets/rben_dias.png", "age": "29", "val": "€80M", "height": "187 cm", "sofa_id": "104567", "sub": False},
+            {"name": "João Cancelo", "jersey": "2", "rating": 7.5, "pos": "RB", "photo": "frontend/assets/joao_cancelo.png", "age": "32", "val": "€25M", "height": "182 cm", "sofa_id": "102345", "sub": False},
+            {"name": "Rúben Dias", "jersey": "4", "rating": 7.7, "pos": "RCB", "photo": "frontend/assets/ruben_dias.png", "age": "29", "val": "€80M", "height": "187 cm", "sofa_id": "104567", "sub": False},
             {"name": "Gonçalo Inácio", "jersey": "14", "rating": 7.1, "pos": "LCB", "photo": "", "age": "24", "val": "€45M", "height": "185 cm", "sofa_id": "111222", "sub": False},
             {"name": "Nuno Mendes", "jersey": "19", "rating": 7.4, "pos": "LB", "photo": "frontend/assets/nuno_mendes.png", "age": "24", "val": "€55M", "height": "176 cm", "sofa_id": "105678", "sub": False},
             {"name": "João Palhinha", "jersey": "6", "rating": 7.3, "pos": "LDM", "photo": "", "age": "30", "val": "€50M", "height": "190 cm", "sofa_id": "111333", "sub": False},
@@ -1478,9 +1495,9 @@ def generate_backend_fallback_roster(team_name: str, opponent_name: Optional[str
             {"name": "José Sá", "jersey": "12", "rating": 6.5, "pos": "GK", "photo": "", "age": "33", "val": "€10M", "height": "192 cm", "sofa_id": "111666", "sub": True},
             {"name": "Diogo Dalot", "jersey": "5", "rating": 6.8, "pos": "RB", "photo": "", "age": "27", "val": "€35M", "height": "184 cm", "sofa_id": "111777", "sub": True},
             {"name": "António Silva", "jersey": "24", "rating": 6.9, "pos": "CB", "photo": "", "age": "22", "val": "€45M", "height": "187 cm", "sofa_id": "111888", "sub": True, "subbed_in_for": "Gonçalo Inácio", "subbed_in_minute": "75'"},
-            {"name": "João Neves", "jersey": "15", "rating": 7.2, "pos": "CM", "photo": "frontend/assets/joo_neves.png", "age": "21", "val": "€55M", "height": "174 cm", "sofa_id": "106789", "sub": True, "subbed_in_for": "João Palhinha", "subbed_in_minute": "60'"},
+            {"name": "João Neves", "jersey": "15", "rating": 7.2, "pos": "CM", "photo": "frontend/assets/joao_neves.png", "age": "21", "val": "€55M", "height": "174 cm", "sofa_id": "106789", "sub": True, "subbed_in_for": "João Palhinha", "subbed_in_minute": "60'"},
             {"name": "Rúben Neves", "jersey": "18", "rating": 6.7, "pos": "CM", "photo": "", "age": "29", "val": "€32M", "height": "180 cm", "sofa_id": "111999", "sub": True},
-            {"name": "João Félix", "jersey": "11", "rating": 7.0, "pos": "LW", "photo": "frontend/assets/joo_flix.png", "age": "26", "val": "€30M", "height": "181 cm", "sofa_id": "108901", "sub": True, "subbed_in_for": "Rafael Leão", "subbed_in_minute": "65'"},
+            {"name": "João Félix", "jersey": "11", "rating": 7.0, "pos": "LW", "photo": "frontend/assets/joao_felix.png", "age": "26", "val": "€30M", "height": "181 cm", "sofa_id": "108901", "sub": True, "subbed_in_for": "Rafael Leão", "subbed_in_minute": "65'"},
             {"name": "Gonçalo Ramos", "jersey": "9", "rating": 7.1, "pos": "ST", "photo": "", "age": "24", "val": "€50M", "height": "185 cm", "sofa_id": "111000", "sub": True, "subbed_in_for": "Cristiano Ronaldo", "subbed_in_minute": "80'"}
         ],
         "congo dr": [

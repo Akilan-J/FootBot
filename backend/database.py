@@ -433,18 +433,23 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
     cursor = conn.cursor()
 
     try:
-        # Fetch existing matches for these two teams
+        # Fetch existing matches between these two teams, in either orientation.
+        # The same fixture can be scraped with home/away swapped (BBC lists it one way
+        # on a fixtures page and the other way elsewhere); matching only the exact
+        # home/away order used to create a duplicate row for the same match.
         cursor.execute("""
-            SELECT id, home_score, away_score, match_date, league FROM historical_matches 
-            WHERE LOWER(home_team) = LOWER(?) AND LOWER(away_team) = LOWER(?)
-        """, (home.strip(), away.strip()))
-        
+            SELECT id, home_team, away_team, home_score, away_score, match_date, league
+            FROM historical_matches
+            WHERE (LOWER(home_team) = LOWER(?) AND LOWER(away_team) = LOWER(?))
+               OR (LOWER(home_team) = LOWER(?) AND LOWER(away_team) = LOWER(?))
+        """, (home.strip(), away.strip(), away.strip(), home.strip()))
+
         rows = cursor.fetchall()
         matched_id = None
         existing_row = None
-        
+
         new_date_obj = parse_date_from_str(date_str)
-        
+
         for r in rows:
             exist_id = r["id"]
             exist_date_str = r["match_date"]
@@ -475,7 +480,13 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
             exist_hs = existing_row["home_score"]
             exist_as = existing_row["away_score"]
             exist_date_str = existing_row["match_date"]
-            
+
+            # If the stored row has the teams the other way round, flip the incoming
+            # scores so they stay aligned with the orientation already on the row -
+            # otherwise we'd write the home team's goals into the away column.
+            if existing_row["home_team"].strip().lower() == away.strip().lower():
+                home_score, away_score = away_score, home_score
+
             # Determine if new date has more details (e.g. contains calendar date while existing one doesn't)
             exist_has_cal = parse_date_from_str(exist_date_str) is not None
             new_has_cal = new_date_obj is not None
@@ -495,7 +506,10 @@ def save_historical_match(home: str, away: str, home_score: Optional[int], away_
                 """, (home_score, away_score, updated_date, league, matched_id))
                 if owns_conn:
                     conn.commit()
-                logger.info(f"Updated match {home} vs {away} to {home_score}-{away_score} (Date: {updated_date})")
+                logger.info(
+                    f"Updated match {existing_row['home_team']} vs {existing_row['away_team']} "
+                    f"to {home_score}-{away_score} (Date: {updated_date})"
+                )
         else:
             # No match found, insert new record
             cursor.execute("""

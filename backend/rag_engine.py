@@ -4,7 +4,7 @@ import re
 from typing import List, Dict, Any, Tuple, Optional
 from collections import Counter
 import openai
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -431,85 +431,31 @@ class RAGEngine:
         return cleaned
 
     def web_search_fallback(self, query: str, max_results: int = 3, clean: bool = True) -> List[Dict[str, Any]]:
-        """Queries Yahoo Search first for clean real-time snippets, falling back to DuckDuckGo if needed."""
+        """Fetches real-time snippets from the web to ground answers the local corpus can't.
+
+        Previously this scraped Yahoo first and only fell back to DuckDuckGo. Yahoo now
+        redirects automated requests into a bot-verification endpoint that ends in a 500,
+        so every search burned two failed attempts plus their retry sleeps - several
+        seconds - before reaching the fallback that was doing the actual work.
+        """
         clean_q = self._clean_search_query(query) if clean else query
         logger.info(f"Triggering live web search for query: '{clean_q}'")
         results = []
         
-        # 1. Query Yahoo Search (highly reliable, no Javascript requirements, rich snippets)
         try:
-            import requests
-            from bs4 import BeautifulSoup
-            import urllib.parse
-            import time
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            
-            # Generate variations of the query if we hit status 500 / other errors
-            queries_to_try = [clean_q]
-            if "congo dr" in clean_q.lower():
-                queries_to_try.append(clean_q.lower().replace("congo dr", "dr congo"))
-                queries_to_try.append(clean_q.lower().replace("congo dr", "congo"))
-            elif "dr congo" in clean_q.lower():
-                queries_to_try.append(clean_q.lower().replace("dr congo", "congo dr"))
-                
-            for q_idx, q in enumerate(queries_to_try):
-                encoded_query = urllib.parse.quote_plus(q)
-                url = f"https://search.yahoo.com/search?q={encoded_query}"
-                
-                # Retry transient 500 errors
-                res = None
-                for attempt in range(2):
-                    try:
-                        res = requests.get(url, headers=headers, timeout=10)
-                        if res.status_code == 200:
-                            break
-                        logger.warning(f"Yahoo Search returned status {res.status_code} for query '{q}'. Attempt {attempt+1} of 2. Retrying in 1.0s...")
-                        time.sleep(1.0)
-                    except Exception as req_e:
-                        logger.warning(f"Yahoo Search request failed for '{q}': {req_e}. Retrying in 1.0s...")
-                        time.sleep(1.0)
-                        
-                if res and res.status_code == 200:
-                    soup = BeautifulSoup(res.text, 'html.parser')
-                    items = soup.find_all(class_='algo')
-                    for item in items[:max_results]:
-                        h3 = item.find('h3')
-                        snippet_div = item.find('div', class_='compText')
-                        a = item.find('a')
-                        
-                        title = h3.text.strip() if h3 else ""
-                        body = snippet_div.text.strip() if snippet_div else ""
-                        href = a['href'] if a and a.has_attr('href') else ""
-                        
-                        if title or body:
-                            results.append({
-                                "title": title,
-                                "body": body,
-                                "href": href
-                            })
-                    if results:
-                        logger.info(f"Successfully retrieved {len(results)} results from Yahoo search using query '{q}'.")
-                        break
-        except Exception as y_err:
-            logger.error(f"Yahoo Search failed: {str(y_err)}")
-
-        # 2. Fallback to DuckDuckGo Search if Yahoo returned nothing
-        if not results:
-            logger.info("Yahoo Search returned no results. Falling back to DuckDuckGo...")
-            try:
-                with DDGS() as ddgs:
-                    ddg_generator = ddgs.text(clean_q, backend="html", max_results=max_results)
-                    for r in ddg_generator:
-                        results.append({
-                            "title": r.get("title", ""),
-                            "body": r.get("body", ""),
-                            "href": r.get("href", "")
-                        })
-            except Exception as e:
-                logger.error(f"DuckDuckGo search encountered an error: {str(e)}")
+            with DDGS() as ddgs:
+                for r in ddgs.text(clean_q, max_results=max_results):
+                    results.append({
+                        "title": r.get("title", ""),
+                        "body": r.get("body", ""),
+                        "href": r.get("href", "")
+                    })
+            if results:
+                logger.info(f"Retrieved {len(results)} web results for '{clean_q}'.")
+            else:
+                logger.warning(f"Web search returned no results for '{clean_q}'.")
+        except Exception as e:
+            logger.error(f"Web search failed for '{clean_q}': {e}")
 
         return results
 

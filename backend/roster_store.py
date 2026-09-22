@@ -933,7 +933,8 @@ def get_real_world_roster(
                 search_date = re.sub(k, v, search_date, flags=re.IGNORECASE)
                 break
                 
-        # Combine multiple search queries to bypass Yahoo 500 errors and gather rich context
+        # Ask from three angles and merge the hits, since any single phrasing often
+        # misses the actual lineup page
         q1 = f"{team_name} vs {opponent_name} {search_date} starting XI"
         q2 = f"{team_name} vs {opponent_name} {search_date} lineups"
         q3 = f"{team_name} football team squad players roster"

@@ -16,6 +16,9 @@ class Settings:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     OPENAI_MODEL_NAME: str = os.getenv("OPENAI_MODEL_NAME", "gpt-4o-mini")
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.7"))
+    # Per-request cap on LLM calls. The SDK's own default is 600s, which is far too
+    # long for a user-facing lookup that may retry the call several times.
+    LLM_REQUEST_TIMEOUT_SECONDS: float = float(os.getenv("LLM_REQUEST_TIMEOUT_SECONDS", "120"))
     
     # API-Football key
     API_FOOTBALL_KEY: str = os.getenv("API_FOOTBALL_KEY", "")

@@ -192,15 +192,21 @@ class RAGEngine:
         api_key = settings.OPENAI_API_KEY
         if api_key and not api_key.startswith("your-"):
             try:
+                # The SDK defaults to a 600s read timeout. Roster generation retries up
+                # to three times, so one unresponsive completion could tie up a lookup
+                # for half an hour. Bound it: generous for a slow free-tier generation,
+                # but not open-ended.
+                timeout = settings.LLM_REQUEST_TIMEOUT_SECONDS
                 if api_key.startswith("sk-or-"):
                     logger.info("OpenRouter API Key detected. Initializing with OpenRouter base URL...")
                     self.openai_client = openai.OpenAI(
                         api_key=api_key,
-                        base_url="https://openrouter.ai/api/v1"
+                        base_url="https://openrouter.ai/api/v1",
+                        timeout=timeout
                     )
                     self.model_name = "openai/gpt-4o-mini" if settings.OPENAI_MODEL_NAME == "gpt-4o-mini" else settings.OPENAI_MODEL_NAME
                 else:
-                    self.openai_client = openai.OpenAI(api_key=api_key)
+                    self.openai_client = openai.OpenAI(api_key=api_key, timeout=timeout)
                     self.model_name = settings.OPENAI_MODEL_NAME
                 logger.info(f"OpenAI Client successfully initialized (Model: {self.model_name}).")
             except Exception as e:

@@ -1,4 +1,3 @@
-# FootBot
 # FootBot ⚽🤖
 
 An intelligent, production-ready Generative AI + RAG (Retrieval-Augmented Generation) application designed for deep football tactics analysis, player comparisons, and match insights.
@@ -44,7 +43,7 @@ graph TD
 
     C -->|Relevant Context| E
 
-    E -->|Prompt + Context| F[LLM API - OpenAI GPT]
+    E -->|Prompt + Context| F[LLM API - OpenAI / OpenRouter]
 
     F -->|Generated Tactical Analysis| E
 
@@ -137,7 +136,7 @@ scorelines and match centre - served directly by the backend at `/`.
 
 | Category | Technology |
 |---|---|
-| LLM | OpenAI GPT |
+| LLM | OpenAI-compatible (OpenAI or OpenRouter) |
 | RAG Framework | LangChain |
 | Embeddings | SentenceTransformers |
 | Vector Database | FAISS |
@@ -154,20 +153,27 @@ scorelines and match centre - served directly by the backend at `/`.
 footbot/
 │
 ├── backend/
-│   ├── main.py
-│   ├── rag_engine.py
+│   ├── main.py            # FastAPI app: API + serves the web UI
+│   ├── rag_engine.py      # hybrid retrieval, query expansion, re-ranking
+│   ├── database.py        # SQLite: users, sessions, matches, API caches
+│   ├── roster_store.py    # squad/lineup resolution and player photos
+│   ├── loaders/           # API-Football client, BBC scrapers, PDF/blog loaders
 │   ├── ingest.py
 │   └── utils.py
 │
 ├── frontend/
-│   ├── index.html
-│   └── assets/
+│   ├── index.html         # the web UI, served by the backend at /
+│   └── assets/            # player photos, silhouettes, icons
 │
 ├── data/
 │   ├── raw/
 │   ├── processed/
 │   └── embeddings/
 │
+├── tests/                 # pytest suite
+├── postman/               # Postman collection + local environment
+├── Dockerfile.backend
+├── docker-compose.yml
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -180,9 +186,9 @@ footbot/
 # 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/footbot.git
+git clone https://github.com/Akilan-J/FootBot.git
 
-cd footbot
+cd FootBot
 ```
 
 ---
@@ -217,12 +223,18 @@ pip install -r requirements.txt
 
 # 4️⃣ Configure Environment Variables
 
-Create a `.env` file:
+Copy the template and fill it in — it documents every supported setting:
+
+```bash
+cp .env.example .env
+```
+
+At minimum you need an LLM key; `API_FOOTBALL_KEY` is optional but needed for
+real fixtures, lineups and team crests:
 
 ```env
 OPENAI_API_KEY=your_api_key_here
-
-FAISS_DB_PATH=./data/embeddings
+API_FOOTBALL_KEY=your_api_football_key_here
 ```
 
 ---
@@ -264,13 +276,40 @@ http://localhost:8000
 
 ---
 
+# 🐳 Run with Docker
+
+The backend image serves both the API and the web UI on port 8000:
+
+```bash
+docker compose up --build
+```
+
+---
+
+# 🧪 Running Tests
+
+```bash
+pytest
+```
+
+That runs the fast suite (database, auth/session tokens, API-Football client) in
+under a second. Endpoint tests are marked `slow` because they import the full app
+and load the embedding model:
+
+```bash
+pytest -m ""        # everything, including the endpoint tests
+pytest -m slow      # only the endpoint tests
+```
+
+---
+
 # 📬 Postman API Integration (Player Headshots)
 
 To test, consume, or retrieve player headshots and position-based avatar silhouettes programmatically:
 
 1. **Import Integration Files**:
-   - Open Postman, click **Import**, and select the collection file: [FootBot_Player_Headshots.postman_collection.json](file:///Users/akilan/Documents/FootBot/FootBot/postman/FootBot_Player_Headshots.postman_collection.json)
-   - Import the corresponding local environment variables file: [FootBot_Local.postman_environment.json](file:///Users/akilan/Documents/FootBot/FootBot/postman/FootBot_Local.postman_environment.json)
+   - Open Postman, click **Import**, and select the collection file: [postman/FootBot_Player_Headshots.postman_collection.json](postman/FootBot_Player_Headshots.postman_collection.json)
+   - Import the corresponding local environment variables file: [postman/FootBot_Local.postman_environment.json](postman/FootBot_Local.postman_environment.json)
 2. **Select Environment**:
    - In the top-right corner of Postman, select the **FootBot Local** environment. This defines the `{{base_url}}` variable as `http://127.0.0.1:8000`.
 3. **Run Requests**:
@@ -299,14 +338,21 @@ Why are inverted fullbacks important in modern football?
 
 # 📊 Future Improvements
 
-- [ ] Hybrid Retrieval (FAISS + BM25)
-- [ ] Cross-Encoder Reranking
+Delivered:
+
+- [x] Hybrid Retrieval (FAISS dense + BM25 lexical, fused per query)
+- [x] LLM-based query expansion and re-ranking
+- [x] Real-Time Football API Integration (API-Football + BBC Sport)
+- [x] Docker Containerization
+- [x] Dedicated web UI (replaced the original Streamlit prototype)
+- [x] Automated test suite (`pytest`)
+
+Still open:
+
+- [ ] Cross-Encoder Reranking (re-ranking is currently LLM-based)
 - [ ] LangSmith Tracing
-- [ ] Redis Conversation Memory
-- [ ] Docker Containerization
-- [ ] Real-Time Football API Integration
+- [ ] Redis Conversation Memory (conversations live in SQLite today)
 - [ ] Streaming LLM Responses
-- [ ] React Frontend Migration
 
 ---
 
@@ -327,9 +373,13 @@ using:
 
 # ⚠️ Current Limitations
 
-- No real-time football data yet
 - Tactical reasoning quality depends on retrieved context quality
-- Initial version optimized for English tactical literature
+- Optimized for English tactical literature
+- Live data depends on third-party sources: API-Football's free tier allows only
+  10 requests/minute (requests are throttled to stay under it), and the BBC Sport
+  scrapers are tied to that site's current page structure
+- Squad/lineup data falls back to LLM-generated rosters when API-Football has no
+  fixture, so those values are approximate rather than authoritative
 
 ---
 

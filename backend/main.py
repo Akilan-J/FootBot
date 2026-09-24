@@ -338,13 +338,16 @@ def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(Non
         )
 
     try:
-        from backend.database import create_session, save_message, verify_session_owner
+        from backend.database import create_session, save_message, verify_session_owner, get_messages
 
         # 1. Resolve or create database session
         session_id = request.session_id
+        history = []
         if session_id and session_id.strip():
             if not verify_session_owner(session_id, user_id):
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
+            # Earlier turns, so follow-up questions are answered in context
+            history = [{"role": m["role"], "content": m["content"]} for m in get_messages(session_id)]
         else:
             # Generate descriptive session title
             title = request.query.strip()
@@ -359,7 +362,8 @@ def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(Non
         analysis_result = rag_engine.generate_tactical_analysis(
             query=request.query,
             top_k=request.top_k,
-            temperature=request.temperature
+            temperature=request.temperature,
+            history=history
         )
         
         # 4. Save FootBot response to database
@@ -444,39 +448,58 @@ def ingest_url_endpoint(request: UrlIngestRequest):
                 detail="Failed to crawl and extract clean text from the provided URL. Ensure it is accessible."
             )
             
-        # 2. Segment document
+        # 2. Keep the page in data/raw so a full re-index doesn't drop it
+        from backend.loaders.blog_loader import save_url_document
+        saved_path, already_saved = save_url_document(settings.RAW_DATA_PATH, request.url, docs)
+        logger.info(f"Saved scraped page to {saved_path}")
+
+        # 3. Segment document
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=settings.CHUNK_SIZE,
             chunk_overlap=settings.CHUNK_OVERLAP
         )
         chunks = text_splitter.split_documents(docs)
         logger.info(f"Split scraped webpage into {len(chunks)} overlapping chunks.")
-        
-        # 3. Add to existing index, or compile a new one
-        if rag_engine.vector_store is not None:
+
+        # 4. A URL that's already indexed is re-indexed from scratch, replacing its old
+        #    chunks; appending again used to stack up duplicate copies of the page.
+        indexed_sources = set()
+        if rag_engine.vector_store is not None and hasattr(rag_engine.vector_store.docstore, "_dict"):
+            indexed_sources = {d.metadata.get("source") for d in rag_engine.vector_store.docstore._dict.values()}
+
+        if already_saved or request.url.strip() in indexed_sources:
+            logger.info("URL was already indexed. Rebuilding the index to replace its chunks...")
+            result = run_ingestion()
+            if result.get("status") != "success":
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=result.get("message", "Re-indexing failed.")
+                )
+        elif rag_engine.vector_store is not None:
             rag_engine.vector_store.add_documents(chunks)
             logger.info("Added new chunks to existing in-memory FAISS database.")
-            # Save FAISS index locally
             rag_engine.vector_store.save_local(str(settings.FAISS_DB_PATH))
             logger.info(f"Saved updated FAISS index to: {settings.FAISS_DB_PATH}")
         else:
-            logger.info("FAISS index does not exist. Creating a fresh index with scraped URL data...")
-            from langchain_community.vectorstores import FAISS
-            from langchain_community.embeddings import HuggingFaceEmbeddings
-            embeddings = HuggingFaceEmbeddings(model_name=settings.EMBEDDING_MODEL_NAME)
-            db = FAISS.from_documents(chunks, embeddings)
-            db.save_local(str(settings.FAISS_DB_PATH))
-            logger.info(f"Created and saved fresh FAISS index to: {settings.FAISS_DB_PATH}")
-            
-        # 4. Perform dynamic in-memory hot-reload
+            logger.info("FAISS index does not exist. Building it from data/raw, including the scraped URL...")
+            result = run_ingestion()
+            if result.get("status") != "success":
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=result.get("message", "Indexing failed.")
+                )
+
+        # 5. Perform dynamic in-memory hot-reload
         rag_engine.load_vector_db(force_reload=True)
-        
+
         return {
             "status": "success",
             "total_files_processed": 1,
             "total_chunks_indexed": len(chunks),
             "message": f"Successfully scraped, segmented, and hot-indexed {len(chunks)} chunks into active memory!"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed dynamic URL ingestion: {str(e)}")
         raise HTTPException(
@@ -662,20 +685,30 @@ def get_roster_endpoint(
     opponent_name: Optional[str] = None,
     match_date: Optional[str] = None,
     home_score: Optional[int] = None,
-    away_score: Optional[int] = None
+    away_score: Optional[int] = None,
+    include_match_data: bool = True
 ):
     """Retrieves the real-world starting XI roster for a team, querying the LLM + cache if needed.
-    Also fetches match stats (possession, shots, bigChances, passes) and goal events when
-    opponent_name and match_date are provided.
+    Also fetches match stats (possession, shots, shots on target, ...), goal and card
+    events, and per-player goals/assists/shots when opponent_name and match_date are
+    provided. Stats and events are reconciled so shot counts never fall below the
+    goals actually scored. Pass include_match_data=false to get just the roster
+    (the Match Centre's second, away-team request does this).
     """
     try:
-        from backend.roster_store import get_real_world_roster, get_match_stats, get_match_events
+        from backend.roster_store import (
+            get_real_world_roster, get_match_stats, get_match_events,
+            get_match_cards, get_match_player_stats,
+        )
+        from backend.match_stats import normalize_goal_events, reconcile_stats, side_of
 
         roster = get_real_world_roster(team_name, opponent_name, match_date)
 
         stats = None
         events = None
-        if opponent_name and match_date:
+        cards = None
+        player_stats = None
+        if opponent_name and match_date and include_match_data:
             try:
                 stats = get_match_stats(
                     home=team_name,
@@ -688,13 +721,30 @@ def get_roster_endpoint(
                 logger.error(f"Error fetching match stats for {team_name} vs {opponent_name}: {str(stats_err)}")
 
             try:
-                events = get_match_events(
-                    home=team_name,
-                    away=opponent_name,
-                    date=match_date
+                events = normalize_goal_events(
+                    get_match_events(home=team_name, away=opponent_name, date=match_date),
+                    team_name, opponent_name, home_score, away_score,
                 )
             except Exception as ev_err:
                 logger.error(f"Error fetching match events for {team_name} vs {opponent_name}: {str(ev_err)}")
+
+            try:
+                cards = get_match_cards(team_name, opponent_name, match_date)
+                if cards is not None:
+                    for c in cards:
+                        side = side_of(c.get("team", ""), team_name, opponent_name)
+                        if side:
+                            c["team"] = team_name if side == "home" else opponent_name
+            except Exception as card_err:
+                logger.error(f"Error fetching match cards for {team_name} vs {opponent_name}: {str(card_err)}")
+
+            try:
+                player_stats = get_match_player_stats(team_name, opponent_name, match_date)
+            except Exception as ps_err:
+                logger.error(f"Error fetching player stats for {team_name} vs {opponent_name}: {str(ps_err)}")
+
+            if stats is not None:
+                stats = reconcile_stats(stats, team_name, opponent_name, events, home_score, away_score, player_stats)
 
         response = {}
         if roster:
@@ -716,6 +766,10 @@ def get_roster_endpoint(
             response["stats"] = stats
         if events is not None:
             response["events"] = events
+        if cards is not None:
+            response["cards"] = cards
+        if player_stats is not None:
+            response["playerStats"] = player_stats
         return response
     except Exception as e:
         logger.error(f"Error serving roster for {team_name}: {str(e)}")

@@ -1,9 +1,8 @@
-import os
 import math
+import os
 import re
 import time
 from typing import List, Dict, Any, Tuple, Optional
-from collections import Counter
 import openai
 from ddgs import DDGS
 from langchain_community.vectorstores import FAISS
@@ -14,153 +13,48 @@ from backend.config import settings
 from backend.utils import logger, is_vector_db_ready
 from backend.prompts import TACTICAL_ANALYST_SYSTEM_PROMPT, TACTICAL_ANALYST_USER_TEMPLATE
 
-class BM25Searcher:
-    """Custom, highly-optimized BM25 Lexical Keyword search engine for document chunks."""
-    
-    def __init__(self, documents: List[Document]):
-        self.documents = documents
-        self.doc_count = len(documents)
-        self.corpus_size = len(documents)
-        
-        # Word tokenizer
-        self.doc_tokens = [self._tokenize(doc.page_content) for doc in documents]
-        self.doc_lens = [len(tokens) for tokens in self.doc_tokens]
-        self.avg_doc_len = sum(self.doc_lens) / max(1, self.corpus_size)
-        
-        # Term frequencies
-        self.doc_tfs = [Counter(tokens) for tokens in self.doc_tokens]
-        
-        # Document frequency for terms
-        self.dfs = Counter()
-        for tokens in self.doc_tokens:
-            self.dfs.update(set(tokens))
-            
-        # BM25 Hyperparameters
-        self.k1 = 1.5
-        self.b = 0.75
+# Re-exported here so existing `from backend.rag_engine import BM25Searcher` keeps working
+from backend.retrieval_utils import (  # noqa: E402
+    BM25Searcher,
+    clean_search_query,
+    is_live_intent,
+    rank_historical_matches,
+    reciprocal_rank_fusion,
+    team_search_terms,
+)
 
-    def _tokenize(self, text: str) -> List[str]:
-        return re.findall(r"\b\w+\b", text.lower())
+# Reranker scores are 0-10. Chunks the LLM grades below this are dropped rather
+# than passed to the answer as "grounding".
+RERANK_MIN_SCORE = 3.0
 
-    def search(self, query: str, top_k: int = 5) -> List[Tuple[Document, float]]:
-        query_tokens = self._tokenize(query)
-        if not query_tokens:
-            return []
-            
-        scores = []
-        for idx in range(self.doc_count):
-            score = 0.0
-            doc_tf = self.doc_tfs[idx]
-            doc_len = self.doc_lens[idx]
-            
-            for token in query_tokens:
-                tf = doc_tf.get(token, 0)
-                df = self.dfs.get(token, 0)
-                
-                # Standard smoothed IDF
-                idf = math.log((self.doc_count - df + 0.5) / (df + 0.5) + 1.0)
-                
-                # BM25 scoring formula
-                numerator = tf * (self.k1 + 1.0)
-                denominator = tf + self.k1 * (1.0 - self.b + self.b * (doc_len / max(1.0, self.avg_doc_len)))
-                score += idf * (numerator / denominator)
-                
-            if score > 0.0:
-                scores.append((self.documents[idx], score))
-                
-        scores.sort(key=lambda x: x[1], reverse=True)
-        return scores[:top_k]
+# How much of the conversation is replayed to the LLM for follow-up questions.
+HISTORY_MAX_TURNS = 6
+HISTORY_MAX_CHARS_PER_TURN = 1500
 
-def reciprocal_rank_fusion(
-    dense_results: List[Tuple[Document, float]], 
-    lexical_results: List[Tuple[Document, float]], 
-    top_k: int = 5,
-    k: int = 60
-) -> List[Tuple[Document, float]]:
-    """
-    Applies Reciprocal Rank Fusion (RRF) to merge dense FAISS semantic results
-    and sparse BM25 lexical results.
-    """
-    rrf_scores = {}
-    
-    def get_doc_key(doc: Document) -> str:
-        return f"{doc.metadata.get('source', '')}__{doc.page_content[:100]}"
-        
-    for rank, (doc, score) in enumerate(dense_results):
-        key = get_doc_key(doc)
-        if key not in rrf_scores:
-            rrf_scores[key] = {"doc": doc, "score": 0.0, "dense_score": score, "lexical_score": 0.0}
-        rrf_scores[key]["score"] += 1.0 / (k + (rank + 1))
-        
-    for rank, (doc, score) in enumerate(lexical_results):
-        key = get_doc_key(doc)
-        if key not in rrf_scores:
-            rrf_scores[key] = {"doc": doc, "score": 0.0, "dense_score": 0.0, "lexical_score": score}
-        rrf_scores[key]["score"] += 1.0 / (k + (rank + 1))
-        
-    sorted_keys = sorted(rrf_scores.keys(), key=lambda x: rrf_scores[x]["score"], reverse=True)
-    
-    fused_results = []
-    for key in sorted_keys[:top_k]:
-        item = rrf_scores[key]
-        fused_results.append((item["doc"], item["score"]))
-        
-    return fused_results
 
 def retrieve_historical_matches_context(query: str) -> str:
     """
-    Scans the query for potential team names or keywords, retrieves matches
-    from the historical_matches table, and formats them as RAG context.
+    Finds teams named in the query, retrieves their matches from the
+    historical_matches table, and formats them as RAG context.
     """
     try:
         from backend.database import search_historical_matches
     except ImportError:
         return ""
-        
-    # Extract alphabetic words of length >= 3
-    raw_words = re.findall(r"\b[a-zA-Z]+\b", query)
-    exclude_words = {
-        "versus", "vs", "compare", "analysis", "tactics", "tactical", "formation", "board",
-        "play", "player", "players", "coach", "coaches", "manager", "managers", "team", "teams",
-        "score", "scores", "result", "results", "match", "matches", "game", "games", "what", "show",
-        "tell", "explain", "about", "league", "group", "cup", "world", "final", "semi", "quarter",
-        "tiki", "taka", "juego", "posicion", "press", "pressing", "counter", "gegenpress", "gegenpressing",
-        "inverted", "fullback", "fullbacks", "pivot", "pivots", "midfielder", "midfielders", "striker",
-        "strikers", "winger", "wingers", "defender", "defenders", "goalkeeper", "goalkeepers", "goal",
-        "goals", "assist", "assists", "shot", "shots", "pass", "passes", "possession", "defense",
-        "fc", "united", "city", "real", "club", "town", "county", "athletic", "some", "more", "detail",
-        "details", "information", "info", "history", "recent", "past", "last", "latest", "next",
-        "today", "yesterday", "tomorrow", "live", "feed", "news", "report", "reports", "stats",
-        "statistics", "scouting", "analyst", "analysis", "tactician", "tactical", "opinion", "opinions"
-    }
-    
-    words = []
-    for w in raw_words:
-        w_clean = w.strip()
-        if w_clean.lower() not in exclude_words and len(w_clean) >= 3:
-            words.append(w_clean)
-        
-    found_matches = []
-    seen = set()
-    
-    for word in words:
-        matches = search_historical_matches(word)
-        for m in matches:
-            match_key = f"{m['home_team']}__{m['away_team']}__{m['match_date']}"
-            if match_key not in seen:
-                seen.add(match_key)
-                found_matches.append(m)
-                
+
+    candidates = []
+    for term in team_search_terms(query):
+        candidates.extend(search_historical_matches(term))
+    found_matches = rank_historical_matches(query, candidates, limit=10)
     if not found_matches:
         return ""
-        
+
     context_lines = [
         "=== RETRIEVED HISTORICAL MATCH RESULTS (DATABASE) ===",
         "These completed past matches were retrieved from our local SQLite index for grounding:",
         ""
     ]
-    
-    for idx, m in enumerate(found_matches[:10]):
+    for idx, m in enumerate(found_matches):
         home_score = m["home_score"] if m["home_score"] is not None else "?"
         away_score = m["away_score"] if m["away_score"] is not None else "?"
         context_lines.append(
@@ -168,7 +62,7 @@ def retrieve_historical_matches_context(query: str) -> str:
             f"    Match Result: {m['home_team']} {home_score} - {away_score} {m['away_team']}"
         )
         context_lines.append("")
-        
+
     logger.info(f"Retrieved {len(found_matches)} historical matches to ground query.")
     return "\n".join(context_lines)
 
@@ -282,13 +176,47 @@ class RAGEngine:
                 return []
                 
         try:
-            # similarity_search_with_relevance_scores returns (doc, score)
-            results = self.vector_store.similarity_search_with_relevance_scores(query, k=top_k)
-            # Filter out results that are negative or extremely low confidence (optional)
-            return results
+            # The index is IndexFlatL2 over unit-length embeddings and returns squared L2
+            # distances. This is the same 1 - d/sqrt(2) mapping LangChain's relevance
+            # scores use (so RAG_SIMILARITY_THRESHOLD keeps its meaning), clamped to
+            # [0, 1]: unclamped, weak matches went negative and LangChain warned on
+            # every search.
+            results = self.vector_store.similarity_search_with_score(query, k=top_k)
+            return [(doc, max(0.0, min(1.0, 1.0 - float(dist) / math.sqrt(2)))) for doc, dist in results]
         except Exception as e:
             logger.error(f"Error during similarity search: {str(e)}")
             return []
+
+    def _condense_query(self, query: str, history: List[Dict[str, str]]) -> str:
+        """Rewrites a follow-up ("what about his passing?") into a standalone question
+        using the conversation, so retrieval searches for what was actually asked."""
+        if self.openai_client is None or not history:
+            return query
+        transcript = "\n".join(
+            f"{turn['role'].upper()}: {turn['content'][:600]}" for turn in history[-4:]
+        )
+        try:
+            completion = self.openai_client.chat.completions.create(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": "You rewrite follow-up questions into standalone search questions. Output only the rewritten question."},
+                    {"role": "user", "content": (
+                        f"Conversation so far:\n{transcript}\n\n"
+                        f"Follow-up question: {query}\n\n"
+                        "Rewrite the follow-up as a single standalone question that names the players, teams "
+                        "or concepts it refers to. If it is already standalone, return it unchanged."
+                    )}
+                ],
+                temperature=0.0,
+                max_tokens=120
+            )
+            rewritten = (completion.choices[0].message.content or "").strip().strip('"')
+            if rewritten:
+                logger.info(f"Condensed follow-up '{query}' into standalone query '{rewritten}'")
+                return rewritten
+        except Exception as e:
+            logger.error(f"Error condensing follow-up query: {e}")
+        return query
 
     def _expand_query(self, query: str) -> List[str]:
         """
@@ -403,7 +331,10 @@ class RAGEngine:
                     
                 scored_docs.sort(key=lambda x: x[1], reverse=True)
                 logger.info(f"Re-ranked {len(scored_docs)} chunks. Top score: {scored_docs[0][1] if scored_docs else 0.0}")
-                return scored_docs[:top_k]
+                relevant = [(doc, score) for doc, score in scored_docs if score >= RERANK_MIN_SCORE]
+                if len(relevant) < len(scored_docs):
+                    logger.info(f"Dropped {len(scored_docs) - len(relevant)} chunks graded below {RERANK_MIN_SCORE}/10.")
+                return relevant[:top_k]
         except Exception as e:
             logger.error(f"Error during LLM re-ranking: {e}")
             
@@ -412,28 +343,7 @@ class RAGEngine:
 
     def _clean_search_query(self, query: str) -> str:
         """Simplifies the search query for search engine compatibility."""
-        import re
-        q = query.lower()
-        
-        # Strip punctuation
-        q = re.sub(r"[?!.,;:\-\"\']", " ", q)
-        
-        # Strip common question prefixes
-        question_patterns = [
-            r"^(what was the score of|what was the|who did|how did|why did|explain the|explain|compare|so what if i want to|tell me about|what is|how to)\s+"
-        ]
-        for pattern in question_patterns:
-            q = re.sub(pattern, "", q)
-            
-        # Strip common stop words
-        stop_words = ["vs", "versus", "the", "a", "an", "of", "and", "in", "to", "for", "with", "on", "at", "by"]
-        words = [w for w in q.split() if w and w not in stop_words]
-        
-        if len(words) > 5:
-            # Keep top 5 key terms
-            words = words[:5]
-            
-        cleaned = " ".join(words)
+        cleaned = clean_search_query(query)
         logger.info(f"Simplified query for Web Search: '{query}' ➔ '{cleaned}'")
         return cleaned
 
@@ -480,46 +390,55 @@ class RAGEngine:
         self, 
         query: str, 
         top_k: int = None, 
-        temperature: float = None
+        temperature: float = None,
+        history: Optional[List[Dict[str, str]]] = None
     ) -> Dict[str, Any]:
         """
         Orchestrates the entire RAG pipeline:
-        1. Live Intent Check -> Fetch and Prepend BBC Sport RSS updates if needed
-        2. Query -> Semantic Retrieval -> Top-K Context Chunks
-        3. Score Threshold Evaluation -> Trigger live web search if needed
-        4. Format Context & System/User Prompts
-        5. Call OpenAI LLM Completion
-        6. Return Structured Response + Source Audits
+        1. Follow-up questions are condensed into standalone ones using `history`
+        2. Live Intent Check -> Fetch and Prepend BBC Sport live scores/news if needed
+        3. Query expansion -> hybrid (FAISS + BM25) retrieval per query, fused with RRF
+        4. LLM re-ranking; chunks graded irrelevant are dropped
+        5. Web search fallback when the local corpus doesn't cover the question
+        6. Format Context & System/User Prompts (with recent conversation turns)
+        7. Call the LLM and return the response plus source audits
         """
-        top_k = top_k or settings.RETRIEVAL_TOP_K
-        temperature = temperature or settings.LLM_TEMPERATURE
-        
-        # 1. Detect Live Intent (scores, live matches, news, transfers) and Historical Matches intent
-        import re
-        live_keywords = [r"\blive\b", r"\bscore\b", r"\btoday\b", r"\bplaying\b", r"\bmatches\b", r"\bfixture\b", r"\btransfer\b", r"\brumor\b", r"\bnews\b", r"\bmatch\b", r"\bresult\b"]
-        is_live_intent = any(re.search(kw, query.lower()) for kw in live_keywords)
-        
+        # Explicit None checks: a requested temperature of 0.0 is valid
+        top_k = top_k if top_k is not None else settings.RETRIEVAL_TOP_K
+        temperature = temperature if temperature is not None else settings.LLM_TEMPERATURE
+        history = [
+            {"role": turn.get("role"), "content": str(turn.get("content") or "")}
+            for turn in (history or [])
+            if turn.get("role") in ("user", "assistant") and turn.get("content")
+        ][-HISTORY_MAX_TURNS:]
+
+        if self.openai_client is None:
+            self.initialize_openai()
+
+        search_query = self._condense_query(query, history)
+
+        # 1. Live scores / news for questions about what's happening now
         is_live_matches_active = False
         live_context = ""
-        if is_live_intent:
-            logger.info("Live football match/news intent detected. Fetching RSS live feed...")
+        if is_live_intent(search_query):
+            logger.info("Live football match/news intent detected. Fetching live feed...")
             try:
-                from backend.loaders.live_score_loader import get_live_scores_context
-                live_context = get_live_scores_context()
-                is_live_matches_active = True
+                from backend.loaders.live_score_loader import fetch_live_football_feed, get_live_scores_context
+                if fetch_live_football_feed():
+                    live_context = get_live_scores_context()
+                    is_live_matches_active = True
+                else:
+                    logger.warning("Live feed returned no items; not using it as context.")
             except Exception as e:
                 logger.error(f"Failed to fetch live scores context in RAG: {str(e)}")
-                
+
         # Query local historical SQLite matches
-        historical_context = retrieve_historical_matches_context(query)
-        
-        # 2. Retrieve Local Context Chunks via Hybrid Search (BM25 + FAISS Vector) with Query Expansion
-        logger.info(f"Running Hybrid Search with Query Expansion for query: '{query}'")
-        queries = self._expand_query(query)
-        
-        all_dense_results = []
-        all_lexical_results = []
-        
+        historical_context = retrieve_historical_matches_context(search_query)
+
+        # 2. Hybrid search (FAISS + BM25) for each expanded query, fused with RRF
+        logger.info(f"Running Hybrid Search with Query Expansion for query: '{search_query}'")
+        queries = self._expand_query(search_query)
+
         # Lazy compile BM25 searcher if needed
         if self.vector_store and self.bm25_searcher is None:
             try:
@@ -530,62 +449,47 @@ class RAGEngine:
                         logger.info(f"Compiled lazy BM25 index with {len(all_docs)} documents.")
             except Exception as e:
                 logger.error(f"Error compiling lazy BM25 index: {str(e)}")
-                
+
+        ranked_lists = []
         for q in queries:
-            dense_q = self.retrieve_context(q, top_k * 3)
-            all_dense_results.extend(dense_q)
-            
+            ranked_lists.append(self.retrieve_context(q, top_k * 3))
             if self.bm25_searcher is not None:
                 try:
-                    lexical_q = self.bm25_searcher.search(q, top_k * 3)
-                    all_lexical_results.extend(lexical_q)
+                    ranked_lists.append(self.bm25_searcher.search(q, top_k * 3))
                 except Exception as e:
                     logger.error(f"Error searching BM25 index for query '{q}': {str(e)}")
-                    
-        # Deduplicate dense and lexical lists based on page content to avoid RRF noise
-        def deduplicate_results(results):
-            seen_content = set()
-            deduped = []
-            for doc, score in results:
-                content_summary = doc.page_content[:150]
-                if content_summary not in seen_content:
-                    seen_content.add(content_summary)
-                    deduped.append((doc, score))
-            return deduped
 
-        deduped_dense = deduplicate_results(all_dense_results)
-        deduped_lexical = deduplicate_results(all_lexical_results)
-
-        # Merge candidates using RRF (ranking candidates over all expanded query formulations)
-        fused_candidates = reciprocal_rank_fusion(deduped_dense, deduped_lexical, top_k=top_k * 3)
+        fused_candidates = reciprocal_rank_fusion(ranked_lists, top_k=top_k * 3)
         candidate_docs = [doc for doc, score in fused_candidates]
-        
+
         # 3. LLM-Based Re-ranking to extract the top-k highest-quality chunks
-        retrieved_results = self._llm_rerank(query, candidate_docs, top_k)
-        
+        retrieved_results = self._llm_rerank(search_query, candidate_docs, top_k)
+
         logger.info(f"Query Expansion & Hybrid Search retrieved {len(candidate_docs)} candidates; LLM Re-ranking selected top-{len(retrieved_results)} chunks.")
-        
+
         # Evaluate local matching quality (relying on dense vector score of the original query)
         is_local_rag_sufficient = False
-        original_dense = self.retrieve_context(query, 1)
-        if original_dense:
+        original_dense = self.retrieve_context(search_query, 1)
+        if original_dense and retrieved_results:
             max_dense_score = original_dense[0][1]
             if max_dense_score >= settings.RAG_SIMILARITY_THRESHOLD:
                 is_local_rag_sufficient = True
-                
-        # 3. Trigger web search fallback if local data is insufficient
+
+        # 3. Web search fallback when the local corpus doesn't cover the question.
+        #    The live feed is only today's BBC scores/headlines, so it doesn't stand in
+        #    for a web search on anything else.
         is_web_search_active = False
         web_results = []
-        if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient and not is_live_matches_active:
+        if settings.WEB_SEARCH_ENABLED and not is_local_rag_sufficient:
             logger.info(f"Local RAG dense matches insufficient (max dense score: {original_dense[0][1] if original_dense else 0.0:.3f} < threshold: {settings.RAG_SIMILARITY_THRESHOLD}). Executing live search.")
-            web_results = self.web_search_fallback(query, max_results=3)
+            web_results = self.web_search_fallback(search_query, max_results=3)
             if web_results:
                 is_web_search_active = True
-                
+
         # 4. Format Context and Source Audits
         formatted_context_list = []
         sources = []
-        is_rag_active = len(retrieved_results) > 0 or is_web_search_active or is_live_matches_active
+        is_rag_active = len(retrieved_results) > 0 or is_web_search_active or is_live_matches_active or bool(historical_context)
         
         if not is_web_search_active:
             # Format Local Chunks only
@@ -664,20 +568,27 @@ class RAGEngine:
         # 5. Compile Prompts
         system_prompt = TACTICAL_ANALYST_SYSTEM_PROMPT
         user_prompt = TACTICAL_ANALYST_USER_TEMPLATE.format(context=context_block, query=query)
-        
+        if search_query != query:
+            user_prompt += f"\n(Interpreted in the context of the conversation as: {search_query})\n"
+
+        # Earlier turns so follow-ups are answered in context. Retrieved context is only
+        # attached to the current question; old answers are trimmed to bound the prompt.
+        history_messages = [
+            {"role": turn["role"], "content": turn["content"][:HISTORY_MAX_CHARS_PER_TURN]}
+            for turn in history
+        ]
+
         # 6. Generate response via OpenAI (or fallback to Mock)
         response_text = ""
         is_mock = False
-        
-        if self.openai_client is None:
-            self.initialize_openai()
-            
+
         if self.openai_client is not None:
             try:
                 completion = self.openai_client.chat.completions.create(
                     model=self.model_name,
                     messages=[
                         {"role": "system", "content": system_prompt},
+                        *history_messages,
                         {"role": "user", "content": user_prompt}
                     ],
                     temperature=temperature,
@@ -699,8 +610,9 @@ class RAGEngine:
             is_mock = True
             response_text = self._generate_mock_tactical_response(query, is_rag_active, is_web_search_active, is_live_matches_active, sources)
             
-        # Append disclaimer note if not grounded in RAG
-        if not is_rag_active:
+        # Append disclaimer note if not grounded in RAG (the system prompt asks the LLM
+        # to add its own, so don't print it twice)
+        if not is_rag_active and "RAG Grounding Note" not in response_text:
             disclaimer = "\n\n---\n> 🔍 **RAG Grounding Note**: No specific matches were found in the local FAISS database for this query. This analysis is generated using FootBot's general football tactical models. To anchor this response in custom literature, please ensure your PDFs/blogs are saved in `data/raw` and you have run the re-indexing pipeline."
             response_text += disclaimer
             

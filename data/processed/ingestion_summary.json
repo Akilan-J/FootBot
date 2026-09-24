@@ -1,6 +1,6 @@
 {
-    "total_files_processed": 3,
-    "total_chunks_indexed": 12,
+    "total_files_processed": 5,
+    "total_chunks_indexed": 22,
     "files": [
         {
             "filename": "tactical_profile_rodri_vs_busquets.txt",
@@ -17,6 +17,18 @@
         {
             "filename": "guardiola_positional_play_inverted_fullbacks.txt",
             "file_size_bytes": 2444,
+            "extracted_pages_or_articles": 1,
+            "status": "success"
+        },
+        {
+            "filename": "web_messivsronaldo_app_ea630e4e.txt",
+            "file_size_bytes": 3005,
+            "extracted_pages_or_articles": 1,
+            "status": "success"
+        },
+        {
+            "filename": "web_uktribes_com_blog_blog_messi_vs_ronaldo_whats_to_debate_6a9ea2ef.txt",
+            "file_size_bytes": 4020,
             "extracted_pages_or_articles": 1,
             "status": "success"
         }

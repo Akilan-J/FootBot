@@ -338,13 +338,16 @@ def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(Non
         )
 
     try:
-        from backend.database import create_session, save_message, verify_session_owner
+        from backend.database import create_session, save_message, verify_session_owner, get_messages
 
         # 1. Resolve or create database session
         session_id = request.session_id
+        history = []
         if session_id and session_id.strip():
             if not verify_session_owner(session_id, user_id):
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Session does not belong to you.")
+            # Earlier turns, so follow-up questions are answered in context
+            history = [{"role": m["role"], "content": m["content"]} for m in get_messages(session_id)]
         else:
             # Generate descriptive session title
             title = request.query.strip()
@@ -359,7 +362,8 @@ def chat_endpoint(request: ChatRequest, x_user_token: Optional[str] = Header(Non
         analysis_result = rag_engine.generate_tactical_analysis(
             query=request.query,
             top_k=request.top_k,
-            temperature=request.temperature
+            temperature=request.temperature,
+            history=history
         )
         
         # 4. Save FootBot response to database
@@ -444,39 +448,58 @@ def ingest_url_endpoint(request: UrlIngestRequest):
                 detail="Failed to crawl and extract clean text from the provided URL. Ensure it is accessible."
             )
             
-        # 2. Segment document
+        # 2. Keep the page in data/raw so a full re-index doesn't drop it
+        from backend.loaders.blog_loader import save_url_document
+        saved_path, already_saved = save_url_document(settings.RAW_DATA_PATH, request.url, docs)
+        logger.info(f"Saved scraped page to {saved_path}")
+
+        # 3. Segment document
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=settings.CHUNK_SIZE,
             chunk_overlap=settings.CHUNK_OVERLAP
         )
         chunks = text_splitter.split_documents(docs)
         logger.info(f"Split scraped webpage into {len(chunks)} overlapping chunks.")
-        
-        # 3. Add to existing index, or compile a new one
-        if rag_engine.vector_store is not None:
+
+        # 4. A URL that's already indexed is re-indexed from scratch, replacing its old
+        #    chunks; appending again used to stack up duplicate copies of the page.
+        indexed_sources = set()
+        if rag_engine.vector_store is not None and hasattr(rag_engine.vector_store.docstore, "_dict"):
+            indexed_sources = {d.metadata.get("source") for d in rag_engine.vector_store.docstore._dict.values()}
+
+        if already_saved or request.url.strip() in indexed_sources:
+            logger.info("URL was already indexed. Rebuilding the index to replace its chunks...")
+            result = run_ingestion()
+            if result.get("status") != "success":
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=result.get("message", "Re-indexing failed.")
+                )
+        elif rag_engine.vector_store is not None:
             rag_engine.vector_store.add_documents(chunks)
             logger.info("Added new chunks to existing in-memory FAISS database.")
-            # Save FAISS index locally
             rag_engine.vector_store.save_local(str(settings.FAISS_DB_PATH))
             logger.info(f"Saved updated FAISS index to: {settings.FAISS_DB_PATH}")
         else:
-            logger.info("FAISS index does not exist. Creating a fresh index with scraped URL data...")
-            from langchain_community.vectorstores import FAISS
-            from langchain_community.embeddings import HuggingFaceEmbeddings
-            embeddings = HuggingFaceEmbeddings(model_name=settings.EMBEDDING_MODEL_NAME)
-            db = FAISS.from_documents(chunks, embeddings)
-            db.save_local(str(settings.FAISS_DB_PATH))
-            logger.info(f"Created and saved fresh FAISS index to: {settings.FAISS_DB_PATH}")
-            
-        # 4. Perform dynamic in-memory hot-reload
+            logger.info("FAISS index does not exist. Building it from data/raw, including the scraped URL...")
+            result = run_ingestion()
+            if result.get("status") != "success":
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=result.get("message", "Indexing failed.")
+                )
+
+        # 5. Perform dynamic in-memory hot-reload
         rag_engine.load_vector_db(force_reload=True)
-        
+
         return {
             "status": "success",
             "total_files_processed": 1,
             "total_chunks_indexed": len(chunks),
             "message": f"Successfully scraped, segmented, and hot-indexed {len(chunks)} chunks into active memory!"
         }
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed dynamic URL ingestion: {str(e)}")
         raise HTTPException(

@@ -1888,8 +1888,11 @@ ESPN_LEAGUES = [
     "usa.1", "concacaf.nations.league", "conmebol.copa", "afc.asian.cup",
 ]
 
+# ESPN's CDN answers 403 to the desktop-Chrome user agent this used to send, which
+# silently turned every ESPN lookup into an LLM estimate. It serves the app when
+# it identifies itself honestly.
 ESPN_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "User-Agent": "FootBot/1.0 (+https://github.com/Akilan-J/FootBot)",
     "Accept": "application/json",
 }
 
@@ -1900,6 +1903,7 @@ def _resolve_espn_event(home: str, away: str, espn_date: str):
     Returns (event_id, league_slug, home_team_idx) or (None, None, 0).
     """
     from backend.match_stats import side_of
+    refused = []
     for slug in ESPN_LEAGUES:
         try:
             r = _session.get(
@@ -1907,6 +1911,7 @@ def _resolve_espn_event(home: str, away: str, espn_date: str):
                 headers=ESPN_HEADERS, timeout=6
             )
             if r.status_code != 200:
+                refused.append(f"{slug}={r.status_code}")
                 continue
             for ev in r.json().get("events", []):
                 for comp in ev.get("competitions", []):
@@ -1922,6 +1927,10 @@ def _resolve_espn_event(home: str, away: str, espn_date: str):
                         return event_id, slug, home_idx
         except Exception as e:
             logger.debug(f"ESPN scoreboard error [{slug}]: {e}")
+    if refused:
+        # Say so: a provider refusing every request looks exactly like "no such match"
+        logger.warning(f"ESPN scoreboard refused {len(refused)}/{len(ESPN_LEAGUES)} league lookups for "
+                       f"{home} vs {away} on {espn_date}: {', '.join(refused[:4])}")
     return None, None, 0
 
 

@@ -690,17 +690,18 @@ def get_roster_endpoint(
 ):
     """Retrieves the real-world starting XI roster for a team, querying the LLM + cache if needed.
     Also fetches match stats (possession, shots, shots on target, ...), goal and card
-    events, and per-player goals/assists/shots when opponent_name and match_date are
-    provided. Stats and events are reconciled so shot counts never fall below the
+    events, per-player goals/assists/shots, and (from play-by-play) every
+    shot's location plus each player's located actions when opponent_name and
+    match_date are provided. Stats and events are reconciled so shot counts never fall below the
     goals actually scored. Pass include_match_data=false to get just the roster
     (the Match Centre's second, away-team request does this).
     """
     try:
         from backend.roster_store import (
             get_real_world_roster, get_match_stats, get_match_events,
-            get_match_cards, get_match_player_stats,
+            get_match_cards, get_match_player_stats, get_match_shot_data,
         )
-        from backend.match_stats import normalize_goal_events, reconcile_stats, side_of
+        from backend.match_stats import align_shot_outcomes, normalize_goal_events, reconcile_stats, side_of
 
         roster = get_real_world_roster(team_name, opponent_name, match_date)
 
@@ -708,6 +709,7 @@ def get_roster_endpoint(
         events = None
         cards = None
         player_stats = None
+        shot_data = None
         if opponent_name and match_date and include_match_data:
             try:
                 stats = get_match_stats(
@@ -743,8 +745,17 @@ def get_roster_endpoint(
             except Exception as ps_err:
                 logger.error(f"Error fetching player stats for {team_name} vs {opponent_name}: {str(ps_err)}")
 
+            try:
+                shot_data = get_match_shot_data(team_name, opponent_name, match_date)
+            except Exception as shot_err:
+                logger.error(f"Error fetching shot data for {team_name} vs {opponent_name}: {str(shot_err)}")
+
+            if shot_data is not None:
+                shot_data["shots"] = align_shot_outcomes(shot_data["shots"], player_stats)
+
             if stats is not None:
-                stats = reconcile_stats(stats, team_name, opponent_name, events, home_score, away_score, player_stats)
+                stats = reconcile_stats(stats, team_name, opponent_name, events, home_score, away_score, player_stats,
+                                        (shot_data or {}).get("shots"))
 
         response = {}
         if roster:
@@ -770,6 +781,9 @@ def get_roster_endpoint(
             response["cards"] = cards
         if player_stats is not None:
             response["playerStats"] = player_stats
+        if shot_data is not None:
+            response["shotEvents"] = shot_data["shots"]
+            response["playerActions"] = shot_data["actions"]
         return response
     except Exception as e:
         logger.error(f"Error serving roster for {team_name}: {str(e)}")

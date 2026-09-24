@@ -2145,6 +2145,8 @@ async function fetchMatchCentreData(m) {
   let matchEvents = null;
   let matchCards = null;
   let playerStats = null;
+  let shotEvents = null;
+  let playerActions = null;
 
   if (homeRes.ok) {
     const data = await homeRes.json();
@@ -2154,6 +2156,8 @@ async function fetchMatchCentreData(m) {
     if (data.events) matchEvents = data.events;
     if (data.cards) matchCards = data.cards;
     if (data.playerStats) playerStats = data.playerStats;
+    if (Array.isArray(data.shotEvents)) shotEvents = data.shotEvents;
+    if (Array.isArray(data.playerActions)) playerActions = data.playerActions;
   }
   if (awayRes.ok) {
     const data = await awayRes.json();
@@ -2221,7 +2225,11 @@ async function fetchMatchCentreData(m) {
     awayFormation: awayFormation,
     events: isUpcoming ? [] : (matchEvents || []),
     cards: isUpcoming ? [] : (matchCards || []),
-    playerStats: isUpcoming ? null : playerStats
+    playerStats: isUpcoming ? null : playerStats,
+    // Real play-by-play: every shot's location/outcome and each player's located actions
+    shotEvents: isUpcoming ? null : shotEvents,
+    playerActions: isUpcoming ? null : playerActions,
+    statsSource: matchStats?.source || null
   };
   match.momentum = generateMomentum(!isUpcoming);
   match.shotsList = generateShots(match);
@@ -2284,7 +2292,10 @@ async function loadMatch(id) {
         awayPlayers: [],
         events: [],
         cards: [],
-        playerStats: null
+        playerStats: null,
+        shotEvents: null,
+        playerActions: null,
+        statsSource: null
       };
       h2hPlayerA = null;
       h2hPlayerB = null;
@@ -2511,6 +2522,7 @@ function renderSubTabContent() {
       <!-- Advanced Match Statistics -->
       <div class="h2h-wrap">
         <div class="section-head">📊 Match Statistics</div>
+        ${statsSourceNote(m)}
         ${renderH2H('Possession %', m.possession[0], m.possession[1], true)}
         ${renderH2H('Total Shots', m.shots[0], m.shots[1])}
         ${renderH2H('Shots on Target', m.shotsOnTarget ? m.shotsOnTarget[0] : 0, m.shotsOnTarget ? m.shotsOnTarget[1] : 0)}
@@ -2567,8 +2579,9 @@ function renderSubTabContent() {
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:12px;">
           <span>🟢 Goal</span>
           <span>🟡 Saved</span>
-          <span>⚪ Off Target / Blocked</span>
+          <span>⚪ Off Target / Blocked / Woodwork</span>
         </div>
+        ${shotmapSourceNote(m)}
         <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:12px;">
           <span style="color:var(--emerald);">${m.homeFlag} ${m.home}: ${count('home', () => true)} shots · ${count('home', s => s.onTarget)} on target · ${count('home', s => s.isGoal)} goals</span>
           <span style="color:var(--blue);">${count('away', s => s.isGoal)} goals · ${count('away', s => s.onTarget)} on target · ${count('away', () => true)} shots: ${m.away} ${m.awayFlag}</span>
@@ -3266,6 +3279,7 @@ function renderPlayerBio(p) {
     <div style="margin-top:12px;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Heatmap</div>
       ${drawHeatmap(p)}
+      <div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;line-height:1.5;">${heatmapCaption(p)}</div>
     </div>`;
 }
 
@@ -3655,9 +3669,10 @@ function drawHeatmap(player) {
 
   const baseZones = ROLE_ZONES[role] || ROLE_ZONES['CM'];
 
-  // Personalise the role template: a stable per-player drift, intensity scaled to
-  // minutes played, and hot spots where this player actually shot in this match.
-  const rng = seededRng(`heat|${player?.name || ''}|${role}`);
+  // The shaded zones are the typical areas for the player's role (no provider
+  // offers per-player touch maps), faded by the share of the match they played.
+  // What this player actually did - shots, fouls, fouls won, take-ons - is drawn
+  // on top at the real pitch locations from the play-by-play.
   let minutesShare = 1;
   if (m && matchPhase(m.status) !== 'upcoming') {
     const played = Math.max(1, currentMatchMinute(m));
@@ -3670,20 +3685,23 @@ function drawHeatmap(player) {
     }
   }
   const intensityScale = Math.max(0.35, Math.min(1, minutesShare));
-  const zones = baseZones.map(z => ({
-    cx: Math.max(5, Math.min(95, z.cx + (rng() - 0.5) * 6)),
-    cy: Math.max(3, Math.min(100, z.cy + (rng() - 0.5) * 5)),
-    rx: z.rx, ry: z.ry,
-    i: Math.min(1, z.i * (0.85 + rng() * 0.3) * intensityScale)
-  }));
-  (activeShots || []).forEach(sh => {
-    if (!player || sh.side !== player.side || !samePlayer(sh.player, player.name)) return;
-    // Heatmap is drawn from the player's attacking perspective (their goal at the bottom)
-    const x = sh.side === 'away' ? 100 - sh.x : sh.x;
-    const y = sh.side === 'away' ? 100 - sh.y : sh.y;
-    zones.push({ cx: x, cy: Math.max(3, y), rx: 6, ry: 5, i: sh.isGoal ? 0.95 : 0.8 });
-  });
-  const gid = 'hm' + Math.floor(rng() * 1e9).toString(36);
+  const zones = baseZones.map(z => ({ ...z, i: z.i * intensityScale * 0.8 }));
+
+  const actions = playerMatchActions(player, m);
+  const gid = 'hm' + Math.abs([...`${player?.side}|${player?.name}|${role}`].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619), 2166136261)).toString(36);
+  const ACTION_STYLE = {
+    'Goal': { fill: '#10b981', r: 2.4 },
+    'Shot': { fill: '#f59e0b', r: 1.9 },
+    'Foul': { fill: '#ef4444', r: 1.6 },
+    'Foul Won': { fill: '#60a5fa', r: 1.6 },
+    'Take On': { fill: '#a78bfa', r: 1.6 },
+    'Handball': { fill: '#ef4444', r: 1.6 },
+  };
+  // Action coordinates are 0-100 in the player's attacking frame; map onto the pitch rect
+  const actionDots = actions.map(a => {
+    const st = ACTION_STYLE[a.kind] || ACTION_STYLE['Shot'];
+    return `<circle cx="${(4 + a.x * 0.92).toFixed(1)}" cy="${(2 + a.y * 1.01).toFixed(1)}" r="${st.r}" fill="${st.fill}" stroke="#fff" stroke-width="0.4"><title>${a.minute} ${a.kind}</title></circle>`;
+  }).join('');
 
   // Intensity → heat colour (red=hot, yellow=warm, blue=cold trail)
   const zoneColor = (i) =>
@@ -3730,6 +3748,8 @@ function drawHeatmap(player) {
     <circle cx="50" cy="91"  r="1" fill="rgba(255,255,255,0.2)"/>
     <!-- heat zones -->
     ${circles}
+    <!-- real actions this match -->
+    ${actionDots}
     <!-- legend -->
     <rect x="5"  y="97" width="4" height="4" rx="1" fill="rgba(239,68,68,0.85)"/>
     <text x="10.5" y="100.5" fill="rgba(255,255,255,0.4)" font-size="3.5" font-family="Inter,sans-serif">High</text>
@@ -3743,10 +3763,70 @@ function drawHeatmap(player) {
   </svg>`;
 }
 
-// Builds the shotmap for a match. Team totals come from the match stats, goals
-// and missed penalties from the real events, and - when the provider has them -
-// each player's real shot / on-target counts decide who took the other shots.
-// Only positions (and shooters for shots no provider attributes) are simulated.
+// Where the match stats came from, shown above them when they aren't official.
+function statsSourceNote(m) {
+  const phase = matchPhase(m.status);
+  let text = null;
+  if (phase === 'upcoming') text = 'Predicted numbers - this match hasn\'t been played yet.';
+  else if (m.statsSource === 'estimate') text = 'Estimated - no official stats source had this match, so these numbers are an estimate, not a record.';
+  if (!text) return '';
+  return `<div style="font-size:11px;color:var(--amber);background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:6px 10px;margin-bottom:10px;">${text}</div>`;
+}
+
+function shotmapSourceNote(m) {
+  const shots = m.shotsList || [];
+  if (!shots.length) return '';
+  const approx = shots.filter(s => s.approx).length;
+  const msg = approx === 0
+    ? 'Every shot is plotted where it was taken (ESPN play-by-play).'
+    : approx === shots.length
+      ? 'No play-by-play locations for this match: shot counts, shooters and goals are real, but positions are simulated (dashed rings).'
+      : `${approx} of ${shots.length} shots have no play-by-play location${matchPhase(m.status) === 'live' ? ' yet' : ''}, so their positions are simulated (dashed rings).`;
+  return `<div style="font-size:11px;color:var(--text-muted);margin:-4px 0 10px;">${msg}</div>`;
+}
+
+// This player's located actions in the match, in their own attacking frame
+// (x 0 = left touchline, y 0 = the goal they attack): real shots from the shotmap
+// plus fouls, fouls won, take-ons and handballs from the play-by-play.
+function playerMatchActions(player, m) {
+  if (!player || !m || matchPhase(m.status) === 'upcoming') return [];
+  const out = [];
+  (m.shotsList || []).forEach(sh => {
+    if (sh.approx || sh.side !== player.side || !samePlayer(sh.player, player.name)) return;
+    out.push({
+      kind: sh.isGoal ? 'Goal' : 'Shot', minute: sh.minute,
+      x: sh.side === 'away' ? 100 - sh.x : sh.x,
+      y: sh.side === 'away' ? 100 - sh.y : sh.y
+    });
+  });
+  (m.playerActions || []).forEach(a => {
+    if (a.kind === 'Shot' || a.side !== player.side || !samePlayer(a.player, player.name)) return;
+    out.push({ kind: a.kind, minute: a.minute, x: a.x, y: a.y });
+  });
+  return out;
+}
+
+function heatmapCaption(player) {
+  const m = currentMatch;
+  const role = player?.role || 'CM';
+  if (!m || matchPhase(m.status) === 'upcoming') return `Typical zones for a ${role}.`;
+  const actions = playerMatchActions(player, m);
+  const legend = [['#10b981', 'goal'], ['#f59e0b', 'shot'], ['#ef4444', 'foul'], ['#60a5fa', 'foul won'], ['#a78bfa', 'take-on']]
+    .map(([c, l]) => `<span style="white-space:nowrap;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${c};margin-right:3px;"></span>${l}</span>`).join(' ');
+  if (actions.length) {
+    return `Shading: typical zones for a ${role}. Dots: this player's ${actions.length} recorded action${actions.length > 1 ? 's' : ''} this match, where they happened.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">${legend}</div>`;
+  }
+  if (!Array.isArray(m.playerActions)) return `Shading: typical zones for a ${role}. No play-by-play locations are available for this match.`;
+  return `Shading: typical zones for a ${role}. No located actions recorded for this player this match.`;
+}
+
+// Builds the shotmap for a match. When the backend has play-by-play (m.shotEvents)
+// every shot is real: location, minute, shooter, assister, outcome and where it
+// crossed the goal line. Otherwise - or for shots the play-by-play hasn't caught
+// up with yet in a live match - team totals come from the match stats, goals and
+// missed penalties from the real events, and each player's real shot counts
+// decide who took the rest. Those shots' positions are simulated and flagged
+// `approx`, and the UI says so.
 function generateShots(m) {
   if (matchPhase(m.status) === 'upcoming') return [];
 
@@ -3792,6 +3872,7 @@ function generateShots(m) {
     const onFrame = kind !== 'off';
     return {
       id: `${side}-${kind}-${idx}`,
+      approx: true,
       side,
       player: opts.player || 'Unknown',
       minute: opts.minute || `${1 + Math.floor(rng() * maxMinute)}'`,
@@ -3806,14 +3887,61 @@ function generateShots(m) {
     };
   };
 
+  const REAL_RESULT = {
+    'Goal': (pen) => pen ? 'Penalty Goal' : 'Goal',
+    'Saved': (pen) => pen ? 'Penalty Saved' : 'Saved',
+    'Off Target': (pen) => pen ? 'Penalty Missed' : 'Off Target',
+    'Woodwork': () => 'Hit Woodwork',
+    'Blocked': () => 'Blocked'
+  };
+  const HEIGHT_PCT = { over: -1, high: 22, middle: 50, low: 80 };
+  const fromReal = (side, ev, nameOf) => {
+    let x = ev.x, y = ev.y, approx = false;
+    if (x == null || y == null) {
+      // A play-by-play shot without a location: place it, and say so
+      const p = place(seededRng(`${m.home}|${m.away}|real|${ev.id}`), ev.penalty ? 'penalty' : 'box');
+      x = p.x; y = p.y; approx = true;
+    }
+    const bodyPart = ev.bodyPart || null;
+    const dist = ev.penalty ? 12 : distanceYds(x, y);
+    return {
+      id: `r-${ev.id}`,
+      real: true,
+      approx,
+      side,
+      player: nameOf(ev.player),
+      assist: ev.assist ? nameOf(ev.assist) : null,
+      minute: ev.minute || '',
+      team: side === 'home' ? m.home : m.away,
+      isGoal: !!ev.isGoal,
+      onTarget: !!ev.onTarget,
+      // A goal-bound shot blocked by a defender counts as on target officially
+      result: ev.blockedOnTarget ? 'Blocked (on target)' : (REAL_RESULT[ev.result] || (() => ev.result))(!!ev.penalty),
+      situation: ev.situation || null,
+      x: side === 'away' ? 100 - x : x,
+      y: side === 'away' ? 100 - y : y,
+      xG: ev.penalty ? 0.76 : xgFor(dist, bodyPart),
+      bodyPart,
+      distance: dist,
+      goalX: ev.goalMouthX,
+      goalY: ev.goalHeight ? HEIGHT_PCT[ev.goalHeight] : null
+    };
+  };
+  const hasPlayByPlay = Array.isArray(m.shotEvents);
+
   ['home', 'away'].forEach((side, sideIdx) => {
     const squad = side === 'home' ? (m.homePlayers || []) : (m.awayPlayers || []);
     const nameOf = (raw) => (findSquadPlayer(squad, raw)?.name) || raw;
     const teamShots = [];
 
-    // 1. Real goals from this side's own shots (own goals weren't their shots)
-    //    and real penalty misses.
-    (m.events || []).forEach((ev, i) => {
+    // 1a. Play-by-play: every real shot, goals and missed penalties included
+    if (hasPlayByPlay) {
+      m.shotEvents.filter(ev => ev.side === side).forEach(ev => teamShots.push(fromReal(side, ev, nameOf)));
+    }
+
+    // 1b. Otherwise real goals from this side's own shots (own goals weren't their
+    //     shots) and real penalty misses, at simulated positions.
+    if (!hasPlayByPlay) (m.events || []).forEach((ev, i) => {
       if (ev.ownGoal && !isMissedGoalEvent(ev)) return;
       if (goalSide(ev, m) !== side) return;
       if (isMissedGoalEvent(ev)) {
@@ -3829,6 +3957,24 @@ function generateShots(m) {
         result: ev.penalty ? 'Penalty Goal' : 'Goal'
       }));
     });
+
+    // 1c. A goal the events have but the play-by-play hasn't listed yet (it can lag
+    //     a live match by a minute or two) still shows, at a simulated position.
+    if (hasPlayByPlay) {
+      const shownGoals = (name) => teamShots.filter(s => s.isGoal && samePlayer(s.player, name)).length;
+      const eventGoals = {};
+      (m.events || []).forEach((ev, i) => {
+        if (ev.ownGoal || isMissedGoalEvent(ev) || goalSide(ev, m) !== side) return;
+        const name = nameOf(ev.scorer);
+        eventGoals[name] = (eventGoals[name] || 0) + 1;
+        if (eventGoals[name] > shownGoals(name)) {
+          teamShots.push(makeShot(side, `g${i}`, 'goal', {
+            player: name, minute: ev.minute, penalty: !!ev.penalty,
+            result: ev.penalty ? 'Penalty Goal' : 'Goal'
+          }));
+        }
+      });
+    }
 
     const onFrameSoFar = () => teamShots.filter(s => s.onTarget).length;
     const offSoFar = () => teamShots.filter(s => !s.onTarget).length;
@@ -3846,9 +3992,22 @@ function generateShots(m) {
     const quotaOn = quotas.reduce((a, q) => a + q.on, 0);
     const quotaOff = quotas.reduce((a, q) => a + q.off, 0);
 
-    // 3. Team totals, never fewer than what's already attributed
-    const sot = Math.max(m.shotsOnTarget?.[sideIdx] || 0, onFrameSoFar() + quotaOn);
-    const total = Math.max(m.shots?.[sideIdx] || 0, sot + offSoFar() + quotaOff);
+    // 3. Team totals, never fewer than what's already attributed. With play-by-play
+    //    the list is the record: only shots it hasn't caught up with yet (live) are
+    //    added - never extra ones to paper over a difference in how totals count.
+    let sot, total, savedNeeded, offNeeded;
+    if (hasPlayByPlay) {
+      sot = Math.max(m.shotsOnTarget?.[sideIdx] || 0, onFrameSoFar());
+      total = Math.max(m.shots?.[sideIdx] || 0, teamShots.length);
+      const missing = total - teamShots.length;
+      savedNeeded = Math.min(missing, Math.max(0, sot - onFrameSoFar()));
+      offNeeded = missing - savedNeeded;
+    } else {
+      sot = Math.max(m.shotsOnTarget?.[sideIdx] || 0, onFrameSoFar() + quotaOn);
+      total = Math.max(m.shots?.[sideIdx] || 0, sot + offSoFar() + quotaOff);
+      savedNeeded = Math.max(0, sot - onFrameSoFar());
+      offNeeded = Math.max(0, total - sot - offSoFar());
+    }
     if (m.shotsOnTarget) m.shotsOnTarget[sideIdx] = sot;
     if (m.shots) m.shots[sideIdx] = total;
 
@@ -3864,13 +4023,11 @@ function generateShots(m) {
       return pool[pool.length - 1].name;
     };
 
-    const savedNeeded = Math.max(0, sot - onFrameSoFar());
     const onQueue = quotas.flatMap(q => Array(q.on).fill(q.name));
     for (let i = 0; i < savedNeeded; i++) {
       const player = onQueue[i] || drawShooter(seededRng(`${m.home}|${m.away}|${side}|s-shooter|${i}`));
       teamShots.push(makeShot(side, `s${i}`, 'saved', { player, result: 'Saved' }));
     }
-    const offNeeded = Math.max(0, total - sot - offSoFar());
     const offQueue = quotas.flatMap(q => Array(q.off).fill(q.name));
     for (let i = 0; i < offNeeded; i++) {
       const player = offQueue[i] || drawShooter(seededRng(`${m.home}|${m.away}|${side}|o-shooter|${i}`));
@@ -4052,25 +4209,43 @@ function drawShotmap() {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
   }
 
-  // Pitch Boundary Lines
+  // Pitch markings, to scale: shots are plotted in % of a 74 x 115 yd pitch, so
+  // the boxes must use the same scale or real box shots appear outside them.
+  const PW = 74, PL = 115;
+  const px = (xPct) => 15 + (xPct / 100) * (W - 30);
+  const py = (yPct) => 10 + (yPct / 100) * (H - 20);
+  const xw = (yds) => yds / PW * 100, yl = (yds) => yds / PL * 100;
   ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
   ctx.strokeRect(15,10,W-30,H-20);
   
   // Halfway line
   ctx.beginPath(); ctx.moveTo(15,H/2); ctx.lineTo(W-15,H/2); ctx.stroke();
   
-  // Centre circle
-  ctx.beginPath(); ctx.arc(W/2, H/2, 40, 0, Math.PI*2); ctx.stroke();
+  // Centre circle (10 yd radius)
+  ctx.beginPath(); ctx.ellipse(W/2, H/2, px(xw(10)) - 15, py(yl(10)) - 10, 0, 0, Math.PI*2); ctx.stroke();
 
-  // Penalty Boxes (glowing borders)
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.strokeRect((W-80)/2, 10, 80, 40);
-  ctx.strokeRect((W-80)/2, H-50, 80, 40);
+  // Penalty areas (44 x 18 yd), six-yard boxes (20 x 6 yd), spots (12 yd) and goals (8 yd)
+  ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+  [[0, 1], [100, -1]].forEach(([line, dir]) => {
+    const box = (wYds, dYds) => {
+      const x0 = px(50 - xw(wYds) / 2), x1 = px(50 + xw(wYds) / 2);
+      const y0 = py(line), y1 = py(line + dir * yl(dYds));
+      ctx.strokeRect(x0, Math.min(y0, y1), x1 - x0, Math.abs(y1 - y0));
+    };
+    box(44, 18);
+    box(20, 6);
+    ctx.beginPath(); ctx.arc(px(50), py(line + dir * yl(12)), 1.5, 0, Math.PI*2); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fill();
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(px(50 - xw(4)), py(line)); ctx.lineTo(px(50 + xw(4)), py(line)); ctx.stroke(); ctx.restore();
+  });
 
-  // Trajectory Tracers for selected shot
-  if (selectedShot) {
-    const targetY = selectedShot.y < 50 ? 10 : H - 10;
-    const targetX = W / 2;
+  // Trajectory Tracers for selected shot: to where it crossed the goal line
+  // (goalX is % of the goal's width from the shooter's left post)
+  if (selectedShot && selectedShot.goalX != null) {
+    const attacksTop = selectedShot.side !== 'away';
+    const across = (Math.max(-60, Math.min(160, selectedShot.goalX)) - 50) / 100 * xw(8);
+    const targetY = attacksTop ? py(0) : py(100);
+    const targetX = px(attacksTop ? 50 + across : 50 - across);
     
     ctx.save();
     ctx.beginPath();
@@ -4123,7 +4298,17 @@ function drawShotmap() {
 
     ctx.beginPath();
     ctx.arc(cx, cy, selectedShot === s ? 8 : 6, 0, Math.PI*2);
-    ctx.fill();
+    if (s.approx) {
+      // Simulated position: hollow, dashed ring instead of a solid dot
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([2, 2]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.fill();
+    }
 
     // Inner detail (white center for goals, dark core for saved)
     if (s.isGoal) {
@@ -4163,7 +4348,7 @@ function drawShotmap() {
           <span style="background:rgba(255,255,255,0.08);padding:1px 4px;border-radius:4px;font-size:9px;color:var(--text-muted);">${hovered.bodyPart || 'Shot'}</span>
         </div>
         <div style="display:flex;align-items:center;gap:6px;margin-top:6px;border-top:1px solid rgba(255,255,255,0.08);padding-top:6px;">
-          <span style="font-size:9px;color:var(--text-muted);">xG:</span>
+          <span style="font-size:9px;color:var(--text-muted);" title="Estimated from shot distance and body part">xG (est.):</span>
           <div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">
             <div style="width:${(hovered.xG || 0.1)*100}%;height:100%;background:${hovered.isGoal ? 'var(--emerald)' : 'var(--amber)'};"></div>
           </div>
@@ -4199,10 +4384,34 @@ function drawShotmap() {
   };
 }
 
+// Where a shot crossed the goal line, as % positions inside the goal-mouth box.
+// Real shots carry goalX (% of the goal's width from the left post, outside 0-100
+// when wide) and goalY (% of its height from the bar; -1 = over the bar, null =
+// not recorded). Simulated shots use the same scale.
+function goalMouthPlacement(s) {
+  if (s.result === 'Blocked') return { note: 'Blocked before it reached the goal' };
+  if (s.goalX == null) return { note: 'Placement not recorded' };
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const heightKnown = s.goalY != null;
+  const over = s.goalY === -1;
+  let left = s.goalX, top = heightKnown && !over ? s.goalY : 50;
+  if (s.onTarget) {
+    left = clamp(left, 6, 94); top = clamp(top, 10, 90);
+  } else {
+    left = clamp(left, 3, 97); top = over ? 6 : clamp(top, 8, 92);
+  }
+  const notes = [];
+  if (s.approx) notes.push('Simulated placement - no play-by-play location for this shot');
+  else if (!heightKnown) notes.push('Height not recorded');
+  return { left, top, note: notes.join(' · ') };
+}
+
 function renderSelectedShotDetails(s) {
   const container = document.getElementById('shot-details-container');
   if (!container) return;
   const color = s.isGoal ? 'var(--emerald)' : s.onTarget ? 'var(--amber)' : 'var(--text-muted)';
+  const gm = goalMouthPlacement(s);
+  const extra = [s.assist ? `Assisted by ${s.assist}` : null, s.situation].filter(Boolean).join(' · ');
   container.innerHTML = `
     <style>
     @keyframes pulse {
@@ -4217,23 +4426,24 @@ function renderSelectedShotDetails(s) {
         <div>
           <div style="font-weight:700;font-size:14px;color:var(--text);">${s.player}</div>
           <div style="font-size:11px;color:var(--text-muted);">${s.minute} · ${s.team}</div>
+          ${extra ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${extra}</div>` : ''}
         </div>
         <div style="display:flex;flex-direction:column;align-items:end;gap:4px;">
           <span style="font-size:11px;font-weight:700;color:${color};text-transform:uppercase;">${s.result}</span>
-          <span style="font-size:10px;color:var(--text-muted);">Distance: ${s.distance || 15} yds</span>
+          <span style="font-size:10px;color:var(--text-muted);">Distance: ${s.distance} yds${s.approx ? ' (approx.)' : ''}</span>
         </div>
       </div>
       
       <!-- Metrics row -->
       <div style="display:flex;gap:12px;background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:8px;">
         <div style="flex:1;text-align:center;">
-          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;">Expected Goals</div>
-          <div style="font-size:15px;font-weight:800;color:var(--emerald);">${s.xG || 0.1}</div>
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;" title="Estimated from shot distance and body part - no provider publishes xG">xG (est.)</div>
+          <div style="font-size:15px;font-weight:800;color:var(--emerald);">${s.xG}</div>
         </div>
         <div style="width:1px;background:rgba(255,255,255,0.08);align-self:stretch;"></div>
         <div style="flex:1;text-align:center;">
           <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;">Body Part</div>
-          <div style="font-size:13px;font-weight:600;color:#fff;margin-top:2px;">${s.bodyPart || 'Foot'}</div>
+          <div style="font-size:13px;font-weight:600;color:#fff;margin-top:2px;">${s.bodyPart || 'Not recorded'}</div>
         </div>
       </div>
 
@@ -4247,11 +4457,13 @@ function renderSelectedShotDetails(s) {
           <div style="position:absolute;left:75px;bottom:0;width:30px;height:45px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.15);border-radius:15px 15px 0 0;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.25);">🧤</div>
           <!-- Shot point -->
           ${
-            !s.onTarget
-            ? `<div style="position:absolute;left:${s.goalX < 50 ? '5px' : '165px'};top:${s.goalY}px;width:10px;height:100px;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:14px;font-weight:800;transform:translateY(-50px);">❌</div>`
-            : `<div style="position:absolute;left:${s.goalX}%;top:${s.goalY}%;width:12px;height:12px;border-radius:50%;background:${s.isGoal ? '#10b981' : '#f59e0b'};border:2px solid #fff;box-shadow:0 0 10px ${s.isGoal ? '#10b981' : '#f59e0b'};transform:translate(-6px, -6px);animation:pulse 1.5s infinite;"></div>`
+            gm.left == null ? ''
+            : !s.onTarget
+            ? `<div style="position:absolute;left:${gm.left}%;top:${gm.top}%;transform:translate(-50%,-50%);color:#ef4444;font-size:14px;font-weight:800;">❌</div>`
+            : `<div style="position:absolute;left:${gm.left}%;top:${gm.top}%;width:12px;height:12px;border-radius:50%;background:${s.isGoal ? '#10b981' : '#f59e0b'};border:2px solid #fff;box-shadow:0 0 10px ${s.isGoal ? '#10b981' : '#f59e0b'};transform:translate(-6px, -6px);animation:pulse 1.5s infinite;"></div>`
           }
         </div>
+        ${gm.note ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;">${gm.note}</div>` : ''}
       </div>
     </div>
   `;

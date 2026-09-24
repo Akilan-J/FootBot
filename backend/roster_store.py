@@ -2395,6 +2395,55 @@ def get_match_player_stats(home: str, away: str, date: str) -> Optional[List[Dic
 
 
 
+def get_match_shot_data(home: str, away: str, date: str) -> Optional[Dict[str, Any]]:
+    """
+    Returns {"shots": [...], "actions": [...]} for a played or live match from ESPN's
+    play-by-play: every shot with its real location, outcome, shooter and assister,
+    and each player's located on-ball actions (for heatmaps). Returns None when no
+    provider has play-by-play for the match - these are never estimated.
+    """
+    from backend.match_stats import parse_espn_player_actions, parse_espn_shots, side_of
+
+    _, norm_date, is_today = _resolve_match_date(date)
+    if is_future_match(norm_date):
+        return None
+    cache_key, _ = _match_cache_key("matchshots", home, away, norm_date)
+
+    def _retag(data: Dict[str, Any]) -> Dict[str, Any]:
+        # Rows are cached with whichever team spelling (and home/away) the first caller used
+        out = {}
+        for k in ("shots", "actions"):
+            rows = []
+            for r in data.get(k) or []:
+                side = side_of(r.get("team", ""), home, away)
+                if side is None:
+                    continue
+                rows.append(dict(r, side=side, team=home if side == "home" else away))
+            out[k] = rows
+        return out
+
+    cached = load_cache().get(cache_key)
+    if cached is not None and (not is_today or _live_cache_fresh(cache_key)):
+        return _retag(cached)
+
+    data = None
+    summary = _fetch_espn_summary(home, away, norm_date, is_today)
+    if summary and summary.get("commentary"):
+        data = {
+            "shots": parse_espn_shots(summary, home, away),
+            "actions": parse_espn_player_actions(summary, home, away),
+        }
+
+    if data is not None:
+        update_cache_entry(cache_key, data)
+        _mark_live_fetched(cache_key)
+        return data
+    if cached is not None:
+        _mark_live_fetched(cache_key)
+        return _retag(cached)
+    return None
+
+
 def get_match_formation(team_name: str, opponent_name: Optional[str] = None, match_date: Optional[str] = None) -> str:
     """
     Dynamically determines/fetches the tactical formation (e.g. '4-3-3', '4-2-3-1', '3-4-2-1')

@@ -1453,6 +1453,7 @@ def get_dynamic_match_stats_via_llm(
                     else:
                         stats["predicted_score"] = [int(x) for x in stats["predicted_score"]]
 
+                    stats["source"] = "estimate"
                     logger.info(f"Successfully generated dynamic stats via LLM: {stats}")
                     return stats
             except Exception as e:
@@ -1492,7 +1493,9 @@ def get_dynamic_match_stats_via_llm(
         "fouls": [h_fouls, a_fouls],
         "yellowCards": [h_yellow, a_yellow],
         "offsides": [h_offsides, a_offsides],
-        "predicted_score": [home_score if home_score is not None else 1, away_score if away_score is not None else 1]
+        "predicted_score": [home_score if home_score is not None else 1, away_score if away_score is not None else 1],
+        # Procedurally generated - never shown as real numbers
+        "source": "estimate",
     }
 
 
@@ -1695,6 +1698,21 @@ def _mark_live_fetched(cache_key: str) -> None:
     _live_fetched_at[cache_key] = time.time()
 
 
+# Where match stats came from. Anything else ("estimate", or no tag at all on
+# entries cached before tagging) is re-checked against the real providers.
+REAL_STATS_SOURCES = ("api-football", "espn")
+REAL_STATS_RETRY_SECONDS = 30 * 60
+_real_stats_retry_at: Dict[str, float] = {}
+
+
+def _real_stats_retry_due(cache_key: str) -> bool:
+    return time.time() - _real_stats_retry_at.get(cache_key, 0) >= REAL_STATS_RETRY_SECONDS
+
+
+def _mark_real_stats_retry(cache_key: str) -> None:
+    _real_stats_retry_at[cache_key] = time.time()
+
+
 def _resolve_match_date(date: str):
     """Returns (resolved_date, norm_date, is_today) with "Today" turned into a real date."""
     import datetime
@@ -1752,14 +1770,21 @@ def get_match_stats(
 
     # 1. Cache hit. For today's matches the cache is only trusted for a short while,
     #    so live numbers keep moving.
+    is_future = is_future_match(norm_date)
     cached = load_cache().get(cache_key)
     if cached:
         cached = cached if home_first else _swap_pair_stats(cached)
-        if not is_today or _live_cache_fresh(cache_key):
+        # Estimated stats (and entries cached before stats were tagged with their
+        # source, some of which carried the old 40%-of-shots guess for shots on
+        # target) are replaced as soon as a real source has the match.
+        is_real = cached.get("source") in REAL_STATS_SOURCES
+        if is_real or is_future:
+            fresh_enough = not is_today or _live_cache_fresh(cache_key)
+        else:
+            fresh_enough = not _real_stats_retry_due(cache_key)
+        if fresh_enough:
             logger.info(f"Match stats for '{home}' vs '{away}' found in cache (key: {cache_key})")
             return _with_score(cached)
-
-    is_future = is_future_match(norm_date)
     stats: Optional[Dict[str, Any]] = None
 
     # 2. API-Football, if a key is configured
@@ -1774,6 +1799,7 @@ def get_match_stats(
                 if raw_stats and raw_stats.get("response"):
                     stats = _build_api_football_stats(client, raw_stats, home, away)
                     if stats:
+                        stats["source"] = "api-football"
                         logger.info(f"Fetched stats via API-Football (Fixture ID: {fixture_id})")
             if not stats:
                 logger.warning("API-Football stats integration missed, falling back to ESPN/LLM pipeline.")
@@ -1787,6 +1813,7 @@ def get_match_stats(
             from backend.match_stats import build_espn_match_stats
             stats = build_espn_match_stats(summary, home, away)
             if stats:
+                stats["source"] = "espn"
                 logger.info(f"Fetched real ESPN stats for '{home}' vs '{away}': {stats}")
 
     if stats:
@@ -1799,6 +1826,7 @@ def get_match_stats(
     # rather than being replaced by an LLM estimate.
     if cached:
         _mark_live_fetched(cache_key)
+        _mark_real_stats_retry(cache_key)
         return _with_score(cached)
 
     # 4. Dynamic Fallback to LLM / prediction model
@@ -1807,6 +1835,7 @@ def get_match_stats(
     if stats:
         _store_match_stats(cache_key, stats, home_first)
         _mark_live_fetched(cache_key)
+        _mark_real_stats_retry(cache_key)
         return stats
 
     return None
@@ -2235,16 +2264,23 @@ def get_match_events(
     _, norm_date, is_today = _resolve_match_date(date)
     cache_key, _ = _match_cache_key("matchevents", home, away, norm_date)
     cards_key, _ = _match_cache_key("matchcards", home, away, norm_date)
+    source_key, _ = _match_cache_key("matcheventsource", home, away, norm_date)
+    is_future = is_future_match(norm_date)
 
     # Cache hit. A match being played today is refetched every LIVE_REFRESH_SECONDS,
-    # so goals after the first one cached still show up.
+    # so goals after the first one cached still show up. Goals scraped from the web
+    # (or cached before their source was recorded) are re-checked against the real
+    # providers now and then, so a partial web-search result isn't kept forever.
     cache = load_cache()
     cached = cache.get(cache_key)
+    from_provider = cache.get(source_key) in REAL_STATS_SOURCES
     if cached is not None and (not is_today or _live_cache_fresh(cache_key)):
-        logger.info(f"Match events for '{home}' vs '{away}' found in cache")
-        return cached
+        if from_provider or is_future or not _real_stats_retry_due(cache_key):
+            logger.info(f"Match events for '{home}' vs '{away}' found in cache")
+            return cached
 
     goals = cards = None
+    source = None
 
     if settings.API_FOOTBALL_KEY:
         try:
@@ -2256,21 +2292,31 @@ def get_match_events(
                 raw_events = client.fetch_events(fixture_id)
                 if raw_events and raw_events.get("response") is not None:
                     goals, cards = _parse_api_football_incidents(raw_events)
+                    source = "api-football"
                     logger.info(f"Fetched {len(goals)} goal events via API-Football (Fixture ID: {fixture_id})")
             if goals is None:
                 logger.warning("API-Football events integration missed, falling back to ESPN/LLM pipeline.")
         except Exception as api_err:
             logger.error(f"Error fetching events from API-Football: {api_err}", exc_info=True)
 
-    if goals is None and not is_future_match(norm_date):
+    if goals is None and not is_future:
         summary = _fetch_espn_summary(home, away, norm_date, is_today)
         if summary is not None:
             goals, cards = _parse_espn_incidents(summary)
+            source = "espn"
             logger.info(f"Fetched {len(goals)} goal events for '{home}' vs '{away}' from ESPN")
+
+    if goals is None and cached is not None and not is_today:
+        # Already have a web-search result for this finished match; don't pay for
+        # another LLM extraction just because the providers still don't have it
+        _mark_real_stats_retry(cache_key)
+        return cached
 
     if goals is None:
         logger.info(f"No provider has events for '{home}' vs '{away}'. Falling back to RAG search for real-world goal events...")
         goals = fetch_real_world_match_events_via_rag(home, away, date)
+        source = "web-search"
+        _mark_real_stats_retry(cache_key)
         if cached and len(goals or []) < len(cached):
             # A web search that found fewer goals than we already had is a miss,
             # not goals being taken back
@@ -2280,10 +2326,11 @@ def get_match_events(
             return cached
 
     update_cache_entry(cache_key, goals)
+    update_cache_entry(source_key, source)
     if cards is not None:
         update_cache_entry(cards_key, cards)
     _mark_live_fetched(cache_key)
-    logger.info(f"Cached {len(goals)} goal events for '{home}' vs '{away}'")
+    logger.info(f"Cached {len(goals)} goal events for '{home}' vs '{away}' (source: {source})")
     return goals
 
 

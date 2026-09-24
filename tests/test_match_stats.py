@@ -47,7 +47,8 @@ class TestEspnMatchStats:
 
         assert stats["shots"] == [15, 8]
         assert stats["shotsOnTarget"] == [7, 3]
-        assert stats["passes"] == [480, 350]
+        # Total passes, not just the completed ones
+        assert stats["passes"] == [550, 420]
         assert stats["possession"] == [58, 42]
         # Real zeros stay zeros instead of becoming the old 5/1/2 defaults
         assert stats["corners"] == [0, 5]

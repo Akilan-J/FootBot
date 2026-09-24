@@ -76,7 +76,8 @@ _ESPN_TEAM_STATS = {
     "possession": (("possessionPct",), ("possession",)),
     "shots": (("totalShots",), ("shots", "total shots")),
     "shotsOnTarget": (("shotsOnTarget",), ("on goal", "shots on target", "shots on goal")),
-    "passes": (("accuratePasses", "totalPasses"), ("accurate passes", "passes")),
+    # Total passes, as API-Football reports them - "accuratePasses" is only the completed ones
+    "passes": (("totalPasses",), ("passes",)),
     "corners": (("wonCorners",), ("corner kicks", "corners")),
     "fouls": (("foulsCommitted",), ("fouls",)),
     "yellowCards": (("yellowCards",), ("yellow cards",)),

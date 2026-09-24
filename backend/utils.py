@@ -1,7 +1,20 @@
 import os
 import logging
+import datetime
 from pathlib import Path
 from backend.config import settings
+
+
+def bbc_today() -> datetime.date:
+    """Today's date as BBC Sport means it: UK time. Its undated scores page and the
+    "Today" it prints are UK dates, so reading them with the machine's own date
+    (IST is up to 5.5 hours ahead) filed evening matches under the next day."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.datetime.now(ZoneInfo("Europe/London")).date()
+    except Exception:
+        # No timezone database available: UTC is at most an hour off UK time
+        return datetime.datetime.now(datetime.timezone.utc).date()
 
 def setup_logging(name: str = "footbot") -> logging.Logger:
     """Configures and returns a standardized logger for all FootBot modules."""

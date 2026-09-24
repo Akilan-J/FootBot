@@ -1,7 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
-from backend.utils import logger
+from backend.utils import bbc_today, logger
 
 # Public BBC Sport Football RSS feed
 BBC_FEED_URL = "https://feeds.bbci.co.uk/sport/football/rss.xml"
@@ -245,7 +245,7 @@ def fetch_historical_results_from_html(include_older_dates: bool = True) -> List
     """
     import datetime
 
-    today = datetime.date.today()
+    today = bbc_today()
     urls_to_crawl = [
         ("https://www.bbc.com/sport/football/scores-fixtures", today.strftime("%d %b %Y")),
     ]

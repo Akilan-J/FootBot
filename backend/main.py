@@ -68,7 +68,8 @@ async def auto_crawl_loop():
     last_full_crawl_date = None
     while True:
         try:
-            today = datetime.date.today()
+            from backend.utils import bbc_today
+            today = bbc_today()
             include_older_dates = last_full_crawl_date != today
             logger.info(f"Auto-crawl: Scraping historical matches (full 3-date crawl: {include_older_dates})...")
             from backend.loaders.live_score_loader import fetch_historical_results_from_html

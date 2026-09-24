@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from backend.config import settings
-from backend.utils import logger
+from backend.utils import bbc_today, logger
 from backend.rag_engine import rag_engine
 
 # Shared connection-pooling session: player photo resolution can make dozens of
@@ -269,7 +269,7 @@ def normalize_date_string(date_str: str) -> str:
     res = parts[0].lower().strip()
     if res == "today":
         import datetime
-        return datetime.date.today().strftime("%d %b %Y").lower()
+        return bbc_today().strftime("%d %b %Y").lower()
     return res
 
 def _clean_yahoo_url(url: str) -> str:
@@ -866,7 +866,7 @@ def get_real_world_roster(
         resolved_match_date = match_date
         if resolved_match_date.lower().startswith("today"):
             import datetime
-            resolved_match_date = datetime.date.today().strftime("%d %b %Y")
+            resolved_match_date = bbc_today().strftime("%d %b %Y")
         norm_date = normalize_date_string(resolved_match_date)
         match_key = f"{norm_name}_vs_{norm_opp}_{norm_date}"
         
@@ -923,7 +923,7 @@ def get_real_world_roster(
         resolved_date = match_date
         if "today" in match_date.lower():
             import datetime
-            resolved_date = datetime.date.today().strftime("%d %b %Y")
+            resolved_date = bbc_today().strftime("%d %b %Y")
             
         # Standardize month names to full format for better indexing
         search_date = resolved_date
@@ -1308,11 +1308,11 @@ def is_future_match(date_str: str) -> bool:
     if "today" in norm:
         return True
     import datetime
-    now = datetime.datetime.now()
+    today = bbc_today()
     for fmt in ("%d %b %Y", "%d %B %Y", "%Y-%m-%d"):
         try:
             dt = datetime.datetime.strptime(norm.title(), fmt)
-            if dt.date() > now.date():
+            if dt.date() > today:
                 return True
             return False
         except ValueError:
@@ -1718,9 +1718,9 @@ def _resolve_match_date(date: str):
     import datetime
     resolved_date = date or ""
     if resolved_date.lower().startswith("today"):
-        resolved_date = datetime.date.today().strftime("%d %b %Y")
+        resolved_date = bbc_today().strftime("%d %b %Y")
     norm_date = normalize_date_string(resolved_date)
-    is_today = norm_date == datetime.date.today().strftime("%d %b %Y").lower()
+    is_today = norm_date == bbc_today().strftime("%d %b %Y").lower()
     return resolved_date, norm_date, is_today
 
 
@@ -1991,12 +1991,16 @@ def _fetch_espn_summary(home: str, away: str, norm_date: str, is_today: bool = F
     espn_date = _espn_date_from_norm(norm_date)
     if espn_date:
         event_id, league, _ = _resolve_espn_event(home, away, espn_date)
-        # Midnight-crossing fallback: a match that kicked off late last night
-        if not event_id and is_today:
-            yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
-            if yesterday != espn_date:
-                logger.info(f"Match not found on ESPN for {espn_date}, trying yesterday {yesterday}...")
-                event_id, league, _ = _resolve_espn_event(home, away, yesterday)
+        # ESPN files matches under US Eastern dates, BBC under UK ones, so an evening
+        # kick-off in the Americas (Aruba v Antigua, 24 Sep on BBC) sits under the
+        # previous day on ESPN; a late UK one can sit under the next.
+        base = datetime.datetime.strptime(espn_date, "%Y%m%d").date()
+        for offset in (-1, 1):
+            if event_id:
+                break
+            other = (base + datetime.timedelta(days=offset)).strftime("%Y%m%d")
+            logger.info(f"Match not found on ESPN for {espn_date}, trying {other}...")
+            event_id, league, _ = _resolve_espn_event(home, away, other)
         if event_id:
             try:
                 r = _session.get(
@@ -2109,7 +2113,7 @@ def fetch_real_world_match_events_via_rag(
     resolved_date = date
     if resolved_date.lower().startswith("today"):
         import datetime
-        resolved_date = datetime.date.today().strftime("%d %b %Y")
+        resolved_date = bbc_today().strftime("%d %b %Y")
     norm_date = normalize_date_string(resolved_date)
 
     if is_future_match(norm_date):

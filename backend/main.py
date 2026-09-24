@@ -662,20 +662,30 @@ def get_roster_endpoint(
     opponent_name: Optional[str] = None,
     match_date: Optional[str] = None,
     home_score: Optional[int] = None,
-    away_score: Optional[int] = None
+    away_score: Optional[int] = None,
+    include_match_data: bool = True
 ):
     """Retrieves the real-world starting XI roster for a team, querying the LLM + cache if needed.
-    Also fetches match stats (possession, shots, bigChances, passes) and goal events when
-    opponent_name and match_date are provided.
+    Also fetches match stats (possession, shots, shots on target, ...), goal and card
+    events, and per-player goals/assists/shots when opponent_name and match_date are
+    provided. Stats and events are reconciled so shot counts never fall below the
+    goals actually scored. Pass include_match_data=false to get just the roster
+    (the Match Centre's second, away-team request does this).
     """
     try:
-        from backend.roster_store import get_real_world_roster, get_match_stats, get_match_events
+        from backend.roster_store import (
+            get_real_world_roster, get_match_stats, get_match_events,
+            get_match_cards, get_match_player_stats,
+        )
+        from backend.match_stats import normalize_goal_events, reconcile_stats, side_of
 
         roster = get_real_world_roster(team_name, opponent_name, match_date)
 
         stats = None
         events = None
-        if opponent_name and match_date:
+        cards = None
+        player_stats = None
+        if opponent_name and match_date and include_match_data:
             try:
                 stats = get_match_stats(
                     home=team_name,
@@ -688,13 +698,30 @@ def get_roster_endpoint(
                 logger.error(f"Error fetching match stats for {team_name} vs {opponent_name}: {str(stats_err)}")
 
             try:
-                events = get_match_events(
-                    home=team_name,
-                    away=opponent_name,
-                    date=match_date
+                events = normalize_goal_events(
+                    get_match_events(home=team_name, away=opponent_name, date=match_date),
+                    team_name, opponent_name, home_score, away_score,
                 )
             except Exception as ev_err:
                 logger.error(f"Error fetching match events for {team_name} vs {opponent_name}: {str(ev_err)}")
+
+            try:
+                cards = get_match_cards(team_name, opponent_name, match_date)
+                if cards is not None:
+                    for c in cards:
+                        side = side_of(c.get("team", ""), team_name, opponent_name)
+                        if side:
+                            c["team"] = team_name if side == "home" else opponent_name
+            except Exception as card_err:
+                logger.error(f"Error fetching match cards for {team_name} vs {opponent_name}: {str(card_err)}")
+
+            try:
+                player_stats = get_match_player_stats(team_name, opponent_name, match_date)
+            except Exception as ps_err:
+                logger.error(f"Error fetching player stats for {team_name} vs {opponent_name}: {str(ps_err)}")
+
+            if stats is not None:
+                stats = reconcile_stats(stats, team_name, opponent_name, events, home_score, away_score, player_stats)
 
         response = {}
         if roster:
@@ -716,6 +743,10 @@ def get_roster_endpoint(
             response["stats"] = stats
         if events is not None:
             response["events"] = events
+        if cards is not None:
+            response["cards"] = cards
+        if player_stats is not None:
+            response["playerStats"] = player_stats
         return response
     except Exception as e:
         logger.error(f"Error serving roster for {team_name}: {str(e)}")

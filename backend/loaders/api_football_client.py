@@ -276,6 +276,10 @@ class APIFootballClient:
         """Retrieves raw events data from '/fixtures/events' endpoint."""
         return self._get("fixtures/events", params={"fixture": fixture_id})
 
+    def fetch_players(self, fixture_id: int) -> Optional[Dict[str, Any]]:
+        """Retrieves per-player match statistics from '/fixtures/players' endpoint."""
+        return self._get("fixtures/players", params={"fixture": fixture_id})
+
     def map_lineup_to_footbot(self, api_lineups: Dict[str, Any], team_id: int, events_data: Optional[Dict[str, Any]] = None) -> Optional[List[Dict[str, Any]]]:
         """
         Translates raw API-Football lineup data to FootBot-friendly players list with position mappings.

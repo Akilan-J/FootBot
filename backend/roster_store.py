@@ -1671,6 +1671,61 @@ def generate_backend_fallback_roster(team_name: str, opponent_name: Optional[str
 
 
 
+# ── Match cache keys & live refresh ──────────────────────────────────────────
+
+# Match numbers are cached under a key with the two team names sorted, so both
+# /roster requests (home and away) share one entry. Two-element stat lists are
+# always stored in that sorted order and swapped on the way out when needed.
+_PAIR_STAT_KEYS = [
+    "possession", "shots", "shotsOnTarget", "bigChances", "passes",
+    "corners", "fouls", "yellowCards", "offsides", "predicted_score",
+]
+
+# Cached numbers for a match played today go stale within minutes (goals, shots,
+# cards keep coming), so they're refetched once this many seconds have passed.
+LIVE_REFRESH_SECONDS = 90
+_live_fetched_at: Dict[str, float] = {}
+
+
+def _live_cache_fresh(cache_key: str) -> bool:
+    return time.time() - _live_fetched_at.get(cache_key, 0) < LIVE_REFRESH_SECONDS
+
+
+def _mark_live_fetched(cache_key: str) -> None:
+    _live_fetched_at[cache_key] = time.time()
+
+
+def _resolve_match_date(date: str):
+    """Returns (resolved_date, norm_date, is_today) with "Today" turned into a real date."""
+    import datetime
+    resolved_date = date or ""
+    if resolved_date.lower().startswith("today"):
+        resolved_date = datetime.date.today().strftime("%d %b %Y")
+    norm_date = normalize_date_string(resolved_date)
+    is_today = norm_date == datetime.date.today().strftime("%d %b %Y").lower()
+    return resolved_date, norm_date, is_today
+
+
+def _match_cache_key(prefix: str, home: str, away: str, norm_date: str):
+    """Returns (cache_key, home_is_first) for a match-level cache entry."""
+    norm_home, norm_away = normalize_name(home), normalize_name(away)
+    sorted_teams = sorted([norm_home, norm_away])
+    return f"{prefix}_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}", norm_home == sorted_teams[0]
+
+
+def _swap_pair_stats(stats: Dict[str, Any]) -> Dict[str, Any]:
+    swapped = dict(stats)
+    for k in _PAIR_STAT_KEYS:
+        v = swapped.get(k)
+        if isinstance(v, list) and len(v) == 2:
+            swapped[k] = [v[1], v[0]]
+    return swapped
+
+
+def _store_match_stats(cache_key: str, stats: Dict[str, Any], home_first: bool) -> None:
+    update_cache_entry(cache_key, stats if home_first else _swap_pair_stats(stats))
+
+
 def get_match_stats(
     home: str,
     away: str,
@@ -1679,50 +1734,35 @@ def get_match_stats(
     away_score: Optional[int] = None
 ) -> Optional[Dict[str, Any]]:
     """
-    Returns possession, shots, bigChances, and passes for a specific match.
-    Checks cache first, then fetches REAL stats from the ESPN public API.
-    Falls back to dynamic LLM predicted/estimated stats if ESPN doesn't have it or it's a future match.
+    Returns possession, shots, shots on target, bigChances, passes, corners, fouls,
+    cards and offsides for a match, in home/away order.
+    Checks cache first, then fetches REAL stats from API-Football (if configured)
+    and the ESPN public API. Falls back to LLM predicted/estimated stats only when
+    no real source has the match (or it hasn't been played yet).
     """
-    import datetime
+    _, norm_date, is_today = _resolve_match_date(date)
+    cache_key, home_first = _match_cache_key("matchstats", home, away, norm_date)
 
-    norm_home = normalize_name(home)
-    norm_away = normalize_name(away)
-    # Resolve "Today" or "Today @ HH:MM" to the real calendar date before normalizing
-    resolved_date = date
-    if resolved_date.lower().startswith("today"):
-        resolved_date = datetime.date.today().strftime("%d %b %Y")
-    norm_date = normalize_date_string(resolved_date)
+    def _with_score(stats: Dict[str, Any]) -> Dict[str, Any]:
+        stats = dict(stats)
+        if not (isinstance(stats.get("predicted_score"), list) and len(stats["predicted_score"]) == 2):
+            stats["predicted_score"] = [home_score if home_score is not None else 0,
+                                        away_score if away_score is not None else 0]
+        return stats
 
-    # Deterministic cache key — sort team names alphabetically so direction doesn't matter
-    sorted_teams = sorted([norm_home, norm_away])
-    cache_key = f"matchstats_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}"
+    # 1. Cache hit. For today's matches the cache is only trusted for a short while,
+    #    so live numbers keep moving.
+    cached = load_cache().get(cache_key)
+    if cached:
+        cached = cached if home_first else _swap_pair_stats(cached)
+        if not is_today or _live_cache_fresh(cache_key):
+            logger.info(f"Match stats for '{home}' vs '{away}' found in cache (key: {cache_key})")
+            return _with_score(cached)
 
-    # 1. Cache hit — but for today's matches, skip cached stats so live numbers stay fresh
-    is_today_match = norm_date == datetime.date.today().strftime("%d %b %Y").lower()
-    cache = load_cache()
-    if cache_key in cache and not is_today_match:
-        logger.info(f"Match stats for '{home}' vs '{away}' found in cache (key: {cache_key})")
-        stats_val = cache[cache_key]
-        if stats_val:
-            if "predicted_score" not in stats_val:
-                stats_val["predicted_score"] = [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
-            
-            # Extract first team name from the cache key to detect if we need to swap order
-            key_without_prefix = cache_key
-            if key_without_prefix.startswith("matchstats_"):
-                key_without_prefix = key_without_prefix[len("matchstats_"):]
-            parts = key_without_prefix.split("_vs_")
-            if len(parts) >= 2:
-                norm_team1 = normalize_name(parts[0].strip())
-                if norm_team1 == norm_away:
-                    logger.info(f"Swapping cached stats order to match requested home/away ({home} vs {away})")
-                    stats_val = dict(stats_val)
-                    for k in ["possession", "shots", "shotsOnTarget", "bigChances", "passes", "corners", "fouls", "yellowCards", "offsides", "predicted_score"]:
-                        if k in stats_val and isinstance(stats_val[k], list) and len(stats_val[k]) == 2:
-                            stats_val[k] = [stats_val[k][1], stats_val[k][0]]
-            return stats_val
+    is_future = is_future_match(norm_date)
+    stats: Optional[Dict[str, Any]] = None
 
-    # 1.5 Try API-Football Integration if Key is Configured
+    # 2. API-Football, if a key is configured
     if settings.API_FOOTBALL_KEY:
         try:
             logger.info(f"API-Football Key detected. Attempting high-fidelity stats lookup for '{home}' vs '{away}'...")
@@ -1732,289 +1772,112 @@ def get_match_stats(
             if fixture_id:
                 raw_stats = client.fetch_stats(fixture_id)
                 if raw_stats and raw_stats.get("response"):
-                    # Find Home and Away teams
-                    home_id = client.resolve_team_id(home)
-                    away_id = client.resolve_team_id(away)
-                    
-                    home_stats_dict = {}
-                    away_stats_dict = {}
-                    
-                    for team_data in raw_stats["response"]:
-                        t_id = team_data.get("team", {}).get("id")
-                        stats_list = team_data.get("statistics", [])
-                        
-                        target_dict = None
-                        if t_id == home_id:
-                            target_dict = home_stats_dict
-                        elif t_id == away_id:
-                            target_dict = away_stats_dict
-                        else:
-                            # Substring name matching just in case
-                            t_name = team_data.get("team", {}).get("name", "").lower()
-                            if normalize_name(t_name) == norm_home:
-                                target_dict = home_stats_dict
-                            elif normalize_name(t_name) == norm_away:
-                                target_dict = away_stats_dict
-                                
-                        if target_dict is not None:
-                            for item in stats_list:
-                                target_dict[item["type"]] = item["value"]
-                                
-                    # Extract the stats we need: possession, shots, passes, bigChances
-                    def parse_val(val) -> int:
-                        if val is None:
-                            return 0
-                        if isinstance(val, str):
-                            val = val.replace("%", "").strip()
-                        try:
-                            return int(val)
-                        except ValueError:
-                            return 0
-                            
-                    def get_metric(stats_dict: Dict[str, Any], key: str, default: Any = 0) -> Any:
-                        key_lower = key.lower()
-                        for k, v in stats_dict.items():
-                            if k.lower() == key_lower:
-                                return v
-                        return default
-                            
-                    home_poss = parse_val(get_metric(home_stats_dict, "Ball Possession", 50))
-                    away_poss = parse_val(get_metric(away_stats_dict, "Ball Possession", 50))
-                    
-                    # Ensure possession sum is 100
-                    if home_poss + away_poss != 100:
-                        if home_poss > 0 or away_poss > 0:
-                            total = home_poss + away_poss
-                            home_poss = int(round(home_poss * 100 / total))
-                            away_poss = 100 - home_poss
-                        else:
-                            home_poss, away_poss = 50, 50
-                            
-                    home_shots = parse_val(get_metric(home_stats_dict, "Total Shots", 0))
-                    away_shots = parse_val(get_metric(away_stats_dict, "Total Shots", 0))
-                    
-                    home_passes = parse_val(get_metric(home_stats_dict, "Total passes", 0))
-                    if home_passes == 0:
-                        home_passes = parse_val(get_metric(home_stats_dict, "Passes total", 0))
-                    away_passes = parse_val(get_metric(away_stats_dict, "Total passes", 0))
-                    if away_passes == 0:
-                        away_passes = parse_val(get_metric(away_stats_dict, "Passes total", 0))
-                        
-                    # Estimate/Parse Big Chances
-                    home_s_on_goal = parse_val(get_metric(home_stats_dict, "Shots on Goal", 0))
-                    away_s_on_goal = parse_val(get_metric(away_stats_dict, "Shots on Goal", 0))
-                    
-                    home_big = parse_val(get_metric(home_stats_dict, "Big Chances Created", home_s_on_goal // 3))
-                    away_big = parse_val(get_metric(away_stats_dict, "Big Chances Created", away_s_on_goal // 3))
-                    
-                    home_big = max(0, home_big)
-                    away_big = max(0, away_big)
-
-                    home_corners = parse_val(get_metric(home_stats_dict, "Corner Kicks", 0))
-                    away_corners = parse_val(get_metric(away_stats_dict, "Corner Kicks", 0))
-                    home_fouls = parse_val(get_metric(home_stats_dict, "Fouls", 0))
-                    away_fouls = parse_val(get_metric(away_stats_dict, "Fouls", 0))
-                    home_yellow = parse_val(get_metric(home_stats_dict, "Yellow Cards", 0))
-                    away_yellow = parse_val(get_metric(away_stats_dict, "Yellow Cards", 0))
-                    home_offsides = parse_val(get_metric(home_stats_dict, "Offsides", 0))
-                    away_offsides = parse_val(get_metric(away_stats_dict, "Offsides", 0))
-                    
-                    stats_val = {
-                        "possession": [home_poss, away_poss],
-                        "shots": [home_shots, away_shots],
-                        "shotsOnTarget": [home_s_on_goal, away_s_on_goal],
-                        "bigChances": [home_big, away_big],
-                        "passes": [home_passes, away_passes],
-                        "corners": [home_corners, away_corners],
-                        "fouls": [home_fouls, away_fouls],
-                        "yellowCards": [home_yellow, away_yellow],
-                        "offsides": [home_offsides, away_offsides],
-                        "predicted_score": [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
-                    }
-                    
-                    # Save in cache
-                    update_cache_entry(cache_key, stats_val)
-                    logger.info(f"Successfully fetched and cached stats via API-Football (Fixture ID: {fixture_id})")
-                    return stats_val
-            logger.warning("API-Football stats integration missed, falling back to ESPN/LLM pipeline.")
+                    stats = _build_api_football_stats(client, raw_stats, home, away)
+                    if stats:
+                        logger.info(f"Fetched stats via API-Football (Fixture ID: {fixture_id})")
+            if not stats:
+                logger.warning("API-Football stats integration missed, falling back to ESPN/LLM pipeline.")
         except Exception as stats_err:
             logger.error(f"Error fetching stats from API-Football: {stats_err}", exc_info=True)
 
-    is_future = is_future_match(norm_date)
+    # 3. ESPN summary boxscore for played / live matches
+    if not stats and not is_future:
+        summary = _fetch_espn_summary(home, away, norm_date, is_today)
+        if summary:
+            from backend.match_stats import build_espn_match_stats
+            stats = build_espn_match_stats(summary, home, away)
+            if stats:
+                logger.info(f"Fetched real ESPN stats for '{home}' vs '{away}': {stats}")
 
+    if stats:
+        stats = _with_score(stats)
+        _store_match_stats(cache_key, stats, home_first)
+        _mark_live_fetched(cache_key)
+        return stats
 
-    # 2. Try ESPN soccer scoreboard for past matches
-    if not is_future:
-        espn_date = None
-        for fmt in ("%d %b %Y", "%d %B %Y", "%Y-%m-%d"):
-            try:
-                espn_date = datetime.datetime.strptime(norm_date.title(), fmt).strftime("%Y%m%d")
-                break
-            except ValueError:
-                pass
+    # A live match whose providers are briefly unreachable keeps its last numbers
+    # rather than being replaced by an LLM estimate.
+    if cached:
+        _mark_live_fetched(cache_key)
+        return _with_score(cached)
 
-        if espn_date:
-            req_headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-                "Accept": "application/json",
-            }
-
-            # ESPN soccer league slugs — try most likely first
-            espn_leagues = [
-                "fifa.world", "uefa.champions", "uefa.europa", "eng.1", "esp.1",
-                "ger.1", "ita.1", "fra.1", "usa.1", "concacaf.nations.league",
-                "conmebol.copa", "afc.asian.cup",
-            ]
-
-            def _team_matches(espn_name: str, our_name: str) -> bool:
-                a = clean_text(espn_name)
-                b = clean_text(our_name)
-                return a == b or a in b or b in a or any(w in a for w in b.split() if len(w) > 3)
-
-            event_id = None
-            matched_league = None
-            home_team_idx = 0  # index of our home team in ESPN's competitors list
-
-            for slug in espn_leagues:
-                try:
-                    sb_r = _session.get(
-                        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{slug}/scoreboard?dates={espn_date}",
-                        headers=req_headers, timeout=6
-                    )
-                    if sb_r.status_code != 200:
-                        continue
-                    for ev in sb_r.json().get("events", []):
-                        for comp in ev.get("competitions", []):
-                            names = [c.get("team", {}).get("displayName", "") for c in comp.get("competitors", [])]
-                            if len(names) < 2:
-                                continue
-                            if any(_team_matches(n, home) for n in names) and any(_team_matches(n, away) for n in names):
-                                event_id = comp.get("id")
-                                matched_league = slug
-                                home_team_idx = next((i for i, n in enumerate(names) if _team_matches(n, home)), 0)
-                                logger.info(f"ESPN event {event_id} found for {home} vs {away} [{slug}]")
-                                break
-                        if event_id:
-                            break
-                except Exception as e:
-                    logger.debug(f"ESPN scoreboard error [{slug}]: {e}")
-                if event_id:
-                    break
-
-            if event_id:
-                # Fetch real match stats from ESPN summary
-                try:
-                    sum_r = _session.get(
-                        f"https://site.api.espn.com/apis/site/v2/sports/soccer/{matched_league}/summary?event={event_id}",
-                        headers=req_headers, timeout=8
-                    )
-                    if sum_r.status_code == 200:
-                        teams_data = sum_r.json().get("boxscore", {}).get("teams", [])
-                        if teams_data:
-                            def _stat(stat_list, *labels) -> Optional[float]:
-                                for s in stat_list:
-                                    lbl = s.get("label", "").upper()
-                                    for want in labels:
-                                        if want.upper() in lbl:
-                                            try:
-                                                return float(s.get("displayValue", "").replace("%", "").strip())
-                                            except ValueError:
-                                                pass
-                                return None
-
-                            h_stats = teams_data[home_team_idx].get("statistics", []) if len(teams_data) > home_team_idx else []
-                            a_stats = teams_data[1 - home_team_idx].get("statistics", []) if len(teams_data) > 1 - home_team_idx else []
-
-                            h_poss   = _stat(h_stats, "Possession")
-                            a_poss   = _stat(a_stats, "Possession")
-                            h_shots  = _stat(h_stats, "SHOTS", "Shots")
-                            a_shots  = _stat(a_stats, "SHOTS", "Shots")
-                            h_shots_on_target = _stat(h_stats, "Shots on Goal")
-                            a_shots_on_target = _stat(a_stats, "Shots on Goal")
-                            h_passes = _stat(h_stats, "Accurate Passes", "Passes")
-                            a_passes = _stat(a_stats, "Accurate Passes", "Passes")
-                            h_bc     = _stat(h_stats, "ON GOAL")
-                            a_bc     = _stat(a_stats, "ON GOAL")
-                            h_corners = _stat(h_stats, "Corner Kicks")
-                            a_corners = _stat(a_stats, "Corner Kicks")
-                            h_fouls = _stat(h_stats, "Fouls")
-                            a_fouls = _stat(a_stats, "Fouls")
-                            h_yellow = _stat(h_stats, "Yellow Cards")
-                            a_yellow = _stat(a_stats, "Yellow Cards")
-                            h_offsides = _stat(h_stats, "Offsides")
-                            a_offsides = _stat(a_stats, "Offsides")
-
-                            if h_poss is not None and h_shots is not None:
-                                total_p = (h_poss or 0) + (a_poss or 0)
-                                if total_p > 0 and abs(total_p - 100) > 2:
-                                    h_poss = round(h_poss / total_p * 100)
-                                else:
-                                    h_poss = round(h_poss or 50)
-                                a_poss = 100 - h_poss
-
-                                if h_shots_on_target is None:
-                                    h_shots_on_target = round((h_shots or 0) * 0.4)
-                                if a_shots_on_target is None:
-                                    a_shots_on_target = round((a_shots or 0) * 0.4)
-
-                                stats = {
-                                    "possession": [h_poss, a_poss],
-                                    "shots":      [int(h_shots or 0),  int(a_shots or 0)],
-                                    "shotsOnTarget": [int(h_shots_on_target or 0), int(a_shots_on_target or 0)],
-                                    "bigChances": [int(h_bc or 0),     int(a_bc or 0)],
-                                    "passes":     [int(h_passes or 0), int(a_passes or 0)],
-                                    "corners":    [int(h_corners or 5), int(a_corners or 4)],
-                                    "fouls":      [int(h_fouls or 10), int(a_fouls or 11)],
-                                    "yellowCards": [int(h_yellow or 1), int(a_yellow or 1)],
-                                    "offsides":   [int(h_offsides or 2), int(a_offsides or 2)],
-                                    "predicted_score": [home_score if home_score is not None else 0, away_score if away_score is not None else 0]
-                                }
-
-                                if norm_home == sorted_teams[1]:
-                                    cache_stats = {
-                                        "possession": [a_poss, h_poss],
-                                        "shots":      [int(a_shots or 0),  int(h_shots or 0)],
-                                        "shotsOnTarget": [int(a_shots_on_target or 0), int(h_shots_on_target or 0)],
-                                        "bigChances": [int(a_bc or 0),     int(h_bc or 0)],
-                                        "passes":     [int(a_passes or 0), int(h_passes or 0)],
-                                        "corners":    [int(a_corners or 4), int(h_corners or 5)],
-                                        "fouls":      [int(a_fouls or 11), int(h_fouls or 10)],
-                                        "yellowCards": [int(a_yellow or 1), int(h_yellow or 1)],
-                                        "offsides":   [int(a_offsides or 2), int(h_offsides or 2)],
-                                        "predicted_score": [away_score if away_score is not None else 0, home_score if home_score is not None else 0]
-                                    }
-                                else:
-                                    cache_stats = stats
-
-                                update_cache_entry(cache_key, cache_stats)
-                                logger.info(f"Cached real ESPN stats for '{home}' vs '{away}': {cache_stats}")
-                                return stats
-                except Exception as e:
-                    logger.error(f"ESPN summary error for event {event_id}: {e}")
-
-    # 3. Dynamic Fallback to LLM / prediction model
-    logger.info(f"ESPN lookup missed or match is future ({is_future=}). Generating dynamic stats via LLM...")
+    # 4. Dynamic Fallback to LLM / prediction model
+    logger.info(f"No real stats source for '{home}' vs '{away}' ({is_future=}). Generating dynamic stats via LLM...")
     stats = get_dynamic_match_stats_via_llm(home, away, date, home_score, away_score, is_future)
     if stats:
-        if norm_home == sorted_teams[1]:
-            cache_stats = {
-                "possession": [stats["possession"][1], stats["possession"][0]],
-                "shots":      [stats["shots"][1], stats["shots"][0]],
-                "shotsOnTarget": [stats["shotsOnTarget"][1], stats["shotsOnTarget"][0]],
-                "bigChances": [stats["bigChances"][1], stats["bigChances"][0]],
-                "passes":     [stats["passes"][1], stats["passes"][0]],
-                "corners":    [stats["corners"][1], stats["corners"][0]],
-                "fouls":      [stats["fouls"][1], stats["fouls"][0]],
-                "yellowCards": [stats["yellowCards"][1], stats["yellowCards"][0]],
-                "offsides":   [stats["offsides"][1], stats["offsides"][0]],
-                "predicted_score": [stats["predicted_score"][1], stats["predicted_score"][0]]
-            }
-        else:
-            cache_stats = stats
-        update_cache_entry(cache_key, cache_stats)
+        _store_match_stats(cache_key, stats, home_first)
+        _mark_live_fetched(cache_key)
         return stats
 
     return None
+
+
+def _build_api_football_stats(client, raw_stats: Dict[str, Any], home: str, away: str) -> Optional[Dict[str, Any]]:
+    """Maps API-Football /fixtures/statistics to our home/away stats dict."""
+    from backend.match_stats import side_of
+
+    home_id = client.resolve_team_id(home)
+    away_id = client.resolve_team_id(away)
+    home_stats_dict: Dict[str, Any] = {}
+    away_stats_dict: Dict[str, Any] = {}
+
+    for team_data in raw_stats["response"]:
+        t_id = team_data.get("team", {}).get("id")
+        if home_id and t_id == home_id:
+            target_dict = home_stats_dict
+        elif away_id and t_id == away_id:
+            target_dict = away_stats_dict
+        else:
+            side = side_of(team_data.get("team", {}).get("name", ""), home, away)
+            target_dict = home_stats_dict if side == "home" else away_stats_dict if side == "away" else None
+        if target_dict is not None:
+            for item in team_data.get("statistics", []):
+                target_dict[str(item.get("type", "")).lower()] = item.get("value")
+
+    if not home_stats_dict or not away_stats_dict:
+        return None
+
+    def parse_val(val) -> int:
+        if val is None:
+            return 0
+        if isinstance(val, str):
+            val = val.replace("%", "").strip()
+        try:
+            return int(float(val))
+        except ValueError:
+            return 0
+
+    def metric(d: Dict[str, Any], *keys: str, default: Any = 0) -> int:
+        for key in keys:
+            if key.lower() in d and d[key.lower()] is not None:
+                return parse_val(d[key.lower()])
+        return parse_val(default)
+
+    home_poss = metric(home_stats_dict, "Ball Possession", default=50)
+    away_poss = metric(away_stats_dict, "Ball Possession", default=50)
+    total = home_poss + away_poss
+    if total > 0:
+        home_poss = int(round(home_poss * 100 / total))
+        away_poss = 100 - home_poss
+    else:
+        home_poss, away_poss = 50, 50
+
+    home_sot = metric(home_stats_dict, "Shots on Goal")
+    away_sot = metric(away_stats_dict, "Shots on Goal")
+
+    return {
+        "possession": [home_poss, away_poss],
+        "shots": [metric(home_stats_dict, "Total Shots"), metric(away_stats_dict, "Total Shots")],
+        "shotsOnTarget": [home_sot, away_sot],
+        "bigChances": [metric(home_stats_dict, "Big Chances Created", default=home_sot // 3),
+                       metric(away_stats_dict, "Big Chances Created", default=away_sot // 3)],
+        "passes": [metric(home_stats_dict, "Total passes", "Passes total"),
+                   metric(away_stats_dict, "Total passes", "Passes total")],
+        "corners": [metric(home_stats_dict, "Corner Kicks"), metric(away_stats_dict, "Corner Kicks")],
+        "fouls": [metric(home_stats_dict, "Fouls"), metric(away_stats_dict, "Fouls")],
+        "yellowCards": [metric(home_stats_dict, "Yellow Cards"), metric(away_stats_dict, "Yellow Cards")],
+        "offsides": [metric(home_stats_dict, "Offsides"), metric(away_stats_dict, "Offsides")],
+    }
 
 
 # ── Shared ESPN helpers ──────────────────────────────────────────────────────
@@ -2031,17 +1894,12 @@ ESPN_HEADERS = {
 }
 
 
-def _team_name_matches(espn_name: str, our_name: str) -> bool:
-    a = clean_text(espn_name)
-    b = clean_text(our_name)
-    return a == b or a in b or b in a or any(w in a for w in b.split() if len(w) > 3)
-
-
 def _resolve_espn_event(home: str, away: str, espn_date: str):
     """
     Searches ESPN scoreboard pages to find the competition event ID for a match.
     Returns (event_id, league_slug, home_team_idx) or (None, None, 0).
     """
+    from backend.match_stats import side_of
     for slug in ESPN_LEAGUES:
         try:
             r = _session.get(
@@ -2055,9 +1913,11 @@ def _resolve_espn_event(home: str, away: str, espn_date: str):
                     names = [c.get("team", {}).get("displayName", "") for c in comp.get("competitors", [])]
                     if len(names) < 2:
                         continue
-                    if any(_team_name_matches(n, home) for n in names) and any(_team_name_matches(n, away) for n in names):
+                    # Each competitor must be matched to a different one of our teams
+                    sides = [side_of(n, home, away) for n in names[:2]]
+                    if set(sides) == {"home", "away"}:
                         event_id = comp.get("id")
-                        home_idx = next((i for i, n in enumerate(names) if _team_name_matches(n, home)), 0)
+                        home_idx = sides.index("home")
                         logger.info(f"ESPN event {event_id} found for {home} vs {away} [{slug}]")
                         return event_id, slug, home_idx
         except Exception as e:
@@ -2075,7 +1935,125 @@ def _espn_date_from_norm(norm_date: str) -> Optional[str]:
     return None
 
 
+# Stats, events and player numbers all read the same ESPN summary; keep it briefly
+# so one /roster call doesn't fetch it three times.
+_ESPN_SUMMARY_TTL = 60
+_espn_summary_cache: Dict[str, Any] = {}
+
+
+def _fetch_espn_summary(home: str, away: str, norm_date: str, is_today: bool = False) -> Optional[Dict[str, Any]]:
+    import datetime
+    key, _ = _match_cache_key("espnsummary", home, away, norm_date)
+    hit = _espn_summary_cache.get(key)
+    if hit and time.time() - hit[0] < _ESPN_SUMMARY_TTL:
+        return hit[1]
+
+    summary = None
+    espn_date = _espn_date_from_norm(norm_date)
+    if espn_date:
+        event_id, league, _ = _resolve_espn_event(home, away, espn_date)
+        # Midnight-crossing fallback: a match that kicked off late last night
+        if not event_id and is_today:
+            yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
+            if yesterday != espn_date:
+                logger.info(f"Match not found on ESPN for {espn_date}, trying yesterday {yesterday}...")
+                event_id, league, _ = _resolve_espn_event(home, away, yesterday)
+        if event_id:
+            try:
+                r = _session.get(
+                    f"https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/summary?event={event_id}",
+                    headers=ESPN_HEADERS, timeout=8
+                )
+                if r.status_code == 200:
+                    summary = r.json()
+            except Exception as e:
+                logger.error(f"ESPN summary error for event {event_id}: {e}")
+
+    _espn_summary_cache[key] = (time.time(), summary)
+    return summary
+
+
+def _parse_espn_incidents(summary: Dict[str, Any]):
+    """Returns (goals, cards) from an ESPN summary's keyEvents."""
+    goals: List[Dict[str, Any]] = []
+    cards: List[Dict[str, Any]] = []
+    for ev in summary.get("keyEvents", []) or []:
+        ev_type = str(ev.get("type", {}).get("type", "")).lower()
+        minute = ev.get("clock", {}).get("displayValue", "?")
+        team_name = ev.get("team", {}).get("displayName", "")
+        participants = ev.get("participants", []) or []
+        names = [(p.get("athlete") or {}).get("displayName") for p in participants]
+        names = [n for n in names if n]
+
+        if "card" in ev_type:
+            if names:
+                cards.append({
+                    "minute": minute,
+                    "player": names[0],
+                    "team": team_name,
+                    "card": "red" if "red" in ev_type else "yellow",
+                })
+            continue
+
+        if not ev.get("scoringPlay"):
+            continue
+        # Include goal, header, penalty-scored, own-goal types
+        if "goal" not in ev_type and "penalty" not in ev_type:
+            continue
+        text = ev.get("text", "") or ""
+        goals.append({
+            "minute": minute,
+            "scorer": names[0] if names else "Unknown",
+            "assist": names[1] if len(names) > 1 else None,
+            "team": team_name,
+            "ownGoal": "own-goal" in ev_type or "own goal" in text.lower(),
+            "penalty": "penalty" in ev_type,
+            "text": ev.get("shortText", "") or text,
+        })
+    return goals, cards
+
+
+def _parse_api_football_incidents(raw_events: Dict[str, Any]):
+    """Returns (goals, cards) from API-Football /fixtures/events."""
+    goals: List[Dict[str, Any]] = []
+    cards: List[Dict[str, Any]] = []
+    for ev in raw_events.get("response", []) or []:
+        time_info = ev.get("time", {}) or {}
+        elapsed = time_info.get("elapsed", 0)
+        extra = time_info.get("extra")
+        minute_str = f"{elapsed}'" if not extra else f"{elapsed}+{extra}'"
+        detail = ev.get("detail", "") or ""
+        ev_type = str(ev.get("type", ""))
+        player = (ev.get("player") or {}).get("name")
+        team = (ev.get("team") or {}).get("name", "")
+
+        if ev_type == "Card":
+            if player:
+                cards.append({
+                    "minute": minute_str,
+                    "player": player,
+                    "team": team,
+                    "card": "red" if "red" in detail.lower() else "yellow",
+                })
+            continue
+        if ev_type != "Goal":
+            continue
+        detail_l = detail.lower()
+        goals.append({
+            "minute": minute_str,
+            "scorer": player or "Unknown",
+            "assist": (ev.get("assist") or {}).get("name"),
+            "team": team,
+            "ownGoal": "own goal" in detail_l or "own-goal" in detail_l,
+            "penalty": "penalty" in detail_l,
+            "missed": "missed" in detail_l,
+            "text": detail or "Goal",
+        })
+    return goals, cards
+
+
 # ────────────────────────────────────────────────────────────────────────────
+
 
 
 def fetch_real_world_match_events_via_rag(
@@ -2241,33 +2219,24 @@ def get_match_events(
 ) -> Optional[List[Dict[str, Any]]]:
     """
     Returns goal events for a match: scorer name, assister name, minute, team, and description.
-    Fetches from ESPN keyEvents (scoringPlay=True only). Caches results.
-    Returns None if the match is not on ESPN or not yet played.
+    Fetches from API-Football (if configured), then ESPN keyEvents, then a RAG web
+    search. Card events found along the way are cached for get_match_cards().
+    Returns None if nothing is known about the match.
     """
-    norm_home = normalize_name(home)
-    norm_away = normalize_name(away)
-    # Resolve "Today" or "Today @ HH:MM" to the real calendar date
-    resolved_date = date
-    if resolved_date.lower().startswith("today"):
-        import datetime
-        resolved_date = datetime.date.today().strftime("%d %b %Y")
-    norm_date = normalize_date_string(resolved_date)
+    _, norm_date, is_today = _resolve_match_date(date)
+    cache_key, _ = _match_cache_key("matchevents", home, away, norm_date)
+    cards_key, _ = _match_cache_key("matchcards", home, away, norm_date)
 
-    sorted_teams = sorted([norm_home, norm_away])
-    cache_key = f"matchevents_{sorted_teams[0]}_vs_{sorted_teams[1]}_{norm_date}"
-
-    # Cache hit — skip empty-list cache for today (match may be live)
-    import datetime as _dt
-    is_today = norm_date == _dt.date.today().strftime("%d %b %Y").lower()
+    # Cache hit. A match being played today is refetched every LIVE_REFRESH_SECONDS,
+    # so goals after the first one cached still show up.
     cache = load_cache()
-    if cache_key in cache:
-        cached_val = cache[cache_key]
-        if cached_val or not is_today:
-            logger.info(f"Match events for '{home}' vs '{away}' found in cache")
-            return cached_val
-        logger.info(f"Skipping empty event cache for today's live match '{home}' vs '{away}', re-fetching...")
+    cached = cache.get(cache_key)
+    if cached is not None and (not is_today or _live_cache_fresh(cache_key)):
+        logger.info(f"Match events for '{home}' vs '{away}' found in cache")
+        return cached
 
-    # 1.5 Try API-Football Integration if Key is Configured
+    goals = cards = None
+
     if settings.API_FOOTBALL_KEY:
         try:
             logger.info(f"API-Football Key detected. Attempting high-fidelity events lookup for '{home}' vs '{away}'...")
@@ -2276,107 +2245,98 @@ def get_match_events(
             fixture_id = client.resolve_fixture_id(home, away, date)
             if fixture_id:
                 raw_events = client.fetch_events(fixture_id)
-                if raw_events and raw_events.get("response"):
-                    goals = []
-                    for ev in raw_events["response"]:
-                        if ev.get("type") == "Goal":
-                            time_info = ev.get("time", {})
-                            elapsed = time_info.get("elapsed", 0)
-                            extra = time_info.get("extra")
-                            minute_str = f"{elapsed}" if not extra else f"{elapsed}+{extra}"
-                            
-                            detail = ev.get("detail", "Normal Goal")
-                            is_own_goal = "own-goal" in detail.lower() or "own goal" in detail.lower()
-                            is_penalty = "penalty" in detail.lower()
-                            
-                            goals.append({
-                                "minute": minute_str,
-                                "scorer": ev.get("player", {}).get("name", "Unknown"),
-                                "assist": ev.get("assist", {}).get("name"),
-                                "team": ev.get("team", {}).get("name", ""),
-                                "ownGoal": is_own_goal,
-                                "penalty": is_penalty,
-                                "text": detail
-                            })
-                            
-                    update_cache_entry(cache_key, goals)
-                    logger.info(f"Successfully fetched and cached {len(goals)} goal events via API-Football (Fixture ID: {fixture_id})")
-                    return goals
-            logger.warning("API-Football events integration missed, falling back to ESPN/LLM pipeline.")
+                if raw_events and raw_events.get("response") is not None:
+                    goals, cards = _parse_api_football_incidents(raw_events)
+                    logger.info(f"Fetched {len(goals)} goal events via API-Football (Fixture ID: {fixture_id})")
+            if goals is None:
+                logger.warning("API-Football events integration missed, falling back to ESPN/LLM pipeline.")
         except Exception as api_err:
             logger.error(f"Error fetching events from API-Football: {api_err}", exc_info=True)
 
-    espn_date = _espn_date_from_norm(norm_date)
-    event_id = None
-    matched_league = None
-    if espn_date:
-        event_id, matched_league, _ = _resolve_espn_event(home, away, espn_date)
+    if goals is None and not is_future_match(norm_date):
+        summary = _fetch_espn_summary(home, away, norm_date, is_today)
+        if summary is not None:
+            goals, cards = _parse_espn_incidents(summary)
+            logger.info(f"Fetched {len(goals)} goal events for '{home}' vs '{away}' from ESPN")
 
-        # Midnight-crossing fallback: if match was played yesterday (local clock ticked past midnight),
-        # try yesterday's ESPN date before giving up.
-        if not event_id and (is_today or date.lower().startswith("today")):
-            import datetime as _dt2
-            yesterday = (_dt2.date.today() - _dt2.timedelta(days=1)).strftime("%Y%m%d")
-            if yesterday != espn_date:
-                logger.info(f"Match not found on ESPN for {espn_date}, trying yesterday {yesterday}...")
-                event_id, matched_league, _ = _resolve_espn_event(home, away, yesterday)
-
-    if not event_id:
-        logger.info(f"ESPN event lookup missed for '{home}' vs '{away}'. Falling back to RAG search for real-world goal events...")
+    if goals is None:
+        logger.info(f"No provider has events for '{home}' vs '{away}'. Falling back to RAG search for real-world goal events...")
         goals = fetch_real_world_match_events_via_rag(home, away, date)
-        if goals is not None:
-            update_cache_entry(cache_key, goals)
-            logger.info(f"Cached {len(goals)} RAG-extracted goal events for '{home}' vs '{away}'")
-            return goals
+        if cached and len(goals or []) < len(cached):
+            # A web search that found fewer goals than we already had is a miss,
+            # not goals being taken back
+            _mark_live_fetched(cache_key)
+            return cached
+        if goals is None:
+            return cached
+
+    update_cache_entry(cache_key, goals)
+    if cards is not None:
+        update_cache_entry(cards_key, cards)
+    _mark_live_fetched(cache_key)
+    logger.info(f"Cached {len(goals)} goal events for '{home}' vs '{away}'")
+    return goals
+
+
+def get_match_cards(home: str, away: str, date: str) -> Optional[List[Dict[str, Any]]]:
+    """Card events cached by get_match_events(), or None when no provider had them."""
+    _, norm_date, _ = _resolve_match_date(date)
+    cards_key, _ = _match_cache_key("matchcards", home, away, norm_date)
+    return load_cache().get(cards_key)
+
+
+def get_match_player_stats(home: str, away: str, date: str) -> Optional[List[Dict[str, Any]]]:
+    """
+    Returns per-player goals, assists, shots and shots on target for a played or
+    live match, from API-Football (if configured) or ESPN's box score. Returns None
+    when no real source has them - these are never estimated.
+    """
+    from backend.match_stats import parse_api_football_player_stats, parse_espn_player_stats, side_of
+
+    _, norm_date, is_today = _resolve_match_date(date)
+    if is_future_match(norm_date):
         return None
+    cache_key, _ = _match_cache_key("matchplayers", home, away, norm_date)
 
-    try:
-        sum_r = _session.get(
-            f"https://site.api.espn.com/apis/site/v2/sports/soccer/{matched_league}/summary?event={event_id}",
-            headers=ESPN_HEADERS, timeout=8
-        )
-        if sum_r.status_code != 200:
-            return None
+    def _retag(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        # Rows are cached with whichever team spelling the first caller used
+        out = []
+        for r in rows:
+            side = side_of(r.get("team", ""), home, away)
+            out.append(dict(r, team=home if side == "home" else away if side == "away" else r.get("team")))
+        return out
 
-        raw_events = sum_r.json().get("keyEvents", [])
-        goals = []
-        for ev in raw_events:
-            if not ev.get("scoringPlay"):
-                continue
+    cached = load_cache().get(cache_key)
+    if cached is not None and (not is_today or _live_cache_fresh(cache_key)):
+        return _retag(cached)
 
-            ev_type = ev.get("type", {}).get("type", "")
-            # Include goal, header, penalty-scored, own-goal types
-            if "goal" not in ev_type and "penalty" not in ev_type:
-                continue
+    players: List[Dict[str, Any]] = []
+    if settings.API_FOOTBALL_KEY:
+        try:
+            from backend.loaders.api_football_client import APIFootballClient
+            client = APIFootballClient()
+            fixture_id = client.resolve_fixture_id(home, away, date)
+            if fixture_id:
+                raw = client.fetch_players(fixture_id)
+                if raw:
+                    players = parse_api_football_player_stats(raw, home, away)
+        except Exception as e:
+            logger.error(f"Error fetching player stats from API-Football: {e}", exc_info=True)
 
-            minute = ev.get("clock", {}).get("displayValue", "?")
-            team_name = ev.get("team", {}).get("displayName", "")
-            participants = ev.get("participants", [])
+    if not players:
+        summary = _fetch_espn_summary(home, away, norm_date, is_today)
+        if summary:
+            players = parse_espn_player_stats(summary, home, away)
 
-            scorer = participants[0]["athlete"]["displayName"] if participants else "Unknown"
-            assister = participants[1]["athlete"]["displayName"] if len(participants) > 1 else None
+    if players:
+        update_cache_entry(cache_key, players)
+        _mark_live_fetched(cache_key)
+        return players
+    if cached:
+        _mark_live_fetched(cache_key)
+        return _retag(cached)
+    return None
 
-            is_own_goal = "own-goal" in ev_type or "own goal" in ev.get("text", "").lower()
-            is_penalty = "penalty" in ev_type
-
-            goals.append({
-                "minute": minute,
-                "scorer": scorer,
-                "assist": assister,
-                "team": team_name,
-                "ownGoal": is_own_goal,
-                "penalty": is_penalty,
-                "text": ev.get("shortText", ""),
-            })
-
-        # Cache and return
-        update_cache_entry(cache_key, goals)
-        logger.info(f"Cached {len(goals)} goal events for '{home}' vs '{away}'")
-        return goals
-
-    except Exception as e:
-        logger.error(f"ESPN events error for event {event_id}: {e}")
-        return None
 
 
 def get_match_formation(team_name: str, opponent_name: Optional[str] = None, match_date: Optional[str] = None) -> str:

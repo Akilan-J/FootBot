@@ -937,7 +937,10 @@ function switchTab(tab, btn) {
   if (panel) panel.classList.add('active');
   localStorage.setItem('fb_active_tab', tab);
   if (tab === 'formation') setTimeout(renderPitch, 100);
-  if (tab === 'sofascore') setTimeout(() => { drawMomentum(); drawLineup(); }, 100);
+  if (tab === 'sofascore') setTimeout(() => {
+    if (matchCentreStale) { renderLiveMatchCentre(); return; }
+    drawMomentum(); drawLineup(); drawShotmap();
+  }, 100);
 }
 
 // ============================================================
@@ -1203,6 +1206,115 @@ async function selectSession(sessionId) {
 function stripEmoji(text) {
   if (!text) return '';
   return text.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD00-\uDFFF]/g, '').trim();
+}
+
+// ── Match-stat helpers ─────────────────────────────────────────────────────
+// Every goal, assist, shot and card is attributed through these, so the
+// scoreline, timeline, shotmap, player cards and heatmaps all agree.
+
+function normTeamKey(name) {
+  return stripEmoji(name || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// 'home' | 'away' | null for a team name reported by a provider.
+// An empty name matches nothing (''.includes check used to count it for both sides).
+function eventSide(team, m) {
+  const t = normTeamKey(team);
+  if (!t || !m) return null;
+  const h = normTeamKey(m.home), a = normTeamKey(m.away);
+  if (t === h) return 'home';
+  if (t === a) return 'away';
+  const hm = !!h && (t.includes(h) || h.includes(t));
+  const am = !!a && (t.includes(a) || a.includes(t));
+  if (hm && !am) return 'home';
+  if (am && !hm) return 'away';
+  return null;
+}
+
+function normPlayerKey(name) {
+  return (name || '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z\s.]/g, ' ').replace(/\./g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Same person under different spellings: "Lionel Messi" / "L. Messi" / "Messi".
+function samePlayer(a, b) {
+  const ka = normPlayerKey(a), kb = normPlayerKey(b);
+  if (!ka || !kb) return false;
+  if (ka === kb) return true;
+  const ta = ka.split(' '), tb = kb.split(' ');
+  if (ta[ta.length - 1] !== tb[tb.length - 1]) {
+    // Single-name players ("Vinicius Junior" vs "Vinicius") match on the first token
+    return (ta.length === 1 || tb.length === 1) && ta[0] === tb[0] && ta[0].length > 3;
+  }
+  if (ta.length === 1 || tb.length === 1) return true;
+  return ta[0][0] === tb[0][0];
+}
+
+function findSquadPlayer(squad, name) {
+  if (!name) return null;
+  return (squad || []).find(p => normPlayerKey(p.name) === normPlayerKey(name))
+      || (squad || []).find(p => samePlayer(p.name, name))
+      || null;
+}
+
+function isMissedGoalEvent(ev) {
+  if (ev.missed) return true;
+  const t = (ev.text || '').toLowerCase();
+  return t.includes('missed') || t.includes('saved penalty') || t.includes('penalty saved');
+}
+
+function isRealAssist(ev) {
+  const a = ev.assist;
+  return !!a && !['null', 'none', 'unknown', 'n/a'].includes(String(a).toLowerCase()) && a !== ev.scorer;
+}
+
+// Side the goal counts for; falls back to whose squad the scorer is in.
+function goalSide(ev, m) {
+  const side = eventSide(ev.team, m);
+  if (side) return side;
+  const inHome = findSquadPlayer(m.homePlayers, ev.scorer);
+  const inAway = findSquadPlayer(m.awayPlayers, ev.scorer);
+  if (inHome && !inAway) return ev.ownGoal ? 'away' : 'home';
+  if (inAway && !inHome) return ev.ownGoal ? 'home' : 'away';
+  return null;
+}
+
+// 'upcoming' | 'live' | 'finished' from a scoreline status ("FT", "54'", "HT", "19:30 IST", "Fixture", ...)
+function matchPhase(status) {
+  const s = String(status || '').toLowerCase().trim();
+  if (!s || s === 'upcoming' || s === 'fixture' || s.includes(':') || s === 'pp' || s === 'can') return 'upcoming';
+  if (s === 'ft' || s === 'completed' || s === 'aet' || s.includes('pen') || s.includes('full')) return 'finished';
+  return 'live';
+}
+
+function currentMatchMinute(m) {
+  const phase = matchPhase(m.status);
+  if (phase === 'upcoming') return 0;
+  if (phase === 'finished') return 90;
+  const s = String(m.status || '').toLowerCase();
+  if (s === 'ht') return 45.99; // first-half stoppage time ("45+2'") included
+  const nums = s.match(/\d+/g);
+  if (!nums) return 90;
+  return parseInt(nums[0]) + (nums[1] ? parseInt(nums[1]) : 0);
+}
+
+function minuteNumber(minuteStr) {
+  const nums = String(minuteStr || '').match(/\d+/g);
+  if (!nums) return 0;
+  return parseInt(nums[0]) + (nums[1] ? parseInt(nums[1]) / 100 : 0);
+}
+
+// Deterministic PRNG so a match's shotmap and heatmaps don't reshuffle on every render.
+function seededRng(seedStr) {
+  let h = 2166136261;
+  for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return () => {
+    h = (h + 0x6D2B79F5) | 0;
+    let t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 function teamLogoImg(name) {
@@ -1999,14 +2111,127 @@ function generateMomentum(isCompleted) {
   return data;
 }
 
-async function loadMatch(id) {
-  let m = null;
+function resolveMatchSource(id) {
   if (id.startsWith('db_')) {
     const idx = parseInt(id.replace('db_', ''));
-    m = loadedMatches[idx];
-  } else {
-    m = PRE_SEEDED_MATCHES[id] || PRE_SEEDED_MATCHES['arg_fra'];
+    return loadedMatches[idx];
   }
+  return PRE_SEEDED_MATCHES[id] || PRE_SEEDED_MATCHES['arg_fra'];
+}
+
+function scoreOrNull(v) {
+  const n = parseInt(v);
+  return isNaN(n) ? null : n;
+}
+
+// Fetches rosters, stats, goal/card events and per-player numbers for a match and
+// builds the Match Centre model (including the shotmap and each player's stats).
+async function fetchMatchCentreData(m) {
+  const homeClean = stripEmoji(m.home);
+  const awayClean = stripEmoji(m.away);
+  const phase = matchPhase(m.status);
+  const hs = scoreOrNull(m.hs), as = scoreOrNull(m.as);
+
+  const homeUrl = `${BACKEND_URL}/roster?team_name=${encodeURIComponent(homeClean)}&opponent_name=${encodeURIComponent(awayClean)}&match_date=${encodeURIComponent(m.date || '')}&home_score=${hs ?? ''}&away_score=${as ?? ''}`;
+  const awayUrl = `${BACKEND_URL}/roster?team_name=${encodeURIComponent(awayClean)}&opponent_name=${encodeURIComponent(homeClean)}&match_date=${encodeURIComponent(m.date || '')}&include_match_data=false`;
+
+  const [homeRes, awayRes] = await Promise.all([fetch(homeUrl), fetch(awayUrl)]);
+
+  let homePlayers = [];
+  let awayPlayers = [];
+  let homeFormation = '4-3-3';
+  let awayFormation = '4-3-3';
+  let matchStats = null;
+  let matchEvents = null;
+  let matchCards = null;
+  let playerStats = null;
+
+  if (homeRes.ok) {
+    const data = await homeRes.json();
+    if (data.status === 'success' && data.roster) homePlayers = data.roster;
+    if (data.formation) homeFormation = data.formation;
+    if (data.stats) matchStats = data.stats;
+    if (data.events) matchEvents = data.events;
+    if (data.cards) matchCards = data.cards;
+    if (data.playerStats) playerStats = data.playerStats;
+  }
+  if (awayRes.ok) {
+    const data = await awayRes.json();
+    if (data.status === 'success' && data.roster) awayPlayers = data.roster;
+    if (data.formation) awayFormation = data.formation;
+  }
+
+  const mapPlayer = (p, i, isHome) => {
+    const rating = p.rating || 6.5;
+    const role = p.pos || 'CM';
+    const isAtt = ['ST', 'RW', 'LW', 'LST', 'RST', 'RAM', 'LAM'].includes(role);
+    const isMid = ['CM', 'DM', 'AM', 'CAM', 'LDM', 'RDM', 'RCM', 'LCM'].includes(role);
+    const isDef = ['CB', 'RCB', 'LCB', 'RB', 'LB', 'GK'].includes(role);
+
+    return {
+      name: p.name,
+      side: isHome ? 'home' : 'away',
+      num: parseInt(p.jersey) || (i + 1),
+      role: role,
+      emoji: role === 'GK' ? '🧤' : isDef ? '🛡️' : isMid ? '🧠' : '🔥',
+      rating: rating,
+      age: parseInt(p.age) || 25,
+      height: p.height || '180cm',
+      weight: p.weight || '75kg',
+      value: p.val || '€10M',
+      sofa_id: p.sofa_id || '',
+      sub: p.sub || false,
+      subbed_in_for: p.subbed_in_for || null,
+      subbed_in_minute: p.subbed_in_minute || null,
+      att: Math.max(30, Math.min(99, Math.round(rating * 10 + (isAtt ? 8 : -15)))),
+      ctrl: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 5 : -5)))),
+      crea: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 8 : -20)))),
+      phys: Math.max(30, Math.min(99, Math.round(rating * 9.5))),
+      scan: Math.max(30, Math.min(99, Math.round(rating * 9.5 + (isMid ? 5 : 0)))),
+      def: Math.max(30, Math.min(99, Math.round(rating * 10 + (isDef ? 8 : -25))))
+    };
+  };
+
+  const isUpcoming = phase === 'upcoming';
+  const statPair = (key, fallback = [0, 0]) => (matchStats && Array.isArray(matchStats[key]) ? [...matchStats[key]] : fallback);
+
+  const match = {
+    sourceKey: m.sourceKey,
+    date: m.date,
+    home: homeClean,
+    away: awayClean,
+    homeFlag: getFlagEmoji(m.home),
+    awayFlag: getFlagEmoji(m.away),
+    hs: isUpcoming ? (matchStats?.predicted_score?.[0] ?? 0) : (hs ?? m.hs),
+    as: isUpcoming ? (matchStats?.predicted_score?.[1] ?? 0) : (as ?? m.as),
+    league: m.league,
+    status: m.status,
+    possession: statPair('possession', [50, 50]),
+    shots: statPair('shots'),
+    shotsOnTarget: statPair('shotsOnTarget'),
+    bigChances: statPair('bigChances'),
+    passes: statPair('passes'),
+    corners: statPair('corners'),
+    fouls: statPair('fouls'),
+    yellowCards: statPair('yellowCards'),
+    offsides: statPair('offsides'),
+    homePlayers: homePlayers.map((p, i) => mapPlayer(p, i, true)),
+    awayPlayers: awayPlayers.map((p, i) => mapPlayer(p, i, false)),
+    homeFormation: homeFormation,
+    awayFormation: awayFormation,
+    events: isUpcoming ? [] : (matchEvents || []),
+    cards: isUpcoming ? [] : (matchCards || []),
+    playerStats: isUpcoming ? null : playerStats
+  };
+  match.momentum = generateMomentum(!isUpcoming);
+  match.shotsList = generateShots(match);
+  applyPlayerMatchStats(match, match.shotsList);
+  return match;
+}
+
+async function loadMatch(id) {
+  stopLiveMatchRefresh();
+  const m = resolveMatchSource(id);
 
   if (m) {
     const main = document.getElementById('match-main');
@@ -2026,122 +2251,17 @@ async function loadMatch(id) {
     `;
 
     try {
-      const homeClean = stripEmoji(m.home);
-      const awayClean = stripEmoji(m.away);
-
-      const homeUrl = `${BACKEND_URL}/roster?team_name=${encodeURIComponent(homeClean)}&opponent_name=${encodeURIComponent(awayClean)}&match_date=${encodeURIComponent(m.date || '')}&home_score=${m.hs ?? ''}&away_score=${m.as ?? ''}`;
-      const awayUrl = `${BACKEND_URL}/roster?team_name=${encodeURIComponent(awayClean)}&opponent_name=${encodeURIComponent(homeClean)}&match_date=${encodeURIComponent(m.date || '')}`;
-
-      const [homeRes, awayRes] = await Promise.all([
-        fetch(homeUrl),
-        fetch(awayUrl)
-      ]);
-
-      let homePlayers = [];
-      let awayPlayers = [];
-      let homeFormation = '4-3-3';
-      let awayFormation = '4-3-3';
-      let matchStats = null;
-      let matchEvents = null;
-
-      if (homeRes.ok) {
-        const data = await homeRes.json();
-        if (data.status === 'success' && data.roster) {
-          homePlayers = data.roster;
-        }
-        if (data.formation) {
-          homeFormation = data.formation;
-        }
-        if (data.stats) {
-          matchStats = data.stats;
-        }
-        if (data.events) {
-          matchEvents = data.events;
-        }
-      }
-      if (awayRes.ok) {
-        const data = await awayRes.json();
-        if (data.status === 'success' && data.roster) {
-          awayPlayers = data.roster;
-        }
-        if (data.formation) {
-          awayFormation = data.formation;
-        }
-      }
-
-      const mapPlayer = (p, i, isHome) => {
-        const rating = p.rating || 6.5;
-        const role = p.pos || 'CM';
-        const isAtt = ['ST', 'RW', 'LW', 'LST', 'RST', 'RAM', 'LAM'].includes(role);
-        const isMid = ['CM', 'DM', 'AM', 'CAM', 'LDM', 'RDM', 'RCM', 'LCM'].includes(role);
-        const isDef = ['CB', 'RCB', 'LCB', 'RB', 'LB', 'GK'].includes(role);
-
-        return {
-          name: p.name,
-          num: parseInt(p.jersey) || (i + 1),
-          role: role,
-          emoji: role === 'GK' ? '🧤' : isDef ? '🛡️' : isMid ? '🧠' : '🔥',
-          rating: rating,
-          age: parseInt(p.age) || 25,
-          height: p.height || '180cm',
-          weight: p.weight || '75kg',
-          value: p.val || '€10M',
-          sofa_id: p.sofa_id || '',
-          sub: p.sub || false,
-          subbed_in_for: p.subbed_in_for || null,
-          subbed_in_minute: p.subbed_in_minute || null,
-          att: Math.max(30, Math.min(99, Math.round(rating * 10 + (isAtt ? 8 : -15)))),
-          ctrl: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 5 : -5)))),
-          crea: Math.max(30, Math.min(99, Math.round(rating * 10 + (isMid ? 8 : -20)))),
-          phys: Math.max(30, Math.min(99, Math.round(rating * 9.5))),
-          scan: Math.max(30, Math.min(99, Math.round(rating * 9.5 + (isMid ? 5 : 0)))),
-          def: Math.max(30, Math.min(99, Math.round(rating * 10 + (isDef ? 8 : -25))))
-        };
-      };
-
-      const enrichedHome = homePlayers.map((p, i) => mapPlayer(p, i, true));
-      const enrichedAway = awayPlayers.map((p, i) => mapPlayer(p, i, false));
-
-      const isUpcoming = (m.status === 'upcoming' || m.status === 'Fixture');
-      let resolvedHS = isUpcoming ? (matchStats?.predicted_score?.[0] ?? 0) : m.hs;
-      let resolvedAS = isUpcoming ? (matchStats?.predicted_score?.[1] ?? 0) : m.as;
-
-
-
-      currentMatch = {
-        home: homeClean,
-        away: awayClean,
-        homeFlag: getFlagEmoji(m.home),
-        awayFlag: getFlagEmoji(m.away),
-        hs: resolvedHS,
-        as: resolvedAS,
-        league: m.league,
-        status: m.status,
-        possession: matchStats ? matchStats.possession : [50, 50],
-        shots: matchStats ? matchStats.shots : [0, 0],
-        shotsOnTarget: matchStats ? matchStats.shotsOnTarget : [0, 0],
-        bigChances: matchStats ? matchStats.bigChances : [0, 0],
-        passes: matchStats ? matchStats.passes : [0, 0],
-        corners: matchStats ? matchStats.corners : [0, 0],
-        fouls: matchStats ? matchStats.fouls : [0, 0],
-        yellowCards: matchStats ? matchStats.yellowCards : [0, 0],
-        offsides: matchStats ? matchStats.offsides : [0, 0],
-        momentum: generateMomentum(m.status !== 'upcoming' && m.status !== 'Fixture'),
-        homePlayers: enrichedHome,
-        awayPlayers: enrichedAway,
-        homeFormation: homeFormation,
-        awayFormation: awayFormation,
-        events: matchEvents || []
-      };
-      
+      currentMatch = await fetchMatchCentreData({ ...m, sourceKey: id });
       // Reset SofaScore states
       h2hPlayerA = null;
       h2hPlayerB = null;
-      activeShots = generateShots(currentMatch);
+      activeShots = currentMatch.shotsList;
       selectedShot = null;
     } catch(e) {
       console.error("Error loading db match rosters:", e);
       currentMatch = {
+        sourceKey: id,
+        date: m.date,
         home: stripEmoji(m.home),
         away: stripEmoji(m.away),
         homeFlag: getFlagEmoji(m.home),
@@ -2159,10 +2279,12 @@ async function loadMatch(id) {
         fouls: [0, 0],
         yellowCards: [0, 0],
         offsides: [0, 0],
-        momentum: generateMomentum(m.status !== 'upcoming' && m.status !== 'Fixture'),
+        momentum: generateMomentum(matchPhase(m.status) !== 'upcoming'),
         homePlayers: [],
         awayPlayers: [],
-        events: []
+        events: [],
+        cards: [],
+        playerStats: null
       };
       h2hPlayerA = null;
       h2hPlayerB = null;
@@ -2172,37 +2294,100 @@ async function loadMatch(id) {
   }
   selectedPlayer = null;
   renderMatchCentre();
+  if (currentMatch && matchPhase(currentMatch.status) === 'live') startLiveMatchRefresh();
+}
+
+// ── Live refresh ───────────────────────────────────────────────────────────
+// While a live match is open, re-pull the score, stats, events and player numbers
+// every minute so goals, assists, shots, the shotmap and heatmaps keep up.
+const LIVE_MATCH_REFRESH_MS = 60000;
+let liveMatchTimer = null;
+let matchCentreStale = false;
+
+function renderLiveMatchCentre() {
+  matchCentreStale = false;
+  renderMatchCentre();
+  if (selectedPlayer && document.getElementById('player-bio-content')) renderPlayerBio(selectedPlayer);
+  if (selectedShot) setTimeout(() => renderSelectedShotDetails(selectedShot), 60);
+}
+
+function stopLiveMatchRefresh() {
+  if (liveMatchTimer) clearInterval(liveMatchTimer);
+  liveMatchTimer = null;
+}
+
+function startLiveMatchRefresh() {
+  stopLiveMatchRefresh();
+  liveMatchTimer = setInterval(refreshLiveMatch, LIVE_MATCH_REFRESH_MS);
+}
+
+async function refreshLiveMatch() {
+  const prev = currentMatch;
+  if (!prev || !prev.sourceKey) return stopLiveMatchRefresh();
+  // The scoreline list is re-synced every minute by silentCrawlMatches
+  const src = resolveMatchSource(prev.sourceKey);
+  if (!src || stripEmoji(src.home) !== prev.home || stripEmoji(src.away) !== prev.away) return stopLiveMatchRefresh();
+
+  let fresh;
+  try {
+    fresh = await fetchMatchCentreData({ ...src, sourceKey: prev.sourceKey });
+  } catch (e) {
+    console.error('Live match refresh failed:', e);
+    return;
+  }
+  if (currentMatch !== prev) return; // user opened another match meanwhile
+
+  // Keep the viewer's selections, pointing them at the refreshed player objects
+  const pick = (p) => p && (findSquadPlayer(fresh.homePlayers, p.name) || findSquadPlayer(fresh.awayPlayers, p.name));
+  const keepSelected = pick(selectedPlayer);
+  const keepA = pick(h2hPlayerA), keepB = pick(h2hPlayerB);
+  const keepShot = selectedShot ? fresh.shotsList.find(s => s.id === selectedShot.id) : null;
+
+  currentMatch = fresh;
+  activeShots = fresh.shotsList;
+  selectedShot = keepShot || null;
+  h2hPlayerA = keepA || null;
+  h2hPlayerB = keepB || null;
+  selectedPlayer = keepSelected || null;
+
+  // Canvases drawn while their tab is hidden get pinned to 0px wide, so a hidden
+  // Match Centre is re-rendered when it's next shown instead.
+  const panel = document.getElementById('tab-sofascore');
+  if (panel && !panel.classList.contains('active')) {
+    matchCentreStale = true;
+  } else {
+    renderLiveMatchCentre();
+  }
+  if (matchPhase(fresh.status) !== 'live') stopLiveMatchRefresh();
 }
 
 function renderScorersSection(m) {
   if (!m.events || !m.events.length) return '';
-  
-  const homeClean = stripEmoji(m.home).toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-  const awayClean = stripEmoji(m.away).toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-  
+
   const homeGoals = [];
   const awayGoals = [];
-  
-  m.events.forEach(evt => {
-    const isMissed = evt.text && (evt.text.toLowerCase().includes('missed') || evt.text.toLowerCase().includes('saved penalty'));
-    if (isMissed) return;
 
-    const t = stripEmoji(evt.team || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
-    
-    let detail = `<span style="font-weight:600;color:var(--text);">${evt.scorer}</span>`;
+  m.events.forEach(evt => {
+    if (isMissedGoalEvent(evt)) return;
+    const side = goalSide(evt, m);
+    // Show squad spellings, so "K. Mbappé" and "Kylian Mbappe" read as one player
+    const squad = side === 'away' ? m.awayPlayers : m.homePlayers;
+    const scorerSquad = evt.ownGoal ? (side === 'away' ? m.homePlayers : m.awayPlayers) : squad;
+    const scorerName = findSquadPlayer(scorerSquad, evt.scorer)?.name || evt.scorer;
+    const assistName = findSquadPlayer(squad, evt.assist)?.name || evt.assist;
+
+    let detail = `<span style="font-weight:600;color:var(--text);">${scorerName}</span>`;
     if (evt.penalty) {
       detail += ' <span style="font-size:10px;color:var(--amber);background:rgba(245,158,11,0.15);padding:1px 4px;border-radius:4px;margin-left:4px;font-weight:600;">PEN</span>';
     } else if (evt.ownGoal) {
       detail += ' <span style="font-size:10px;color:var(--red);background:rgba(239,68,68,0.15);padding:1px 4px;border-radius:4px;margin-left:4px;font-weight:600;">OG</span>';
     }
     detail += ` <span style="color:var(--emerald);font-weight:600;margin-left:4px;">${evt.minute}</span>`;
-    if (evt.assist && evt.assist !== 'null' && evt.assist !== 'None' && evt.assist !== 'unknown' && evt.assist !== evt.scorer) {
-      detail += `<span style="font-size:10px;color:var(--text-muted);display:block;margin-top:1px;">👟 assist by ${evt.assist}</span>`;
+    if (isRealAssist(evt) && !evt.ownGoal) {
+      detail += `<span style="font-size:10px;color:var(--text-muted);display:block;margin-top:1px;">👟 assist by ${assistName}</span>`;
     }
-    
-    if (t.includes(homeClean) || homeClean.includes(t)) {
-      homeGoals.push(detail);
-    } else if (t.includes(awayClean) || awayClean.includes(t)) {
+
+    if (side === 'away') {
       awayGoals.push(detail);
     } else {
       homeGoals.push(detail);
@@ -2239,10 +2424,11 @@ function renderMatchCentre() {
 
   let badgeText = 'FULL TIME';
   let badgeStyle = 'background:rgba(16,185,129,0.1);color:var(--emerald);';
-  if (m.status === 'upcoming' || m.status === 'Fixture') {
+  const phase = matchPhase(m.status);
+  if (phase === 'upcoming') {
     badgeText = 'UPCOMING (AI PREDICTED STATS)';
     badgeStyle = 'background:rgba(245,158,11,0.1);color:var(--amber);';
-  } else if (m.status !== 'completed' && m.status !== 'FT') {
+  } else if (phase === 'live') {
     badgeText = `LIVE - ${m.status}`;
     badgeStyle = 'background:rgba(239,68,68,0.15);color:#ef4444;';
   }
@@ -2366,7 +2552,14 @@ function renderSubTabContent() {
     `;
     setTimeout(drawLineup, 50);
 
+  } else if (currentSubTab === 'shotmap' && matchPhase(m.status) === 'upcoming') {
+    container.innerHTML = `
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:24px;text-align:center;color:var(--text-muted);font-size:13px;">
+        ⚽ The shotmap fills in once the match kicks off.
+      </div>`;
+
   } else if (currentSubTab === 'shotmap') {
+    const count = (side, pred) => activeShots.filter(s => s.side === side && pred(s)).length;
     container.innerHTML = `
       <!-- Shotmap pitch canvas -->
       <div style="position:relative;background:rgba(255,255,255,0.02);border:1px solid var(--glass-border);border-radius:14px;padding:16px;">
@@ -2375,6 +2568,10 @@ function renderSubTabContent() {
           <span>🟢 Goal</span>
           <span>🟡 Saved</span>
           <span>⚪ Off Target / Blocked</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:12px;">
+          <span style="color:var(--emerald);">${m.homeFlag} ${m.home}: ${count('home', () => true)} shots · ${count('home', s => s.onTarget)} on target · ${count('home', s => s.isGoal)} goals</span>
+          <span style="color:var(--blue);">${count('away', s => s.isGoal)} goals · ${count('away', s => s.onTarget)} on target · ${count('away', () => true)} shots: ${m.away} ${m.awayFlag}</span>
         </div>
         <canvas id="shotmap-canvas" height="400" style="width:100%;display:block;cursor:pointer;border-radius:10px;"></canvas>
         <div id="shotmap-tooltip" style="position:absolute;display:none;background:rgba(10,18,14,0.95);border:1px solid var(--emerald);border-radius:8px;padding:8px 12px;color:var(--text);font-size:11px;font-family:'Inter',sans-serif;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:100;backdrop-filter:blur(8px);width:160px;"></div>
@@ -2646,6 +2843,14 @@ function drawLineup() {
       const shortName = p.name.split(' ').pop();
       ctx.fillText(shortName, cx, cy+17);
 
+      // Goal / assist markers for this match
+      const marks = '⚽'.repeat(Math.min(p.goals || 0, 3)) + '👟'.repeat(Math.min(p.assists || 0, 3));
+      if (marks) {
+        ctx.font = '9px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(marks, cx + 12, cy - 12);
+        ctx.textAlign = 'center';
+      }
+
       // Metric badge
       const label = getMetricLabel(p, currentMetric);
       const rColor = currentMetric==='rating' ? (p.rating>=8?'#10b981':p.rating>=7?'#f59e0b':'#ef4444') : '#60a5fa';
@@ -2819,6 +3024,7 @@ function matchPlayersToSlots(players, slots) {
   const currentMapping = new Array(n);
   
   let greedyCost = 0;
+  const greedyMapping = new Array(n);
   const slotUsed = new Array(n).fill(false);
   for (let i = 0; i < n; i++) {
     let minC = Infinity;
@@ -2830,9 +3036,14 @@ function matchPlayersToSlots(players, slots) {
       }
     }
     slotUsed[minJ] = true;
+    greedyMapping[i] = minJ;
     greedyCost += minC;
   }
+  // Start from the greedy assignment: the search below only records strictly
+  // cheaper mappings, so when greedy was already optimal it used to leave
+  // bestMapping empty and every outfield slot undefined.
   bestCost = greedyCost;
+  bestMapping = greedyMapping;
   
   function search(playerIdx, currentCost) {
     if (currentCost >= bestCost) return;
@@ -3049,12 +3260,32 @@ function renderPlayerBio(p) {
       <div class="stat-cell"><div class="stat-cell-label">Weight</div><div class="stat-cell-val">${p.weight||'?'}</div></div>
       <div class="stat-cell"><div class="stat-cell-label">Value</div><div class="stat-cell-val" style="font-size:12px;">${p.value||'?'}</div></div>
     </div>
+    ${renderPlayerMatchStats(p)}
     <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Attribute Radar</div>
     ${drawRadar(attrs, labels, rColor)}
     <div style="margin-top:12px;">
       <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">Heatmap</div>
       ${drawHeatmap(p)}
     </div>`;
+}
+
+// This match's goals / assists / shots / shots on target for the player card.
+function renderPlayerMatchStats(p) {
+  if (!currentMatch || matchPhase(currentMatch.status) === 'upcoming') return '';
+  const cell = (label, val) => `<div class="stat-cell"><div class="stat-cell-label">${label}</div><div class="stat-cell-val">${val}</div></div>`;
+  const extras = [];
+  if (p.ownGoals) extras.push(`${p.ownGoals} own goal${p.ownGoals > 1 ? 's' : ''}`);
+  if (p.yellowCards) extras.push(`🟨 ×${p.yellowCards}`);
+  if (p.redCards) extras.push(`🟥 ×${p.redCards}`);
+  return `
+    <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">This Match</div>
+    <div class="stats-grid-sm">
+      ${cell('Goals', p.goals || 0)}
+      ${cell('Assists', p.assists || 0)}
+      ${cell('Shots', p.shots || 0)}
+      ${cell('On Target', p.shotsOnTarget || 0)}
+    </div>
+    ${extras.length ? `<div style="font-size:11px;color:var(--text-muted);margin:-4px 0 12px;">${extras.join(' · ')}</div>` : ''}`;
 }
 
 function drawRadar(attrs, labels, color) {
@@ -3092,8 +3323,20 @@ function drawRadar(attrs, labels, color) {
   </svg>`;
 }
 
+const HEATMAP_ROLE_ALIASES = {
+  LF: 'LW', RF: 'RW', LS: 'LST', RS: 'RST', SW: 'CB', LCDM: 'LDM', RCDM: 'RDM',
+  G: 'GK', D: 'CB', DF: 'CB', M: 'CM', MF: 'CM', F: 'ST', CAM: 'CAM', LWF: 'LW', RWF: 'RW'
+};
+
 function drawHeatmap(player) {
-  const role = (player?.role || 'CM').toUpperCase();
+  let role = (player?.role || 'CM').toUpperCase();
+  role = HEATMAP_ROLE_ALIASES[role] || role;
+  const m = currentMatch;
+
+  // Unused substitutes have no heatmap
+  if (m && matchPhase(m.status) !== 'upcoming' && player?.sub && !player?.subbed_in_minute) {
+    return `<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:24px 12px;background:#0b1e12;border-radius:8px;">Did not play</div>`;
+  }
 
   // Full 90-min movement zones per role.
   // cx=0 left flank, cx=100 right flank
@@ -3410,7 +3653,37 @@ function drawHeatmap(player) {
     ],
   };
 
-  const zones = ROLE_ZONES[role] || ROLE_ZONES['CM'];
+  const baseZones = ROLE_ZONES[role] || ROLE_ZONES['CM'];
+
+  // Personalise the role template: a stable per-player drift, intensity scaled to
+  // minutes played, and hot spots where this player actually shot in this match.
+  const rng = seededRng(`heat|${player?.name || ''}|${role}`);
+  let minutesShare = 1;
+  if (m && matchPhase(m.status) !== 'upcoming') {
+    const played = Math.max(1, currentMatchMinute(m));
+    if (player?.sub && player?.subbed_in_minute) {
+      minutesShare = Math.max(0, played - minuteNumber(player.subbed_in_minute)) / played;
+    } else {
+      const replacedBy = [...(m.homePlayers || []), ...(m.awayPlayers || [])]
+        .find(p => p.sub && p.subbed_in_minute && p.subbed_in_for && samePlayer(p.subbed_in_for, player?.name));
+      if (replacedBy) minutesShare = Math.min(played, minuteNumber(replacedBy.subbed_in_minute)) / played;
+    }
+  }
+  const intensityScale = Math.max(0.35, Math.min(1, minutesShare));
+  const zones = baseZones.map(z => ({
+    cx: Math.max(5, Math.min(95, z.cx + (rng() - 0.5) * 6)),
+    cy: Math.max(3, Math.min(100, z.cy + (rng() - 0.5) * 5)),
+    rx: z.rx, ry: z.ry,
+    i: Math.min(1, z.i * (0.85 + rng() * 0.3) * intensityScale)
+  }));
+  (activeShots || []).forEach(sh => {
+    if (!player || sh.side !== player.side || !samePlayer(sh.player, player.name)) return;
+    // Heatmap is drawn from the player's attacking perspective (their goal at the bottom)
+    const x = sh.side === 'away' ? 100 - sh.x : sh.x;
+    const y = sh.side === 'away' ? 100 - sh.y : sh.y;
+    zones.push({ cx: x, cy: Math.max(3, y), rx: 6, ry: 5, i: sh.isGoal ? 0.95 : 0.8 });
+  });
+  const gid = 'hm' + Math.floor(rng() * 1e9).toString(36);
 
   // Intensity → heat colour (red=hot, yellow=warm, blue=cold trail)
   const zoneColor = (i) =>
@@ -3422,7 +3695,7 @@ function drawHeatmap(player) {
   let defs = '<defs>';
   zones.forEach((z, i) => {
     const c = zoneColor(z.i);
-    defs += `<radialGradient id="hm${i}" cx="50%" cy="50%" r="50%">
+    defs += `<radialGradient id="${gid}-${i}" cx="50%" cy="50%" r="50%">
       <stop offset="0%"   stop-color="${c[0]}"/>
       <stop offset="55%"  stop-color="${c[1]}"/>
       <stop offset="100%" stop-color="${c[2]}"/>
@@ -3431,7 +3704,7 @@ function drawHeatmap(player) {
   defs += '</defs>';
 
   const circles = zones.map((z,i) =>
-    `<ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="url(#hm${i})"/>`
+    `<ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="url(#${gid}-${i})"/>`
   ).join('');
 
   return `<svg viewBox="0 0 100 105" xmlns="http://www.w3.org/2000/svg"
@@ -3470,140 +3743,203 @@ function drawHeatmap(player) {
   </svg>`;
 }
 
+// Builds the shotmap for a match. Team totals come from the match stats, goals
+// and missed penalties from the real events, and - when the provider has them -
+// each player's real shot / on-target counts decide who took the other shots.
+// Only positions (and shooters for shots no provider attributes) are simulated.
 function generateShots(m) {
+  if (matchPhase(m.status) === 'upcoming') return [];
+
   const shots = [];
-  const seed = m.home.length + m.away.length + (parseInt(m.hs) || 0);
-  
-  const getBodyPart = (s) => {
-    const parts = ['Right Foot', 'Left Foot', 'Header'];
-    return parts[(s % 3)];
+  const maxMinute = Math.max(1, currentMatchMinute(m));
+  const PITCH_W_YDS = 74, PITCH_L_YDS = 115;
+
+  const distanceYds = (x, y) => Math.round(Math.hypot((x - 50) / 100 * PITCH_W_YDS, y / 100 * PITCH_L_YDS));
+  const xgFor = (dist, bodyPart) => {
+    let xg = Math.min(0.72, 1.15 * Math.exp(-dist / 7.5));
+    if (bodyPart === 'Header') xg *= 0.6;
+    return parseFloat(Math.max(0.02, xg).toFixed(2));
+  };
+  // Positions are generated for a team attacking towards y = 0 and mirrored for the away side.
+  const place = (rng, zone) => {
+    if (zone === 'penalty') return { x: 50, y: 10.4 };
+    if (zone === 'sixyard') return { x: 40 + rng() * 20, y: 1.5 + rng() * 4 };
+    if (zone === 'box') return { x: 33 + rng() * 34, y: 4 + rng() * 12 };
+    if (zone === 'edge') return { x: 28 + rng() * 44, y: 16 + rng() * 9 };
+    return { x: 15 + rng() * 70, y: 22 + rng() * 16 }; // long range
+  };
+  const pickZone = (rng, weights) => {
+    let r = rng() * weights.reduce((a, w) => a + w[1], 0);
+    for (const [zone, w] of weights) { if ((r -= w) <= 0) return zone; }
+    return weights[weights.length - 1][0];
+  };
+  const ZONES = {
+    goal:  [['sixyard', 3], ['box', 6], ['edge', 1.5], ['long', 0.3]],
+    saved: [['sixyard', 1], ['box', 5], ['edge', 3], ['long', 1]],
+    off:   [['sixyard', 0.5], ['box', 4], ['edge', 3.5], ['long', 2.5]]
   };
 
-  // 1. Add actual goals
-  (m.events || []).forEach((g, idx) => {
-    const isMissed = g.text && (g.text.toLowerCase().includes('missed') || g.text.toLowerCase().includes('saved penalty'));
-    if (isMissed) return;
+  const makeShot = (side, idx, kind, opts) => {
+    const rng = seededRng(`${m.home}|${m.away}|${side}|${kind}|${idx}|${opts.player || ''}`);
+    const zone = opts.penalty ? 'penalty' : pickZone(rng, ZONES[kind]);
+    let { x, y } = place(rng, zone);
+    const bodyPart = opts.penalty ? 'Right Foot'
+      : (zone === 'sixyard' || zone === 'box') && rng() < 0.22 ? 'Header'
+      : rng() < 0.6 ? 'Right Foot' : 'Left Foot';
+    const dist = opts.penalty ? 12 : distanceYds(x, y);
+    const xG = opts.penalty ? 0.76 : xgFor(dist, bodyPart);
+    if (side === 'away') { x = 100 - x; y = 100 - y; }
+    const onFrame = kind !== 'off';
+    return {
+      id: `${side}-${kind}-${idx}`,
+      side,
+      player: opts.player || 'Unknown',
+      minute: opts.minute || `${1 + Math.floor(rng() * maxMinute)}'`,
+      team: side === 'home' ? m.home : m.away,
+      isGoal: kind === 'goal',
+      onTarget: onFrame,
+      result: opts.result,
+      x, y, xG, bodyPart,
+      distance: dist,
+      goalX: onFrame ? Math.round(kind === 'goal' ? 8 + rng() * 84 : 25 + rng() * 50) : (rng() < 0.5 ? 5 : 95),
+      goalY: onFrame ? Math.round(kind === 'goal' ? 15 + rng() * 75 : 20 + rng() * 65) : Math.round(10 + rng() * 80)
+    };
+  };
 
-    const isHome = stripEmoji(g.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(g.team || '').toLowerCase().trim());
-    const xPct = isHome ? (40 + (idx * 17) % 20) : (40 + (idx * 13) % 20);
-    const yPct = isHome ? (10 + (idx * 9) % 8) : (90 - (idx * 7) % 8);
-    const shotSeed = seed + idx;
-    
-    shots.push({
-      player: g.scorer,
-      minute: g.minute,
-      team: g.team,
-      isGoal: true,
-      result: g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
-      x: xPct,
-      y: yPct,
-      xG: g.penalty ? 0.76 : parseFloat((0.4 + (shotSeed % 5) * 0.1).toFixed(2)),
-      bodyPart: g.penalty ? 'Right Foot' : getBodyPart(shotSeed),
-      distance: g.penalty ? 12 : Math.round(yPct < 50 ? yPct * 0.8 : (100 - yPct) * 0.8),
-      goalX: 30 + (shotSeed * 17) % 40, // 30% to 70% of goal width
-      goalY: 20 + (shotSeed * 11) % 60  // 20% to 80% of goal height
+  ['home', 'away'].forEach((side, sideIdx) => {
+    const squad = side === 'home' ? (m.homePlayers || []) : (m.awayPlayers || []);
+    const nameOf = (raw) => (findSquadPlayer(squad, raw)?.name) || raw;
+    const teamShots = [];
+
+    // 1. Real goals from this side's own shots (own goals weren't their shots)
+    //    and real penalty misses.
+    (m.events || []).forEach((ev, i) => {
+      if (ev.ownGoal && !isMissedGoalEvent(ev)) return;
+      if (goalSide(ev, m) !== side) return;
+      if (isMissedGoalEvent(ev)) {
+        const saved = /sav/i.test(ev.text || '');
+        teamShots.push(makeShot(side, `pen${i}`, saved ? 'saved' : 'off', {
+          player: nameOf(ev.scorer), minute: ev.minute, penalty: true,
+          result: saved ? 'Penalty Saved' : 'Penalty Missed'
+        }));
+        return;
+      }
+      teamShots.push(makeShot(side, `g${i}`, 'goal', {
+        player: nameOf(ev.scorer), minute: ev.minute, penalty: !!ev.penalty,
+        result: ev.penalty ? 'Penalty Goal' : 'Goal'
+      }));
     });
+
+    const onFrameSoFar = () => teamShots.filter(s => s.onTarget).length;
+    const offSoFar = () => teamShots.filter(s => !s.onTarget).length;
+    const takenBy = (name, pred) => teamShots.filter(s => samePlayer(s.player, name) && pred(s)).length;
+
+    // 2. Per-player quotas from real player stats
+    const quotas = [];
+    (m.playerStats || []).forEach(ps => {
+      if (eventSide(ps.team, m) !== side) return;
+      const name = nameOf(ps.name);
+      const on = Math.max(0, (ps.shotsOnTarget || 0) - takenBy(name, s => s.onTarget));
+      const off = Math.max(0, (ps.shots || 0) - (ps.shotsOnTarget || 0) - takenBy(name, s => !s.onTarget));
+      if (on || off) quotas.push({ name, on, off });
+    });
+    const quotaOn = quotas.reduce((a, q) => a + q.on, 0);
+    const quotaOff = quotas.reduce((a, q) => a + q.off, 0);
+
+    // 3. Team totals, never fewer than what's already attributed
+    const sot = Math.max(m.shotsOnTarget?.[sideIdx] || 0, onFrameSoFar() + quotaOn);
+    const total = Math.max(m.shots?.[sideIdx] || 0, sot + offSoFar() + quotaOff);
+    if (m.shotsOnTarget) m.shotsOnTarget[sideIdx] = sot;
+    if (m.shots) m.shots[sideIdx] = total;
+
+    // 4. Unattributed shots go to players who were on the pitch, weighted by role
+    const pool = squad.filter(p => p.role !== 'GK' && (!p.sub || p.subbed_in_minute));
+    const roleWeight = (r) => ['ST', 'CF', 'FW', 'SS', 'LST', 'RST', 'LW', 'RW'].includes(r) ? 5
+      : ['CAM', 'AM', 'LAM', 'RAM', 'LM', 'RM'].includes(r) ? 3
+      : ['CM', 'LCM', 'RCM', 'DM', 'CDM', 'LDM', 'RDM'].includes(r) ? 2 : 1;
+    const drawShooter = (rng) => {
+      if (!pool.length) return side === 'home' ? `${m.home} player` : `${m.away} player`;
+      let r = rng() * pool.reduce((a, p) => a + roleWeight(p.role), 0);
+      for (const p of pool) { if ((r -= roleWeight(p.role)) <= 0) return p.name; }
+      return pool[pool.length - 1].name;
+    };
+
+    const savedNeeded = Math.max(0, sot - onFrameSoFar());
+    const onQueue = quotas.flatMap(q => Array(q.on).fill(q.name));
+    for (let i = 0; i < savedNeeded; i++) {
+      const player = onQueue[i] || drawShooter(seededRng(`${m.home}|${m.away}|${side}|s-shooter|${i}`));
+      teamShots.push(makeShot(side, `s${i}`, 'saved', { player, result: 'Saved' }));
+    }
+    const offNeeded = Math.max(0, total - sot - offSoFar());
+    const offQueue = quotas.flatMap(q => Array(q.off).fill(q.name));
+    for (let i = 0; i < offNeeded; i++) {
+      const player = offQueue[i] || drawShooter(seededRng(`${m.home}|${m.away}|${side}|o-shooter|${i}`));
+      teamShots.push(makeShot(side, `o${i}`, 'off', { player, result: 'Off Target' }));
+    }
+
+    shots.push(...teamShots);
   });
 
-  // 2. Add shots on target (saved)
-  const homeSOTCount = Math.max(0, (m.shotsOnTarget ? m.shotsOnTarget[0] : 4) - shots.filter(s => s.isGoal && (stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(s.team || '').toLowerCase().trim()))).length);
-  const awaySOTCount = Math.max(0, (m.shotsOnTarget ? m.shotsOnTarget[1] : 3) - shots.filter(s => s.isGoal && (stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.away).toLowerCase().trim()) || stripEmoji(m.away).toLowerCase().trim().includes(stripEmoji(s.team || '').toLowerCase().trim()))).length);
-
-  for (let i = 0; i < homeSOTCount; i++) {
-    const p = m.homePlayers.filter(x => !x.sub)[(i + seed) % 11];
-    const shotSeed = seed + i + 10;
-    shots.push({
-      player: p ? p.name : 'Attacker',
-      minute: `${20 + i * 15}'`,
-      team: m.home,
-      isGoal: false,
-      result: 'Saved',
-      x: 30 + (i * 29) % 40,
-      y: 12 + (i * 17) % 15,
-      xG: parseFloat((0.1 + (shotSeed % 4) * 0.05).toFixed(2)),
-      bodyPart: getBodyPart(shotSeed),
-      distance: Math.round((12 + (i * 17) % 15) * 0.8),
-      goalX: 20 + (shotSeed * 19) % 60,
-      goalY: 15 + (shotSeed * 13) % 70
-    });
-  }
-  for (let i = 0; i < awaySOTCount; i++) {
-    const p = m.awayPlayers.filter(x => !x.sub)[(i + seed * 3) % 11];
-    const shotSeed = seed + i + 20;
-    shots.push({
-      player: p ? p.name : 'Attacker',
-      minute: `${25 + i * 15}'`,
-      team: m.away,
-      isGoal: false,
-      result: 'Saved',
-      x: 30 + (i * 23) % 40,
-      y: 88 - (i * 19) % 15,
-      xG: parseFloat((0.1 + (shotSeed % 4) * 0.05).toFixed(2)),
-      bodyPart: getBodyPart(shotSeed),
-      distance: Math.round((12 - (i * 19) % 15) * 0.8),
-      goalX: 20 + (shotSeed * 23) % 60,
-      goalY: 15 + (shotSeed * 17) % 70
-    });
-  }
-
-  // 3. Add shots off target
-  const homeOffCount = Math.max(0, (m.shots[0] || 10) - shots.filter(s => stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim())).length);
-  const awayOffCount = Math.max(0, (m.shots[1] || 8) - shots.filter(s => stripEmoji(s.team || '').toLowerCase().trim().includes(stripEmoji(m.away).toLowerCase().trim())).length);
-
-  for (let i = 0; i < homeOffCount; i++) {
-    const p = m.homePlayers.filter(x => !x.sub)[(i + seed * 2) % 11];
-    const shotSeed = seed + i + 30;
-    shots.push({
-      player: p ? p.name : 'Player',
-      minute: `${10 + i * 12}'`,
-      team: m.home,
-      isGoal: false,
-      result: 'Off Target',
-      x: 18 + (i * 37) % 64,
-      y: 20 + (i * 13) % 20,
-      xG: parseFloat((0.03 + (shotSeed % 4) * 0.04).toFixed(2)),
-      bodyPart: getBodyPart(shotSeed),
-      distance: Math.round((20 + (i * 13) % 20) * 0.8),
-      goalX: shotSeed % 2 === 0 ? 5 : 95, // completely missed the goal frame
-      goalY: 10 + (shotSeed * 7) % 80
-    });
-  }
-  for (let i = 0; i < awayOffCount; i++) {
-    const p = m.awayPlayers.filter(x => !x.sub)[(i + seed * 4) % 11];
-    const shotSeed = seed + i + 40;
-    shots.push({
-      player: p ? p.name : 'Player',
-      minute: `${15 + i * 12}'`,
-      team: m.away,
-      isGoal: false,
-      result: 'Off Target',
-      x: 18 + (i * 41) % 64,
-      y: 80 - (i * 11) % 20,
-      xG: parseFloat((0.03 + (shotSeed % 4) * 0.04).toFixed(2)),
-      bodyPart: getBodyPart(shotSeed),
-      distance: Math.round((20 - (i * 11) % 20) * 0.8),
-      goalX: shotSeed % 2 === 0 ? 5 : 95,
-      goalY: 10 + (shotSeed * 9) % 80
-    });
-  }
-
+  shots.sort((a, b) => minuteNumber(a.minute) - minuteNumber(b.minute));
   return shots;
+}
+
+// Sets goals / assists / shots / shotsOnTarget on every squad player from the
+// real events and the shotmap, so player cards always agree with both.
+function applyPlayerMatchStats(m, shots) {
+  const all = [...(m.homePlayers || []), ...(m.awayPlayers || [])];
+  all.forEach(p => { p.goals = 0; p.assists = 0; p.ownGoals = 0; p.shots = 0; p.shotsOnTarget = 0; p.yellowCards = 0; p.redCards = 0; });
+  const squadOf = (side) => side === 'home' ? (m.homePlayers || []) : (m.awayPlayers || []);
+  const other = (side) => side === 'home' ? 'away' : 'home';
+
+  (m.events || []).forEach(ev => {
+    if (isMissedGoalEvent(ev)) return;
+    const side = goalSide(ev, m);
+    if (!side) return;
+    if (ev.ownGoal) {
+      const p = findSquadPlayer(squadOf(other(side)), ev.scorer);
+      if (p) p.ownGoals++;
+      return;
+    }
+    const scorer = findSquadPlayer(squadOf(side), ev.scorer);
+    if (scorer) scorer.goals++;
+    if (isRealAssist(ev)) {
+      const assister = findSquadPlayer(squadOf(side), ev.assist);
+      if (assister) assister.assists++;
+    }
+  });
+
+  (shots || []).forEach(s => {
+    const p = findSquadPlayer(squadOf(s.side), s.player);
+    if (!p) return;
+    p.shots++;
+    if (s.onTarget) p.shotsOnTarget++;
+  });
+
+  (m.cards || []).forEach(c => {
+    const side = eventSide(c.team, m);
+    const p = side ? findSquadPlayer(squadOf(side), c.player)
+      : (findSquadPlayer(m.homePlayers, c.player) || findSquadPlayer(m.awayPlayers, c.player));
+    if (!p) return;
+    if (c.card === 'red') p.redCards++; else p.yellowCards++;
+  });
 }
 
 function renderMatchTimeline(m) {
   const timelineEvents = [];
   
   (m.events || []).forEach(g => {
-    const isMissed = g.text && (g.text.toLowerCase().includes('missed') || g.text.toLowerCase().includes('saved penalty'));
-    const validAssist = g.assist && g.assist !== 'null' && g.assist !== 'None' && g.assist !== 'unknown' && g.assist !== g.scorer;
+    const isMissed = isMissedGoalEvent(g);
+    const validAssist = isRealAssist(g) && !g.ownGoal;
+    const side = goalSide(g, m);
     
     timelineEvents.push({
-      minute: parseInt(g.minute) || 0,
+      minute: minuteNumber(g.minute),
       minuteStr: g.minute,
       type: isMissed ? 'penalty_missed' : 'goal',
       title: isMissed ? 'Missed Penalty' : g.ownGoal ? 'Own Goal' : g.penalty ? 'Penalty Goal' : 'Goal',
       desc: isMissed ? `${g.scorer} (missed penalty)` : `${g.scorer}${validAssist ? ' (assist: ' + g.assist + ')' : ''}`,
-      team: g.team,
+      team: side === 'away' ? m.away : m.home,
       icon: isMissed ? '❌' : '⚽'
     });
   });
@@ -3619,7 +3955,7 @@ function renderMatchTimeline(m) {
     if (p.sub && p.subbed_in_for && p.subbed_in_minute) {
       const teamName = findTeamForPlayer(p.name);
       timelineEvents.push({
-        minute: parseInt(p.subbed_in_minute) || 0,
+        minute: minuteNumber(p.subbed_in_minute),
         minuteStr: p.subbed_in_minute,
         type: 'sub',
         title: 'Substitution',
@@ -3630,47 +3966,23 @@ function renderMatchTimeline(m) {
     }
   });
 
-  const seed = m.home.length + m.away.length + (parseInt(m.hs) || 0);
-  const homeYellow = allPlayers.filter(p => !p.sub && findTeamForPlayer(p.name) === m.home)[1 % allPlayers.length]?.name || 'Defender';
-  const awayYellow = allPlayers.filter(p => !p.sub && findTeamForPlayer(p.name) === m.away)[3 % allPlayers.length]?.name || 'Defender';
-  
-  timelineEvents.push({
-    minute: (seed * 7) % 40 + 15,
-    minuteStr: `${(seed * 7) % 40 + 15}'`,
-    type: 'card',
-    title: 'Yellow Card',
-    desc: `🟨 ${homeYellow}`,
-    team: m.home,
-    icon: '🟨'
-  });
-  
-  timelineEvents.push({
-    minute: (seed * 11) % 40 + 50,
-    minuteStr: `${(seed * 11) % 40 + 50}'`,
-    type: 'card',
-    title: 'Yellow Card',
-    desc: `🟨 ${awayYellow}`,
-    team: m.away,
-    icon: '🟨'
+  // Real bookings only - these used to be invented at seeded minutes
+  (m.cards || []).forEach(c => {
+    const side = eventSide(c.team, m) || (findSquadPlayer(m.awayPlayers, c.player) ? 'away' : 'home');
+    const isRed = c.card === 'red';
+    timelineEvents.push({
+      minute: minuteNumber(c.minute),
+      minuteStr: c.minute,
+      type: 'card',
+      title: isRed ? 'Red Card' : 'Yellow Card',
+      desc: `${isRed ? '🟥' : '🟨'} ${c.player}`,
+      team: side === 'away' ? m.away : m.home,
+      icon: isRed ? '🟥' : '🟨'
+    });
   });
 
-  // Parse match status to filter out future mock/upcoming events in ongoing matches
-  let currentMinute = 90; // Default to full-time if completed/unknown
-  if (m.status) {
-    const statusLower = m.status.toLowerCase().trim();
-    if (statusLower === 'ht') {
-      currentMinute = 45;
-    } else if (statusLower === 'ft') {
-      currentMinute = 90;
-    } else if (statusLower === 'fixture' || statusLower === 'upcoming' || statusLower.includes(':')) {
-      currentMinute = 0;
-    } else {
-      const match = m.status.match(/(\d+)/);
-      if (match) {
-        currentMinute = parseInt(match[1]);
-      }
-    }
-  }
+  // Only events up to the current minute of a live match
+  const currentMinute = currentMatchMinute(m) + (matchPhase(m.status) === 'finished' ? 60 : 0);
 
   const filteredEvents = timelineEvents.filter(evt => evt.minute <= currentMinute);
   filteredEvents.sort((a, b) => a.minute - b.minute);
@@ -3684,7 +3996,7 @@ function renderMatchTimeline(m) {
   }
 
   const renderedEvents = filteredEvents.map(evt => {
-    const isHomeEvent = stripEmoji(evt.team || '').toLowerCase().trim().includes(stripEmoji(m.home).toLowerCase().trim()) || stripEmoji(m.home).toLowerCase().trim().includes(stripEmoji(evt.team || '').toLowerCase().trim());
+    const isHomeEvent = eventSide(evt.team, m) !== 'away';
     return `
       <div style="display:flex;align-items:center;margin:12px 0;font-family:'Inter',sans-serif;font-size:12px;">
         <div style="width:40px;text-align:right;font-weight:700;color:var(--emerald);padding-right:12px;">${evt.minuteStr}</div>
@@ -3764,7 +4076,7 @@ function drawShotmap() {
     ctx.beginPath();
     ctx.moveTo(selectedShot.canvasX, selectedShot.canvasY);
     ctx.lineTo(targetX, targetY);
-    ctx.strokeStyle = selectedShot.isGoal ? 'rgba(16,185,129,0.45)' : selectedShot.result === 'Saved' ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.18)';
+    ctx.strokeStyle = selectedShot.isGoal ? 'rgba(16,185,129,0.45)' : selectedShot.onTarget ? 'rgba(245,158,11,0.35)' : 'rgba(255,255,255,0.18)';
     ctx.lineWidth = 2;
     ctx.setLineDash([4, 4]);
     ctx.stroke();
@@ -3801,7 +4113,7 @@ function drawShotmap() {
     if (s.isGoal) {
       ctx.shadowColor = '#10b981';
       ctx.fillStyle = '#10b981';
-    } else if (s.result === 'Saved') {
+    } else if (s.onTarget) {
       ctx.shadowColor = '#f59e0b';
       ctx.fillStyle = '#f59e0b';
     } else {
@@ -3842,7 +4154,7 @@ function drawShotmap() {
       tooltip.style.left = (mx + 15) + 'px';
       tooltip.style.top = (my + 15) + 'px';
       
-      const badgeColor = hovered.isGoal ? '#10b981' : hovered.result === 'Saved' ? '#f59e0b' : '#9ca3af';
+      const badgeColor = hovered.isGoal ? '#10b981' : hovered.onTarget ? '#f59e0b' : '#9ca3af';
       tooltip.innerHTML = `
         <div style="font-weight:700;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${hovered.player}</div>
         <div style="color:var(--text-muted);margin-bottom:6px;font-size:10px;">${hovered.minute} · ${hovered.team}</div>
@@ -3890,7 +4202,7 @@ function drawShotmap() {
 function renderSelectedShotDetails(s) {
   const container = document.getElementById('shot-details-container');
   if (!container) return;
-  const color = s.isGoal ? 'var(--emerald)' : s.result === 'Saved' ? 'var(--amber)' : 'var(--text-muted)';
+  const color = s.isGoal ? 'var(--emerald)' : s.onTarget ? 'var(--amber)' : 'var(--text-muted)';
   container.innerHTML = `
     <style>
     @keyframes pulse {
@@ -3935,7 +4247,7 @@ function renderSelectedShotDetails(s) {
           <div style="position:absolute;left:75px;bottom:0;width:30px;height:45px;background:rgba(255,255,255,0.05);border:1px dashed rgba(255,255,255,0.15);border-radius:15px 15px 0 0;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.25);">🧤</div>
           <!-- Shot point -->
           ${
-            s.result === 'Off Target' 
+            !s.onTarget
             ? `<div style="position:absolute;left:${s.goalX < 50 ? '5px' : '165px'};top:${s.goalY}px;width:10px;height:100px;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:14px;font-weight:800;transform:translateY(-50px);">❌</div>`
             : `<div style="position:absolute;left:${s.goalX}%;top:${s.goalY}%;width:12px;height:12px;border-radius:50%;background:${s.isGoal ? '#10b981' : '#f59e0b'};border:2px solid #fff;box-shadow:0 0 10px ${s.isGoal ? '#10b981' : '#f59e0b'};transform:translate(-6px, -6px);animation:pulse 1.5s infinite;"></div>`
           }
@@ -4095,6 +4407,12 @@ function renderPlayerCompare(m) {
           ${compareRow('Age', h2hPlayerA.age, h2hPlayerB.age, 'lower')}
           ${compareRow('Height', h2hPlayerA.height, h2hPlayerB.height)}
           ${compareRow('Market Value', h2hPlayerA.value, h2hPlayerB.value)}
+          ${matchPhase(m.status) !== 'upcoming' ? `
+            ${compareRow('Goals', h2hPlayerA.goals || 0, h2hPlayerB.goals || 0)}
+            ${compareRow('Assists', h2hPlayerA.assists || 0, h2hPlayerB.assists || 0)}
+            ${compareRow('Shots', h2hPlayerA.shots || 0, h2hPlayerB.shots || 0)}
+            ${compareRow('Shots on Target', h2hPlayerA.shotsOnTarget || 0, h2hPlayerB.shotsOnTarget || 0)}
+          ` : ''}
           ${compareRow('Scouting: ATT', h2hPlayerA.att, h2hPlayerB.att)}
           ${compareRow('Scouting: CTRL', h2hPlayerA.ctrl, h2hPlayerB.ctrl)}
           ${compareRow('Scouting: CREA', h2hPlayerA.crea, h2hPlayerB.crea)}
@@ -4110,9 +4428,9 @@ function renderPlayerCompare(m) {
 async function generateScoutingReport() {
   const m = currentMatch;
   if (!m) return;
-  const playerSection = selectedPlayer ? `\nSelected Player: ${selectedPlayer.name} (${selectedPlayer.role}) — Rating: ${selectedPlayer.rating}, Age: ${selectedPlayer.age}, Value: ${selectedPlayer.value}. Attributes — ATT:${selectedPlayer.att} CTRL:${selectedPlayer.ctrl} CREA:${selectedPlayer.crea} PHYS:${selectedPlayer.phys} SCAN:${selectedPlayer.scan} DEF:${selectedPlayer.def}` : '';
+  const playerSection = selectedPlayer ? `\nSelected Player: ${selectedPlayer.name} (${selectedPlayer.role}) — Rating: ${selectedPlayer.rating}, Age: ${selectedPlayer.age}, Value: ${selectedPlayer.value}. Attributes — ATT:${selectedPlayer.att} CTRL:${selectedPlayer.ctrl} CREA:${selectedPlayer.crea} PHYS:${selectedPlayer.phys} SCAN:${selectedPlayer.scan} DEF:${selectedPlayer.def}. This match — Goals: ${selectedPlayer.goals || 0}, Assists: ${selectedPlayer.assists || 0}, Shots: ${selectedPlayer.shots || 0} (${selectedPlayer.shotsOnTarget || 0} on target)` : '';
   
-  const prompt = `Generate a comprehensive AI scouting report for this match:\n\n**${m.homeFlag} ${m.home} ${m.hs}–${m.as} ${m.away} ${m.awayFlag}** (${m.league})\n\nMatch Stats:\n- Possession: ${m.home} ${m.possession[0]}% vs ${m.away} ${m.possession[1]}%\n- Shots: ${m.shots[0]} vs ${m.shots[1]}\n- Big Chances: ${m.bigChances[0]} vs ${m.bigChances[1]}\n- Passes: ${m.passes[0]} vs ${m.passes[1]}${playerSection}\n\nProvide: (1) tactical narrative of both teams (2) key battles/matchups (3) decisive moments (4) areas to improve (5) scouting verdict.`;
+  const prompt = `Generate a comprehensive AI scouting report for this match:\n\n**${m.homeFlag} ${m.home} ${m.hs}–${m.as} ${m.away} ${m.awayFlag}** (${m.league})\n\nMatch Stats:\n- Possession: ${m.home} ${m.possession[0]}% vs ${m.away} ${m.possession[1]}%\n- Shots: ${m.shots[0]} vs ${m.shots[1]}\n- Shots on Target: ${m.shotsOnTarget[0]} vs ${m.shotsOnTarget[1]}\n- Big Chances: ${m.bigChances[0]} vs ${m.bigChances[1]}\n- Passes: ${m.passes[0]} vs ${m.passes[1]}${playerSection}\n\nProvide: (1) tactical narrative of both teams (2) key battles/matchups (3) decisive moments (4) areas to improve (5) scouting verdict.`;
 
   document.querySelectorAll('.nav-tab')[0].click();
   document.getElementById('chat-input').value = prompt;

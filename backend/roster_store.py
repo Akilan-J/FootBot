@@ -2057,9 +2057,15 @@ def _parse_espn_incidents(summary: Dict[str, Any]):
 
 
 def _parse_api_football_incidents(raw_events: Dict[str, Any]):
-    """Returns (goals, cards) from API-Football /fixtures/events."""
+    """Returns (goals, cards) from API-Football /fixtures/events.
+
+    A goal VAR rules out stays in API-Football's list as a "Goal" event, with a
+    separate "Var" event ("Goal cancelled", "Goal Disallowed - offside", ...)
+    after it; such goals are dropped so they don't count.
+    """
     goals: List[Dict[str, Any]] = []
     cards: List[Dict[str, Any]] = []
+    goal_meta: List[Dict[str, Any]] = []  # elapsed/team/player per goal, for VAR matching
     for ev in raw_events.get("response", []) or []:
         time_info = ev.get("time", {}) or {}
         elapsed = time_info.get("elapsed", 0)
@@ -2079,9 +2085,24 @@ def _parse_api_football_incidents(raw_events: Dict[str, Any]):
                     "card": "red" if "red" in detail.lower() else "yellow",
                 })
             continue
+        if ev_type == "Var":
+            detail_l = detail.lower()
+            if "goal cancelled" in detail_l or "goal disallowed" in detail_l:
+                # The latest counting goal by this team (and player, when given)
+                # in the ten minutes before the review
+                for i in range(len(goals) - 1, -1, -1):
+                    meta = goal_meta[i]
+                    if (not goals[i]["missed"] and meta["team"] == team
+                            and (not player or not meta["player"] or meta["player"] == player)
+                            and 0 <= (elapsed or 0) - (meta["elapsed"] or 0) <= 10):
+                        goals.pop(i)
+                        goal_meta.pop(i)
+                        break
+            continue
         if ev_type != "Goal":
             continue
         detail_l = detail.lower()
+        goal_meta.append({"elapsed": elapsed, "team": team, "player": player})
         goals.append({
             "minute": minute_str,
             "scorer": player or "Unknown",

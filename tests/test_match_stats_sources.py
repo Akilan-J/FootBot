@@ -101,3 +101,23 @@ def test_reverse_fixture_order_is_swapped(rs):
 
     stats = mod.get_match_stats("Liverpool", "Bournemouth", "20 Sep 2026", 1, 0)
     assert stats["shots"] == [12, 9] and stats["source"] == "espn"
+
+
+def _af_event(elapsed, ev_type, detail, team, player, assist=None):
+    return {"time": {"elapsed": elapsed, "extra": None}, "type": ev_type, "detail": detail,
+            "team": {"name": team}, "player": {"name": player}, "assist": {"name": assist}}
+
+
+def test_api_football_var_cancelled_goal_is_dropped():
+    from backend.roster_store import _parse_api_football_incidents
+    raw = {"response": [
+        _af_event(17, "Goal", "Normal Goal", "Andorra", "Guillaume Lopez"),
+        _af_event(40, "Goal", "Normal Goal", "Malta", "Irvin Cardona", "Teddy Teuma"),
+        _af_event(42, "Var", "Goal cancelled", "Malta", "Irvin Cardona"),
+        _af_event(81, "Goal", "Normal Goal", "Malta", "Teddy Teuma"),
+        _af_event(85, "Goal", "Missed Penalty", "Malta", "Ylyas Chouaref"),
+        _af_event(86, "Var", "Penalty confirmed", "Malta", "Ylyas Chouaref"),
+    ]}
+    goals, _ = _parse_api_football_incidents(raw)
+    assert [(g["scorer"], g["missed"]) for g in goals] == [
+        ("Guillaume Lopez", False), ("Teddy Teuma", False), ("Ylyas Chouaref", True)]

@@ -15206,16 +15206,16 @@
             10
         ],
         "shotsOnTarget": [
-            8,
-            4
+            10,
+            5
         ],
         "bigChances": [
             10,
             5
         ],
         "passes": [
-            525,
-            409
+            635,
+            532
         ],
         "corners": [
             6,
@@ -15233,9 +15233,10 @@
             4,
             4
         ],
+        "source": "espn",
         "predicted_score": [
-            0,
-            0
+            3,
+            3
         ]
     },
     "argentina_vs_france_18 dec 2022": [
@@ -16837,5 +16838,4868 @@
             "subbed_in_minute": null
         }
     ],
-    "formation_curacao_vs_ivory coast_25 jun 2026": "4-2-3-1"
+    "formation_curacao_vs_ivory coast_25 jun 2026": "4-2-3-1",
+    "real madrid_vs_barcelona_21 apr 2024": [
+        {
+            "name": "Thibaut Courtois",
+            "jersey": "1",
+            "rating": 7.5,
+            "pos": "GK",
+            "photo": "frontend/assets/thibaut_courtois.png",
+            "age": "32",
+            "val": "€15M",
+            "height": "199 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Dani Carvajal",
+            "jersey": "2",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/dani_carvajal.png",
+            "age": "32",
+            "val": "€12M",
+            "height": "173 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Éder Militão",
+            "jersey": "3",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "frontend/assets/eder_militao.png",
+            "age": "26",
+            "val": "€50M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "David Alaba",
+            "jersey": "4",
+            "rating": 7.1,
+            "pos": "LCB",
+            "photo": "frontend/assets/david_alaba.png",
+            "age": "31",
+            "val": "€20M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ferland Mendy",
+            "jersey": "23",
+            "rating": 6.8,
+            "pos": "LB",
+            "photo": "frontend/assets/ferland_mendy.png",
+            "age": "28",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Aurélien Tchouaméni",
+            "jersey": "18",
+            "rating": 7.3,
+            "pos": "LDM",
+            "photo": "frontend/assets/aurelien_tchouameni.png",
+            "age": "24",
+            "val": "€70M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Eduardo Camavinga",
+            "jersey": "12",
+            "rating": 7.0,
+            "pos": "RDM",
+            "photo": "frontend/assets/eduardo_camavinga.png",
+            "age": "21",
+            "val": "€70M",
+            "height": "182 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Luka Modrić",
+            "jersey": "10",
+            "rating": 6.5,
+            "pos": "CM",
+            "photo": "frontend/assets/luka_modric.png",
+            "age": "38",
+            "val": "€5M",
+            "height": "172 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jude Bellingham",
+            "jersey": "5",
+            "rating": 8.0,
+            "pos": "CAM",
+            "photo": "frontend/assets/jude_bellingham.png",
+            "age": "20",
+            "val": "€130M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Vinícius Júnior",
+            "jersey": "7",
+            "rating": 8.2,
+            "pos": "LW",
+            "photo": "frontend/assets/vinicius_junior.png",
+            "age": "23",
+            "val": "€120M",
+            "height": "176 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rodrygo",
+            "jersey": "11",
+            "rating": 7.5,
+            "pos": "RW",
+            "photo": "frontend/assets/rodrygo.png",
+            "age": "23",
+            "val": "€100M",
+            "height": "179 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Arda Güler",
+            "jersey": "15",
+            "rating": 6.8,
+            "pos": "CAM",
+            "photo": "frontend/assets/arda_guler.png",
+            "age": "19",
+            "val": "€30M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Luka Modrić",
+            "subbed_in_minute": "61'"
+        },
+        {
+            "name": "Joselu",
+            "jersey": "14",
+            "rating": 6.5,
+            "pos": "ST",
+            "photo": "frontend/assets/joselu.png",
+            "age": "34",
+            "val": "€5M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Rodrygo",
+            "subbed_in_minute": "78'"
+        },
+        {
+            "name": "Fran García",
+            "jersey": "20",
+            "rating": 6.6,
+            "pos": "LB",
+            "photo": "frontend/assets/fran_garcia.png",
+            "age": "23",
+            "val": "€10M",
+            "height": "175 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Ferland Mendy",
+            "subbed_in_minute": "86'"
+        },
+        {
+            "name": "Dani Ceballos",
+            "jersey": "19",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/dani_ceballos.png",
+            "age": "27",
+            "val": "€15M",
+            "height": "179 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Antonio Rüdiger",
+            "jersey": "22",
+            "rating": 6.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/antonio_rudiger.png",
+            "age": "31",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lucas Vázquez",
+            "jersey": "17",
+            "rating": 6.0,
+            "pos": "RB",
+            "photo": "frontend/assets/lucas_vazquez.png",
+            "age": "32",
+            "val": "€5M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Andriy Lunin",
+            "jersey": "13",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/andriy_lunin.png",
+            "age": "25",
+            "val": "€12M",
+            "height": "191 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchstats_barcelona_vs_real madrid_21 apr 2024": {
+        "possession": [
+            48,
+            52
+        ],
+        "shots": [
+            12,
+            14
+        ],
+        "shotsOnTarget": [
+            4,
+            5
+        ],
+        "bigChances": [
+            2,
+            3
+        ],
+        "passes": [
+            500,
+            540
+        ],
+        "corners": [
+            4,
+            5
+        ],
+        "fouls": [
+            12,
+            10
+        ],
+        "yellowCards": [
+            3,
+            2
+        ],
+        "offsides": [
+            1,
+            2
+        ],
+        "predicted_score": [
+            1,
+            1
+        ]
+    },
+    "barcelona_vs_real madrid_21 apr 2024": [
+        {
+            "name": "Marc-André ter Stegen",
+            "jersey": "1",
+            "rating": 7.8,
+            "pos": "GK",
+            "photo": "frontend/assets/marc_andre_ter_stegen.png",
+            "age": "31",
+            "val": "€30M",
+            "height": "187 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jules Koundé",
+            "jersey": "23",
+            "rating": 7.5,
+            "pos": "RB",
+            "photo": "frontend/assets/jules_kounde.png",
+            "age": "25",
+            "val": "€60M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ronald Araújo",
+            "jersey": "4",
+            "rating": 7.6,
+            "pos": "LCB",
+            "photo": "frontend/assets/ronald_araujo.png",
+            "age": "25",
+            "val": "€70M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Andreas Christensen",
+            "jersey": "15",
+            "rating": 7.4,
+            "pos": "RCB",
+            "photo": "frontend/assets/andreas_christensen.png",
+            "age": "28",
+            "val": "€30M",
+            "height": "187 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alejandro Balde",
+            "jersey": "3",
+            "rating": 7.5,
+            "pos": "LB",
+            "photo": "frontend/assets/alejandro_balde.png",
+            "age": "20",
+            "val": "€40M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Pedri",
+            "jersey": "8",
+            "rating": 8.2,
+            "pos": "CM",
+            "photo": "frontend/assets/pedri.png",
+            "age": "21",
+            "val": "€100M",
+            "height": "174 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ilkay Gündogan",
+            "jersey": "16",
+            "rating": 7.0,
+            "pos": "LDM",
+            "photo": "frontend/assets/ilkay_gundogan.png",
+            "age": "33",
+            "val": "€20M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Frenkie de Jong",
+            "jersey": "21",
+            "rating": 7.5,
+            "pos": "CM",
+            "photo": "frontend/assets/frenkie_de_jong.png",
+            "age": "26",
+            "val": "€80M",
+            "height": "181 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Raphinha",
+            "jersey": "11",
+            "rating": 8.5,
+            "pos": "RW",
+            "photo": "frontend/assets/raphinha.png",
+            "age": "27",
+            "val": "€70M",
+            "height": "176 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Robert Lewandowski",
+            "jersey": "9",
+            "rating": 8.3,
+            "pos": "ST",
+            "photo": "frontend/assets/robert_lewandowski.png",
+            "age": "35",
+            "val": "€30M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lamine Yamal",
+            "jersey": "27",
+            "rating": 8.0,
+            "pos": "LW",
+            "photo": "frontend/assets/lamine_yamal.png",
+            "age": "16",
+            "val": "€80M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ferran Torres",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "frontend/assets/ferran_torres.png",
+            "age": "24",
+            "val": "€35M",
+            "height": "181 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Lamine Yamal",
+            "subbed_in_minute": "68'"
+        },
+        {
+            "name": "Gavi",
+            "jersey": "6",
+            "rating": 7.3,
+            "pos": "CM",
+            "photo": "frontend/assets/gavi.png",
+            "age": "19",
+            "val": "€80M",
+            "height": "173 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Pedri",
+            "subbed_in_minute": "73'"
+        },
+        {
+            "name": "João Félix",
+            "jersey": "14",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "frontend/assets/joao_felix.png",
+            "age": "24",
+            "val": "€60M",
+            "height": "181 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Robert Lewandowski",
+            "subbed_in_minute": "79'"
+        },
+        {
+            "name": "Fermín López",
+            "jersey": "20",
+            "rating": 8.6,
+            "pos": "LDM",
+            "photo": "frontend/assets/fermin_lopez.png",
+            "age": "20",
+            "val": "€15M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Ilkay Gündogan",
+            "subbed_in_minute": "78'"
+        },
+        {
+            "name": "Marc Casadó",
+            "jersey": "24",
+            "rating": 7.1,
+            "pos": "CM",
+            "photo": "frontend/assets/marc_casado.png",
+            "age": "20",
+            "val": "€5M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Frenkie de Jong",
+            "subbed_in_minute": "86'"
+        },
+        {
+            "name": "Inaki Peña",
+            "jersey": "13",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/inaki_pena.png",
+            "age": "25",
+            "val": "€5M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "atalanta_vs_lecce_18 may 2025": [
+        {
+            "name": "Marco Carnesecchi",
+            "jersey": "29",
+            "rating": 7.5,
+            "pos": "GK",
+            "photo": "frontend/assets/marco_carnesecchi.png",
+            "age": "24",
+            "val": "€25M",
+            "height": "196 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Kouakou Odilon Kossounou",
+            "jersey": "3",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "none",
+            "age": "24",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Giorgio Scalvini",
+            "jersey": "42",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/giorgio_scalvini.png",
+            "age": "21",
+            "val": "€35M",
+            "height": "190 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Isak Hien",
+            "jersey": "4",
+            "rating": 6.8,
+            "pos": "LDM",
+            "photo": "frontend/assets/isak_hien.png",
+            "age": "25",
+            "val": "€15M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marten de Roon",
+            "jersey": "15",
+            "rating": 7.3,
+            "pos": "RDM",
+            "photo": "frontend/assets/marten_de_roon.png",
+            "age": "34",
+            "val": "€8M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Raoul Bellanova",
+            "jersey": "16",
+            "rating": 7.1,
+            "pos": "RB",
+            "photo": "frontend/assets/raoul_bellanova.png",
+            "age": "25",
+            "val": "€20M",
+            "height": "184 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ruslan Pašalić",
+            "jersey": "8",
+            "rating": 7.6,
+            "pos": "CAM",
+            "photo": "frontend/assets/ruslan_pasalic.jpg",
+            "age": "27",
+            "val": "€30M",
+            "height": "190 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nicola Zalewski",
+            "jersey": "59",
+            "rating": 6.9,
+            "pos": "LB",
+            "photo": "frontend/assets/nicola_zalewski.png",
+            "age": "23",
+            "val": "€12M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Charles De Ketelaere",
+            "jersey": "17",
+            "rating": 7.8,
+            "pos": "AM",
+            "photo": "frontend/assets/charles_de_ketelaere.png",
+            "age": "24",
+            "val": "€40M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Kamal Deen Sulemana",
+            "jersey": "7",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "frontend/assets/kamal_deen_sulemana.jpg",
+            "age": "23",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nikola Krstović",
+            "jersey": "90",
+            "rating": 6.5,
+            "pos": "ST",
+            "photo": "frontend/assets/nikola_krstovic.png",
+            "age": "25",
+            "val": "€12M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Davide Zappacosta",
+            "jersey": "77",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "frontend/assets/davide_zappacosta.png",
+            "age": "32",
+            "val": "€5M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Daniel Maldini",
+            "jersey": "70",
+            "rating": 6.8,
+            "pos": "CAM",
+            "photo": "frontend/assets/daniel_maldini.png",
+            "age": "23",
+            "val": "€8M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "74'"
+        },
+        {
+            "name": "Lorenzo Bernasconi",
+            "jersey": "47",
+            "rating": 6.6,
+            "pos": "CM",
+            "photo": "frontend/assets/lorenzo_bernasconi.png",
+            "age": "23",
+            "val": "€4M",
+            "height": "182 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "84'"
+        },
+        {
+            "name": "Yunus Musah",
+            "jersey": "6",
+            "rating": 6.7,
+            "pos": "LDM",
+            "photo": "frontend/assets/yunus_musah.png",
+            "age": "22",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "75'"
+        },
+        {
+            "name": "Honest Ahanor",
+            "jersey": "69",
+            "rating": 6.4,
+            "pos": "LB",
+            "photo": "frontend/assets/honest_ahanor.png",
+            "age": "21",
+            "val": "€3M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marco Brescianini",
+            "jersey": "44",
+            "rating": 6.5,
+            "pos": "CM",
+            "photo": "frontend/assets/marco_brescianini.png",
+            "age": "25",
+            "val": "€6M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "58'"
+        },
+        {
+            "name": "Relja Obric",
+            "jersey": "40",
+            "rating": 6.3,
+            "pos": "LCB",
+            "photo": "frontend/assets/relja_obric.png",
+            "age": "23",
+            "val": "€2M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marco Sportiello",
+            "jersey": "57",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/marco_sportiello.png",
+            "age": "33",
+            "val": "€2M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Henry Camara",
+            "jersey": "41",
+            "rating": 5.8,
+            "pos": "ST",
+            "photo": "frontend/assets/henry_camara.png",
+            "age": "23",
+            "val": "€1M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Alessandro Rossi",
+            "jersey": "31",
+            "rating": 5.9,
+            "pos": "ST",
+            "photo": "frontend/assets/alessandro_rossi.png",
+            "age": "28",
+            "val": "€3M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Berat Djimsiti",
+            "jersey": "19",
+            "rating": 6.2,
+            "pos": "RCB",
+            "photo": "frontend/assets/berat_djimsiti.png",
+            "age": "32",
+            "val": "€8M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lazar Samardzic",
+            "jersey": "10",
+            "rating": 6.7,
+            "pos": "CAM",
+            "photo": "frontend/assets/lazar_samardzic.png",
+            "age": "23",
+            "val": "€20M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "74'"
+        }
+    ],
+    "matchstats_atalanta_vs_lecce_18 may 2025": {
+        "possession": [
+            58,
+            42
+        ],
+        "shots": [
+            14,
+            8
+        ],
+        "shotsOnTarget": [
+            6,
+            3
+        ],
+        "bigChances": [
+            4,
+            1
+        ],
+        "passes": [
+            560,
+            470
+        ],
+        "corners": [
+            6,
+            3
+        ],
+        "fouls": [
+            12,
+            10
+        ],
+        "yellowCards": [
+            2,
+            1
+        ],
+        "offsides": [
+            2,
+            1
+        ],
+        "predicted_score": [
+            2,
+            1
+        ]
+    },
+    "matchevents_atalanta_vs_lecce_18 may 2025": [],
+    "formation_atalanta_vs_lecce_18 may 2025": "3-5-2",
+    "bologna_vs_genoa_10 may 2025": [
+        {
+            "name": "Lukasz Skorupski",
+            "jersey": "1",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/lukasz_skorupski.png",
+            "age": "34",
+            "val": "€5M",
+            "height": "191 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nicolò Zortea",
+            "jersey": "2",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "none",
+            "age": "26",
+            "val": "€12M",
+            "height": "182 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Stefan Posch",
+            "jersey": "4",
+            "rating": 7.1,
+            "pos": "RCB",
+            "photo": "frontend/assets/stefan_posch.png",
+            "age": "27",
+            "val": "€12M",
+            "height": "190 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Juan Lucumi",
+            "jersey": "21",
+            "rating": 7.3,
+            "pos": "LCB",
+            "photo": "frontend/assets/juan_lucumi.png",
+            "age": "28",
+            "val": "€15M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Charalampos Lykogiannis",
+            "jersey": "66",
+            "rating": 6.9,
+            "pos": "LB",
+            "photo": "frontend/assets/charalampos_lykogiannis.jpg",
+            "age": "31",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Remo Freuler",
+            "jersey": "8",
+            "rating": 7.4,
+            "pos": "LDM",
+            "photo": "frontend/assets/remo_freuler.png",
+            "age": "33",
+            "val": "€10M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lewis Ferguson",
+            "jersey": "20",
+            "rating": 7.5,
+            "pos": "CM",
+            "photo": "frontend/assets/lewis_ferguson.png",
+            "age": "26",
+            "val": "€18M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Riccardo Orsolini",
+            "jersey": "11",
+            "rating": 7.8,
+            "pos": "RW",
+            "photo": "frontend/assets/riccardo_orsolini.png",
+            "age": "28",
+            "val": "€20M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Giovanni Fabbian",
+            "jersey": "22",
+            "rating": 7.2,
+            "pos": "CAM",
+            "photo": "frontend/assets/giovanni_fabbian.png",
+            "age": "22",
+            "val": "€8M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Andrea Cambiaghi",
+            "jersey": "18",
+            "rating": 7.1,
+            "pos": "LW",
+            "photo": "frontend/assets/andrea_cambiaghi.jpg",
+            "age": "25",
+            "val": "€10M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Santiago Castro",
+            "jersey": "9",
+            "rating": 7.6,
+            "pos": "ST",
+            "photo": "frontend/assets/santiago_castro.png",
+            "age": "20",
+            "val": "€12M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mitchell Dijks",
+            "jersey": "23",
+            "rating": 6.4,
+            "pos": "LB",
+            "photo": "frontend/assets/mitchell_dijks.png",
+            "age": "32",
+            "val": "€3M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lorenzo De Silvestri",
+            "jersey": "77",
+            "rating": 6.5,
+            "pos": "RB",
+            "photo": "frontend/assets/lorenzo_de_silvestri.png",
+            "age": "36",
+            "val": "€2M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Adam Nagy",
+            "jersey": "5",
+            "rating": 6.6,
+            "pos": "CM",
+            "photo": "frontend/assets/adam_nagy.png",
+            "age": "29",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchstats_bologna_vs_genoa_10 may 2025": {
+        "possession": [
+            58,
+            42
+        ],
+        "shots": [
+            14,
+            6
+        ],
+        "shotsOnTarget": [
+            4,
+            2
+        ],
+        "bigChances": [
+            3,
+            1
+        ],
+        "passes": [
+            520,
+            410
+        ],
+        "corners": [
+            5,
+            2
+        ],
+        "fouls": [
+            10,
+            12
+        ],
+        "yellowCards": [
+            1,
+            2
+        ],
+        "offsides": [
+            2,
+            1
+        ],
+        "predicted_score": [
+            0,
+            0
+        ]
+    },
+    "matchevents_bologna_vs_genoa_10 may 2025": [],
+    "formation_bologna_vs_genoa_10 may 2025": "4-3-3",
+    "verona_vs_cagliari_11 may 2025": [
+        {
+            "name": "Simone Perilli",
+            "jersey": "34",
+            "rating": 7.2,
+            "pos": "GK",
+            "photo": "frontend/assets/simone_perilli.png",
+            "age": "28",
+            "val": "€2M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nicolás Valentini",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/nicolas_valentini.png",
+            "age": "24",
+            "val": "€8M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Victor Nelsson",
+            "jersey": "15",
+            "rating": 7.3,
+            "pos": "RCB",
+            "photo": "frontend/assets/victor_nelsson.png",
+            "age": "26",
+            "val": "€15M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Tobias Slotsager",
+            "jersey": "19",
+            "rating": 6.8,
+            "pos": "RB",
+            "photo": "frontend/assets/tobias_slotsager.png",
+            "age": "25",
+            "val": "€5M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Antoine Bernede",
+            "jersey": "24",
+            "rating": 7.1,
+            "pos": "RDM",
+            "photo": "frontend/assets/antoine_bernede.png",
+            "age": "26",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Martin Frese",
+            "jersey": "3",
+            "rating": 6.9,
+            "pos": "LM",
+            "photo": "frontend/assets/martin_frese.png",
+            "age": "30",
+            "val": "€3M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Abdoulrahmane Harroui",
+            "jersey": "21",
+            "rating": 7.0,
+            "pos": "CM",
+            "photo": "none",
+            "age": "27",
+            "val": "€6M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Roberto Gagliardini",
+            "jersey": "63",
+            "rating": 7.2,
+            "pos": "LDM",
+            "photo": "frontend/assets/roberto_gagliardini.png",
+            "age": "31",
+            "val": "€8M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Pol Lirola",
+            "jersey": "14",
+            "rating": 7.0,
+            "pos": "RM",
+            "photo": "frontend/assets/pol_lirola.png",
+            "age": "27",
+            "val": "€12M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gift Orban",
+            "jersey": "16",
+            "rating": 7.5,
+            "pos": "ST",
+            "photo": "frontend/assets/gift_orban.png",
+            "age": "22",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Amin Sarr",
+            "jersey": "9",
+            "rating": 7.3,
+            "pos": "ST",
+            "photo": "frontend/assets/amin_sarr.png",
+            "age": "23",
+            "val": "€7M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Giacomo Toniolo",
+            "jersey": "94",
+            "rating": 5.8,
+            "pos": "LCB",
+            "photo": "frontend/assets/giacomo_toniolo.png",
+            "age": "23",
+            "val": "€3M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Daniel Oyegoke",
+            "jersey": "2",
+            "rating": 5.8,
+            "pos": "RB",
+            "photo": "frontend/assets/daniel_oyegoke.png",
+            "age": "22",
+            "val": "€4M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Enzo Ebosse",
+            "jersey": "23",
+            "rating": 5.8,
+            "pos": "RCB",
+            "photo": "frontend/assets/enzo_ebosse.png",
+            "age": "25",
+            "val": "€5M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Cheikh Niasse",
+            "jersey": "36",
+            "rating": 6.2,
+            "pos": "ST",
+            "photo": "frontend/assets/cheikh_niasse.png",
+            "age": "25",
+            "val": "€6M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "81'"
+        },
+        {
+            "name": "Daniel Mosquera",
+            "jersey": "25",
+            "rating": 6.4,
+            "pos": "ST",
+            "photo": "frontend/assets/daniel_mosquera.png",
+            "age": "26",
+            "val": "€5M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "57'"
+        },
+        {
+            "name": "Domagoj Bradaric",
+            "jersey": "12",
+            "rating": 5.8,
+            "pos": "LB",
+            "photo": "frontend/assets/domagoj_bradaric.png",
+            "age": "25",
+            "val": "€6M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Elmutasem El Masrati",
+            "jersey": "73",
+            "rating": 6.3,
+            "pos": "CAM",
+            "photo": "none",
+            "age": "27",
+            "val": "€2M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "56'"
+        },
+        {
+            "name": "Isaac Sandi Lovric",
+            "jersey": "41",
+            "rating": 6.1,
+            "pos": "CM",
+            "photo": "frontend/assets/isaac_sandi_lovric.jpg",
+            "age": "26",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "81'"
+        },
+        {
+            "name": "Suat Serdar",
+            "jersey": "8",
+            "rating": 6.5,
+            "pos": "CM",
+            "photo": "frontend/assets/suat_serdar.png",
+            "age": "28",
+            "val": "€10M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": "56'"
+        },
+        {
+            "name": "Lorenzo Montipò",
+            "jersey": "1",
+            "rating": 5.8,
+            "pos": "GK",
+            "photo": "frontend/assets/lorenzo_montipo.png",
+            "age": "28",
+            "val": "€2M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "matchstats_cagliari_vs_verona_11 may 2025": {
+        "possession": [
+            43,
+            57
+        ],
+        "shots": [
+            16,
+            19
+        ],
+        "shotsOnTarget": [
+            7,
+            7
+        ],
+        "bigChances": [
+            2,
+            2
+        ],
+        "passes": [
+            524,
+            575
+        ],
+        "corners": [
+            7,
+            5
+        ],
+        "fouls": [
+            16,
+            8
+        ],
+        "yellowCards": [
+            3,
+            1
+        ],
+        "offsides": [
+            1,
+            2
+        ],
+        "predicted_score": [
+            1,
+            1
+        ]
+    },
+    "matchevents_cagliari_vs_verona_11 may 2025": [],
+    "matchstats_empoli_vs_monza_11 may 2025": {
+        "possession": [
+            60,
+            40
+        ],
+        "shots": [
+            14,
+            9
+        ],
+        "shotsOnTarget": [
+            6,
+            4
+        ],
+        "bigChances": [
+            4,
+            2
+        ],
+        "passes": [
+            520,
+            410
+        ],
+        "corners": [
+            5,
+            3
+        ],
+        "fouls": [
+            12,
+            10
+        ],
+        "yellowCards": [
+            1,
+            2
+        ],
+        "offsides": [
+            2,
+            1
+        ],
+        "predicted_score": [
+            2,
+            1
+        ]
+    },
+    "matchevents_empoli_vs_monza_11 may 2025": [
+        {
+            "minute": "30'",
+            "scorer": "Samuele Birindelli",
+            "assist": "Gianluca Caprari",
+            "team": "Empoli",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Samuele Birindelli scored with assist from Gianluca Caprari"
+        },
+        {
+            "minute": "46'",
+            "scorer": "Lorenzo Colombo",
+            "assist": "Liam Henderson",
+            "team": "Empoli",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Lorenzo Colombo scored with assist from Liam Henderson"
+        },
+        {
+            "minute": "51'",
+            "scorer": "Mattia Viti",
+            "assist": "Libby Cacace",
+            "team": "Empoli",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Mattia Viti scored with assist from Libby Cacace"
+        },
+        {
+            "minute": "55'",
+            "scorer": "Dany Mota",
+            "assist": "Kevin Zeroli",
+            "team": "Monza",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Dany Mota scored with assist from Kevin Zeroli"
+        }
+    ],
+    "empoli_vs_monza_11 may 2025": [
+        {
+            "name": "Devis Vásquez",
+            "jersey": "23",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "frontend/assets/devis_vasquez.png",
+            "age": "26",
+            "val": "€5M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Adrian Ismajli",
+            "jersey": "34",
+            "rating": 6.5,
+            "pos": "RCB",
+            "photo": "frontend/assets/adrian_ismajli.jpg",
+            "age": "28",
+            "val": "€4M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sebastian Walukiewicz",
+            "jersey": "4",
+            "rating": 6.7,
+            "pos": "LCB",
+            "photo": "frontend/assets/sebastian_walukiewicz.png",
+            "age": "25",
+            "val": "€8M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mattia Viti",
+            "jersey": "21",
+            "rating": 6.6,
+            "pos": "LB",
+            "photo": "frontend/assets/mattia_viti.png",
+            "age": "22",
+            "val": "€6M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Giuseppe Pezzella",
+            "jersey": "3",
+            "rating": 6.4,
+            "pos": "LM",
+            "photo": "frontend/assets/giuseppe_pezzella.png",
+            "age": "27",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Emmanuel Gyasi",
+            "jersey": "11",
+            "rating": 7.0,
+            "pos": "RW",
+            "photo": "frontend/assets/emmanuel_gyasi.jpg",
+            "age": "30",
+            "val": "€7M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Liam Henderson",
+            "jersey": "6",
+            "rating": 6.8,
+            "pos": "CM",
+            "photo": "frontend/assets/liam_henderson.png",
+            "age": "29",
+            "val": "€5M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Youssef Maleh",
+            "jersey": "93",
+            "rating": 6.5,
+            "pos": "CM",
+            "photo": "frontend/assets/youssef_maleh.png",
+            "age": "27",
+            "val": "€5M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lorenzo Colombo",
+            "jersey": "29",
+            "rating": 6.3,
+            "pos": "ST",
+            "photo": "frontend/assets/lorenzo_colombo.png",
+            "age": "23",
+            "val": "€6M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Sebastiano Esposito",
+            "jersey": "99",
+            "rating": 6.2,
+            "pos": "LW",
+            "photo": "frontend/assets/sebastiano_esposito.png",
+            "age": "22",
+            "val": "€12M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jacopo Fazzini",
+            "jersey": "10",
+            "rating": 6.9,
+            "pos": "CAM",
+            "photo": "frontend/assets/jacopo_fazzini.png",
+            "age": "22",
+            "val": "€8M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Liberato Cacace",
+            "jersey": "13",
+            "rating": 6.5,
+            "pos": "LB",
+            "photo": "frontend/assets/liberato_cacace.png",
+            "age": "27",
+            "val": "€4M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Giuseppe Pezzella",
+            "subbed_in_minute": "91'"
+        },
+        {
+            "name": "Emmanuel Ekong",
+            "jersey": "19",
+            "rating": 6.7,
+            "pos": "LW",
+            "photo": "frontend/assets/emmanuel_ekong.png",
+            "age": "27",
+            "val": "€3M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Lorenzo Colombo",
+            "subbed_in_minute": "84'"
+        },
+        {
+            "name": "Nicolas Haas",
+            "jersey": "32",
+            "rating": 6.6,
+            "pos": "CM",
+            "photo": "frontend/assets/nicolas_haas.png",
+            "age": "29",
+            "val": "€4M",
+            "height": "182 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Youssef Maleh",
+            "subbed_in_minute": "84'"
+        },
+        {
+            "name": "Francesco Caputo",
+            "jersey": "9",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "frontend/assets/francesco_caputo.png",
+            "age": "37",
+            "val": "€6M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Jacopo Fazzini",
+            "subbed_in_minute": "84'"
+        },
+        {
+            "name": "Ola Solbakken",
+            "jersey": "17",
+            "rating": 6.9,
+            "pos": "RW",
+            "photo": "frontend/assets/ola_solbakken.png",
+            "age": "27",
+            "val": "€5M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Sebastiano Esposito",
+            "subbed_in_minute": "68'"
+        },
+        {
+            "name": "Jacopo Seghetti",
+            "jersey": "12",
+            "rating": 5.5,
+            "pos": "GK",
+            "photo": "frontend/assets/jacopo_seghetti.png",
+            "age": "23",
+            "val": "€0.5M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Saba Goglichidze",
+            "jersey": "2",
+            "rating": 5.5,
+            "pos": "RB",
+            "photo": "frontend/assets/saba_goglichidze.png",
+            "age": "24",
+            "val": "€2M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Stiven Shpendi",
+            "jersey": "7",
+            "rating": 5.5,
+            "pos": "LW",
+            "photo": "frontend/assets/stiven_shpendi.png",
+            "age": "24",
+            "val": "€1.5M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Gabriele Guarino",
+            "jersey": "14",
+            "rating": 5.5,
+            "pos": "CB",
+            "photo": "frontend/assets/gabriele_guarino.png",
+            "age": "25",
+            "val": "€1M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Lorenzo Tosto",
+            "jersey": "31",
+            "rating": 5.5,
+            "pos": "CB",
+            "photo": "frontend/assets/lorenzo_tosto.png",
+            "age": "23",
+            "val": "€1M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        }
+    ],
+    "formation_empoli_vs_monza_11 may 2025": "4-3-3",
+    "manchester city_vs_sunderland_20 sep 2026": [
+        {
+            "name": "Gianluigi Donnarumma",
+            "jersey": "1",
+            "rating": 6.8,
+            "pos": "GK",
+            "photo": "frontend/assets/gianluigi_donnarumma.png",
+            "age": "27",
+            "val": "€60M",
+            "height": "196 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Matheus Nunes",
+            "jersey": "27",
+            "rating": 7.0,
+            "pos": "RB",
+            "photo": "frontend/assets/matheus_nunes.png",
+            "age": "28",
+            "val": "€55M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rúben Dias",
+            "jersey": "3",
+            "rating": 7.2,
+            "pos": "RCB",
+            "photo": "frontend/assets/ruben_dias.png",
+            "age": "29",
+            "val": "€70M",
+            "height": "187 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Marc Guéhi",
+            "jersey": "6",
+            "rating": 7.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/marc_guehi.png",
+            "age": "26",
+            "val": "€45M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Joško Gvardiol",
+            "jersey": "24",
+            "rating": 7.5,
+            "pos": "LB",
+            "photo": "frontend/assets/josko_gvardiol.png",
+            "age": "24",
+            "val": "€80M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Enzo Fernández",
+            "jersey": "17",
+            "rating": 8.2,
+            "pos": "LDM",
+            "photo": "frontend/assets/enzo_fernandez.png",
+            "age": "25",
+            "val": "€100M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Elliot Anderson",
+            "jersey": "5",
+            "rating": 7.4,
+            "pos": "RDM",
+            "photo": "frontend/assets/elliot_anderson.png",
+            "age": "23",
+            "val": "€30M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Iliman Ndiaye",
+            "jersey": "7",
+            "rating": 6.5,
+            "pos": "LW",
+            "photo": "frontend/assets/iliman_ndiaye.png",
+            "age": "26",
+            "val": "€35M",
+            "height": "175 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rayan Cherki",
+            "jersey": "10",
+            "rating": 8.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/rayan_cherki.png",
+            "age": "23",
+            "val": "€40M",
+            "height": "176 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Antoine Semenyo",
+            "jersey": "42",
+            "rating": 9.0,
+            "pos": "RW",
+            "photo": "frontend/assets/antoine_semenyo.png",
+            "age": "26",
+            "val": "€30M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Erling Haaland",
+            "jersey": "9",
+            "rating": 8.9,
+            "pos": "ST",
+            "photo": "frontend/assets/erling_haaland.png",
+            "age": "26",
+            "val": "€150M",
+            "height": "194 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Geronimo Rulli",
+            "jersey": "28",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/geronimo_rulli.png",
+            "age": "34",
+            "val": "€8M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Mateo Kovacic",
+            "jersey": "8",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/mateo_kovacic.png",
+            "age": "32",
+            "val": "€40M",
+            "height": "176 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jeremy Doku",
+            "jersey": "11",
+            "rating": 7.0,
+            "pos": "LW",
+            "photo": "frontend/assets/jeremy_doku.png",
+            "age": "24",
+            "val": "€70M",
+            "height": "173 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Iliman Ndiaye",
+            "subbed_in_minute": "75'"
+        },
+        {
+            "name": "Rayan Ait-Nouri",
+            "jersey": "21",
+            "rating": 6.0,
+            "pos": "LB",
+            "photo": "frontend/assets/rayan_ait_nouri.png",
+            "age": "25",
+            "val": "€25M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Ayyoub Bouaddi",
+            "jersey": "32",
+            "rating": 6.0,
+            "pos": "CM",
+            "photo": "frontend/assets/ayyoub_bouaddi.png",
+            "age": "24",
+            "val": "€12M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Andre Andrade Elias",
+            "jersey": "37",
+            "rating": 6.0,
+            "pos": "CAM",
+            "photo": "frontend/assets/andre_andrade_elias.jpg",
+            "age": "23",
+            "val": "€5M",
+            "height": "175 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Abdukodir Khusanov",
+            "jersey": "45",
+            "rating": 6.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/abdukodir_khusanov.png",
+            "age": "22",
+            "val": "€15M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Rico Lewis",
+            "jersey": "82",
+            "rating": 6.0,
+            "pos": "RB",
+            "photo": "frontend/assets/rico_lewis.png",
+            "age": "21",
+            "val": "€20M",
+            "height": "176 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nico O'Reilly",
+            "jersey": "33",
+            "rating": 6.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/nico_oreilly.png",
+            "age": "22",
+            "val": "€10M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Rayan Cherki",
+            "subbed_in_minute": "85'"
+        }
+    ],
+    "matchstats_manchester city_vs_sunderland_20 sep 2026": {
+        "possession": [
+            55,
+            45
+        ],
+        "shots": [
+            16,
+            17
+        ],
+        "shotsOnTarget": [
+            6,
+            9
+        ],
+        "bigChances": [
+            6,
+            9
+        ],
+        "passes": [
+            470,
+            384
+        ],
+        "corners": [
+            6,
+            5
+        ],
+        "fouls": [
+            14,
+            14
+        ],
+        "yellowCards": [
+            0,
+            1
+        ],
+        "offsides": [
+            0,
+            0
+        ],
+        "source": "espn",
+        "predicted_score": [
+            5,
+            3
+        ]
+    },
+    "matchevents_manchester city_vs_sunderland_20 sep 2026": [
+        {
+            "minute": "9'",
+            "scorer": "Enzo Fernández",
+            "assist": null,
+            "team": "Manchester City",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Enzo Fernández Goal - Free-kick"
+        },
+        {
+            "minute": "12'",
+            "scorer": "Brian Brobbey",
+            "assist": "Enzo Le Fée",
+            "team": "Sunderland",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Brian Brobbey Goal"
+        },
+        {
+            "minute": "29'",
+            "scorer": "Rayan Cherki",
+            "assist": "Antoine Semenyo",
+            "team": "Manchester City",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Rayan Cherki Goal"
+        },
+        {
+            "minute": "33'",
+            "scorer": "Brian Brobbey",
+            "assist": "Thomas Meunier",
+            "team": "Sunderland",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Brian Brobbey Goal"
+        },
+        {
+            "minute": "43'",
+            "scorer": "Antoine Semenyo",
+            "assist": "Marc Guéhi",
+            "team": "Manchester City",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Antoine Semenyo Goal"
+        },
+        {
+            "minute": "57'",
+            "scorer": "Antoine Semenyo",
+            "assist": null,
+            "team": "Manchester City",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Antoine Semenyo Goal"
+        },
+        {
+            "minute": "59'",
+            "scorer": "Brian Brobbey",
+            "assist": "Nilson Angulo",
+            "team": "Sunderland",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Brian Brobbey Goal"
+        },
+        {
+            "minute": "81'",
+            "scorer": "Erling Haaland",
+            "assist": "Josko Gvardiol",
+            "team": "Manchester City",
+            "ownGoal": false,
+            "penalty": false,
+            "text": "Erling Haaland Goal"
+        }
+    ],
+    "matcheventsource_manchester city_vs_sunderland_20 sep 2026": "espn",
+    "matchcards_manchester city_vs_sunderland_20 sep 2026": [
+        {
+            "minute": "8'",
+            "player": "Dayann Methalie",
+            "team": "Sunderland",
+            "card": "yellow"
+        }
+    ],
+    "matchplayers_manchester city_vs_sunderland_20 sep 2026": [
+        {
+            "name": "Gianluigi Donnarumma",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Marc Guéhi",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 1,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Rúben Dias",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Josko Gvardiol",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 1,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Matheus Nunes",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Rayan Cherki",
+            "team": "Manchester City",
+            "goals": 1,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Elliot Anderson",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Enzo Fernández",
+            "team": "Manchester City",
+            "goals": 1,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Erling Haaland",
+            "team": "Manchester City",
+            "goals": 1,
+            "assists": 0,
+            "shots": 4,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Antoine Semenyo",
+            "team": "Manchester City",
+            "goals": 2,
+            "assists": 1,
+            "shots": 2,
+            "shotsOnTarget": 2
+        },
+        {
+            "name": "Iliman Ndiaye",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Gerónimo Rulli",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Allan Elias",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Abdukodir Khusanov",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Ayyoub Bouaddi",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Jérémy Doku",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Rayan Aït-Nouri",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Nico O'Reilly",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Mateo Kovacic",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Rico Lewis",
+            "team": "Manchester City",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Robin Roefs",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Danny Ballard",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Kevin Danso",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Dayann Methalie",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Nordi Mukiele",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Enzo Le Fée",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 1,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Noah Sadiki",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Granit Xhaka",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Brian Brobbey",
+            "team": "Sunderland",
+            "goals": 3,
+            "assists": 0,
+            "shots": 5,
+            "shotsOnTarget": 4
+        },
+        {
+            "name": "Nilson Angulo",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 1,
+            "shots": 2,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Thomas Meunier",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 1,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Omar Alderete",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Jules Ahoka",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Melker Ellborg",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Malick Fofana",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 3,
+            "shotsOnTarget": 3
+        },
+        {
+            "name": "Luke O'Nien",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Chris Rigg",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Wilson Isidor",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Chemsdine Talbi",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Trai Hume",
+            "team": "Sunderland",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        }
+    ],
+    "matcheventsource_argentina_vs_france_18 dec 2022": "espn",
+    "matchcards_argentina_vs_france_18 dec 2022": [
+        {
+            "minute": "45'+7'",
+            "player": "Enzo Fernández",
+            "team": "Argentina",
+            "card": "yellow"
+        },
+        {
+            "minute": "55'",
+            "player": "Adrien Rabiot",
+            "team": "France",
+            "card": "yellow"
+        },
+        {
+            "minute": "87'",
+            "player": "Marcus Thuram",
+            "team": "France",
+            "card": "yellow"
+        },
+        {
+            "minute": "90'+5'",
+            "player": "Olivier Giroud",
+            "team": "France",
+            "card": "yellow"
+        },
+        {
+            "minute": "90'+8'",
+            "player": "Marcos Acuña",
+            "team": "Argentina",
+            "card": "yellow"
+        },
+        {
+            "minute": "114'",
+            "player": "Leandro Paredes",
+            "team": "Argentina",
+            "card": "yellow"
+        },
+        {
+            "minute": "116'",
+            "player": "Gonzalo Montiel",
+            "team": "Argentina",
+            "card": "yellow"
+        },
+        {
+            "minute": "120'",
+            "player": "Emiliano Martínez",
+            "team": "Argentina",
+            "card": "yellow"
+        }
+    ],
+    "matchplayers_argentina_vs_france_18 dec 2022": [
+        {
+            "name": "Emiliano Martínez",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Nicolás Otamendi",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Cristian Romero",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Nicolás Tagliafico",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Nahuel Molina",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Enzo Fernández",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Alexis Mac Allister",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 1,
+            "shots": 3,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Rodrigo De Paul",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Julián Álvarez",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Ángel Di María",
+            "team": "Argentina",
+            "goals": 1,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Lionel Messi",
+            "team": "Argentina",
+            "goals": 2,
+            "assists": 0,
+            "shots": 5,
+            "shotsOnTarget": 4
+        },
+        {
+            "name": "Gonzalo Montiel",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Guido Rodríguez",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Gerónimo Rulli",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Marcos Acuña",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Juan Foyth",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Lisandro Martínez",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Leandro Paredes",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Alejandro Gómez",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Exequiel Palacios",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Franco Armani",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Ángel Correa",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Paulo Dybala",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Lautaro Martínez",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 4,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Germán Pezzella",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Thiago Almada",
+            "team": "Argentina",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Hugo Lloris",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Dayot Upamecano",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Raphaël Varane",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Theo Hernández",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Jules Koundé",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Antoine Griezmann",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Adrien Rabiot",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Aurélien Tchouaméni",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Olivier Giroud",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Kylian Mbappé",
+            "team": "France",
+            "goals": 3,
+            "assists": 0,
+            "shots": 6,
+            "shotsOnTarget": 3
+        },
+        {
+            "name": "Ousmane Dembélé",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Steve Mandanda",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "William Saliba",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Matteo Guendouzi",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Ibrahima Konaté",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Marcus Thuram",
+            "team": "France",
+            "goals": 0,
+            "assists": 1,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Kingsley Coman",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Randal Kolo Muani",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 2,
+            "shotsOnTarget": 1
+        },
+        {
+            "name": "Benjamin Pavard",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Axel Disasi",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Alphonse Areola",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Eduardo Camavinga",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Youssouf Fofana",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 1,
+            "shotsOnTarget": 0
+        },
+        {
+            "name": "Jordan Veretout",
+            "team": "France",
+            "goals": 0,
+            "assists": 0,
+            "shots": 0,
+            "shotsOnTarget": 0
+        }
+    ],
+    "sunderland_vs_manchester city_20 sep 2026": [
+        {
+            "name": "Maarten Roefs",
+            "jersey": "22",
+            "rating": 6.4,
+            "pos": "GK",
+            "photo": "none",
+            "age": "33",
+            "val": "€2M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Thomas Meunier",
+            "jersey": "12",
+            "rating": 7.4,
+            "pos": "RB",
+            "photo": "frontend/assets/thomas_meunier.png",
+            "age": "35",
+            "val": "€5M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Harrison Ballard",
+            "jersey": "5",
+            "rating": 6.0,
+            "pos": "LB",
+            "photo": "none",
+            "age": "22",
+            "val": "€2M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Kevin Danso",
+            "jersey": "4",
+            "rating": 4.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/kevin_danso.png",
+            "age": "28",
+            "val": "€20M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nordi Mukiele",
+            "jersey": "20",
+            "rating": 5.6,
+            "pos": "LCB",
+            "photo": "frontend/assets/nordi_mukiele.png",
+            "age": "29",
+            "val": "€25M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Granit Xhaka",
+            "jersey": "34",
+            "rating": 6.9,
+            "pos": "LDM",
+            "photo": "frontend/assets/granit_xhaka.png",
+            "age": "34",
+            "val": "€15M",
+            "height": "186 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Dayann Méthalie",
+            "jersey": "6",
+            "rating": 5.1,
+            "pos": "RDM",
+            "photo": "frontend/assets/dayann_methalie.png",
+            "age": "23",
+            "val": "€5M",
+            "height": "182 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Nilson Angulo",
+            "jersey": "10",
+            "rating": 7.5,
+            "pos": "CAM",
+            "photo": "frontend/assets/nilson_angulo.png",
+            "age": "23",
+            "val": "€12M",
+            "height": "175 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Enzo Le Fée",
+            "jersey": "28",
+            "rating": 7.9,
+            "pos": "LAM",
+            "photo": "frontend/assets/enzo_le_fee.png",
+            "age": "26",
+            "val": "€20M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Noah Sadiki",
+            "jersey": "27",
+            "rating": 6.0,
+            "pos": "RAM",
+            "photo": "frontend/assets/noah_sadiki.png",
+            "age": "22",
+            "val": "€6M",
+            "height": "184 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Brian Brobbey",
+            "jersey": "9",
+            "rating": 9.7,
+            "pos": "ST",
+            "photo": "frontend/assets/brian_brobbey.png",
+            "age": "24",
+            "val": "€30M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": false,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Melker Ellborg",
+            "jersey": "31",
+            "rating": 6.0,
+            "pos": "GK",
+            "photo": "frontend/assets/melker_ellborg.png",
+            "age": "25",
+            "val": "€1M",
+            "height": "190 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Trai Hume",
+            "jersey": "32",
+            "rating": 6.2,
+            "pos": "RB",
+            "photo": "frontend/assets/trai_hume.png",
+            "age": "24",
+            "val": "€8M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Thomas Meunier",
+            "subbed_in_minute": "79'"
+        },
+        {
+            "name": "Luke O'Nien",
+            "jersey": "13",
+            "rating": 6.0,
+            "pos": "RCB",
+            "photo": "frontend/assets/luke_onien.png",
+            "age": "32",
+            "val": "€4M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Omar Alderete",
+            "jersey": "15",
+            "rating": 6.0,
+            "pos": "LCB",
+            "photo": "frontend/assets/omar_alderete.png",
+            "age": "30",
+            "val": "€12M",
+            "height": "188 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Chemsdine Talbi",
+            "jersey": "7",
+            "rating": 6.0,
+            "pos": "RW",
+            "photo": "frontend/assets/chemsdine_talbi.png",
+            "age": "25",
+            "val": "€6M",
+            "height": "178 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Jules Ahoka",
+            "jersey": "29",
+            "rating": 6.0,
+            "pos": "LDM",
+            "photo": "frontend/assets/jules_ahoka.png",
+            "age": "23",
+            "val": "€4M",
+            "height": "179 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Chris Rigg",
+            "jersey": "11",
+            "rating": 6.0,
+            "pos": "CAM",
+            "photo": "frontend/assets/chris_rigg.png",
+            "age": "22",
+            "val": "€5M",
+            "height": "176 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": null,
+            "subbed_in_minute": null
+        },
+        {
+            "name": "Malick Fofana",
+            "jersey": "39",
+            "rating": 6.5,
+            "pos": "LW",
+            "photo": "frontend/assets/malick_fofana.png",
+            "age": "21",
+            "val": "€10M",
+            "height": "180 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Nilson Angulo",
+            "subbed_in_minute": "60'"
+        },
+        {
+            "name": "Wilson Isidor",
+            "jersey": "18",
+            "rating": 6.8,
+            "pos": "ST",
+            "photo": "frontend/assets/wilson_isidor.png",
+            "age": "26",
+            "val": "€15M",
+            "height": "185 cm",
+            "sofa_id": "",
+            "sub": true,
+            "subbed_in_for": "Noah Sadiki",
+            "subbed_in_minute": "68'"
+        }
+    ],
+    "matchshots_argentina_vs_france_18 dec 2022": {
+        "shots": [
+            {
+                "id": "39564421",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Alexis Mac Allister",
+                "assist": "Julián Álvarez",
+                "minute": "5'",
+                "period": 1,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.5,
+                "goalMouthX": 514.5,
+                "goalHeight": "middle",
+                "text": "Attempt saved. Alexis Mac Allister (Argentina) right footed shot from outside the box is saved in the centre of the goal. Assisted by Julián Álvarez."
+            },
+            {
+                "id": "39564427",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Rodrigo De Paul",
+                "assist": "Ángel Di María",
+                "minute": "8'",
+                "period": 1,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.4,
+                "y": 99.6,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Rodrigo De Paul (Argentina) right footed shot from outside the box misses to the left. Assisted by Ángel Di María."
+            },
+            {
+                "id": "39564439",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Ángel Di María",
+                "assist": "Lionel Messi",
+                "minute": "17'",
+                "period": 1,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.5,
+                "y": 99.7,
+                "goalMouthX": 514.5,
+                "goalHeight": "over",
+                "text": "Attempt missed. Ángel Di María (Argentina) right footed shot from the centre of the box is high and wide to the right. Assisted by Lionel Messi."
+            },
+            {
+                "id": "39564447",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lionel Messi",
+                "assist": null,
+                "minute": "23'",
+                "period": 1,
+                "result": "Goal",
+                "isGoal": true,
+                "onTarget": true,
+                "penalty": true,
+                "bodyPart": "Left Foot",
+                "situation": "Penalty",
+                "x": 99.5,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Goal!  Argentina 1, France 0. Lionel Messi (Argentina) converts the penalty with a left footed shot to the bottom right corner."
+            },
+            {
+                "id": "39564460",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Alexis Mac Allister",
+                "assist": "Nicolás Tagliafico",
+                "minute": "32'",
+                "period": 1,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.5,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Alexis Mac Allister (Argentina) right footed shot from outside the box misses to the right. Assisted by Nicolás Tagliafico."
+            },
+            {
+                "id": "39564465",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Ángel Di María",
+                "assist": "Alexis Mac Allister",
+                "minute": "36'",
+                "period": 1,
+                "result": "Goal",
+                "isGoal": true,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Left Foot",
+                "situation": "Fast Break",
+                "x": 99.6,
+                "y": 99.9,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Goal!  Argentina 2, France 0. Ángel Di María (Argentina) left footed shot from the centre of the box to the bottom right corner. Assisted by Alexis Mac Allister   following a fast break."
+            },
+            {
+                "id": "39564520",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Rodrigo De Paul",
+                "assist": null,
+                "minute": "49'",
+                "period": 2,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.4,
+                "y": 99.7,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Attempt saved. Rodrigo De Paul (Argentina) right footed shot from the right side of the box is saved in the bottom left corner. Assisted by Ángel Di María."
+            },
+            {
+                "id": "39564539",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Julián Álvarez",
+                "assist": "Ángel Di María",
+                "minute": "59'",
+                "period": 2,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Left Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Attempt saved. Julián Álvarez (Argentina) left footed shot from the left side of the box is saved in the bottom left corner. Assisted by Ángel Di María."
+            },
+            {
+                "id": "39564542",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lionel Messi",
+                "assist": null,
+                "minute": "60'",
+                "period": 2,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.4,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Lionel Messi (Argentina) right footed shot from the centre of the box is close, but misses to the right."
+            },
+            {
+                "id": "39564557",
+                "team": "France",
+                "side": "away",
+                "player": "Randal Kolo Muani",
+                "assist": "Antoine Griezmann",
+                "minute": "68'",
+                "period": 2,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": null,
+                "situation": "Corner",
+                "x": 99.5,
+                "y": 99.9,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Randal Kolo Muani (France) with an attempt from the centre of the box is close, but misses to the left. Assisted by Antoine Griezmann with a cross following a corner."
+            },
+            {
+                "id": "39564561",
+                "team": "France",
+                "side": "away",
+                "player": "Kylian Mbappé",
+                "assist": null,
+                "minute": "71'",
+                "period": 2,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.7,
+                "goalMouthX": 514.5,
+                "goalHeight": "over",
+                "text": "Attempt missed. Kylian Mbappé (France) right footed shot from the left side of the box is too high."
+            },
+            {
+                "id": "39564565",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Enzo Fernández",
+                "assist": "Lionel Messi",
+                "minute": "72'",
+                "period": 2,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.6,
+                "y": 99.6,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Attempt saved. Enzo Fernández (Argentina) right footed shot from outside the box is saved in the bottom right corner. Assisted by Lionel Messi."
+            },
+            {
+                "id": "39564592",
+                "team": "France",
+                "side": "away",
+                "player": "Kylian Mbappé",
+                "assist": null,
+                "minute": "80'",
+                "period": 2,
+                "result": "Goal",
+                "isGoal": true,
+                "onTarget": true,
+                "penalty": true,
+                "bodyPart": "Right Foot",
+                "situation": "Penalty",
+                "x": 99.5,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Goal!  Argentina 2, France 1. Kylian Mbappé (France) converts the penalty with a right footed shot to the bottom left corner."
+            },
+            {
+                "id": "39564594",
+                "team": "France",
+                "side": "away",
+                "player": "Kylian Mbappé",
+                "assist": "Marcus Thuram",
+                "minute": "81'",
+                "period": 2,
+                "result": "Goal",
+                "isGoal": true,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.6,
+                "y": 99.7,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Goal!  Argentina 2, France 2. Kylian Mbappé (France) right footed shot from the left side of the box to the bottom right corner. Assisted by Marcus Thuram."
+            },
+            {
+                "id": "39564600",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Enzo Fernández",
+                "assist": "Marcos Acuña",
+                "minute": "84'",
+                "period": 2,
+                "result": "Blocked",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.5,
+                "y": 99.5,
+                "goalMouthX": null,
+                "goalHeight": null,
+                "text": "Attempt blocked. Enzo Fernández (Argentina) right footed shot from outside the box is blocked. Assisted by Marcos Acuña."
+            },
+            {
+                "id": "39564619",
+                "team": "France",
+                "side": "away",
+                "player": "Kylian Mbappé",
+                "assist": "Eduardo Camavinga",
+                "minute": "90'+3'",
+                "period": 2,
+                "result": "Blocked",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.6,
+                "y": 99.5,
+                "goalMouthX": null,
+                "goalHeight": null,
+                "text": "Attempt blocked. Kylian Mbappé (France) right footed shot from outside the box is blocked. Assisted by Eduardo Camavinga."
+            },
+            {
+                "id": "39564623",
+                "team": "France",
+                "side": "away",
+                "player": "Adrien Rabiot",
+                "assist": "Eduardo Camavinga",
+                "minute": "90'+4'",
+                "period": 2,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Left Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": "middle",
+                "text": "Attempt saved. Adrien Rabiot (France) left footed shot from the left side of the box is saved in the centre of the goal. Assisted by Eduardo Camavinga."
+            },
+            {
+                "id": "39564631",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lionel Messi",
+                "assist": "Rodrigo De Paul",
+                "minute": "90'+7'",
+                "period": 2,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Left Foot",
+                "situation": null,
+                "x": 99.5,
+                "y": 99.6,
+                "goalMouthX": 514.5,
+                "goalHeight": "high",
+                "text": "Attempt saved. Lionel Messi (Argentina) left footed shot from outside the box is saved in the top centre of the goal. Assisted by Rodrigo De Paul."
+            },
+            {
+                "id": "39564643",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Alexis Mac Allister",
+                "assist": null,
+                "minute": "93'",
+                "period": 3,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.6,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Alexis Mac Allister (Argentina) right footed shot from outside the box misses to the left."
+            },
+            {
+                "id": "39564657",
+                "team": "France",
+                "side": "away",
+                "player": "Youssouf Fofana",
+                "assist": null,
+                "minute": "100'",
+                "period": 3,
+                "result": "Blocked",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.5,
+                "y": 99.4,
+                "goalMouthX": null,
+                "goalHeight": null,
+                "text": "Attempt blocked. Youssouf Fofana (France) right footed shot from outside the box is blocked."
+            },
+            {
+                "id": "39564676",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lautaro Martínez",
+                "assist": "Lionel Messi",
+                "minute": "105'",
+                "period": 3,
+                "result": "Blocked",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.4,
+                "y": 99.8,
+                "goalMouthX": null,
+                "goalHeight": null,
+                "text": "Attempt blocked. Lautaro Martínez (Argentina) right footed shot from the centre of the box is blocked. Assisted by Lionel Messi."
+            },
+            {
+                "id": "39564679",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lautaro Martínez",
+                "assist": "Marcos Acuña",
+                "minute": "105'+1'",
+                "period": 3,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Left Foot",
+                "situation": null,
+                "x": 100.0,
+                "y": 100.0,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Lautaro Martínez (Argentina) left footed shot from the centre of the box is close, but misses to the left. Assisted by Marcos Acuña with a through ball."
+            },
+            {
+                "id": "39564685",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lautaro Martínez",
+                "assist": "Enzo Fernández",
+                "minute": "108'",
+                "period": 4,
+                "result": "Saved",
+                "isGoal": false,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.3,
+                "y": 99.9,
+                "goalMouthX": 514.5,
+                "goalHeight": "high",
+                "text": "Attempt saved. Lautaro Martínez (Argentina) right footed shot from the right side of the box is saved in the top right corner. Assisted by Enzo Fernández."
+            },
+            {
+                "id": "39564686",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lionel Messi",
+                "assist": null,
+                "minute": "108'",
+                "period": 4,
+                "result": "Goal",
+                "isGoal": true,
+                "onTarget": true,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.5,
+                "y": 99.9,
+                "goalMouthX": 514.5,
+                "goalHeight": "middle",
+                "text": "Goal!  Argentina 3, France 2. Lionel Messi (Argentina) right footed shot from very close range to the centre of the goal."
+            },
+            {
+                "id": "39564697",
+                "team": "France",
+                "side": "away",
+                "player": "Kylian Mbappé",
+                "assist": "Dayot Upamecano",
+                "minute": "116'",
+                "period": 4,
+                "result": "Blocked",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Right Foot",
+                "situation": null,
+                "x": 99.7,
+                "y": 99.6,
+                "goalMouthX": null,
+                "goalHeight": null,
+                "text": "Attempt blocked. Kylian Mbappé (France) right footed shot from outside the box is blocked. Assisted by Dayot Upamecano."
+            },
+            {
+                "id": "39564699",
+                "team": "France",
+                "side": "away",
+                "player": "Kylian Mbappé",
+                "assist": null,
+                "minute": "118'",
+                "period": 4,
+                "result": "Goal",
+                "isGoal": true,
+                "onTarget": true,
+                "penalty": true,
+                "bodyPart": "Right Foot",
+                "situation": "Penalty",
+                "x": 99.5,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": "low",
+                "text": "Goal!  Argentina 3, France 3. Kylian Mbappé (France) converts the penalty with a right footed shot to the bottom left corner."
+            },
+            {
+                "id": "39564709",
+                "team": "Argentina",
+                "side": "home",
+                "player": "Lautaro Martínez",
+                "assist": "Gonzalo Montiel",
+                "minute": "120'+3'",
+                "period": 4,
+                "result": "Off Target",
+                "isGoal": false,
+                "onTarget": false,
+                "penalty": false,
+                "bodyPart": "Header",
+                "situation": "Fast Break",
+                "x": 99.5,
+                "y": 99.8,
+                "goalMouthX": 514.5,
+                "goalHeight": null,
+                "text": "Attempt missed. Lautaro Martínez (Argentina) header from the centre of the box misses to the right. Assisted by Gonzalo Montiel following a fast break."
+            }
+        ],
+        "actions": [
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.1,
+                "y": 0.6,
+                "minute": "1'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.9,
+                "y": 99.4,
+                "minute": "1'"
+            },
+            {
+                "player": "Aurélien Tchouaméni",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 1.0,
+                "y": 0.7,
+                "minute": "1'"
+            },
+            {
+                "player": "Alexis Mac Allister",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.0,
+                "y": 99.3,
+                "minute": "1'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.9,
+                "y": 99.1,
+                "minute": "2'"
+            },
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.1,
+                "y": 0.9,
+                "minute": "2'"
+            },
+            {
+                "player": "Dayot Upamecano",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 99.4,
+                "y": 99.1,
+                "minute": "4'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 0.6,
+                "y": 0.9,
+                "minute": "4'"
+            },
+            {
+                "player": "Alexis Mac Allister",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.5,
+                "minute": "5'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.6,
+                "y": 0.9,
+                "minute": "6'"
+            },
+            {
+                "player": "Theo Hernández",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.4,
+                "y": 99.1,
+                "minute": "6'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.8,
+                "y": 0.9,
+                "minute": "7'"
+            },
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.2,
+                "y": 99.1,
+                "minute": "7'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.4,
+                "y": 99.6,
+                "minute": "8'"
+            },
+            {
+                "player": "Cristian Romero",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.5,
+                "y": 0.2,
+                "minute": "9'"
+            },
+            {
+                "player": "Hugo Lloris",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.5,
+                "y": 99.8,
+                "minute": "9'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Handball",
+                "x": 99.4,
+                "y": 99.7,
+                "minute": "13'"
+            },
+            {
+                "player": "Ángel Di María",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.7,
+                "minute": "17'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.8,
+                "y": 99.8,
+                "minute": "19'"
+            },
+            {
+                "player": "Theo Hernández",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.2,
+                "y": 0.2,
+                "minute": "19'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.5,
+                "y": 0.2,
+                "minute": "20'"
+            },
+            {
+                "player": "Ángel Di María",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.5,
+                "y": 99.8,
+                "minute": "20'"
+            },
+            {
+                "player": "Ousmane Dembélé",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 99.7,
+                "y": 99.8,
+                "minute": "21'"
+            },
+            {
+                "player": "Ángel Di María",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 0.3,
+                "y": 0.2,
+                "minute": "21'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.8,
+                "minute": "23'"
+            },
+            {
+                "player": "Cristian Romero",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.3,
+                "y": 99.5,
+                "minute": "26'"
+            },
+            {
+                "player": "Olivier Giroud",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.7,
+                "y": 0.5,
+                "minute": "26'"
+            },
+            {
+                "player": "Theo Hernández",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.5,
+                "y": 0.5,
+                "minute": "27'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.5,
+                "y": 99.5,
+                "minute": "27'"
+            },
+            {
+                "player": "Alexis Mac Allister",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.5,
+                "minute": "32'"
+            },
+            {
+                "player": "Ángel Di María",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.6,
+                "y": 99.9,
+                "minute": "36'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.2,
+                "y": 0.9,
+                "minute": "38'"
+            },
+            {
+                "player": "Aurélien Tchouaméni",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.8,
+                "y": 99.1,
+                "minute": "38'"
+            },
+            {
+                "player": "Jules Koundé",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.9,
+                "y": 0.9,
+                "minute": "38'"
+            },
+            {
+                "player": "Alexis Mac Allister",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.1,
+                "y": 99.1,
+                "minute": "38'"
+            },
+            {
+                "player": "Jules Koundé",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.9,
+                "y": 0.8,
+                "minute": "41'"
+            },
+            {
+                "player": "Ángel Di María",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.1,
+                "y": 99.2,
+                "minute": "41'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 99.9,
+                "y": 99.1,
+                "minute": "42'"
+            },
+            {
+                "player": "Nicolás Tagliafico",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 0.1,
+                "y": 0.9,
+                "minute": "42'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.9,
+                "y": 0.8,
+                "minute": "42'"
+            },
+            {
+                "player": "Nicolás Tagliafico",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.1,
+                "y": 99.2,
+                "minute": "42'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.9,
+                "y": 1.0,
+                "minute": "45'"
+            },
+            {
+                "player": "Theo Hernández",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.1,
+                "y": 99.0,
+                "minute": "45'"
+            },
+            {
+                "player": "Theo Hernández",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.1,
+                "y": 0.2,
+                "minute": "45'+2'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.9,
+                "y": 99.8,
+                "minute": "45'+2'"
+            },
+            {
+                "player": "Enzo Fernández",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.9,
+                "y": 0.8,
+                "minute": "45'+7'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.1,
+                "y": 99.2,
+                "minute": "45'+7'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.4,
+                "y": 99.7,
+                "minute": "49'"
+            },
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.1,
+                "y": 0.8,
+                "minute": "55'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.9,
+                "y": 99.2,
+                "minute": "55'"
+            },
+            {
+                "player": "Nicolás Tagliafico",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.2,
+                "y": 1.0,
+                "minute": "57'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.8,
+                "y": 99.0,
+                "minute": "57'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.9,
+                "y": 0.8,
+                "minute": "58'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.1,
+                "y": 99.2,
+                "minute": "58'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.8,
+                "minute": "59'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.4,
+                "y": 99.8,
+                "minute": "60'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.2,
+                "y": 0.7,
+                "minute": "61'"
+            },
+            {
+                "player": "Raphaël Varane",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.8,
+                "y": 99.3,
+                "minute": "61'"
+            },
+            {
+                "player": "Nicolás Tagliafico",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.7,
+                "y": 0.8,
+                "minute": "63'"
+            },
+            {
+                "player": "Antoine Griezmann",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.3,
+                "y": 99.2,
+                "minute": "63'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.9,
+                "minute": "68'"
+            },
+            {
+                "player": "Enzo Fernández",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Handball",
+                "x": 99.2,
+                "y": 99.2,
+                "minute": "69'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.7,
+                "minute": "71'"
+            },
+            {
+                "player": "Enzo Fernández",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.6,
+                "y": 99.6,
+                "minute": "72'"
+            },
+            {
+                "player": "Aurélien Tchouaméni",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.3,
+                "y": 0.7,
+                "minute": "74'"
+            },
+            {
+                "player": "Cristian Romero",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.7,
+                "y": 99.3,
+                "minute": "74'"
+            },
+            {
+                "player": "Eduardo Camavinga",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 1.0,
+                "y": 0.7,
+                "minute": "77'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.0,
+                "y": 99.3,
+                "minute": "77'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.8,
+                "minute": "80'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.6,
+                "y": 99.7,
+                "minute": "81'"
+            },
+            {
+                "player": "Enzo Fernández",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.5,
+                "minute": "84'"
+            },
+            {
+                "player": "Julián Álvarez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.3,
+                "y": 0.8,
+                "minute": "85'"
+            },
+            {
+                "player": "Aurélien Tchouaméni",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.7,
+                "y": 99.2,
+                "minute": "85'"
+            },
+            {
+                "player": "Nicolás Otamendi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.8,
+                "y": 0.7,
+                "minute": "86'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.2,
+                "y": 99.3,
+                "minute": "86'"
+            },
+            {
+                "player": "Marcus Thuram",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 99.7,
+                "y": 99.8,
+                "minute": "87'"
+            },
+            {
+                "player": "Cristian Romero",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.8,
+                "y": 99.4,
+                "minute": "90'+2'"
+            },
+            {
+                "player": "Marcus Thuram",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.2,
+                "y": 0.6,
+                "minute": "90'+2'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.6,
+                "y": 99.5,
+                "minute": "90'+3'"
+            },
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.8,
+                "minute": "90'+4'"
+            },
+            {
+                "player": "Nicolás Tagliafico",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.3,
+                "y": 0.6,
+                "minute": "90'+6'"
+            },
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.7,
+                "y": 99.4,
+                "minute": "90'+6'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.6,
+                "minute": "90'+7'"
+            },
+            {
+                "player": "Marcos Acuña",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.4,
+                "y": 0.5,
+                "minute": "90'+8'"
+            },
+            {
+                "player": "Kingsley Coman",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.6,
+                "y": 99.5,
+                "minute": "90'+8'"
+            },
+            {
+                "player": "Adrien Rabiot",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.4,
+                "y": 0.8,
+                "minute": "91'"
+            },
+            {
+                "player": "Rodrigo De Paul",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.6,
+                "y": 99.2,
+                "minute": "91'"
+            },
+            {
+                "player": "Marcus Thuram",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 1.0,
+                "y": 0.7,
+                "minute": "92'"
+            },
+            {
+                "player": "Gonzalo Montiel",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.0,
+                "y": 99.3,
+                "minute": "92'"
+            },
+            {
+                "player": "Alexis Mac Allister",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.6,
+                "minute": "93'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.8,
+                "y": 0.5,
+                "minute": "93'"
+            },
+            {
+                "player": "Eduardo Camavinga",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.2,
+                "y": 99.5,
+                "minute": "93'"
+            },
+            {
+                "player": "Marcos Acuña",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 0.1,
+                "y": 0.7,
+                "minute": "95'"
+            },
+            {
+                "player": "Jules Koundé",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 99.9,
+                "y": 99.3,
+                "minute": "95'"
+            },
+            {
+                "player": "Enzo Fernández",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.7,
+                "y": 99.3,
+                "minute": "96'"
+            },
+            {
+                "player": "Eduardo Camavinga",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.3,
+                "y": 0.7,
+                "minute": "96'"
+            },
+            {
+                "player": "Gonzalo Montiel",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.9,
+                "y": 99.8,
+                "minute": "100'"
+            },
+            {
+                "player": "Youssouf Fofana",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.1,
+                "y": 0.2,
+                "minute": "100'"
+            },
+            {
+                "player": "Youssouf Fofana",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.4,
+                "minute": "100'"
+            },
+            {
+                "player": "Randal Kolo Muani",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul",
+                "x": 0.3,
+                "y": 0.7,
+                "minute": "102'"
+            },
+            {
+                "player": "Alexis Mac Allister",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul Won",
+                "x": 99.7,
+                "y": 99.3,
+                "minute": "102'"
+            },
+            {
+                "player": "Lautaro Martínez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.4,
+                "y": 99.8,
+                "minute": "105'"
+            },
+            {
+                "player": "Lautaro Martínez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 100.0,
+                "y": 100.0,
+                "minute": "105'+1'"
+            },
+            {
+                "player": "Lautaro Martínez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.3,
+                "y": 99.9,
+                "minute": "108'"
+            },
+            {
+                "player": "Lionel Messi",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.9,
+                "minute": "108'"
+            },
+            {
+                "player": "Leandro Paredes",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Foul",
+                "x": 99.8,
+                "y": 99.2,
+                "minute": "114'"
+            },
+            {
+                "player": "Eduardo Camavinga",
+                "team": "France",
+                "side": "away",
+                "kind": "Foul Won",
+                "x": 0.2,
+                "y": 0.8,
+                "minute": "114'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.7,
+                "y": 99.6,
+                "minute": "116'"
+            },
+            {
+                "player": "Kylian Mbappé",
+                "team": "France",
+                "side": "away",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.8,
+                "minute": "118'"
+            },
+            {
+                "player": "Lautaro Martínez",
+                "team": "Argentina",
+                "side": "home",
+                "kind": "Shot",
+                "x": 99.5,
+                "y": 99.8,
+                "minute": "120'+3'"
+            }
+        ]
+    }
 }

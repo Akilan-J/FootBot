@@ -11,6 +11,30 @@ BBC_FEED_URL = "https://feeds.bbci.co.uk/sport/football/rss.xml"
 # TCP+TLS handshake each time.
 _session = requests.Session()
 
+# Competitions the app tracks, by the exact section heading BBC gives them
+# (lower-cased). Exact names, not substrings: "premier league" used to let the
+# Nigerian and Ukrainian Premier Leagues through, "serie a" the Brazilian one and
+# "bundesliga" the Austrian one. Keep in step with KNOWN_LEAGUE_NAMES in
+# frontend/index.html.
+TRACKED_LEAGUES = {
+    "world cup",
+    "premier league", "english premier league",
+    "la liga", "laliga", "spanish la liga",
+    "bundesliga", "german bundesliga",
+    "serie a", "italian serie a",
+    "ligue 1", "ligue1", "french ligue 1",
+    "uefa nations league",
+    "concacaf nations league",
+}
+
+
+def is_tracked_match(league: str, home_team: str, away_team: str) -> bool:
+    """True for a men's match in one of the tracked competitions."""
+    league_lower = (league or "").strip().lower()
+    if league_lower not in TRACKED_LEAGUES:
+        return False
+    return not any("women" in t for t in (league_lower, (home_team or "").lower(), (away_team or "").lower()))
+
 def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
     """
     Scrapes actual live football scores and fixtures from the BBC Sport website.
@@ -66,12 +90,7 @@ def fetch_live_scores_from_html() -> List[Dict[str, Any]]:
                 away_team_el = away_team_container.find('span')
             away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
 
-            # Filter to include only men's football matches from the 6 major leagues
-            league_lower = league.lower()
-            home_lower = home_team.lower()
-            away_lower = away_team.lower()
-            is_major = any(ml in league_lower for ml in ['world cup', 'premier league', 'la liga', 'laliga', 'bundesliga', 'serie a', 'ligue 1', 'ligue1'])
-            if not is_major or "women" in league_lower or "women" in home_lower or "women" in away_lower:
+            if not is_tracked_match(league, home_team, away_team):
                 continue
             
             # Extract scores if they exist
@@ -294,12 +313,7 @@ def fetch_historical_results_from_html(include_older_dates: bool = True) -> List
                     away_team_el = away_team_container.find('span')
                 away_team = away_team_el.get_text().strip() if away_team_el else "Unknown"
 
-                # Filter to include only men's football matches from the 6 major leagues
-                league_lower = league.lower()
-                home_lower = home_team.lower()
-                away_lower = away_team.lower()
-                is_major = any(ml in league_lower for ml in ['world cup', 'premier league', 'la liga', 'laliga', 'bundesliga', 'serie a', 'ligue 1', 'ligue1'])
-                if not is_major or "women" in league_lower or "women" in home_lower or "women" in away_lower:
+                if not is_tracked_match(league, home_team, away_team):
                     continue
                 
                 # Extract scores

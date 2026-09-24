@@ -768,7 +768,7 @@ input[type=range]::-webkit-slider-thumb{
         <div class="scores-header">
           <div>
             <h2 style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px;">Live & Historical Results</h2>
-            <p style="font-size:13px;color:var(--text-muted);">Top European competitions & World Cup</p>
+            <p style="font-size:13px;color:var(--text-muted);">Top European leagues, World Cup & Nations Leagues</p>
           </div>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
@@ -780,6 +780,8 @@ input[type=range]::-webkit-slider-thumb{
             <button class="filter-btn" onclick="filterLeague('Serie A',this)">🇮🇹 Serie A</button>
             <button class="filter-btn" onclick="filterLeague('Ligue 1',this)">🇫🇷 Ligue 1</button>
             <button class="filter-btn" onclick="filterLeague('World Cup',this)">🏆 World Cup</button>
+            <button class="filter-btn" onclick="filterLeague('UEFA Nations League',this)">🌍 UEFA Nations League</button>
+            <button class="filter-btn" onclick="filterLeague('Concacaf Nations League',this)">🌎 Concacaf Nations League</button>
           </div>
           <div style="position:relative; width:100%; max-width:280px;">
             <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:14px; pointer-events:none;">🔍</span>
@@ -1448,6 +1450,25 @@ function getFlagEmoji(text) {
     'c\u00f4te': '🇨🇮', "cote d'ivoire": '🇨🇮', 'cote divoire': '🇨🇮',
     // Bosnia variants
     'herzegovina': '🇧🇦',
+    // Nations League sides. Matched by substring in order, so longer names that
+    // contain a shorter one ("Dominican Republic" / "Dominica") come first.
+    'republic of ireland': '🇮🇪', 'dominican republic': '🇩🇴', 'dominica': '🇩🇲',
+    'türkiye': '🇹🇷', 'turkiye': '🇹🇷', 'czechia': '🇨🇿', 'north macedonia': '🇲🇰',
+    'albania': '🇦🇱', 'andorra': '🇦🇩', 'armenia': '🇦🇲', 'azerbaijan': '🇦🇿', 'belarus': '🇧🇾',
+    'bulgaria': '🇧🇬', 'cyprus': '🇨🇾', 'estonia': '🇪🇪', 'faroe': '🇫🇴', 'finland': '🇫🇮',
+    'georgia': '🇬🇪', 'gibraltar': '🇬🇮', 'greece': '🇬🇷', 'hungary': '🇭🇺', 'israel': '🇮🇱',
+    'kazakhstan': '🇰🇿', 'kosovo': '🇽🇰', 'latvia': '🇱🇻', 'liechtenstein': '🇱🇮', 'lithuania': '🇱🇹',
+    'luxembourg': '🇱🇺', 'malta': '🇲🇹', 'moldova': '🇲🇩', 'montenegro': '🇲🇪', 'romania': '🇷🇴',
+    'san marino': '🇸🇲', 'serbia': '🇷🇸', 'slovakia': '🇸🇰', 'slovenia': '🇸🇮',
+    'bermuda': '🇧🇲', 'bonaire': '🇧🇶', 'barbados': '🇧🇧', 'cayman': '🇰🇾', 'costa rica': '🇨🇷',
+    'cuba': '🇨🇺', 'el salvador': '🇸🇻', 'grenada': '🇬🇩', 'guadeloupe': '🇬🇵', 'guatemala': '🇬🇹',
+    'guyana': '🇬🇾', 'honduras': '🇭🇳', 'jamaica': '🇯🇲', 'martinique': '🇲🇶', 'nicaragua': '🇳🇮',
+    'puerto rico': '🇵🇷', 'st. kitts': '🇰🇳', 'st kitts': '🇰🇳', 'st. lucia': '🇱🇨', 'st lucia': '🇱🇨',
+    'suriname': '🇸🇷', 'trinidad': '🇹🇹', 'aruba': '🇦🇼', 'antigua': '🇦🇬', 'anguilla': '🇦🇮',
+    'bahamas': '🇧🇸', 'belize': '🇧🇿', 'montserrat': '🇲🇸', 'turks and caicos': '🇹🇨',
+    'sint maarten': '🇸🇽', 'saint martin': '🇲🇫', 'st. martin': '🇲🇫', 'french guiana': '🇬🇫',
+    'saint lucia': '🇱🇨', 'saint kitts': '🇰🇳', 'st. vincent': '🇻🇨', 'saint vincent': '🇻🇨',
+    'british virgin': '🇻🇬', 'us virgin': '🇻🇮',
     // Club teams
     'liverpool': '🔴', 'man city': '🔵', 'manchester city': '🔵', 'barcelona': '🔵⚪',
     'real madrid': '⚪', 'bayern': '🔴', 'dortmund': '🟡',
@@ -1852,7 +1873,7 @@ function handleMatchSearch(val) {
 
 function applyMatchFiltersAndRender() {
   const filtered = loadedMatches.filter(m => {
-    const mainLeagues = ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1', 'World Cup'];
+    const mainLeagues = ['Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1', 'World Cup', 'UEFA Nations League', 'Concacaf Nations League'];
     const matchLeague = currentActiveLeague === 'all' || 
       (currentActiveLeague === 'other' ? !mainLeagues.includes(m.league) : m.league === currentActiveLeague);
     const cleanHome = stripEmoji(m.home).toLowerCase();
@@ -1897,7 +1918,8 @@ function renderMatches(matches) {
   }).join('');
 }
 
-// The 5 domestic leagues + World Cup this app tracks, matched by exact name (not
+// The 5 domestic leagues, World Cup and the UEFA / Concacaf Nations Leagues this
+// app tracks (keep in step with TRACKED_LEAGUES in live_score_loader.py), matched by exact name (not
 // substring) against the scraped league string. Substring matching previously
 // conflated leagues that share a word across countries - e.g. "Brazilian Serie A"
 // contains "serie a" and was bucketing Brazilian club friendlies into the Italian
@@ -1921,6 +1943,8 @@ const KNOWN_LEAGUE_NAMES = {
   'ligue 1': 'Ligue 1',
   'ligue1': 'Ligue 1',
   'french ligue 1': 'Ligue 1',
+  'uefa nations league': 'UEFA Nations League',
+  'concacaf nations league': 'Concacaf Nations League',
 };
 
 function normalizeLeagueName(rawLeague) {

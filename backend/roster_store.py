@@ -1914,7 +1914,8 @@ def _build_api_football_stats(client, raw_stats: Dict[str, Any], home: str, away
 ESPN_LEAGUES = [
     "fifa.world", "uefa.champions", "uefa.europa",
     "eng.1", "esp.1", "ger.1", "ita.1", "fra.1",
-    "usa.1", "concacaf.nations.league", "conmebol.copa", "afc.asian.cup",
+    "uefa.nations", "concacaf.nations.league",
+    "usa.1", "conmebol.copa", "afc.asian.cup",
 ]
 
 # ESPN's CDN answers 403 to the desktop-Chrome user agent this used to send, which
